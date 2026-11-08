@@ -18,7 +18,7 @@ export function startTour() {
   const i = Math.max(0, Math.min(STEPS.length - 1, parseInt(p.get('tour'), 10) || 0));
   const st = STEPS[i];
   const css = document.createElement('style');
-  css.textContent = `.tour{position:fixed;z-index:120;inset-inline-start:20px;bottom:20px;width:340px;background:#1b2238;color:#fff;border-radius:22px;padding:18px 18px 14px;box-shadow:0 24px 60px rgba(27,34,56,.35);font:14px/1.55 "Poppins","Plex",system-ui,sans-serif;animation:tourin .35s ease}
+  css.textContent = `.tour{position:fixed;z-index:120;inset-inline-start:20px;bottom:20px;width:340px;background:#1b2238;color:#fff;border-radius:22px;padding:18px 18px 14px;box-shadow:0 24px 60px rgba(27,34,56,.35);font:14px/1.55 "Readex",system-ui,sans-serif;animation:tourin .35s ease}
   @keyframes tourin{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
   .tour .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#f5b544;font-weight:600}
   .tour h4{margin:4px 0 6px;font-size:17px;font-weight:600}

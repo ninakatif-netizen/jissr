@@ -1,26 +1,27 @@
-/* JISSR DESIGN SYSTEM ("clinic blue")
+/* JISSR DESIGN SYSTEM (v2: "bridge")
    Light blue-grey background, white cards with soft shadows, one confident blue, pastel tiles.
-   Poppins for Latin text, IBM Plex Sans Arabic for Arabic. Fonts are bundled in /fonts (SIL Open Font License). */
+   Readex Pro for both Arabic and Latin (one family designed for both scripts). Bundled in /fonts (SIL Open Font License). */
 
-@font-face{font-family:"Poppins";font-weight:400;font-display:swap;src:url(fonts/poppins-latin-400-normal.woff2) format("woff2")}
-@font-face{font-family:"Poppins";font-weight:500;font-display:swap;src:url(fonts/poppins-latin-500-normal.woff2) format("woff2")}
-@font-face{font-family:"Poppins";font-weight:600;font-display:swap;src:url(fonts/poppins-latin-600-normal.woff2) format("woff2")}
-@font-face{font-family:"Poppins";font-weight:700;font-display:swap;src:url(fonts/poppins-latin-700-normal.woff2) format("woff2")}
-@font-face{font-family:"Plex";font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"Plex";font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Readex";font-weight:400;font-display:swap;src:url(fonts/readex-pro-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Readex";font-weight:400;font-display:swap;src:url(fonts/readex-pro-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Readex";font-weight:500;font-display:swap;src:url(fonts/readex-pro-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Readex";font-weight:500;font-display:swap;src:url(fonts/readex-pro-arabic-500-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Readex";font-weight:600;font-display:swap;src:url(fonts/readex-pro-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Readex";font-weight:600;font-display:swap;src:url(fonts/readex-pro-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+
 
 :root{
-  --bg:#f6f1e8; --card:#fffdf9; --card2:#f3ece0; --ink:#1b2238; --muted:#7b7a84; --line:#e9e0cf;
-  --brand:#1d3a6b; --brand-d:#122950; --brand-l:#e6ebf5;
-  --panel:#1d3a6b; --on-panel:#ffffff;
-  --accent:#f5b544; --accent-d:#b47a10; --accent-l:#fff4dc;
-  --p-blue:#e6ebf5; --p-yellow:#fff3d9; --p-pink:#fde8ef; --p-lilac:#efe9fd; --p-mint:#e2f6ee;
-  --amber:#9a6a0c; --amber-l:#fff3d9; --red:#c2413a; --red-l:#fde8e7; --green:#22895e; --green-l:#e2f6ee; --blue:#1d3a6b; --blue-l:#e6ebf5;
+  --bg:#efe6d6; --card:#fbf7f0; --card2:#f3ead9; --ink:#14284b; --muted:#665e50; --line:#e3d7c1;
+  --brand:#14284b; --brand-d:#0c1a33; --brand-l:#e2e7f0;
+  --panel:#14284b; --on-panel:#ffffff;
+  --accent:#e9a23b; --accent-d:#8a5a0e; --accent-l:#fbebcb;
+  --p-blue:#e2e7f0; --p-yellow:#fff3d9; --p-pink:#fde8ef; --p-lilac:#efe9fd; --p-mint:#e2f6ee;
+  --amber:#9a6a0c; --amber-l:#fff3d9; --red:#c2413a; --red-l:#fde8e7; --green:#22895e; --green-l:#e2f6ee; --blue:#14284b; --blue-l:#e2e7f0;
   --teal:var(--brand); --teal-d:var(--brand-d); --teal-l:var(--brand-l);
   --r:20px;
   --shadow:0 10px 30px rgba(30,42,68,.06),0 1px 3px rgba(30,42,68,.05);
-  --display:"Poppins","Plex",system-ui,sans-serif;
-  --text:"Poppins","Plex",system-ui,sans-serif;
+  --display:"Readex",system-ui,sans-serif;
+  --text:"Readex",system-ui,sans-serif;
   --star:none;
 }
 @media (prefers-color-scheme: dark){
@@ -34,10 +35,10 @@
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.6 var(--text)}
-[dir=rtl] body{font-size:16.5px;font-family:"Plex","Poppins",system-ui,sans-serif}
+[dir=rtl] body{font-size:16.5px}
 a{color:var(--brand)}
-h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.25;margin:0 0 .4em;letter-spacing:-.015em}
-[dir=rtl] h1,[dir=rtl] h2,[dir=rtl] h3{letter-spacing:0;font-family:"Plex","Poppins",sans-serif}
+h1,h2,h3{font-family:var(--display);font-weight:500;line-height:1.25;margin:0 0 .4em;letter-spacing:-.015em}
+[dir=rtl] h1,[dir=rtl] h2,[dir=rtl] h3{letter-spacing:0}
 h1{font-size:1.75rem} h2{font-size:1.2rem} h3{font-size:1.02rem}
 p{margin:.4em 0}
 .wrap{max-width:720px;margin:0 auto;padding:0 18px 80px}
@@ -54,7 +55,7 @@ p{margin:.4em 0}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 10px}
 .brand{display:flex;align-items:center;gap:8px;color:var(--brand);font-weight:700;font-size:1.15rem;letter-spacing:-.01em}
 .brand svg{flex:none}
-.brand .ar{font-family:"Plex",sans-serif;font-weight:600;font-size:1rem;color:var(--brand-d);opacity:.8}
+.brand .ar{font-weight:600;font-size:1rem;color:var(--brand-d);opacity:.8}
 .brand .sub{font-size:.68rem;color:var(--muted);font-weight:600;letter-spacing:.09em;text-transform:uppercase;margin-inline-start:4px;padding-top:2px}
 .seg{display:inline-flex;background:var(--card);border-radius:999px;padding:3px;box-shadow:var(--shadow);font-size:13px}
 .seg button{border:0;background:transparent;color:var(--muted);padding:6px 12px;font:inherit;cursor:pointer;min-height:34px;border-radius:999px}
@@ -72,7 +73,7 @@ p{margin:.4em 0}
 .big{font-size:3.2rem;font-weight:700;line-height:1;margin:.1em 0;letter-spacing:-.02em}
 
 /* buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;background:var(--brand);color:#fff;border-radius:14px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer;min-height:48px;text-decoration:none;transition:transform .08s,filter .15s;box-shadow:0 6px 16px rgba(29,58,107,.25)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;background:var(--brand);color:#fff;border-radius:14px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer;min-height:48px;text-decoration:none;transition:transform .08s,filter .15s;box-shadow:none}
 .btn:hover{filter:brightness(1.05)}
 .btn:active{transform:scale(.98)}
 .btn.ghost{background:var(--brand-l);color:var(--brand);box-shadow:none}
@@ -101,7 +102,7 @@ textarea{min-height:84px}
 .hero{padding:38px 0 14px}
 .hero h1{font-size:2.4rem;max-width:15ch;line-height:1.15}
 .hero .lead{font-size:1.05em;color:var(--muted);max-width:58ch}
-.arch-band{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 120' fill='none' stroke='white' stroke-opacity='.2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M196 104V44h14v60M200 52h6M200 62h6M200 72h6M200 82h6'/%3E%0A    %3Cpath d='M216 104V26c0-6 10-6 10 0v78M221 14v8'/%3E%0A    %3Cpath d='M232 104V58q9-12 18 0v46'/%3E%0A    %3Cpath d='M256 104V36h12v68M256 48h12M256 60h12'/%3E%0A    %3Cpath d='M274 104V64c0-8 14-8 14 0v40'/%3E%0A    %3Cpath d='M294 104V50l10-8 10 8v54'/%3E%0A    %3Cpath d='M320 104V70h16v34'/%3E%0A    %3Cpath d='M6 104h184'/%3E%0A    %3Cpath d='M12 104c14-30 34-30 48 0M56 104c18-40 44-40 62 0M114 104c14-30 34-30 48 0'/%3E%0A    %3Cpath d='M34 104V92M87 104V86M138 104V92'/%3E%0A    %3Cpath d='M0 112c40-6 80-6 120 0s80 6 120 0 80-6 120 0' stroke-opacity='.55'/%3E%3C/svg%3E") right -20px bottom -14px/300px auto no-repeat,linear-gradient(135deg,#2c5294,#1a3463);color:#fff;border-radius:24px;padding:26px 24px;margin:18px 0;position:relative;overflow:hidden}
+.arch-band{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 120' fill='none' stroke='white' stroke-opacity='.2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M196 104V44h14v60M200 52h6M200 62h6M200 72h6M200 82h6'/%3E%0A    %3Cpath d='M216 104V26c0-6 10-6 10 0v78M221 14v8'/%3E%0A    %3Cpath d='M232 104V58q9-12 18 0v46'/%3E%0A    %3Cpath d='M256 104V36h12v68M256 48h12M256 60h12'/%3E%0A    %3Cpath d='M274 104V64c0-8 14-8 14 0v40'/%3E%0A    %3Cpath d='M294 104V50l10-8 10 8v54'/%3E%0A    %3Cpath d='M320 104V70h16v34'/%3E%0A    %3Cpath d='M4 104h188'/%3E%0A    %3Cpath d='M6 104C24 78 54 78 70 104M58 104C82 50 132 50 154 104M140 104C152 84 176 82 186 96'/%3E%0A    %3Cpath d='M14 104C30 86 50 86 64 104M66 104C88 62 126 62 146 104' stroke-opacity='.45'/%3E%0A    %3Cpath d='M0 112c40-6 80-6 120 0s80 6 120 0 80-6 120 0' stroke-opacity='.55'/%3E%3C/svg%3E") right -20px bottom -14px/300px auto no-repeat,#14284b;color:#fff;border-radius:24px;padding:26px 24px;margin:18px 0;position:relative;overflow:hidden}
 .arch-band:after{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.08);top:-90px;inset-inline-end:-60px}
 .arch-band h2,.arch-band h3{color:#fff}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}

@@ -28,7 +28,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   ok(/Read your result/.test(await text()), 'the right code opens the app');
   await shot(p, '02-home');
   await p.click('#next-go'); await p.waitForTimeout(250);
-  ok(await p.locator('.gauge svg').count() === 1 && /not a diagnosis/.test(await text()), 'result shows the gauge and "not a diagnosis"');
+  ok(await p.locator('.hscale').count() === 1 && /not a diagnosis/.test(await text()), 'result shows the scale and "not a diagnosis"');
   await shot(p, '03-result');
   await p.click('#yes'); await p.click('.tab[data-go=home]'); await p.click('#next-go');
   await p.click('[data-b=time_shift]'); await p.waitForTimeout(150);

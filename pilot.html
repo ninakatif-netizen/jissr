@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f6f1e8">
+<meta name="theme-color" content="#efe6d6">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <title>Jissr: path to pilot</title>
@@ -115,7 +115,7 @@ document.getElementById('brand').innerHTML = wordmark() + '<span class="sub">Pat
 // architecture drawing: boxes and arrows, drawn in SVG so it stays sharp and editable
 const box = (x, y, w, h, title, sub, fill = '#fffdf9', ink = '#1b2238') => `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="${fill}" stroke="#e2d6c1"/><text x="${x + 14}" y="${y + 24}" font-size="14" font-weight="600" fill="${ink}">${title}</text>${sub.map((s, i) => `<text x="${x + 14}" y="${y + 44 + i * 17}" font-size="12" fill="${ink === '#fff' ? '#d9e2f5' : '#6b6a75'}">${s}</text>`).join('')}</g>`;
 const arrow = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1d3a6b" stroke-width="2" marker-end="url(#ah)"/>`;
-document.getElementById('arch').innerHTML = `<svg viewBox="0 0 900 380" role="img" aria-label="Deployment architecture" font-family="Poppins, sans-serif">
+document.getElementById('arch').innerHTML = `<svg viewBox="0 0 900 380" role="img" aria-label="Deployment architecture" font-family="Readex, sans-serif">
   <defs><marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#1d3a6b"/></marker></defs>
   ${box(20, 30, 200, 80, 'Patient app', ['Phone, installable, offline', 'Arabic and English'])}
   ${box(20, 150, 200, 80, 'Care-team web app', ['Nurses, coordinators', 'clinicians, leads'])}

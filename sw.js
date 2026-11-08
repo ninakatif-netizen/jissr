@@ -1,13 +1,13 @@
 // Jissr service worker: lets the app open offline and be installed.
 // Strategy: network first (so new versions show immediately), fall back to the saved copy when offline.
 // Bump VERSION on every release so old saved copies are cleared.
-const VERSION = 'jissr-v9';
+const VERSION = 'jissr-v11';
 const SHELL = [
   '/', '/index.html', '/patient.html', '/staff.html', '/metrics.html', '/review.html', '/trust.html', '/impact.html', '/pilot.html', '/styles.css', '/manifest.webmanifest',
   '/core/rules.mjs', '/core/cases.mjs', '/core/data.mjs', '/core/store.mjs', '/core/templates.mjs', '/core/ui.mjs', '/core/fhir.mjs', '/core/programmes.mjs', '/core/pwa.mjs', '/core/art.mjs', '/core/tour.mjs',
   '/icons/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png',
-  '/fonts/poppins-latin-400-normal.woff2', '/fonts/poppins-latin-500-normal.woff2', '/fonts/poppins-latin-600-normal.woff2', '/fonts/poppins-latin-700-normal.woff2',
-  '/fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2', '/fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2',
+  '/fonts/readex-pro-latin-400-normal.woff2', '/fonts/readex-pro-latin-500-normal.woff2', '/fonts/readex-pro-latin-600-normal.woff2',
+  '/fonts/readex-pro-arabic-400-normal.woff2', '/fonts/readex-pro-arabic-500-normal.woff2', '/fonts/readex-pro-arabic-600-normal.woff2',
 ];
 
 self.addEventListener('install', (e) => {
