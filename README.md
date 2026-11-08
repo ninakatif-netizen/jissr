@@ -3,6 +3,9 @@
 Prototype for the **Future Health Challenge 2026**, challenge "Closing the Screening-to-Care Loop".
 One programme: abnormal HbA1c from screening. **All data is synthetic. Not medical advice.**
 
+## Data
+No organiser data and no real personal data are used. Every source and licence is declared in [DATA-SOURCES.md](DATA-SOURCES.md).
+
 ## Pages
 - `index.html`: home, and a short "who decides what" (rules vs AI)
 - `patient.html`: patient app (English / Arabic): plain-language result, barrier check-in, booking, reminders, nurse, family helper

@@ -334,7 +334,7 @@ test('FHIR export: standard resources, correct codes, owner, referral, closure, 
 test('a new result: rules set urgency, due date and the least busy owner; non-actionable and bad input are refused', () => {
   const st = buildState(TODAY);
   const lab = { type: 'staff', role: 'coordinator', name: 'Coord C', id: 'c1' };
-  const base = { name: 'Test Patient', age: 50, sex: 'F', nationality: 'Emirati', language: 'ar', today: TODAY };
+  const base = { name: 'Test Patient', age: 50, language: 'ar', today: TODAY };
   const before = st.cases.length;
   const u = createCase(st, lab, { ...base, value: 11.4 });
   assert.equal(st.cases.length, before + 1);
@@ -356,4 +356,11 @@ test('a new result: rules set urgency, due date and the least busy owner; non-ac
   assert.throws(() => createCase(st, { type: 'patient', name: 'P' }, { ...base, value: 8 }), codeOf('not_allowed'));
   assert.throws(() => createCase(st, ai, { ...base, value: 8 }), codeOf('ai_not_allowed'));
   assert.equal(st.cases.length, before + 2);
+});
+
+test('data minimisation: patients carry only what the follow-up needs', () => {
+  const st = buildState(TODAY);
+  for (const c of st.cases) assert.deepEqual(Object.keys(c.patient).sort(), ['age', 'id', 'language', 'name', 'shifts']);
+  const fhirPatient = caseToFhirBundle(st.cases[0], st.staff).entry[0].resource;
+  assert.ok(!('gender' in fhirPatient) && !('birthDate' in fhirPatient) && !('telecom' in fhirPatient) && !('address' in fhirPatient));
 });

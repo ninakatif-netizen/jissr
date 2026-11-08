@@ -7,7 +7,7 @@ import { isoDay } from './rules.mjs';
 import { explanation, barrierText } from './templates.mjs';
 import { safeText, withDisclaimer, classify } from './rules.mjs';
 
-const KEY = 'jissr.demo.v2';
+const KEY = 'jissr.demo.v3';
 
 export function loadState() {
   const today = isoDay(Date.now());
@@ -15,7 +15,7 @@ export function loadState() {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      if (s && s.version === 2 && Array.isArray(s.cases)) { s.today = today; return s; }
+      if (s && s.version === 3 && Array.isArray(s.cases)) { s.today = today; return s; }
     }
   } catch { /* storage may be blocked: fall through to fresh data */ }
   return buildState(today);

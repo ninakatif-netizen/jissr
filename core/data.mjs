@@ -17,38 +17,39 @@ export const STAFF = [
 
 // Journey stages by index: 0 result, 1 notified, 2 understood, 3 booked, 4 attended,
 // 5 confirmed, 6 referred, 7 care plan, 8 closed.
-// [id, name, age, sex, nationality, language, HbA1c, days since result, stage index, barrier, owner, drop-out reason, works shifts]
+// [id, name, age, language, HbA1c, days since result, stage index, barrier, owner, drop-out reason, works shifts]
+// Data minimisation: no sex, nationality, ID number, phone or address. The loop does not need them.
 const ROWS = [
-  [1, 'Fatima Al Mansoori', 58, 'F', 'Emirati', 'ar', 8.1, 12, 1, 'dont_understand', 'n1', '', 0],
-  [2, 'Rashid Al Nuaimi', 61, 'M', 'Emirati', 'ar', 6.9, 20, 7, 'none', 'd1', '', 0],
-  [3, 'Priya Nair', 44, 'F', 'Indian', 'en', 6.1, 35, 1, 'time_shift', 'c1', 'Rotating shifts, cannot take time off', 1],
-  [4, 'Joseph Mathew', 39, 'M', 'Filipino', 'en', 7.4, 16, 2, 'cost', 'c1', 'Worried about cost', 0],
-  [5, 'Mohammed Iqbal', 52, 'M', 'Pakistani', 'ur', 11.2, 1, 1, 'fear', 'n1', '', 0],
-  [6, 'Aisha Khan', 35, 'F', 'Pakistani', 'ur', 5.9, 10, 3, 'none', 'c2', '', 0],
-  [7, 'Samuel Okoye', 47, 'M', 'Nigerian', 'en', 8.8, 25, 1, 'time_shift', 'n2', 'Night shifts, keeps missing slots', 1],
-  [8, 'Maryam Al Kaabi', 66, 'F', 'Emirati', 'ar', 9.4, 9, 5, 'none', 'd1', '', 0],
-  [9, 'Ahmed Hassan', 55, 'M', 'Egyptian', 'ar', 10.4, 3, 2, 'fear', 'n1', 'Afraid of the result', 0],
-  [10, 'Lakshmi Devi', 50, 'F', 'Indian', 'hi', 7.1, 13, 3, 'language', 'c2', '', 0],
-  [11, 'Khalid Al Dhaheri', 29, 'M', 'Emirati', 'ar', 5.8, 8, 2, 'none', 'c1', '', 0],
-  [12, 'Noura Al Shamsi', 42, 'F', 'Emirati', 'ar', 6.3, 40, 8, 'none', 'd2', '', 0],
-  [13, 'Ravi Kumar', 37, 'M', 'Indian', 'en', 6.6, 15, 1, 'dont_understand', 'c1', 'Did not understand the result', 0],
-  [14, 'Elena Santos', 48, 'F', 'Filipino', 'en', 7.9, 6, 2, 'none', 'n2', '', 0],
-  [15, 'Yusuf Ali', 63, 'M', 'Sudanese', 'ar', 9.1, 30, 6, 'none', 'd1', '', 0],
-  [16, 'Hana Mahmoud', 31, 'F', 'Jordanian', 'ar', 6.0, 5, 1, 'none', 'c2', '', 0],
-  [17, 'Daniel Tan', 45, 'M', 'Singaporean', 'en', 6.8, 18, 2, 'cost', 'c2', '', 0],
-  [18, 'Zainab Al Marzouqi', 72, 'F', 'Emirati', 'ar', 10.8, 4, 1, 'dont_understand', 'n1', '', 0],
-  [19, 'Omar Farouk', 57, 'M', 'Egyptian', 'ar', 7.7, 11, 6, 'time_shift', 'd2', '', 1],
-  [20, 'Sneha Reddy', 33, 'F', 'Indian', 'en', 5.7, 22, 4, 'none', 'c2', '', 0],
-  [21, 'Tariq Mahmood', 60, 'M', 'Pakistani', 'ur', 8.4, 28, 1, 'language', 'c1', 'Needs an Urdu-speaking nurse', 0],
-  [22, 'Layla Haddad', 38, 'F', 'Lebanese', 'ar', 6.2, 3, 0, 'none', null, '', 0],
-  [23, 'George Mensah', 54, 'M', 'Ghanaian', 'en', 7.2, 19, 2, 'time_shift', 'n2', 'Works two jobs', 1],
-  [24, 'Shamma Al Ketbi', 49, 'F', 'Emirati', 'ar', 6.5, 14, 3, 'none', 'c2', '', 0],
-  [25, 'Vikram Singh', 43, 'M', 'Indian', 'en', 12.1, 1, 0, 'none', null, '', 0],
-  [26, 'Amal Youssef', 34, 'F', 'Syrian', 'ar', 6.4, 45, 8, 'none', 'd2', '', 0],
-  [27, 'Chen Wei', 51, 'M', 'Chinese', 'en', 9.8, 21, 6, 'cost', 'd2', '', 0],
-  [28, 'Nadia Rahman', 41, 'F', 'Bangladeshi', 'en', 7.0, 7, 2, 'language', 'c2', '', 0],
-  [29, 'Hamdan Al Ameri', 68, 'M', 'Emirati', 'ar', 8.0, 50, 8, 'none', 'd1', '', 0],
-  [30, 'Grace Wanjiru', 36, 'F', 'Kenyan', 'en', 6.7, 26, 0, 'none', 'c1', 'Could not be reached (phone number not working)', 0],
+  [1, 'Fatima Al Mansoori', 58, 'ar', 8.1, 12, 1, 'dont_understand', 'n1', '', 0],
+  [2, 'Rashid Al Nuaimi', 61, 'ar', 6.9, 20, 7, 'none', 'd1', '', 0],
+  [3, 'Priya Nair', 44, 'en', 6.1, 35, 1, 'time_shift', 'c1', 'Rotating shifts, cannot take time off', 1],
+  [4, 'Joseph Mathew', 39, 'en', 7.4, 16, 2, 'cost', 'c1', 'Worried about cost', 0],
+  [5, 'Mohammed Iqbal', 52, 'ur', 11.2, 1, 1, 'fear', 'n1', '', 0],
+  [6, 'Aisha Khan', 35, 'ur', 5.9, 10, 3, 'none', 'c2', '', 0],
+  [7, 'Samuel Okoye', 47, 'en', 8.8, 25, 1, 'time_shift', 'n2', 'Night shifts, keeps missing slots', 1],
+  [8, 'Maryam Al Kaabi', 66, 'ar', 9.4, 9, 5, 'none', 'd1', '', 0],
+  [9, 'Ahmed Hassan', 55, 'ar', 10.4, 3, 2, 'fear', 'n1', 'Afraid of the result', 0],
+  [10, 'Lakshmi Devi', 50, 'hi', 7.1, 13, 3, 'language', 'c2', '', 0],
+  [11, 'Khalid Al Dhaheri', 29, 'ar', 5.8, 8, 2, 'none', 'c1', '', 0],
+  [12, 'Noura Al Shamsi', 42, 'ar', 6.3, 40, 8, 'none', 'd2', '', 0],
+  [13, 'Ravi Kumar', 37, 'en', 6.6, 15, 1, 'dont_understand', 'c1', 'Did not understand the result', 0],
+  [14, 'Elena Santos', 48, 'en', 7.9, 6, 2, 'none', 'n2', '', 0],
+  [15, 'Yusuf Ali', 63, 'ar', 9.1, 30, 6, 'none', 'd1', '', 0],
+  [16, 'Hana Mahmoud', 31, 'ar', 6.0, 5, 1, 'none', 'c2', '', 0],
+  [17, 'Daniel Tan', 45, 'en', 6.8, 18, 2, 'cost', 'c2', '', 0],
+  [18, 'Zainab Al Marzouqi', 72, 'ar', 10.8, 4, 1, 'dont_understand', 'n1', '', 0],
+  [19, 'Omar Farouk', 57, 'ar', 7.7, 11, 6, 'time_shift', 'd2', '', 1],
+  [20, 'Sneha Reddy', 33, 'en', 5.7, 22, 4, 'none', 'c2', '', 0],
+  [21, 'Tariq Mahmood', 60, 'ur', 8.4, 28, 1, 'language', 'c1', 'Needs an Urdu-speaking nurse', 0],
+  [22, 'Layla Haddad', 38, 'ar', 6.2, 3, 0, 'none', null, '', 0],
+  [23, 'George Mensah', 54, 'en', 7.2, 19, 2, 'time_shift', 'n2', 'Works two jobs', 1],
+  [24, 'Shamma Al Ketbi', 49, 'ar', 6.5, 14, 3, 'none', 'c2', '', 0],
+  [25, 'Vikram Singh', 43, 'en', 12.1, 1, 0, 'none', null, '', 0],
+  [26, 'Amal Youssef', 34, 'ar', 6.4, 45, 8, 'none', 'd2', '', 0],
+  [27, 'Chen Wei', 51, 'en', 9.8, 21, 6, 'cost', 'd2', '', 0],
+  [28, 'Nadia Rahman', 41, 'en', 7.0, 7, 2, 'language', 'c2', '', 0],
+  [29, 'Hamdan Al Ameri', 68, 'ar', 8.0, 50, 8, 'none', 'd1', '', 0],
+  [30, 'Grace Wanjiru', 36, 'en', 6.7, 26, 0, 'none', 'c1', 'Could not be reached (phone number not working)', 0],
 ];
 
 // Extra story for a few cases: referrals in different states, a hand-off, a question to a specialist, a waiting nurse call.
@@ -70,12 +71,12 @@ const STEP_OFFSET = { notified: 0, understood: 1, booked: 3, attended: 9, confir
 export function buildState(today) {
   const staff = STAFF.map((s) => ({ ...s }));
   const byId = Object.fromEntries(staff.map((s) => [s.id, s]));
-  const cases = ROWS.map(([n, name, age, sex, nationality, language, value, ago, stageIdx, barrier, owner, dropReason, shifts]) => {
+  const cases = ROWS.map(([n, name, age, language, value, ago, stageIdx, barrier, owner, dropReason, shifts]) => {
     const resultDay = addDays(today, -ago);
     const id = 'C-' + String(n).padStart(3, '0');
     const c = newCase({
       id, value, resultDay, owner,
-      patient: { id: 'P-' + String(n).padStart(3, '0'), name, age, sex, nationality, language, shifts: !!shifts },
+      patient: { id: 'P-' + String(n).padStart(3, '0'), name, age, language, shifts: !!shifts },
     });
     c.barrier = barrier;
     c.dropReason = dropReason || null;
@@ -150,5 +151,5 @@ export function buildState(today) {
     }
     return c;
   });
-  return { version: 2, today, staff, cases };
+  return { version: 3, today, staff, cases };
 }

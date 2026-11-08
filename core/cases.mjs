@@ -266,14 +266,13 @@ export const LANGUAGES = ['ar', 'en', 'ur', 'hi', 'tl', 'bn', 'ml'];
 // A NEW RESULT ARRIVES (from the lab, or typed in by staff). The rules decide everything:
 // urgency and due date from the HbA1c, and the owner (urgent -> the least busy nurse, otherwise the least busy coordinator).
 // Results below 5.7% are not actionable, so no case is opened.
-export function createCase(state, actor, { name, age, sex, nationality, language, value, today } = {}) {
+export function createCase(state, actor, { name, age, language, value, today } = {}) {
   refuseAI(actor);
   if (!actor || !['staff', 'system'].includes(actor.type)) throw new RuleError('not_allowed', 'Only staff or the lab system can add a result.');
   const nm = (name || '').trim();
   if (nm.length < 2 || nm.length > 60) throw new RuleError('bad_name', 'Enter the patient name.');
   const ag = Number(age);
   if (!Number.isInteger(ag) || ag < 18 || ag > 110) throw new RuleError('bad_age', 'Enter an age between 18 and 110.');
-  if (!['F', 'M'].includes(sex)) throw new RuleError('bad_sex', 'Choose F or M.');
   if (!LANGUAGES.includes(language)) throw new RuleError('bad_language', 'Choose a language.');
   const k = classify(value);
   if (k.band === 'invalid') throw new RuleError('bad_value', 'Enter an HbA1c between 3 and 20%.');
@@ -286,7 +285,7 @@ export function createCase(state, actor, { name, age, sex, nationality, language
   const owner = pool[0] ? pool[0].id : null;
   const c = newCase({
     id: 'C-' + String(n).padStart(3, '0'), value: k.value, resultDay: day, owner,
-    patient: { id: 'P-' + String(n).padStart(3, '0'), name: nm, age: ag, sex, nationality: (nationality || '').trim() || '–', language, shifts: false },
+    patient: { id: 'P-' + String(n).padStart(3, '0'), name: nm, age: ag, language, shifts: false },
   });
   c.events[0].at = new Date().toISOString();
   c.events[0].by = actor.type === 'system' ? 'Lab system' : `Lab result entered by ${actor.name}`;

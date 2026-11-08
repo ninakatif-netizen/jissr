@@ -227,7 +227,7 @@ function renderList() {
   const list = visible();
   $('#tbl').innerHTML = `<thead><tr><th>Patient</th><th>HbA1c</th><th>Stage</th><th>Next action</th><th>Owner</th><th>Due</th><th>Drop-out reason</th></tr></thead><tbody>` +
     (list.map((c) => { const [i, txt] = nextAction(c); const e = escOf(c); return `<tr class="click ${c.id === sel ? 'sel' : ''}" data-open="${c.id}" tabindex="0">
-      <td data-l="Patient"><div class="pname"><span class="pav u-${c.urgency}">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><br><span class="muted tiny">${c.id} · ${c.patient.age}${c.patient.sex} · ${esc(c.patient.nationality)}</span></span></div></td>
+      <td data-l="Patient"><div class="pname"><span class="pav u-${c.urgency}">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><br><span class="muted tiny">${c.id} · age ${c.patient.age} · speaks ${esc(c.patient.language)}</span></span></div></td>
       <td data-l="HbA1c"><b>${c.value}%</b><br><span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span></td>
       <td data-l="Stage">${STAGE_LABEL[c.stage]}${c.referral && c.stage === 'referred' ? `<br><span class="tiny muted">${esc(c.referral.to)}: ${REF_CHIP[c.referral.status][1]}</span>` : ''}</td>
       <td data-l="Next action">${txt}${e.length ? `<br><span class="chip ${maxLevel(e) >= 3 ? 'bad' : 'warn'}">${maxLevel(e) >= 3 ? 'Lead now' : 'Attention'}${e.length > 1 ? ' · ' + e.length : ''}</span>` : ''}</td>
@@ -305,7 +305,7 @@ function renderDrawer() {
   }).join('');
   const extra = c.events.filter((x) => !STAGES.includes(x.type)).slice(-6).reverse();
   box.innerHTML = `
-    <div class="dhead"><div class="pname"><span class="pav u-${c.urgency}" style="width:46px;height:46px;font-size:14px">${esc(initials(p.name))}</span><div><h2>${esc(p.name)}</h2><div class="tiny muted">${c.id} · ${p.age}${p.sex} · ${esc(p.nationality)} · speaks ${esc(p.language)}${p.shifts ? ' · works shifts' : ''} · ${esc(CHANNEL_LABEL[c.channel] || 'app')}</div></div></div>
+    <div class="dhead"><div class="pname"><span class="pav u-${c.urgency}" style="width:46px;height:46px;font-size:14px">${esc(initials(p.name))}</span><div><h2>${esc(p.name)}</h2><div class="tiny muted">${c.id} · age ${p.age} · speaks ${esc(p.language)}${p.shifts ? ' · works shifts' : ''} · ${esc(CHANNEL_LABEL[c.channel] || 'app')}</div></div></div>
       <button class="iconbtn" id="x" aria-label="Close panel">${ic('close', 18)}</button></div>
     <div class="dsec">
       <div class="bigv"><b>${c.value}%</b><span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span><span class="tiny muted">urgency set by rules</span></div>
@@ -322,7 +322,7 @@ function renderDrawer() {
     <div class="dsec"><h3>What the patient was told</h3>${ai ? `<div class="tiny muted">${ai.source === 'ai' ? 'AI-assisted draft, safety-checked' : 'Pre-written message'}</div><p class="tiny" style="white-space:pre-wrap;margin-bottom:0">${esc(ai.text)}</p>` : '<p class="tiny muted" style="margin:0">The patient has not opened the message yet.</p>'}</div>
     ${c.stage !== 'closed' ? `<div class="dsec"><h3>Team actions <span class="tiny muted" style="font-weight:400">as ${esc(actor.name)}</span></h3>
       <div class="row"><select id="owner" style="flex:1">${c.owner ? '' : '<option value="">Choose an owner…</option>'}${state.staff.map((s) => `<option value="${s.id}" ${s.id === c.owner ? 'selected' : ''}>${esc(s.name)} · ${esc(s.org)}</option>`).join('')}</select><button class="btn ghost small" id="assign">Assign</button></div>
-      <div class="row" style="margin-top:10px"><input id="contact" placeholder="Log a call or message (note)" style="flex:1"><button class="btn ghost small" id="log">Log contact</button></div>
+      <div class="row" style="margin-top:10px"><input id="contact" placeholder="Log a call or message (no extra personal details)" style="flex:1"><button class="btn ghost small" id="log">Log contact</button></div>
       <div class="row" style="margin-top:10px"><input id="drop" value="${esc(c.dropReason || '')}" placeholder="Drop-out reason (e.g. night shifts)" style="flex:1"><button class="btn ghost small" id="dropbtn">Save</button></div></div>` : ''}
     <div class="dsec"><h3>Clinician-to-clinician advice</h3>${consultHtml(c, actor)}</div>
     ${c.stage === 'closed'
@@ -362,9 +362,8 @@ function openIntake() {
     <p class="tiny muted">In real life this comes from the lab automatically. Here you can type one in. Synthetic data only.</p>
     <label for="i-name">Patient name</label><input id="i-name" maxlength="60" placeholder="e.g. Mariam Al Suwaidi">
     <div class="grid2"><div><label for="i-age">Age</label><input id="i-age" type="number" min="18" max="110" value="54"></div>
-      <div><label for="i-sex">Sex</label><select id="i-sex"><option value="F">F</option><option value="M">M</option></select></div></div>
-    <div class="grid2"><div><label for="i-nat">Nationality</label><input id="i-nat" placeholder="e.g. Emirati"></div>
-      <div><label for="i-lang">Language</label><select id="i-lang">${LANGUAGES.map((l) => `<option value="${l}">${l}</option>`).join('')}</select></div></div>
+      <div><label for="i-lang">Preferred language</label><select id="i-lang">${LANGUAGES.map((l) => `<option value="${l}">${l}</option>`).join('')}</select></div></div>
+    <p class="tiny muted" style="margin:8px 0 0">Only what the follow-up needs is collected: no ID number, nationality, sex, phone or address.</p>
     <label for="i-val">HbA1c (%)</label><input id="i-val" type="number" step="0.1" min="3" max="20" placeholder="e.g. 10.6">
     <div class="rulebox" id="i-preview">Type a value to see what the rules will do.</div>
     <div id="i-err"></div>
@@ -382,7 +381,7 @@ function openIntake() {
   $('#mx').onclick = closeIntake;
   $('#i-go').onclick = () => {
     try {
-      const c = createCase(state, me(), { name: $('#i-name').value, age: +$('#i-age').value, sex: $('#i-sex').value, nationality: $('#i-nat').value, language: $('#i-lang').value, value: $('#i-val').value, today: state.today });
+      const c = createCase(state, me(), { name: $('#i-name').value, age: +$('#i-age').value, language: $('#i-lang').value, value: $('#i-val').value, today: state.today });
       save(); closeIntake(); filter = 'open';
       toast(`${c.id} added · ${URG_LABEL[c.urgency]} · owner ${staffOf(c.owner)?.name || 'unassigned'} · due ${fmt(c.due)}`);
       flash = { text: 'New case created by the rules. Open it as the patient to see what they receive.' };

@@ -2,6 +2,10 @@
 // plug into hospital systems and Malaffi later. It is shaped to FHIR R4 but has NOT been checked with the
 // official FHIR validator, and it is synthetic data only. No AI-written text is included.
 //
+// This material contains content from LOINC (http://loinc.org). LOINC is copyright © Regenstrief Institute, Inc.
+// and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under
+// the license at http://loinc.org/license.
+//
 //   Patient          the person (synthetic)
 //   Observation      the HbA1c result (LOINC 4548-4)
 //   Practitioner     the case owner
@@ -27,7 +31,6 @@ export function caseToFhirBundle(c, staff = []) {
   add({
     resourceType: 'Patient', id: pid, meta: meta(),
     name: [{ text: c.patient.name }],
-    gender: c.patient.sex === 'F' ? 'female' : c.patient.sex === 'M' ? 'male' : 'unknown',
     communication: [{ language: { coding: [{ system: 'urn:ietf:bcp:47', code: c.patient.language }] }, preferred: true }],
   });
 
