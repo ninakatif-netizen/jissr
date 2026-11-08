@@ -144,8 +144,8 @@ html,body{height:100%}
 body{margin:0;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 button,.tab{-webkit-user-select:none;user-select:none;touch-action:manipulation}
 .device{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
-.screen{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-top:env(safe-area-inset-top)}
-.top{position:sticky;top:0;z-index:6;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:14px 0 10px}
+.screen{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.top{position:sticky;top:0;z-index:6;background:var(--bg);padding:calc(14px + env(safe-area-inset-top)) 0 10px;margin-inline:-18px;padding-inline:18px;box-shadow:0 1px 0 var(--line)}
 button:active:not([disabled]){transform:scale(.97)}
 .demo{position:relative;z-index:60}
 @media (max-width:699px){
@@ -254,7 +254,7 @@ html.big .hello{font-size:36px}
 .rwrap{position:relative;width:112px;height:112px;flex:none}
 .rwrap svg{width:112px;height:112px}
 .rnum{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
-.rnum b{font-size:28px}.rnum span{font-size:11.5px;color:var(--muted)}
+.rnum b{font-size:26px;font-family:var(--text)!important;font-weight:600;letter-spacing:0}.rnum span{font-size:11px;color:var(--muted);max-width:70px;text-align:center;line-height:1.25}
 .chk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;min-width:0}
 .chk li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;line-height:1.3}
 .chk li i{width:18px;height:18px;border-radius:50%;border:2px solid #c9b99c;flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px}
@@ -882,7 +882,7 @@ function microHtml(c, navy) {
 function ringHtml(n, total = 5) {
   const R = 46, C = 2 * Math.PI * R, f = Math.min(n, total) / total;
   return `<svg viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="${R}" fill="none" stroke="#eadfcb" stroke-width="9"/>
-    <circle cx="56" cy="56" r="${R}" fill="none" stroke="#b8894d" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(C * f).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 56 56)"/></svg>`;
+    ${f > 0 ? `<circle cx="56" cy="56" r="${R}" fill="none" stroke="#b8894d" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(C * f).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 56 56)"/>` : ''}</svg>`;
 }
 const STEP_EVENTS = [['understood'], ['booked'], ['attended'], ['confirmed', 'referred', 'consult', 'skip'], ['care_plan', 'closed']];
 function stepDate(c, i) {
