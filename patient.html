@@ -5,6 +5,44 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Jissr: your result</title>
 <link rel="stylesheet" href="styles.css">
+<style>
+body{font-size:17px}
+.wrap{max-width:560px}
+.view{animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.back{background:none;border:0;color:var(--teal);font:inherit;font-weight:600;padding:10px 0;cursor:pointer;min-height:44px}
+/* journey tracker */
+.track{display:flex;align-items:flex-start;margin:6px 0 4px}
+.trk{flex:1;text-align:center;position:relative;font-size:12.5px;color:var(--muted)}
+.trk .dot{width:28px;height:28px;border-radius:50%;margin:0 auto 4px;background:var(--line);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;position:relative;z-index:1}
+.trk:not(:last-child):after{content:"";position:absolute;top:13px;inset-inline-start:50%;width:100%;height:3px;background:var(--line)}
+.trk.done .dot{background:var(--teal)} .trk.done:not(:last-child):after{background:var(--teal)}
+.trk.now .dot{background:var(--card);border:3px solid var(--teal);color:var(--teal);animation:ring 1.8s ease-in-out infinite}
+.trk.now{color:var(--ink);font-weight:700}
+@keyframes ring{0%,100%{box-shadow:0 0 0 0 rgba(31,122,116,.35)}50%{box-shadow:0 0 0 7px rgba(31,122,116,0)}}
+/* next step */
+.next{background:var(--teal);color:#fff;border-radius:20px;padding:20px;margin:14px 0}
+.next h2{margin:0 0 6px;font-size:1.35rem}
+.next p{margin:0 0 14px;opacity:.95}
+.next .ico{font-size:2rem;margin-bottom:4px}
+.next .btn{background:#fff;color:var(--teal-d);border-color:#fff;width:100%;font-size:1.05rem}
+.next .btn.line{background:transparent;color:#fff;border-color:rgba(255,255,255,.7);margin-top:8px}
+.next.wait{background:var(--teal-l);color:var(--ink)} .next.wait .btn{background:var(--teal);color:#fff;border-color:var(--teal)}
+.next.ok{background:var(--green-l);color:var(--green)} .next.ok .btn{background:var(--green);color:#fff;border-color:var(--green)}
+.who{display:flex;gap:14px;align-items:center}
+.avatar{width:52px;height:52px;border-radius:50%;background:var(--teal-l);color:var(--teal-d);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex:none}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.act{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 6px;text-align:center;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;min-height:84px}
+.act span{display:block;font-size:1.6rem}
+.faces{display:flex;gap:8px;justify-content:space-between}
+.face{flex:1;font-size:1.8rem;padding:10px 0;border:1.5px solid var(--line);border-radius:14px;background:var(--card);cursor:pointer;min-height:56px}
+.face[aria-pressed=true]{border-color:var(--teal);background:var(--teal-l)}
+.tick{width:84px;height:84px;border-radius:50%;background:var(--green);margin:10px auto;display:flex;align-items:center;justify-content:center;color:#fff;font-size:3rem;animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
+.center{text-align:center}
+.bigbtn{width:100%;font-size:1.1rem;min-height:56px}
+.slotbtn{padding:14px 8px}
+</style>
 </head>
 <body>
 <div class="demo">
@@ -20,74 +58,108 @@
 
 <script type="module">
 import { loadState, saveState, resetState, aiText } from './core/store.mjs';
-import { classify, slotsFor, barrierPlan, BARRIERS, addDays } from './core/rules.mjs';
+import { classify, slotsFor, BARRIERS } from './core/rules.mjs';
 import { advance, setBarrier, requestNurse, recordAiText, setChannel, recordConfidence } from './core/cases.mjs';
 import { explanation, barrierText, nurseText } from './core/templates.mjs';
 
 /* ---------- words on the screen (English / Arabic) ---------- */
 const S = {
   en: {
-    hello: (n) => `Hello ${n}`, sub: 'Here is your blood sugar test result, in plain words.',
+    hello: (n) => `Hello ${n}`,
+    steps: ['Result', 'Book', 'Doctor', 'Tests', 'Plan'],
+    back: '← Back', cont: 'Continue', home: 'Back to home',
     yourTest: 'Your HbA1c result',
     band: { prediabetes: 'A little higher than usual', diabetes: 'Higher than usual', urgent: 'Much higher than usual' },
     notdx: 'This is not a diagnosis. Only a doctor can tell you what your result means.',
     listen: 'Listen', stop: 'Stop', simpler: 'Say it more simply',
     ai: 'Written with AI help and checked by safety rules', tpl: 'Pre-written message',
     sense: 'Did this make sense?', yes: 'Yes, I understand', no: 'Not really',
+    noHelp: 'That is okay. Here it is in simpler words. A nurse can also explain it to you.',
     thanks: 'Thank you. We have noted that you understand.',
-    barrierQ: 'Is anything making it hard to see a doctor?', barrierSub: 'Choose what fits best. There is no wrong answer, and it helps us help you.',
-    barrier: { fear: 'I am worried or afraid', cost: 'Cost', time_shift: 'No time / shift work', language: 'Language', dont_understand: 'I do not understand', none: 'Nothing, I am ready' },
-    book: 'Book your visit', bookWait: 'Please tell us whether the result made sense first, or talk to a nurse, then you can book.',
-    pick: 'Pick a time', confirm: 'Confirm this appointment', booked: 'Your visit is booked', where: 'Jissr demo clinic · 20 minutes · bring your Emirates ID or insurance card',
-    remind: 'Remind me the day before (SMS or WhatsApp)', remindOn: 'Reminder set for the day before. (Demo: no real message is sent.)', cal: 'Add to my calendar',
-    nurse: 'Talk to a nurse', nurseSub: 'A nurse can explain your result, answer worries and help you book.', when: 'Best time to call', morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening',
-    langq: 'Language you prefer', note: 'Anything you want the nurse to know (optional)', ask: 'Ask a nurse to call me', asked: 'Done. A nurse will call you back.',
+    barrierQ: 'Is anything making this hard?', barrierSub: 'Tap what fits. It helps us help you.',
+    barrier: { fear: 'I am worried', cost: 'Cost', time_shift: 'No time / shifts', language: 'Language', dont_understand: 'I do not understand', none: 'Nothing, I am ready' },
+    pick: 'Pick a time', confirm: 'Book this time', booked: 'Your visit is booked!', where: 'Jissr demo clinic · 20 minutes · bring your Emirates ID or insurance card',
+    remind: 'Remind me the day before', remindOn: 'Reminder is on. (Demo: no real message is sent.)', cal: 'Add to my calendar',
+    n: {
+      read: ['👋', 'Read your result', 'It takes one minute. We explain it in plain words.', 'Read my result'],
+      book: ['📅', 'Book your visit', 'Pick a time that suits you.', 'Choose a time'],
+      booked: (d) => ['✅', `Your visit: ${d}`, 'We will remind you the day before. Bring your Emirates ID or insurance card.', 'Add to my calendar'],
+      attended: ['🩺', 'Your visit is done', 'The doctor may ask for a repeat blood test to check the first result. Your care team will tell you what is needed.', 'Ask a nurse a question'],
+      confirmed: ['🧭', 'Your doctor is planning your care', 'They are deciding if a specialist should also see you. We will tell you as soon as there is news.', 'Ask a nurse a question'],
+      sent: (o) => ['📨', 'Waiting for the specialist', `Your doctor asked ${o} to see you. We are waiting for their reply and will tell you. You do not need to do anything.`, 'Ask a nurse a question'],
+      accepted: (o, d) => ['🤝', `${o} will see you`, `${d} is now looking after you. They will contact you about your appointment.`, 'Ask a nurse a question'],
+      rejected: ['🔄', 'Your doctor is arranging another way', 'The first clinic could not take you yet. Your doctor is choosing the next step. You do not need to do anything.', 'Ask a nurse a question'],
+      completed: ['📄', 'The specialist has sent their report', 'Your doctor is now writing your plan with you.', 'Ask a nurse a question'],
+      treat: ['💊', 'Your treatment plan has started', 'Your doctor will keep in touch and check how you are doing.', 'Ask a nurse a question'],
+      surv: ['🌱', 'Your plan: healthy habits and a re-test', 'Your doctor has agreed a plan with you. We will remind you when it is time for your next test.', 'Ask a nurse a question'],
+      done: ['🎉', 'All done. Your care is up to date.', 'Thank you for taking care of your health.', ''],
+    },
+    careBy: 'Looking after you', noOwner: 'A team member will be assigned to you very soon.', role: { nurse: 'Nurse', coordinator: 'Care coordinator', clinician: 'Doctor' },
+    qListen: 'Listen to my result', qNurse: 'Talk to a nurse', qFamily: 'Family helper',
+    nurseT: 'Talk to a nurse', nurseSub: 'A nurse can explain your result, answer worries and help you book.', when: 'Best time to call', morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening',
+    chanQ: 'How should we contact you?', chan: { app: 'This app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'Phone call' },
+    note: 'Anything you want the nurse to know (optional)', ask: 'Ask a nurse to call me', asked: 'Done! A nurse will call you back.',
     sos: 'If you feel very unwell, very thirsty, confused or sick, do not wait. Call the ambulance on 998.',
-    fam: 'Family helper (optional)', famSub: 'You can let one family member see your appointment and reminders so they can help you. They never see your result number. You can stop at any time.',
-    famName: 'Their name', famRel: 'Who are they (daughter, son, friend...)', famOn: 'Share my appointment status with them', famDone: (n) => `${n} will see only your appointment status and reminders.`, famOff: 'Stop sharing',
+    fam: 'Family helper', famSub: 'Let one family member see your appointment and reminders, so they can help you. They never see your result number. You can stop at any time.',
+    famName: 'Their name', famRel: 'Who are they? (daughter, son, friend…)', famOn: 'Share my appointment status', famDone: (n) => `${n} will see only your appointment status and reminders.`, famOff: 'Stop sharing',
     famPreview: 'What they would receive:', famMsg: 'Mama\'s result has been explained and her appointment is booked.',
-    done: 'Your care is up to date. Thank you.', reset: 'Reset demo', seeStaff: 'See this case on the staff screen',
-    pref: 'How would you like us to contact you?', chan: { app: 'This app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'Phone call' },
-    confQ: 'How confident do you feel about what to do next?', confLow: 'Not at all', confHigh: 'Very confident', confThanks: 'Thank you. This helps us improve.',
-    cost: 'We can check your insurance before you decide.', stepOf: ['Result', 'Understand', 'Plan', 'Book'], nurseReq: 'Nurse call requested',
+    confQ: 'How sure do you feel about what happens next?', confThanks: 'Thank you. This helps us improve.',
+    seeStaff: 'See this case on the staff screen',
   },
   ar: {
-    hello: (n) => `مرحباً ${n}`, sub: 'هذه نتيجة تحليل السكر لديك بكلمات بسيطة.',
+    hello: (n) => `مرحباً ${n}`,
+    steps: ['النتيجة', 'الحجز', 'الطبيب', 'الفحوصات', 'الخطة'],
+    back: 'رجوع →', cont: 'متابعة', home: 'العودة للرئيسية',
     yourTest: 'نتيجة تحليل السكر التراكمي (HbA1c)',
     band: { prediabetes: 'أعلى قليلاً من المعتاد', diabetes: 'أعلى من المعتاد', urgent: 'أعلى بكثير من المعتاد' },
     notdx: 'هذا ليس تشخيصاً. الطبيب وحده يستطيع أن يخبرك بمعنى نتيجتك.',
-    listen: 'استمع', stop: 'إيقاف', simpler: 'اشرحها لي ببساطة أكثر',
+    listen: 'استمع', stop: 'إيقاف', simpler: 'اشرحها ببساطة أكثر',
     ai: 'كُتبت بمساعدة الذكاء الاصطناعي وتخضع لقواعد السلامة', tpl: 'رسالة مكتوبة مسبقاً',
     sense: 'هل كان الشرح واضحاً؟', yes: 'نعم، فهمت', no: 'ليس تماماً',
+    noHelp: 'لا بأس. هذا شرح أبسط. ويمكن لممرضة أن تشرحها لك أيضاً.',
     thanks: 'شكراً لك. سجّلنا أنك فهمت النتيجة.',
-    barrierQ: 'هل هناك ما يجعل زيارة الطبيب صعبة عليك؟', barrierSub: 'اختر الأنسب. لا توجد إجابة خاطئة، وهذا يساعدنا على مساعدتك.',
-    barrier: { fear: 'أشعر بالقلق أو الخوف', cost: 'التكلفة', time_shift: 'ضيق الوقت / العمل بالمناوبات', language: 'اللغة', dont_understand: 'لا أفهم النتيجة', none: 'لا شيء، أنا جاهز' },
-    book: 'احجز زيارتك', bookWait: 'يرجى أن تخبرنا أولاً إن كانت النتيجة واضحة، أو تحدث مع ممرضة، ثم يمكنك الحجز.',
-    pick: 'اختر وقتاً', confirm: 'تأكيد الموعد', booked: 'تم حجز زيارتك', where: 'عيادة جسر التجريبية · 20 دقيقة · أحضر هويتك الإماراتية أو بطاقة التأمين',
-    remind: 'ذكّرني قبل يوم (رسالة نصية أو واتساب)', remindOn: 'تم ضبط التذكير قبل يوم. (تجريبي: لا تُرسل رسالة حقيقية.)', cal: 'أضف إلى تقويمي',
-    nurse: 'تحدث مع ممرضة', nurseSub: 'يمكن للممرضة أن تشرح نتيجتك، وتجيب عن مخاوفك، وتساعدك في الحجز.', when: 'أفضل وقت للاتصال', morning: 'صباحاً', afternoon: 'بعد الظهر', evening: 'مساءً',
-    langq: 'اللغة التي تفضلها', note: 'أي شيء تريد أن تعرفه الممرضة (اختياري)', ask: 'اطلب من ممرضة أن تتصل بي', asked: 'تم. ستتصل بك ممرضة.',
+    barrierQ: 'هل هناك ما يجعل الأمر صعباً؟', barrierSub: 'اضغط على ما يناسبك. هذا يساعدنا على مساعدتك.',
+    barrier: { fear: 'أشعر بالقلق', cost: 'التكلفة', time_shift: 'ضيق الوقت / المناوبات', language: 'اللغة', dont_understand: 'لا أفهم النتيجة', none: 'لا شيء، أنا جاهز' },
+    pick: 'اختر وقتاً', confirm: 'احجز هذا الوقت', booked: 'تم حجز زيارتك!', where: 'عيادة جسر التجريبية · 20 دقيقة · أحضر هويتك الإماراتية أو بطاقة التأمين',
+    remind: 'ذكّرني قبل يوم', remindOn: 'تم تشغيل التذكير. (تجريبي: لا تُرسل رسالة حقيقية.)', cal: 'أضف إلى تقويمي',
+    n: {
+      read: ['👋', 'اقرأ نتيجتك', 'يستغرق الأمر دقيقة. نشرحها لك بكلمات بسيطة.', 'اقرأ نتيجتي'],
+      book: ['📅', 'احجز زيارتك', 'اختر وقتاً يناسبك.', 'اختر وقتاً'],
+      booked: (d) => ['✅', `زيارتك: ${d}`, 'سنذكّرك قبل يوم. أحضر هويتك الإماراتية أو بطاقة التأمين.', 'أضف إلى تقويمي'],
+      attended: ['🩺', 'تمت زيارتك', 'قد يطلب الطبيب إعادة تحليل الدم للتأكد من النتيجة الأولى. سيخبرك فريق رعايتك بما يلزم.', 'اسأل ممرضة'],
+      confirmed: ['🧭', 'طبيبك يخطط لرعايتك', 'يقرر الطبيب إن كان يلزم أن يراك أخصائي أيضاً. سنخبرك فور وجود أي جديد.', 'اسأل ممرضة'],
+      sent: (o) => ['📨', 'بانتظار الأخصائي', `طلب طبيبك من ${o} أن يراك. ننتظر ردهم وسنخبرك. لا يلزمك فعل أي شيء.`, 'اسأل ممرضة'],
+      accepted: (o, d) => ['🤝', `${o} سيراك`, `${d} يتولى رعايتك الآن. سيتواصل معك بشأن موعدك.`, 'اسأل ممرضة'],
+      rejected: ['🔄', 'طبيبك يرتب طريقة أخرى', 'لم تتمكن العيادة الأولى من استقبالك الآن. يختار طبيبك الخطوة التالية. لا يلزمك فعل أي شيء.', 'اسأل ممرضة'],
+      completed: ['📄', 'أرسل الأخصائي تقريره', 'يكتب طبيبك الآن خطتك معك.', 'اسأل ممرضة'],
+      treat: ['💊', 'بدأت خطة علاجك', 'سيبقى طبيبك على تواصل معك ويتابع حالتك.', 'اسأل ممرضة'],
+      surv: ['🌱', 'خطتك: عادات صحية وإعادة الفحص', 'اتفق معك طبيبك على خطة. سنذكّرك عند حلول موعد فحصك القادم.', 'اسأل ممرضة'],
+      done: ['🎉', 'اكتمل كل شيء. رعايتك محدّثة.', 'شكراً لاهتمامك بصحتك.', ''],
+    },
+    careBy: 'من يعتني بك', noOwner: 'سيُخصَّص لك أحد أعضاء الفريق قريباً جداً.', role: { nurse: 'ممرضة', coordinator: 'منسق الرعاية', clinician: 'طبيب' },
+    qListen: 'استمع إلى نتيجتي', qNurse: 'تحدث مع ممرضة', qFamily: 'مساعد من العائلة',
+    nurseT: 'تحدث مع ممرضة', nurseSub: 'يمكن للممرضة أن تشرح نتيجتك، وتجيب عن مخاوفك، وتساعدك في الحجز.', when: 'أفضل وقت للاتصال', morning: 'صباحاً', afternoon: 'بعد الظهر', evening: 'مساءً',
+    chanQ: 'كيف تفضل أن نتواصل معك؟', chan: { app: 'هذا التطبيق', sms: 'رسالة نصية', whatsapp: 'واتساب', phone: 'اتصال هاتفي' },
+    note: 'أي شيء تريد أن تعرفه الممرضة (اختياري)', ask: 'اطلب من ممرضة أن تتصل بي', asked: 'تم! ستتصل بك ممرضة.',
     sos: 'إذا شعرت بتعب شديد أو عطش شديد أو ارتباك أو غثيان فلا تنتظر. اتصل بالإسعاف على 998.',
-    fam: 'مساعد من العائلة (اختياري)', famSub: 'يمكنك السماح لفرد واحد من عائلتك برؤية موعدك والتذكيرات ليساعدك. لن يرى رقم نتيجتك أبداً. ويمكنك التوقف في أي وقت.',
-    famName: 'اسمه', famRel: 'من هو (ابنتي، ابني، صديق...)', famOn: 'شارك معه حالة موعدي', famDone: (n) => `سيرى ${n} حالة موعدك والتذكيرات فقط.`, famOff: 'إيقاف المشاركة',
+    fam: 'مساعد من العائلة', famSub: 'اسمح لفرد واحد من عائلتك برؤية موعدك والتذكيرات ليساعدك. لن يرى رقم نتيجتك أبداً. ويمكنك التوقف في أي وقت.',
+    famName: 'اسمه', famRel: 'من هو؟ (ابنتي، ابني، صديق…)', famOn: 'شارك حالة موعدي', famDone: (n) => `سيرى ${n} حالة موعدك والتذكيرات فقط.`, famOff: 'إيقاف المشاركة',
     famPreview: 'ما سيصله:', famMsg: 'تم شرح نتيجة والدتك وحجز موعدها.',
-    done: 'رعايتك مكتملة. شكراً لك.', reset: 'إعادة ضبط العرض', seeStaff: 'شاهد هذه الحالة في شاشة الفريق',
-    pref: 'كيف تفضل أن نتواصل معك؟', chan: { app: 'هذا التطبيق', sms: 'رسالة نصية', whatsapp: 'واتساب', phone: 'اتصال هاتفي' },
-    confQ: 'ما مدى ثقتك بما ستفعله بعد ذلك؟', confLow: 'لست واثقاً', confHigh: 'واثق جداً', confThanks: 'شكراً لك. هذا يساعدنا على التحسين.',
-    cost: 'يمكننا التحقق من تأمينك قبل أن تقرر.', stepOf: ['النتيجة', 'الفهم', 'الخطة', 'الحجز'], nurseReq: 'تم طلب اتصال من ممرضة',
+    confQ: 'ما مدى ثقتك بما سيحدث بعد ذلك؟', confThanks: 'شكراً لك. هذا يساعدنا على التحسين.',
+    seeStaff: 'شاهد هذه الحالة في شاشة الفريق',
   },
 };
-const LANGS = { ar: 'العربية', en: 'English', ur: 'اردو (Urdu)', hi: 'हिन्दी (Hindi)', tl: 'Tagalog' };
 
 /* ---------- state ---------- */
 let state = loadState();
 const params = new URLSearchParams(location.search);
 let id = params.get('p') || 'C-001';
 let lang = params.get('lang') || (() => { try { return localStorage.getItem('jissr.lang') || 'en'; } catch { return 'en'; } })();
+let view = 'home';       // home | result | book | nurse | family
 let level = 'normal';
 let speaking = false;
-let msg = {};            // small status messages
-let aiBox = {};          // cached AI text: key -> {text, source}
+let msg = {};            // small, temporary screen state
+let aiBox = {};          // AI or template text already shown, by key
 const patientActor = () => ({ type: 'patient', name: 'Patient (in app)' });
 const sysActor = { type: 'system', name: 'Jissr system' };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -96,6 +168,8 @@ const save = () => saveState(state);
 const T = () => S[lang];
 const loc = () => (lang === 'ar' ? 'ar-AE' : 'en-GB');
 const fmtDay = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString(loc(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+const staffOf = (sid) => state.staff.find((s) => s.id === sid);
+const stageIdx = (c) => ['result', 'notified', 'understood', 'booked', 'attended', 'confirmed', 'referred', 'care_plan', 'closed'].indexOf(c.stage);
 
 // Opening the app counts as "patient notified" in this demo.
 function ensureNotified() {
@@ -126,166 +200,206 @@ function barrierNow(c) {
   return t;
 }
 
-/* ---------- screens ---------- */
-const stageIdx = (c) => ['result', 'notified', 'understood', 'booked', 'attended', 'confirmed', 'referred', 'care_plan', 'closed'].indexOf(c.stage);
-function stepsHtml(c) {
-  const i = stageIdx(c);
-  const n = i >= 3 ? 4 : i >= 2 ? 3 : c.barrier !== 'none' ? 2 : 1;
-  return `<div class="steps" aria-hidden="true">${[0, 1, 2, 3].map((k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}</div>
-  <div class="row tiny muted">${T().stepOf.map((l) => `<span>${l}</span>`).join(' · ')}</div>`;
+/* ---------- pieces ---------- */
+const topBar = () => `<div class="top"><div class="brand">Jissr · جسر</div>
+  <div class="seg" role="group" aria-label="Language">
+    <button data-lang="en" aria-pressed="${lang === 'en'}">English</button>
+    <button data-lang="ar" aria-pressed="${lang === 'ar'}">العربية</button>
+  </div></div>`;
+
+// where the patient is on the journey (0..4), or 5 when everything is done
+function journeyStep(c) {
+  switch (c.stage) {
+    case 'closed': return 5;
+    case 'result': case 'notified': return 0;
+    case 'understood': return 1;
+    case 'booked': return 2;
+    case 'attended': case 'confirmed': case 'referred': return 3;
+    default: return 4; // care_plan
+  }
+}
+function trackerHtml(c) {
+  const now = journeyStep(c);
+  return `<div class="track" role="list" aria-label="Your journey">${T().steps.map((l, i) => {
+    const cls = i < now ? 'done' : i === now ? 'now' : '';
+    return `<div class="trk ${cls}" role="listitem"><div class="dot">${i < now ? '✓' : i + 1}</div>${l}</div>`;
+  }).join('')}</div>`;
+}
+
+// the one big card: what happens next, in one sentence, with one button
+function nextCard(c) {
+  const t = T(), n = t.n;
+  const slotTxt = c.slot ? `${fmtDay(c.slot.day)}, ${c.slot.time}` : '';
+  const r = c.referral;
+  let d, action = 'nurse', cls = 'wait';
+  switch (c.stage) {
+    case 'result': case 'notified': d = n.read; action = 'result'; cls = ''; break;
+    case 'understood': d = n.book; action = 'book'; cls = ''; break;
+    case 'booked': d = n.booked(slotTxt || '…'); action = c.slot ? 'ics' : 'none'; cls = 'ok'; break;
+    case 'attended': d = n.attended; break;
+    case 'confirmed': d = n.confirmed; break;
+    case 'referred': {
+      const owner = staffOf(c.owner);
+      if (!r) d = n.confirmed;
+      else if (r.status === 'sent') d = n.sent(r.to);
+      else if (r.status === 'accepted') d = n.accepted(r.to, owner ? owner.name : '');
+      else if (r.status === 'rejected') d = n.rejected;
+      else d = n.completed;
+      break;
+    }
+    case 'care_plan': d = c.plan && c.plan.kind === 'surveillance' ? n.surv : n.treat; break;
+    default: d = n.done; action = 'none'; cls = 'ok';
+  }
+  const [ico, title, sub, btn] = d;
+  return `<section class="next ${cls}"><div class="ico" aria-hidden="true">${ico}</div><h2>${esc(title)}</h2><p>${esc(sub)}</p>
+    ${btn && action !== 'none' ? `<button class="btn" id="next-go" data-a="${action}">${btn}</button>` : ''}</section>`;
+}
+
+function contactCard(c) {
+  const t = T(), o = staffOf(c.owner);
+  return `<section class="card"><div class="tiny muted">${t.careBy}</div>
+    ${o ? `<div class="who" style="margin-top:8px"><div class="avatar" aria-hidden="true">${o.role === 'clinician' ? '🩺' : o.role === 'nurse' ? '👩‍⚕️' : '🗂️'}</div>
+      <div><b>${esc(o.name)}</b><br><span class="muted">${t.role[o.role]} · ${esc(o.org)}</span></div></div>`
+      : `<p style="margin-bottom:0">${t.noOwner}</p>`}
+  </section>`;
+}
+
+/* ---------- views ---------- */
+function homeView(c) {
+  const t = T();
+  const first = c.patient.name.split(' ')[0];
+  let h = `${topBar()}<div class="view">
+    <h1 style="margin:6px 0 2px">${esc(t.hello(first))}</h1>
+    ${trackerHtml(c)}
+    ${nextCard(c)}
+    ${contactCard(c)}
+    <div class="actions">
+      <button class="act" data-go="result"><span>🔊</span>${t.qListen}</button>
+      <button class="act" data-go="nurse"><span>📞</span>${t.qNurse}</button>
+      <button class="act" data-go="family"><span>👪</span>${t.qFamily}</button>
+    </div>`;
+  if (stageIdx(c) >= 3 && c.stage !== 'closed') {
+    h += `<section class="card"><h3>${t.confQ}</h3><div class="faces">${['😟', '🙁', '😐', '🙂', '😄'].map((f, i) => `<button class="face" data-conf="${i + 1}" aria-label="${i + 1}" aria-pressed="${c.confidence && c.confidence.score === i + 1}">${f}</button>`).join('')}</div>
+      ${msg.confDone ? `<div class="ok-msg" style="margin-bottom:0">${t.confThanks}</div>` : ''}</section>`;
+  }
+  h += `<p class="foot"><a href="staff.html?c=${esc(c.id)}">${t.seeStaff}</a><br>Synthetic demo · not medical advice</p></div>`;
+  return h;
+}
+
+function resultView(c) {
+  const t = T();
+  const ex = explainNow(c);
+  const cls = classify(c.value);
+  const understood = stageIdx(c) >= 2;
+  return `${topBar()}<div class="view"><button class="back" data-go="home">${t.back}</button>
+    <section class="card"><div class="tiny muted">${t.yourTest}</div>
+      <div class="big">${cls.value}<span style="font-size:1.4rem"> %</span></div>
+      <span class="chip ${cls.urgency}">${t.band[cls.band]}</span>
+      <p style="margin-top:12px;font-size:1.05em">${esc(ex.text)}</p>
+      <div class="notdx" role="note">${t.notdx}</div>
+      <div class="row">
+        ${'speechSynthesis' in window ? `<button class="btn ghost small" id="listen">${speaking ? '⏹ ' + t.stop : '🔊 ' + t.listen}</button>` : ''}
+        ${level === 'normal' ? `<button class="btn ghost small" id="simpler">${t.simpler}</button>` : ''}
+      </div>
+      <div class="tag">${ex.source === 'ai' ? t.ai : t.tpl}</div>
+    </section>
+    <section class="card center"><h2>${t.sense}</h2>
+      ${understood ? `<div class="tick" aria-hidden="true">✓</div><p class="ok-msg">${t.thanks}</p><button class="btn bigbtn" data-go="home">${t.cont}</button>`
+        : msg.no ? `<p class="muted">${t.noHelp}</p><div class="row" style="justify-content:center"><button class="btn" id="yes">${t.yes}</button><button class="btn ghost" data-go="nurse">${t.qNurse}</button></div>`
+        : `<div class="row" style="justify-content:center"><button class="btn bigbtn" id="yes">${t.yes}</button><button class="btn ghost bigbtn" id="no">${t.no}</button></div>`}
+    </section></div>`;
+}
+
+function bookView(c) {
+  const t = T();
+  const booked = stageIdx(c) >= 3;
+  if (booked) {
+    return `${topBar()}<div class="view center"><div class="tick" aria-hidden="true">✓</div><h1>${t.booked}</h1>
+      ${c.slot ? `<p style="font-size:1.25rem"><b>${fmtDay(c.slot.day)} · ${c.slot.time}</b></p>` : ''}
+      <p class="muted">${t.where}</p>
+      <label style="display:flex;gap:10px;align-items:center;justify-content:center;font-weight:400"><input type="checkbox" id="rem" style="width:auto" ${c.reminder ? 'checked' : ''}> ${t.remind}</label>
+      ${c.reminder ? `<div class="ok-msg">${t.remindOn}</div>` : ''}
+      ${c.slot ? `<p><button class="btn ghost" id="ics">📅 ${t.cal}</button></p>` : ''}
+      <p><button class="btn bigbtn" data-go="home">${t.home}</button></p></div>`;
+  }
+  const bar = barrierNow(c);
+  const slots = slotsFor({ band: c.band, barrier: c.barrier }, state.today);
+  return `${topBar()}<div class="view"><button class="back" data-go="home">${t.back}</button>
+    <section class="card"><h2>${t.barrierQ}</h2><p class="muted">${t.barrierSub}</p>
+      <div class="chips">${BARRIERS.map((b) => `<button class="pick" data-b="${b}" aria-pressed="${c.barrier === b}">${t.barrier[b]}</button>`).join('')}</div>
+      ${c.barrier !== 'none' ? `<div class="card soft" style="margin-bottom:0"><p style="margin-top:0">${esc(bar.text)}</p><div class="tag">${bar.source === 'ai' ? t.ai : t.tpl}</div>
+        ${['fear', 'cost', 'language', 'dont_understand'].includes(c.barrier) ? `<button class="btn small" data-go="nurse">📞 ${t.qNurse}</button>` : ''}</div>` : ''}
+    </section>
+    <section class="card"><h2>${t.pick}</h2>
+      <div class="slots">${slots.map((s, i) => `<button class="pick slotbtn" data-slot="${i}" aria-pressed="${msg.slot === i}">${fmtDay(s.day)}<br><b>${s.time}</b></button>`).join('')}</div>
+      <p><button class="btn bigbtn" id="confirm" ${msg.slot == null ? 'disabled' : ''}>${t.confirm}</button></p>
+    </section></div>`;
+}
+
+function nurseView(c) {
+  const t = T();
+  const waiting = c.nurseRequest && !c.nurseRequest.done;
+  return `${topBar()}<div class="view"><button class="back" data-go="home">${t.back}</button>
+    <section class="card"><h2>📞 ${t.nurseT}</h2><p class="muted">${t.nurseSub}</p>
+      ${waiting ? `<div class="tick" aria-hidden="true">✓</div><div class="ok-msg">${t.asked}<br><span class="tiny">${nurseText(lang)}</span></div>`
+        : `<label for="nw">${t.when}</label><select id="nw"><option value="morning">${t.morning}</option><option value="afternoon">${t.afternoon}</option><option value="evening">${t.evening}</option></select>
+        <label>${t.chanQ}</label><div class="chips">${['app', 'sms', 'whatsapp', 'phone'].map((k) => `<button class="pick" data-ch="${k}" aria-pressed="${c.channel === k}">${t.chan[k]}</button>`).join('')}</div>
+        <label for="nn">${t.note}</label><textarea id="nn" maxlength="300">${esc(msg.nn || '')}</textarea>
+        <p><button class="btn bigbtn" id="nurse-go">${t.ask}</button></p>`}
+      <div class="sos" role="note">${t.sos}</div>
+    </section></div>`;
+}
+
+function familyView(c) {
+  const t = T(), fh = c.familyHelper;
+  return `${topBar()}<div class="view"><button class="back" data-go="home">${t.back}</button>
+    <section class="card"><h2>👪 ${t.fam}</h2><p class="muted">${t.famSub}</p>
+      ${fh && fh.consent
+        ? `<div class="ok-msg">${esc(t.famDone(fh.name))}</div>
+           <div class="card soft"><div class="tiny muted">${t.famPreview}</div><p style="margin-bottom:0">${t.famMsg}</p></div>
+           <button class="btn ghost" id="fam-off">${t.famOff}</button>`
+        : `<label for="fn">${t.famName}</label><input id="fn" maxlength="40" value="${esc(msg.fn || '')}"><label for="fr">${t.famRel}</label><input id="fr" maxlength="30" value="${esc(msg.fr || '')}">
+           <p><button class="btn bigbtn" id="fam-on">${t.famOn}</button></p>`}
+    </section></div>`;
 }
 
 function render() {
   const c = cur();
-  const t = T();
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   document.title = 'Jissr · ' + (lang === 'ar' ? 'نتيجتك' : 'your result');
-  const first = c.patient.name.split(' ')[0];
-  const ex = explainNow(c);
-  const cls = classify(c.value);
-  const understood = stageIdx(c) >= 2;
-  const booked = stageIdx(c) >= 3;
-  const closed = c.stage === 'closed';
-  const slot = c.slot;
-  const bar = barrierNow(c);
-  const plan = barrierPlan(c.barrier);
-
-  let h = `<div class="top"><div class="brand">Jissr · جسر</div>
-    <div class="seg" role="group" aria-label="Language">
-      <button data-lang="en" aria-pressed="${lang === 'en'}">English</button>
-      <button data-lang="ar" aria-pressed="${lang === 'ar'}">العربية</button>
-    </div></div>
-    ${stepsHtml(c)}
-    <h1 style="margin-top:14px">${esc(t.hello(first))}</h1><p class="muted">${t.sub}</p>`;
-
-  // 1. the result
-  h += `<section class="card" aria-labelledby="r1">
-    <div class="tiny muted" id="r1">${t.yourTest}</div>
-    <div class="big">${cls.value}<span style="font-size:1.4rem"> %</span></div>
-    <span class="chip ${cls.urgency}">${t.band[cls.band]}</span>
-    <p style="margin-top:12px;font-size:1.05em">${esc(ex.text)}</p>
-    <div class="notdx" role="note">${t.notdx}</div>
-    <div class="row">
-      ${'speechSynthesis' in window ? `<button class="btn ghost small" id="listen">${speaking ? t.stop : '🔊 ' + t.listen}</button>` : ''}
-      ${level === 'normal' ? `<button class="btn ghost small" id="simpler">${t.simpler}</button>` : ''}
-    </div>
-    <div class="tag">${ex.source === 'ai' ? t.ai : t.tpl}</div>
-  </section>`;
-
-  if (closed) {
-    h += `<div class="ok-msg">${t.done}</div>`;
-  } else {
-    // 2. did it make sense
-    h += `<section class="card"><h2>${t.sense}</h2>`;
-    if (understood) h += `<div class="ok-msg">${t.thanks}</div>`;
-    else h += `<div class="row"><button class="btn" id="yes">${t.yes}</button><button class="btn ghost" id="no">${t.no}</button></div>`;
-    h += `</section>`;
-
-    // 3. what makes it hard
-    h += `<section class="card"><h2>${t.barrierQ}</h2><p class="muted">${t.barrierSub}</p>
-      <div class="chips">${BARRIERS.map((b) => `<button class="pick" data-b="${b}" aria-pressed="${c.barrier === b}">${t.barrier[b]}</button>`).join('')}</div>`;
-    if (c.barrier !== 'none') {
-      h += `<div class="card soft" style="margin-bottom:0"><p>${esc(bar.text)}</p>
-        <div class="tag">${bar.source === 'ai' ? t.ai : t.tpl}</div>`;
-      if (plan.offer === 'language_support') {
-        h += `<label for="lq">${t.langq}</label><select id="lq">${Object.entries(LANGS).map(([k, v]) => `<option value="${k}" ${k === c.patient.language ? 'selected' : ''}>${v}</option>`).join('')}</select>`;
-      }
-      if (['nurse_call_first', 'explain_again_and_nurse', 'cost_check', 'language_support'].includes(plan.offer)) {
-        h += `<p><button class="btn small" id="nurse-quick">${c.nurseRequest ? '✓ ' + t.nurseReq : t.ask}</button></p>`;
-      }
-      h += `</div>`;
-    }
-    h += `</section>`;
-
-    // 4. book
-    h += `<section class="card"><h2>${t.book}</h2>`;
-    if (booked) {
-      h += `<div class="ok-msg">✓ ${t.booked}${slot ? ': ' + fmtDay(slot.day) + ', ' + slot.time : ''}</div><p class="muted">${t.where}</p>
-        <label style="display:flex;gap:10px;align-items:center;font-weight:400"><input type="checkbox" id="rem" style="width:auto" ${c.reminder ? 'checked' : ''}> ${t.remind}</label>
-        ${c.reminder ? `<div class="ok-msg">${t.remindOn}</div>` : ''}
-        ${slot ? `<button class="btn ghost small" id="ics">📅 ${t.cal}</button>` : ''}`;
-    } else if (!understood) {
-      h += `<p class="muted">${t.bookWait}</p>`;
-    } else {
-      const slots = slotsFor({ band: c.band, barrier: c.barrier }, state.today);
-      h += `<p class="muted">${t.pick}</p><div class="slots">${slots.map((s, i) => `<button class="pick" data-slot="${i}" aria-pressed="${msg.slot === i}">${fmtDay(s.day)}<br><b>${s.time}</b></button>`).join('')}</div>
-        <p><button class="btn" id="confirm" ${msg.slot == null ? 'disabled' : ''}>${t.confirm}</button></p>`;
-    }
-    h += `</section>`;
-  }
-
-  // preferences: contact channel, and how confident the patient feels (feeds the measures page)
-  h += `<section class="card"><h2>${t.pref}</h2>
-    <div class="chips">${['app', 'sms', 'whatsapp', 'phone'].map((k) => `<button class="pick" data-ch="${k}" aria-pressed="${c.channel === k}">${t.chan[k]}</button>`).join('')}</div>`;
-  if (understood) {
-    h += `<h3 style="margin-top:16px">${t.confQ}</h3>`;
-    if (c.confidence && msg.confDone) h += `<div class="ok-msg">${t.confThanks}</div>`;
-    h += `<div class="chips">${[1, 2, 3, 4, 5].map((n) => `<button class="pick" data-conf="${n}" aria-pressed="${c.confidence && c.confidence.score === n}" aria-label="${n}">${n}</button>`).join('')}</div>
-      <div class="row tiny muted" style="justify-content:space-between;margin-top:4px"><span>${t.confLow}</span><span>${t.confHigh}</span></div>`;
-  }
-  h += `</section>`;
-
-  // 5. nurse (always available)
-  h += `<section class="card" id="nurse"><h2>${t.nurse}</h2><p class="muted">${t.nurseSub}</p>`;
-  if (c.nurseRequest && !c.nurseRequest.done) h += `<div class="ok-msg">${t.asked}<br><span class="tiny">${nurseText(lang)}</span></div>`;
-  else h += `<label for="nw">${t.when}</label><select id="nw"><option value="morning">${t.morning}</option><option value="afternoon">${t.afternoon}</option><option value="evening">${t.evening}</option></select>
-    <label for="nn">${t.note}</label><textarea id="nn" maxlength="300"></textarea>
-    <p><button class="btn" id="nurse-go">${t.ask}</button></p>`;
-  h += `<div class="sos" role="note">${t.sos}</div></section>`;
-
-  // 6. family helper
-  const fh = c.familyHelper;
-  h += `<section class="card"><h2>${t.fam}</h2><p class="muted">${t.famSub}</p>`;
-  if (fh && fh.consent) {
-    h += `<div class="ok-msg">${esc(t.famDone(fh.name))}</div>
-      <div class="card soft"><div class="tiny muted">${t.famPreview}</div><p>${t.famMsg}</p></div>
-      <button class="btn ghost small" id="fam-off">${t.famOff}</button>`;
-  } else {
-    h += `<label for="fn">${t.famName}</label><input id="fn" maxlength="40"><label for="fr">${t.famRel}</label><input id="fr" maxlength="30">
-      <p><button class="btn" id="fam-on">${t.famOn}</button></p>`;
-  }
-  h += `</section>
-    <p class="foot"><a href="staff.html?c=${esc(c.id)}">${t.seeStaff}</a><br>Synthetic demo · not medical advice</p>`;
-
-  const keep = { fn: document.getElementById('fn')?.value, fr: document.getElementById('fr')?.value, nn: document.getElementById('nn')?.value };
-  document.getElementById('app').innerHTML = h;
-  if (keep.fn) document.getElementById('fn') && (document.getElementById('fn').value = keep.fn);
-  if (keep.fr) document.getElementById('fr') && (document.getElementById('fr').value = keep.fr);
-  if (keep.nn) document.getElementById('nn') && (document.getElementById('nn').value = keep.nn);
-  wire();
+  const v = { home: homeView, result: resultView, book: bookView, nurse: nurseView, family: familyView }[view] || homeView;
+  document.getElementById('app').innerHTML = v(c);
+  wire(c);
 }
 
 function act(fn) { try { fn(); save(); } catch (e) { alert(e.message); } render(); }
+const go = (v) => { view = v; msg = { ...msg, no: false }; stopSpeak(); window.scrollTo({ top: 0 }); render(); };
 
-function wire() {
+function wire(c) {
   const $ = (s) => document.querySelector(s);
-  const c = cur();
   document.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => { lang = b.dataset.lang; try { localStorage.setItem('jissr.lang', lang); } catch { } stopSpeak(); render(); });
+  document.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => go(b.dataset.go));
+  $('#next-go') && ($('#next-go').onclick = () => { const a = $('#next-go').dataset.a; a === 'ics' ? downloadIcs() : go(a); });
   $('#listen') && ($('#listen').onclick = () => { speaking ? stopSpeak() : speak(explainNow(c).text); render(); });
   $('#simpler') && ($('#simpler').onclick = () => { level = 'simple'; render(); });
-  $('#yes') && ($('#yes').onclick = () => act(() => advance(state, c.id, 'understood', patientActor(), 'Patient confirmed they understood')));
-  $('#no') && ($('#no').onclick = () => { level = 'simple'; msg.noted = true; act(() => setBarrier(state, c.id, c.barrier === 'none' ? 'dont_understand' : c.barrier, patientActor())); });
+  $('#yes') && ($('#yes').onclick = () => act(() => { if (stageIdx(c) < 2) advance(state, c.id, 'understood', patientActor(), 'Patient confirmed they understood'); msg.no = false; }));
+  $('#no') && ($('#no').onclick = () => { level = 'simple'; msg.no = true; act(() => { if (c.barrier === 'none') setBarrier(state, c.id, 'dont_understand', patientActor()); }); });
   document.querySelectorAll('[data-b]').forEach((b) => b.onclick = () => act(() => setBarrier(state, c.id, b.dataset.b, patientActor())));
-  $('#nurse-quick') && ($('#nurse-quick').onclick = () => {
-    if (c.nurseRequest) return;
-    const l = $('#lq') ? ' (language: ' + $('#lq').value + ')' : '';
-    act(() => requestNurse(state, c.id, patientActor(), 'Asked for help: ' + c.barrier + l));
-  });
   document.querySelectorAll('[data-slot]').forEach((b) => b.onclick = () => { msg.slot = +b.dataset.slot; render(); });
   $('#confirm') && ($('#confirm').onclick = () => {
     const s = slotsFor({ band: c.band, barrier: c.barrier }, state.today)[msg.slot];
-    act(() => { advance(state, c.id, 'booked', patientActor(), `Booked ${s.day} ${s.time}`); c.slot = s; msg.slot = null; });
+    act(() => { advance(state, c.id, 'booked', patientActor(), `Booked ${s.day} ${s.time}`); c.slot = s; c.reminder = { when: '1 day before', at: new Date().toISOString() }; msg.slot = null; });
   });
   $('#rem') && ($('#rem').onchange = (e) => act(() => { c.reminder = e.target.checked ? { when: '1 day before', at: new Date().toISOString() } : null; }));
   $('#ics') && ($('#ics').onclick = downloadIcs);
-  document.querySelectorAll('[data-ch]').forEach((b) => b.onclick = () => act(() => setChannel(state, c.id, b.dataset.ch, patientActor())));
-  document.querySelectorAll('[data-conf]').forEach((b) => b.onclick = () => { msg.confDone = true; act(() => recordConfidence(state, c.id, +b.dataset.conf, patientActor())); });
+  document.querySelectorAll('[data-ch]').forEach((b) => b.onclick = () => { msg.nn = $('#nn') ? $('#nn').value : msg.nn; act(() => setChannel(state, c.id, b.dataset.ch, patientActor())); });
   $('#nurse-go') && ($('#nurse-go').onclick = () => act(() => requestNurse(state, c.id, patientActor(), `Preferred time: ${$('#nw').value}. ${$('#nn').value.trim()}`.trim())));
+  document.querySelectorAll('[data-conf]').forEach((b) => b.onclick = () => { msg.confDone = true; act(() => recordConfidence(state, c.id, +b.dataset.conf, patientActor())); });
   $('#fam-on') && ($('#fam-on').onclick = () => {
     const n = $('#fn').value.trim();
     if (!n) { $('#fn').focus(); return; }
-    act(() => { c.familyHelper = { name: n, relation: $('#fr').value.trim(), consent: true, at: new Date().toISOString() }; c.events.push({ type: 'family', at: new Date().toISOString(), by: 'Patient (in app)', role: 'patient', note: `Allowed ${n} to see appointment status (not the result)` }); });
+    act(() => { c.familyHelper = { name: n, relation: $('#fr').value.trim(), consent: true, at: new Date().toISOString() }; c.events.push({ type: 'family', at: new Date().toISOString(), by: 'Patient (in app)', role: 'patient', note: `Allowed ${n} to see appointment status (not the result)` }); msg.fn = msg.fr = ''; });
   });
   $('#fam-off') && ($('#fam-off').onclick = () => act(() => { c.familyHelper = null; c.events.push({ type: 'family', at: new Date().toISOString(), by: 'Patient (in app)', role: 'patient', note: 'Stopped sharing with family helper' }); }));
 }
@@ -314,10 +428,10 @@ function downloadIcs() {
 /* ---------- demo bar ---------- */
 const who = document.getElementById('who');
 who.innerHTML = state.cases.map((c) => `<option value="${c.id}">${esc(c.patient.name)} · ${c.value}%</option>`).join('');
-who.value = id;
-who.onchange = () => { id = who.value; level = 'normal'; msg = {}; stopSpeak(); ensureNotified(); render(); };
-document.getElementById('reset').onclick = () => { state = resetState(); aiBox = {}; msg = {}; level = 'normal'; ensureNotified(); render(); };
+who.onchange = () => { id = who.value; level = 'normal'; msg = {}; view = 'home'; stopSpeak(); ensureNotified(); render(); };
+document.getElementById('reset').onclick = () => { state = resetState(); aiBox = {}; msg = {}; level = 'normal'; view = 'home'; ensureNotified(); render(); };
 if (!state.cases.some((c) => c.id === id)) id = state.cases[0].id;
+who.value = id;
 ensureNotified();
 render();
 </script>
