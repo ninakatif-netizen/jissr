@@ -43,3 +43,6 @@ export function roleFilter(filter, c, actor) {
   if (filter === 'inbox') return !!c.referral && c.referral.to === actor.org && ['sent', 'accepted'].includes(c.referral.status);
   return null; // not a role filter
 }
+
+// The roles that have a phone app (care.html). Lab and programme manager stay on the desktop dashboard.
+export const CARE_ROLES = ['nurse', 'gp', 'specialist', 'lead'];

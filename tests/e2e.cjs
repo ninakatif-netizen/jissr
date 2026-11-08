@@ -96,6 +96,20 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await s.click('#close'); await s.waitForTimeout(150);
   ok(/Not closed/.test(await s.innerText('#drawer')) && await s.locator('.rules li.bad').count() >= 1, 'closing without evidence lists the closure rules that are broken');
   await shot(s, '08b-command-center');
+  // ONE APP, TWO SIDES: start screen, then the care team app on a phone
+  const ph = await browser.newContext({ ...devices['iPhone 13'], storageState: await desk.storageState() });
+  const q = await ph.newPage(); watch(q, 'care app');
+  await q.goto(BASE + 'app.html'); await q.waitForTimeout(250);
+  ok(/I am a patient/.test(await q.innerText('body')) && /I work in care/.test(await q.innerText('body')), 'the app opens on "who are you?": patient or care team');
+  await q.click('#care'); await q.click('[data-role=specialist]'); await q.waitForTimeout(500);
+  ok(/Referral inbox/.test(await q.innerText('#app')) && await q.locator('.tab').count() === 4, 'the care team app has its own tabs and the specialist sees the referral inbox');
+  await q.click('.citem >> nth=0'); await q.waitForTimeout(250);
+  await q.fill('#rnote', 'Accepted, clinic slot this week'); await q.click('#racc'); await q.waitForTimeout(250);
+  ok(/You now own this case/.test(await q.innerText('#app')), 'on the phone, a specialist accepts a referral and becomes the owner');
+  await shot(q, '09-care-app');
+  await q.goto(BASE + 'care.html?role=nurse'); await q.waitForTimeout(400); await q.click('.citem >> nth=0'); await q.waitForTimeout(200);
+  ok(/Only a clinician can close/.test(await q.innerText('#app')), 'in the care app a nurse cannot close a case');
+  await ph.close();
   // one case, many organisations: a page per role
   await s.goto(BASE + 'roles.html'); await s.waitForTimeout(250);
   ok(await s.locator('.role').count() === 7, 'the "who are you?" page offers patient, lab, nurse, family doctor, specialist, clinical lead and programme manager');

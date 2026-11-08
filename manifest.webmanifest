@@ -2,7 +2,7 @@
   "name": "Jissr · جسر",
   "short_name": "Jissr",
   "description": "Understand your result, book your visit, and never get lost between screening and care. Synthetic demo.",
-  "start_url": "/patient.html",
+  "start_url": "/app.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

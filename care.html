@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jissr · care team</title>
+<meta name="description" content="Jissr care team app: today's tasks, cases, alerts and protocols, on a phone. Synthetic demo.">
+<meta name="theme-color" content="#f5eee3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Jissr">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app-shell.css">
+<style>
+.stats3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:4px 0 6px}
+.stat3{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;font:inherit;color:inherit;text-align:start;cursor:pointer}
+.stat3 b{display:block;font-size:22px;line-height:1.1}
+.stat3 span{font-size:11.5px;color:var(--muted)}
+.stat3.red b{color:#a3311f}.stat3.amber b{color:#8a5a0e}
+.citem{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:start;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin:0 0 8px;cursor:pointer}
+.pav{width:42px;height:42px;border-radius:50%;background:#e2e7f0;color:#14284b;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex:none}
+.pav.urgent{background:#fbe1dc;color:#a3311f}
+.ci{flex:1;min-width:0}
+.ci .nm{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.ci .nm b{font-weight:600;font-size:15px}
+.ci .res{font-weight:600;font-size:13.5px;white-space:nowrap}
+.ci .act{font-size:13.5px;margin:2px 0 6px}
+.ci .chips2{display:flex;flex-wrap:wrap;gap:6px}
+.prog{display:inline-block;font-size:11.5px;font-weight:600;border-radius:7px;padding:1px 7px;background:var(--card2);color:var(--muted)}
+.empty2{text-align:center;color:var(--muted);padding:26px 10px}
+.search{width:100%;margin:0 0 10px}
+.fchips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:6px;scrollbar-width:none}
+.fchips button{flex:none;border:0;border-radius:999px;background:var(--card2);color:var(--ink);font:inherit;font-size:13px;padding:8px 12px;cursor:pointer}
+.fchips button[aria-pressed=true]{background:#14284b;color:#fff}
+.alert{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:start;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin:0 0 8px;cursor:pointer}
+.alert.l3{border-color:#e9b7ad;background:#fdf1ee}
+.alert .gtile{width:38px;height:38px;border-radius:12px}
+.alert.l3 .gtile{background:#fbe1dc;color:#a3311f}
+.sopq{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;font:inherit;color:inherit;text-align:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin:0 0 8px;cursor:pointer}
+.sopq b{font-size:20px}.sopq small{display:block;color:var(--muted);font-size:12.5px}
+.phead{border-radius:22px;padding:16px;margin:0 0 12px}
+.phead h2{color:#fff;font-size:22px;margin:0}
+.phead .meta{font-size:13px;color:#d3d9e6;margin:2px 0 10px}
+.phead .big{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.phead .big b{font-size:30px;line-height:1}
+.phead .row2{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.phead .own{font-size:13px;color:#d3d9e6;margin-top:10px}
+.act-card h3{font-size:15px;margin:0 0 8px;font-family:var(--text);font-weight:600}
+.act-card .btn{width:100%;justify-content:center;margin-top:8px}
+.act-card textarea,.act-card input,.act-card select{width:100%;margin-top:6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.two .btn{margin-top:8px}
+.note2{font-size:13px;color:var(--muted);margin:6px 0 0}
+.flash{border-radius:14px;padding:10px 12px;font-size:14px;margin:0 0 12px}
+.flash.ok{background:#e3efe6;color:#1f6b45}.flash.err{background:#fbe1dc;color:#a3311f}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:flex;gap:10px;padding:6px 0;font-size:13.5px}
+.tl li i{width:14px;height:14px;border-radius:50%;border:2px solid #c9b99c;flex:none;margin-top:3px}
+.tl li.done i{background:#2f8a5b;border-color:#2f8a5b}
+.tl li.next i{border-color:#b8894d;box-shadow:0 0 0 3px #f4e7d2}
+.tl li.todo{color:var(--muted)}
+.tl small{display:block;color:var(--muted);font-size:12px}
+.rules2{font-size:12.5px;color:var(--muted);padding-inline-start:18px;margin:8px 0 0}
+.rules2 li.bad{color:#a3311f;font-weight:500}
+.me-card{display:flex;gap:12px;align-items:center}
+.linkrow{display:flex;align-items:center;gap:12px;width:100%;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:0 0 8px;text-decoration:none;cursor:pointer;text-align:start}
+.linkrow span{flex:1}
+</style>
+</head>
+<body>
+<div class="demo" style="justify-content:space-between;padding:8px 16px;font-size:13px"><span>Demo · synthetic data only · the role is not a real login</span><span><a href="staff.html">Desktop dashboard</a> · <a href="index.html">About</a></span></div>
+<div class="device">
+  <div class="screen" id="screen"><div class="wrap" id="app" aria-live="polite"></div></div>
+  <nav class="tabs" id="tabs" aria-label="Main"></nav>
+</div>
+<script type="module">
+import { registerSW } from './core/pwa.mjs';
+import { ic, logo, slaBadge, phaseChip } from './core/ui.mjs';
+import { loadState, saveState, resetState } from './core/store.mjs';
+import { roleView, roleFilter, CARE_ROLES } from './core/roles.mjs';
+import { progOf, stageLabel, resultText, targetsFor } from './core/programmes.mjs';
+import { STAGES, escalationsFor, maxLevel, cloePhase, slaClock, sopsFor, SOPS } from './core/rules.mjs';
+import {
+  advance, skipStage, closeCase, sendReferral, respondReferral, completeReferral, runSop, completeMicroConsult, logContact,
+  canRecord, nextStageOf, CLOSE_TYPES, PLAN_KINDS, CLOSURE_RULES, validateClosure, MIN_EVIDENCE, RuleError,
+} from './core/cases.mjs';
+registerSW();
+
+const params = new URLSearchParams(location.search);
+let roleId = CARE_ROLES.includes(params.get('role')) ? params.get('role') : (() => { try { const l = localStorage.getItem('jissr.lastApp') || ''; return l.startsWith('care:') ? l.slice(5) : null; } catch { return null; } })();
+if (!CARE_ROLES.includes(roleId)) location.replace('app.html?care=1');
+try { localStorage.setItem('jissr.lastApp', 'care:' + roleId); } catch { }
+const RV = roleView(roleId);
+let state = loadState();
+let tab = 'today', caseId = params.get('c'), cfilter = 'all', query = '', flash = null, sopFilter = null; // sopFilter: a protocol queue opened from Alerts
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const save = () => saveState(state);
+const staffOf = (id) => state.staff.find((s) => s.id === id);
+const me = () => { const s = staffOf(RV.as); return { type: 'staff', id: s.id, role: s.role, name: s.name, org: s.org }; };
+const initials = (n) => n.replace(/\((.*?)\)/g, '').split(/\s+/).filter((w) => !/^(Nurse|Dr)$/i.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+const fmt = (d) => d ? new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }) : '–';
+const fmtTs = (iso) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const nowMs = () => Date.parse(state.today + 'T' + new Date().toISOString().slice(11));
+const clockOf = (c) => slaClock(c, nowMs());
+const open = () => state.cases.filter((c) => c.stage !== 'closed');
+const escOf = (c) => escalationsFor(c, state.today);
+const TIER_RANK = { BREACHED: 0, WARNING: 1, ON_TRACK: 2 };
+const byUrgency = (a, b) => (TIER_RANK[clockOf(a)?.tier] ?? 3) - (TIER_RANK[clockOf(b)?.tier] ?? 3) || maxLevel(escOf(b)) - maxLevel(escOf(a));
+
+// what this person should do next on a case, in plain words
+function nextText(c) {
+  const r = c.referral, m = c.microConsult;
+  if (m && m.status === 'booked') return `10-minute call ${fmt(m.day)} at ${m.time}`;
+  if (c.nurseRequest && !c.nurseRequest.done) return 'Call the patient back';
+  if (!c.owner) return 'Assign an owner';
+  if (r && r.status === 'sent') return `Waiting for ${r.to}`;
+  if (r && r.status === 'accepted') return 'Specialist to report back';
+  if (r && r.status === 'rejected') return 'Referral rejected: new plan needed';
+  const n = nextStageOf(c);
+  if (c.stage === 'care_plan') return 'Close with evidence';
+  return n ? 'Record: ' + stageLabel(c, n) : 'Closed';
+}
+function myCases() {
+  const a = me();
+  const list = open().filter((c) => {
+    if (roleId === 'nurse') return c.owner === a.id || (c.microConsult && c.microConsult.nurseId === a.id && c.microConsult.status === 'booked');
+    if (roleId === 'lead') return escOf(c).some((e) => e.level >= 2);
+    return roleFilter(RV.filter, c, a);
+  });
+  return list.sort(byUrgency);
+}
+const caseItem = (c) => {
+  const k = clockOf(c);
+  return `<button class="citem" data-case="${c.id}"><span class="pav ${c.urgency === 'urgent' ? 'urgent' : ''}">${esc(initials(c.patient.name))}</span>
+    <span class="ci"><span class="nm"><b>${esc(c.patient.name)}</b><span class="res">${resultText(c)}</span></span>
+    <div class="act">${esc(nextText(c))}</div>
+    <span class="chips2"><span class="prog">${progOf(c).test}</span>${phaseChip(cloePhase(c))}${k ? slaBadge(k) : ''}</span></span></button>`;
+};
+
+/* ---------- tabs ---------- */
+function topBar() {
+  const a = me();
+  return `<div class="top"><span style="color:#14284b;display:inline-flex;align-items:center;gap:8px;font-weight:700">${logo(26)} Jissr</span><span class="who"><b>${esc(a.name)}</b>${RV.title}</span></div>`;
+}
+function todayView() {
+  const a = me(), list = myCases(), o = open();
+  const t = { BREACHED: 0, WARNING: 0 };
+  list.forEach((c) => { const k = clockOf(c); if (k && t[k.tier] !== undefined) t[k.tier]++; });
+  const first = a.name.replace(/^(Nurse|Dr)\s+/, '').split(' ')[0];
+  const title = { nurse: 'My patients', gp: 'Decisions waiting for you', specialist: 'Referral inbox', lead: 'Cases that need you' }[roleId];
+  return `${topBar()}<div class="view">
+    <h1 class="hi">Hello ${esc(first)}</h1><p class="sub2">${RV.part}</p>
+    <div class="stats3">
+      <button class="stat3" data-tab="cases"><b>${list.length}</b><span>${roleId === 'specialist' ? 'In my inbox' : 'For me'}</span></button>
+      <button class="stat3 red" data-tab="cases" data-f="BREACHED"><b>${t.BREACHED}</b><span>Deadline passed</span></button>
+      <button class="stat3 amber" data-tab="cases" data-f="WARNING"><b>${t.WARNING}</b><span>Due soon</span></button>
+    </div>
+    <p class="sec">${title}</p>
+    ${list.slice(0, 12).map(caseItem).join('') || `<div class="empty2">${ic('check', 28)}<p>Nothing waiting for you. Good.</p></div>`}
+    ${list.length > 12 ? `<button class="linkrow" data-tab="cases"><span>See all ${list.length}</span>${ic('next', 18)}</button>` : ''}
+  </div>`;
+}
+function casesView() {
+  const q = query.trim().toLowerCase();
+  const F = [['all', 'All open'], ['mine', 'For me'], ['BREACHED', 'Deadline passed'], ['WARNING', 'Due soon'], ['hba1c', 'HbA1c'], ['fit', 'Bowel'], ['mammo', 'Breast']];
+  const mine = new Set(myCases().map((c) => c.id));
+  let list = open().filter((c) => cfilter === 'all' ? true : cfilter === 'mine' ? mine.has(c.id) : ['BREACHED', 'WARNING'].includes(cfilter) ? clockOf(c)?.tier === cfilter : (c.programme || 'hba1c') === cfilter);
+  if (sopFilter) list = list.filter((c) => sopsFor(c, nowMs()).includes(sopFilter));
+  if (q) list = list.filter((c) => (c.patient.name + ' ' + c.id).toLowerCase().includes(q));
+  list.sort(byUrgency);
+  return `${topBar()}<div class="view"><h1 class="hi" style="font-size:26px">Cases</h1>
+    <input class="search" id="q" type="search" placeholder="Search name or case number" value="${esc(query)}" aria-label="Search">
+    <div class="fchips">${sopFilter ? `<button data-cf="all" aria-pressed="true">Protocol: ${SOPS[sopFilter].label} ×</button>` : F.map(([id, l]) => `<button data-cf="${id}" aria-pressed="${cfilter === id}">${l}</button>`).join('')}</div>
+    ${list.map(caseItem).join('') || '<div class="empty2">No cases here.</div>'}</div>`;
+}
+function alertsView() {
+  const al = open().flatMap((c) => escOf(c).map((e) => ({ c, e }))).sort((x, y) => y.e.level - x.e.level);
+  const sopN = (code) => open().filter((c) => sopsFor(c, nowMs()).includes(code)).length;
+  return `${topBar()}<div class="view"><h1 class="hi" style="font-size:26px">Alerts</h1>
+    <p class="sub2">Raised by fixed rules, never by the AI.</p>
+    <p class="sec">Protocols to run</p>
+    ${Object.entries(SOPS).map(([code, sp]) => `<button class="sopq" data-sop-list="${code}"><span><span style="font-weight:600">${sp.label}</span><small>${sp.when}</small></span><b>${sopN(code)}</b></button>`).join('')}
+    <p class="sec">Alerts (${al.length})</p>
+    ${al.slice(0, 25).map(({ c, e }) => `<button class="alert ${e.level >= 3 ? 'l3' : ''}" data-case="${c.id}"><span class="gtile">${ic(e.level >= 3 ? 'shield' : 'clock', 18)}</span><span class="ci"><b style="font-weight:600">${esc(c.patient.name)} · ${resultText(c)}</b><div class="act" style="margin:2px 0 0">${e.level >= 3 ? '<b>Clinical lead now:</b> ' : ''}${esc(e.text)}</div></span></button>`).join('')}
+  </div>`;
+}
+function meView() {
+  const a = me();
+  return `${topBar()}<div class="view"><h1 class="hi" style="font-size:26px">Me</h1>
+    <div class="card2 navy me-card"><span class="gtile">${ic(RV.icon, 22)}</span><span><b style="font-size:16px">${esc(a.name)}</b><div class="tiny">${RV.title} · ${esc(a.org)}</div></span></div>
+    <p class="sub2">${RV.part}</p>
+    <a class="linkrow" href="app.html?care=1">${ic('users', 20)}<span>Switch role</span>${ic('next', 18)}</a>
+    <a class="linkrow" href="app.html">${ic('home', 20)}<span>Back to the start screen</span>${ic('next', 18)}</a>
+    <a class="linkrow" href="staff.html?view=${roleId}&as=${a.id}">${ic('chart', 20)}<span>Open the desktop dashboard</span>${ic('next', 18)}</a>
+    <button class="linkrow" id="reset">${ic('refresh', 20)}<span>Reset the demo data</span></button>
+    <p class="note2" style="display:flex;gap:8px">${ic('shield', 18)}<span>The AI only words messages for patients. It cannot change, assign or close a case. Only a clinician can close a case, with written evidence.</span></p>
+  </div>`;
+}
+
+/* ---------- one case, full screen ---------- */
+function actionsHtml(c) {
+  const a = me(), isDoc = a.role === 'clinician', r = c.referral, m = c.microConsult, next = nextStageOf(c), out = [];
+  if (m && m.status === 'booked') out.push(`<div class="card2 act-card"><h3>${ic('phone', 16)} 10-minute call · ${fmt(m.day)} at ${m.time}</h3><div class="tiny muted">With ${esc(m.nurseName)}</div>
+    ${['nurse', 'clinician'].includes(a.role) ? `<input id="mcnote" placeholder="What was discussed (optional)"><button class="btn" id="mcdone">Mark call done</button>` : ''}</div>`);
+  if (c.stage === 'referred' && r && ['sent', 'accepted', 'rejected'].includes(r.status)) {
+    const recv = isDoc && a.org === r.to;
+    let h = `<div class="card2 act-card"><h3>${ic('send', 16)} Referral to ${esc(r.to)}</h3><div class="tiny muted">${esc(r.reason)}</div>`;
+    if (r.status === 'sent') h += recv ? `<textarea id="rnote" placeholder="Note to the referring doctor (needed to reject)"></textarea><div class="two"><button class="btn" id="racc">Accept</button><button class="btn ghost" id="rrej">Reject</button></div><p class="note2">Accepting makes you the owner of this case.</p>` : `<p class="note2">Waiting for a clinician at ${esc(r.to)} to accept or reject.</p>`;
+    else if (r.status === 'accepted') h += recv ? `<textarea id="rrep" placeholder="Report back (at least ${MIN_EVIDENCE} characters)"></textarea><button class="btn" id="rdone">Complete and report back</button>` : `<p class="note2">The specialist team owns the case until they report back.</p>`;
+    else h += isDoc ? `<p class="note2">Rejected: ${esc(r.note || '')}</p><select id="rto">${targetsFor(c).map((o) => `<option>${o}</option>`).join('')}</select><textarea id="rwhy" placeholder="Reason for the new referral"></textarea><button class="btn" id="rsend">Re-send referral</button>` : `<p class="note2">Rejected. A clinician must decide the next step.</p>`;
+    out.push(h + '</div>');
+  } else if (next === 'referred') {
+    out.push(`<div class="card2 act-card"><h3>${ic('send', 16)} Refer to a specialist?</h3>${isDoc ? `<select id="rto">${targetsFor(c).map((o) => `<option>${o}</option>`).join('')}</select><textarea id="rwhy" placeholder="Reason (or why a referral is not needed)"></textarea><div class="two"><button class="btn" id="rsend">Send referral</button><button class="btn ghost" id="skip" data-stage="referred">Not required</button></div>` : '<p class="note2">Only a clinician can refer, or decide it is not needed.</p>'}</div>`);
+  } else if (next === 'confirmed') {
+    const ok = canRecord('confirmed', a);
+    out.push(`<div class="card2 act-card"><h3>${ic('flask', 16)} ${stageLabel(c, 'confirmed')}</h3>${ok ? `<input id="stepnote" placeholder="Result or note"><div class="two"><button class="btn" id="step">Record</button><button class="btn ghost" id="skip" data-stage="confirmed" ${isDoc ? '' : 'disabled'}>Not required</button></div>` : '<p class="note2">Only a nurse or clinician can record this.</p>'}</div>`);
+  } else if (next === 'care_plan') {
+    out.push(`<div class="card2 act-card"><h3>${ic('plan', 16)} Treatment or surveillance plan</h3>${isDoc ? `<select id="kind">${Object.entries(PLAN_KINDS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select><input id="stepnote" placeholder="Note (optional)"><button class="btn" id="step">Record plan</button>` : '<p class="note2">Only a clinician can record the plan.</p>'}</div>`);
+  } else if (next && next !== 'closed') {
+    const ok = canRecord(next, a);
+    out.push(`<div class="card2 act-card"><h3>${ic('check', 16)} Next step: ${stageLabel(c, next)}</h3>${ok ? `<input id="stepnote" placeholder="Note (optional)"><button class="btn" id="step">Record: ${stageLabel(c, next)}</button>` : '<p class="note2">Your role cannot record this step.</p>'}</div>`);
+  }
+  return out.join('');
+}
+function caseView() {
+  const c = state.cases.find((x) => x.id === caseId);
+  if (!c) { caseId = null; return todayView(); }
+  const a = me(), isDoc = a.role === 'clinician', k = clockOf(c), e = escOf(c), o = staffOf(c.owner), idx = STAGES.indexOf(c.stage);
+  const sops = sopsFor(c, nowMs());
+  const tl = STAGES.map((s, i) => {
+    const ev = [...c.events].reverse().find((x) => x.type === s);
+    const cls = i <= idx ? 'done' : i === idx + 1 ? 'next' : 'todo';
+    return `<li class="${cls}"><i></i><span>${stageLabel(c, s)}${ev && ev.skipped ? ' (not required)' : ''}${ev ? `<small>${fmtTs(ev.at)} · ${esc(ev.by)}</small>` : ''}</span></li>`;
+  }).join('');
+  return `${topBar()}<div class="view">
+    <div class="bar2"><button class="backbtn" id="back" aria-label="Back">${ic('back', 20)}</button><h1>${c.id}</h1></div>
+    ${flash ? `<div class="flash ${flash.err ? 'err' : 'ok'}">${esc(flash.text)}</div>` : ''}
+    <section class="phead navy"><h2>${esc(c.patient.name)}</h2><div class="meta">Age ${c.patient.age} · speaks ${esc(c.patient.language)} · ${progOf(c).name}</div>
+      <div class="big"><b>${resultText(c)}</b><span class="tiny">${({ urgent: 'Urgent', priority: 'Priority', routine: 'Routine' })[c.urgency] || ''}</span></div>
+      <div class="row2">${phaseChip(cloePhase(c))}${slaBadge(k)}</div>
+      ${k ? `<div class="own">${k.stepText}, by ${fmtTs(k.deadline)}</div>` : ''}
+      <div class="own">Owner: <b style="color:#fff">${o ? esc(o.name) : 'Unassigned'}</b>${o ? ` · ${esc(o.org)}` : ''}</div></section>
+    ${e.length ? `<div class="flash err"><b>Needs attention</b>${e.map((x) => `<div>${x.level >= 3 ? 'Clinical lead now: ' : ''}${esc(x.text)}</div>`).join('')}</div>` : ''}
+    ${c.stage !== 'closed' ? actionsHtml(c) : `<div class="flash ok">Closed by ${esc(c.closed?.by || '')}: ${esc(CLOSE_TYPES[c.closed?.type] || '')}<br>${esc(c.closed?.evidence || '')}</div>`}
+    ${c.stage !== 'closed' ? `<div class="card2 act-card"><h3>${ic('phone', 16)} Contact</h3><input id="contact" placeholder="Log a call or message"><button class="btn ghost" id="log">Log contact</button></div>` : ''}
+    ${c.stage !== 'closed' && (sops.length || isDoc || ['nurse', 'coordinator'].includes(a.role)) ? `<p class="sec">Protocols</p>${Object.entries(SOPS).filter(([code]) => code === 'refusal' || sops.includes(code)).map(([code, sp]) => `<div class="card2 act-card"><h3>${sp.label}${sops.includes(code) ? ' <span class="chip warn">applies now</span>' : ''}</h3><div class="tiny muted">${sp.when}</div>
+      ${code === 'refusal' ? (c.refusal ? `<p class="note2">Recorded: "${esc(c.refusal.reason)}". Re-contact ${fmt(c.refusal.recontact)}.</p>` : `<textarea id="sopreason" placeholder="The patient's reason, in their words"></textarea><button class="btn ghost" data-sop="refusal">Record refusal and book re-contact</button>`) : `<button class="btn" data-sop="${code}">Run protocol</button>`}</div>`).join('')}` : ''}
+    ${c.stage !== 'closed' ? `<p class="sec">Close the case</p><div class="card2 act-card">${isDoc ? `<select id="ctype">${Object.entries(CLOSE_TYPES).map(([k2, v]) => `<option value="${k2}">${v}</option>`).join('')}</select><textarea id="cev" placeholder="Evidence: what was seen, decided and booked (at least ${MIN_EVIDENCE} characters)"></textarea><button class="btn danger" id="close">Close case</button>` : '<p class="note2" style="margin-top:0">Only a clinician can close a case, with written evidence. The AI never can.</p>'}
+      <details><summary class="tiny" style="margin-top:8px"><b>Closure rules (${CLOSURE_RULES.length})</b></summary><ol class="rules2">${CLOSURE_RULES.map(([code, txt]) => `<li class="${(flash && flash.broken || []).includes(code) ? 'bad' : ''}">${esc(txt)}</li>`).join('')}</ol></details></div>` : ''}
+    <p class="sec">Journey</p><div class="card2"><ol class="tl">${tl}</ol></div>
+  </div>`;
+}
+
+/* ---------- render + wiring ---------- */
+function render() {
+  const v = caseId ? caseView() : { today: todayView, cases: casesView, alerts: alertsView, me: meView }[tab]();
+  $('#app').innerHTML = v;
+  const nAl = open().filter((c) => escOf(c).some((e) => e.level >= 3)).length;
+  const T = [['today', 'home', 'Today'], ['cases', 'list', 'Cases'], ['alerts', 'shield', 'Alerts'], ['me', 'users', 'Me']];
+  $('#tabs').innerHTML = '<div>' + T.map(([id, icon, l]) => `<button class="tab" data-tab="${id}" ${!caseId && tab === id ? 'aria-current="page"' : ''}>${ic(icon, 22)}${l}${id === 'alerts' && nAl ? `<span class="dot">${nAl}</span>` : ''}</button>`).join('') + '</div>';
+  wire();
+}
+const go = (fn) => { fn(); render(); $('#screen').scrollTo({ top: 0 }); };
+function wire() {
+  const v = (s) => ($(s) ? $(s).value : '');
+  document.querySelectorAll('[data-tab]').forEach((b) => b.onclick = () => go(() => { tab = b.dataset.tab; caseId = null; flash = null; sopFilter = null; if (b.dataset.f) cfilter = b.dataset.f; }));
+  document.querySelectorAll('[data-case]').forEach((b) => b.onclick = () => go(() => { caseId = b.dataset.case; flash = null; }));
+  document.querySelectorAll('[data-cf]').forEach((b) => b.onclick = () => { cfilter = b.dataset.cf; sopFilter = null; render(); });
+  document.querySelectorAll('[data-sop-list]').forEach((b) => b.onclick = () => go(() => { tab = 'cases'; cfilter = 'all'; query = ''; sopFilter = b.dataset.sopList; }));
+  $('#q') && ($('#q').oninput = (e) => { query = e.target.value; const pos = e.target.selectionStart; render(); const q = $('#q'); q.focus(); q.setSelectionRange(pos, pos); });
+  $('#back') && ($('#back').onclick = () => go(() => { caseId = null; flash = null; }));
+  $('#reset') && ($('#reset').onclick = () => { state = resetState(); flash = null; caseId = null; render(); });
+  const c = caseId && state.cases.find((x) => x.id === caseId);
+  if (!c) return;
+  const a = me(), next = nextStageOf(c);
+  const run = (fn, ok) => { try { fn(); save(); flash = { text: ok }; } catch (er) { flash = { text: er instanceof RuleError ? er.message : 'Something went wrong.', err: true }; } render(); $('#screen').scrollTo({ top: 0, behavior: 'smooth' }); };
+  $('#step') && ($('#step').onclick = () => run(() => advance(state, c.id, next, a, v('#stepnote').trim() || undefined, undefined, { planKind: v('#kind') || undefined }), 'Recorded: ' + stageLabel(c, next)));
+  $('#skip') && ($('#skip').onclick = () => run(() => skipStage(state, c.id, $('#skip').dataset.stage, a, v('#stepnote') || v('#rwhy')), 'Marked not required'));
+  $('#rsend') && ($('#rsend').onclick = () => run(() => sendReferral(state, c.id, a, { to: v('#rto'), reason: v('#rwhy') }), 'Referral sent. A reply is due in 2 days.'));
+  $('#racc') && ($('#racc').onclick = () => run(() => respondReferral(state, c.id, a, { accept: true, note: v('#rnote') }), 'Accepted. You now own this case.'));
+  $('#rrej') && ($('#rrej').onclick = () => run(() => respondReferral(state, c.id, a, { accept: false, note: v('#rnote') }), 'Rejected. The referring doctor has been told.'));
+  $('#rdone') && ($('#rdone').onclick = () => run(() => completeReferral(state, c.id, a, v('#rrep')), 'Report sent back. The case returns to the referring team.'));
+  $('#mcdone') && ($('#mcdone').onclick = () => run(() => completeMicroConsult(state, c.id, a, v('#mcnote')), '10-minute call recorded.'));
+  $('#log') && ($('#log').onclick = () => run(() => logContact(state, c.id, a, v('#contact').trim()), 'Contact logged.'));
+  document.querySelectorAll('[data-sop]').forEach((b) => b.onclick = () => run(() => runSop(state, c.id, a, b.dataset.sop, { reason: v('#sopreason'), today: state.today }), `Protocol done: ${SOPS[b.dataset.sop].label}. Written to the record.`));
+  $('#close') && ($('#close').onclick = () => {
+    const broken = validateClosure(c, a, { type: v('#ctype'), evidence: v('#cev') });
+    if (broken.length) { flash = { text: 'Not closed. ' + broken.map((b) => b.message).join(' '), err: true, broken: broken.map((b) => b.code) }; render(); $('#screen').scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    run(() => closeCase(state, c.id, a, { type: v('#ctype'), evidence: v('#cev') }), 'Case closed with evidence.');
+  });
+}
+render();
+setInterval(() => { if (!document.hidden && !document.activeElement?.matches('input,textarea,select')) render(); }, 60000); // live countdowns
+addEventListener('storage', () => { state = loadState(); render(); });
+</script>
+</body>
+</html>
