@@ -137,7 +137,7 @@ body{font-size:16px}
 .aa{border:0;background:var(--card);box-shadow:var(--shadow);border-radius:999px;font:inherit;font-weight:700;font-size:13px;min-width:40px;height:40px;cursor:pointer;color:var(--ink)}
 .aa[aria-pressed=true]{background:var(--brand);color:#fff}
 .topr{display:flex;gap:8px;align-items:center}
-html.big body{font-size:19px} html.big .trk,html.big .svc button,html.big .tab{font-size:14px} html.big .next p,html.big .tiny,html.big .legend{font-size:15.5px}
+html.bigtext body{font-size:19px} html.bigtext .trk,html.bigtext .svc button,html.bigtext .tab{font-size:14px} html.bigtext .next p,html.bigtext .tiny,html.bigtext .legend{font-size:15.5px}
 /* ---------- app shell ---------- */
 html,body{height:100%}
 body{margin:0;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
@@ -170,7 +170,7 @@ button:active:not([disabled]){transform:scale(.97)}
 .aa[aria-pressed=true]{background:var(--ink);color:#fff}
 .greet{align-items:flex-start;margin:4px 0 2px}
 .hello{font-size:32px;font-weight:500;margin:0;line-height:1.15;letter-spacing:-.01em}
-html.big .hello{font-size:36px}
+html.bigtext .hello{font-size:36px}
 .gsub{margin:4px 0 0;color:var(--muted);font-size:15px}
 .me{background:var(--card2);box-shadow:none;color:var(--ink);font-size:14px}
 .me:after{background:#c4954a}
@@ -330,6 +330,14 @@ html.big .hello{font-size:36px}
 @keyframes lit{to{stroke-dashoffset:0}}
 .splashing .bridge .lit{animation-delay:1.6s}
 @media (prefers-reduced-motion:reduce){.bridge .lit{animation:none;stroke-dashoffset:0}}
+.installcard{background:transparent!important;border:0!important;border-top:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important;padding:14px 2px!important;margin-top:4px}
+.installcard .ico{color:#86602c}
+/* a quoted reply, not a box inside a box */
+.card .card.soft{background:transparent;border:0;border-inline-start:3px solid #c4954a;border-radius:0;padding:4px 0 4px 14px;box-shadow:none;margin:12px 0 0}
+[dir=rtl] .card .card.soft{padding:4px 14px 4px 0}
+.tab[aria-current=page] .ico{background:transparent}
+.dates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;gap:8px}
+.dates .dt{width:auto}
 </style>
 </head>
 <body>
@@ -502,7 +510,7 @@ const DEMO_CODE = '2026';   // demo only: a real service would send a one-time c
 let verified = (() => { try { return JSON.parse(sessionStorage.getItem('jissr.ok') || '{}'); } catch { return {}; } })();
 if (params.has('fresh')) { state = resetState(); verified = {}; try { sessionStorage.removeItem('jissr.ok'); } catch { } }
 let big = (() => { try { return localStorage.getItem('jissr.big') === '1'; } catch { return false; } })();
-document.documentElement.classList.toggle('big', big);
+document.documentElement.classList.toggle('bigtext', big);
 let level = 'normal';
 let speaking = false;
 let cloudVoice = false, player = null; // natural voice (see "read aloud")
@@ -758,8 +766,8 @@ function gateView(c) {
 function installCard() {
   if (isStandalone()) return '';
   const t = T();
-  if (canPrompt()) return `<section class="card installcard">${ic('phone', 26)}<div style="flex:1"><b>${t.inst}</b><div class="tiny muted">${t.instSub}</div></div><button class="btn small" id="install-go">${t.instBtn}</button></section>`;
-  if (isIOS()) return `<section class="card installcard">${ic('phone', 26)}<div><b>${t.inst}</b><div class="tiny muted">${t.instIos}</div></div></section>`;
+  if (canPrompt()) return `<section class="card installcard">${ic('home', 22)}<div style="flex:1"><b>${t.inst}</b><div class="tiny muted">${t.instSub}</div></div><button class="btn small" id="install-go">${t.instBtn}</button></section>`;
+  if (isIOS()) return `<section class="card installcard">${ic('home', 22)}<div><b>${t.inst}</b><div class="tiny muted">${t.instIos}</div></div></section>`;
   return '';
 }
 
@@ -840,13 +848,13 @@ function resultView(c) {
     const means = mammo ? M.sum[c.band].slice(1).map(([, v]) => v).join(' ') : '';
     return `${topBar()}<div class="view">${pageBar(t.tabs[1])}
       <section class="rcard">
-        <span class="rlabel">${fit ? F.yourTest : M.yourTest} · ${fit ? 'FIT ' + F.big : 'BI-RADS ' + c.value}</span>
+        <span class="rlabel">${fit ? F.yourTest : M.yourTest}, ${fit ? 'FIT ' + F.big : 'BI-RADS ' + c.value}</span>
         <h1 class="rhero">${hero}</h1>
         ${mammo ? `<div class="rmeans"><b>${ic('shield', 18)} ${u.meansT}</b><p>${esc(M.sum[c.band][0][1])} ${esc(means)}</p></div>` : ''}
         ${actions}
       </section>
       ${microHtml(c, true)}
-      ${o ? `<section class="hlist"><div class="lrow who2"><span class="avatar2" aria-hidden="true">${esc(initials(o.name))}</span><span class="wt"><small>${u.navWho} · ${u.navWith}</small><b>${esc(o.name)}</b></span>
+      ${o ? `<section class="hlist"><div class="lrow who2"><span class="avatar2" aria-hidden="true">${esc(initials(o.name))}</span><span class="wt"><small>${u.navWho}</small><b>${esc(o.name)}</b></span>
         <button class="call2" data-go="nurse" aria-label="${t.qNurse}">${ic('phone', 19)}</button></div></section>` : ''}
       ${stepsHtml}${notdx}${sense}${more}</div>`;
   }
@@ -1020,7 +1028,7 @@ function wireGate(c) {
   document.getElementById('aa').onclick = toggleBig;
   setTimeout(() => ds[0] && ds[0].focus(), 60);
 }
-function toggleBig() { big = !big; try { localStorage.setItem('jissr.big', big ? '1' : '0'); } catch { } document.documentElement.classList.toggle('big', big); render(); }
+function toggleBig() { big = !big; try { localStorage.setItem('jissr.big', big ? '1' : '0'); } catch { } document.documentElement.classList.toggle('bigtext', big); render(); }
 
 function wire(c) {
   const $ = (s) => document.querySelector(s);

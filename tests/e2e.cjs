@@ -51,7 +51,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   ok(await p.locator('.ring .rnum').count() === 1 && /2\/5/.test(await p.innerText('.rnum')) && /Visit booked/.test(await text()), 'care plan shows the progress ring and the steps');
   await shot(p, '05b-plan');
   await p.click('.tab[data-go=home]'); await p.waitForTimeout(150);
-  await p.click('#aa'); ok(await p.evaluate(() => document.documentElement.classList.contains('big')), 'bigger text can be switched on');
+  await p.click('#aa'); ok(await p.evaluate(() => document.documentElement.classList.contains('bigtext')), 'bigger text can be switched on');
   await p.click('#aa');
   await p.click('[data-lang=ar]'); await p.waitForTimeout(150);
   ok(await p.evaluate(() => document.documentElement.dir) === 'rtl', 'Arabic switches the layout to right-to-left');

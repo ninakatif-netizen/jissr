@@ -13,7 +13,7 @@
 
 :root{
   --bg:#ebe4d6; --card:#f6f2ea; --card2:#e2d9c9; --ink:#14284b; --muted:#665e50; --line:#d9cfbd;
-  --brand:#14284b; --brand-d:#0c1a33; --brand-l:#e2e7f0;
+  --brand:#14284b; --brand-d:#0c1a33; --brand-l:#ddd3c1;
   --panel:#14284b; --on-panel:#ffffff;
   --accent:#c4954a; --accent-d:#86602c; --accent-l:#efe1c6;
   --p-blue:#e2e7f0; --p-yellow:#fff3d9; --p-pink:#fde8ef; --p-lilac:#efe9fd; --p-mint:#e2f6ee;
@@ -77,10 +77,10 @@ p{margin:.4em 0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;background:var(--brand);color:#fff;border-radius:14px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer;min-height:48px;text-decoration:none;transition:transform .08s,filter .15s;box-shadow:none}
 .btn:hover{filter:brightness(1.05)}
 .btn:active{transform:scale(.98)}
-.btn.ghost{background:var(--brand-l);color:var(--brand);box-shadow:none}
+.btn.ghost{background:transparent;color:var(--brand);box-shadow:inset 0 0 0 1.5px var(--brand)}
 .btn.accent{background:var(--accent);color:#1e2a44}
 .btn.small{padding:7px 14px;min-height:38px;font-size:14px;border-radius:12px}
-.btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btn[disabled]{background:var(--card2);color:var(--muted);cursor:not-allowed;box-shadow:none}
 .btn.danger{background:var(--red);box-shadow:none}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
