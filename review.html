@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jissr: clinical review sheet</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="styles.css">
+<style>
+.wrap{max-width:900px}
+h2{margin-top:1.6em;border-bottom:2px solid var(--accent);padding-bottom:4px}
+.q{width:100%;border-collapse:collapse;margin:8px 0 4px;background:var(--card)}
+.q th,.q td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;font-size:14.5px;text-align:start}
+.q th{background:var(--card2);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.q td.ok{width:150px;white-space:nowrap}
+.box{display:inline-block;width:14px;height:14px;border:1.5px solid var(--ink);border-radius:3px;vertical-align:-2px;margin-inline-end:6px}
+.write{display:block;border-bottom:1px solid var(--muted);height:22px;margin-top:6px}
+.msg{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;background:var(--card)}
+.msg[dir=rtl]{font-size:16.5px}
+.msg .h{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.note{background:var(--accent-l);border-radius:10px;padding:10px 14px;margin:12px 0}
+.sign td{height:44px}
+.printbar{display:flex;gap:10px;align-items:center;margin:10px 0}
+@media print{
+  .demo,.printbar,.noprint{display:none!important}
+  body{background:#fff;font-size:12px}
+  .wrap{max-width:none;padding:0}
+  h2{break-after:avoid} .q,.msg{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="demo noprint"><span>Prototype · synthetic data only</span><a href="index.html">Home</a></div>
+<div class="wrap">
+  <div class="top"><div class="brand" id="brand"></div><span class="muted tiny">Clinical review sheet</span></div>
+  <h1>Please review Jissr's clinical rules and messages</h1>
+  <p class="lead muted">Jissr is a prototype for the Future Health Challenge 2026 ("Closing the Screening-to-Care Loop"), covering <b>one programme: abnormal HbA1c from screening</b>. All patients in the demo are invented. The numbers and wording below were written by a medical student with software help and have <b>not</b> been clinically reviewed. Your review decides what we can honestly say about them.</p>
+  <div class="note"><b>What we ask:</b> for each line, tick <i>Agree</i> or write the change you would make. About 20 minutes. You are not asked to endorse the product, only to correct the content. Where a local guideline applies (for example DoH Abu Dhabi), please say which.</div>
+  <div class="printbar"><button class="btn small" onclick="window.print()">Print or save as PDF</button><span class="muted tiny">Live link to the demo: <a id="demo-link" href="patient.html">patient app</a> · <a href="staff.html">care team</a></span></div>
+
+  <h2>1. HbA1c bands</h2>
+  <p class="tiny muted">Used to set urgency and deadlines. Values are rounded to one decimal first. These are <b>operational bands</b> to decide how fast to act, not a diagnosis.</p>
+  <table class="q"><thead><tr><th>Band</th><th>Range</th><th>What Jissr does</th><th>Your review</th></tr></thead><tbody>
+    <tr><td>Below programme range</td><td>&lt; 5.7 %</td><td>Not in the programme</td><td class="ok"><span class="box"></span>Agree<span class="write"></span></td></tr>
+    <tr><td>Prediabetes range</td><td>5.7 – 6.4 %</td><td>Routine urgency</td><td class="ok"><span class="box"></span>Agree<span class="write"></span></td></tr>
+    <tr><td>Diabetes range</td><td>6.5 – 9.9 %</td><td>Priority urgency</td><td class="ok"><span class="box"></span>Agree<span class="write"></span></td></tr>
+    <tr><td>Urgent range</td><td>≥ 10.0 %</td><td>Fast nurse contact (own operational threshold, not a guideline cut-off)</td><td class="ok"><span class="box"></span>Agree<span class="write"></span></td></tr>
+  </tbody></table>
+  <p class="tiny">Is a different urgent threshold, or symptoms-based urgency, more appropriate? <span class="write"></span></p>
+
+  <h2>2. Service levels (days after the result is issued)</h2>
+  <p class="tiny muted">The rules turn these into deadlines and into the "needs attention" queue. <b>Proposals only.</b></p>
+  <table class="q" id="sla"><thead><tr><th>Urgency</th><th>Patient notified</th><th>Patient understood</th><th>Appointment booked</th><th>Seen by clinician</th></tr></thead><tbody></tbody></table>
+  <p class="tiny"><span class="box"></span>Agree &nbsp;&nbsp; <span class="box"></span>Change (write below) <span class="write"></span></p>
+
+  <h2>3. When the system raises an alert</h2>
+  <p class="tiny muted">These alerts go to a clinical lead or coordinator. They are fixed rules; the AI plays no part.</p>
+  <table class="q" id="esc"><thead><tr><th>Trigger</th><th>Level</th><th>Your review</th></tr></thead><tbody></tbody></table>
+
+  <h2>4. Confirmation, referral and closure</h2>
+  <table class="q"><thead><tr><th>Rule in Jissr</th><th>Your review</th></tr></thead><tbody>
+    <tr><td><b>Confirmatory test.</b> A step in the journey. A clinician can mark it "not required" with a written reason (for example urgent and symptomatic).<br><i>Which results require confirmation, and by which test, under your guideline?</i></td><td class="ok"><span class="box"></span>Agree<span class="write"></span><span class="write"></span></td></tr>
+    <tr><td><b>Referral.</b> Only a clinician can refer, to a specialist provider, with a reason. The receiving clinician accepts or rejects (rejection needs a reason). Acceptance moves ownership to them. They must report back before a plan is recorded.<br><i>When should a patient with this result be referred?</i></td><td class="ok"><span class="box"></span>Agree<span class="write"></span><span class="write"></span></td></tr>
+    <tr><td><b>Clinician-to-clinician question.</b> A reply is expected within <span id="cd">2</span> days.</td><td class="ok"><span class="box"></span>Agree<span class="write"></span></td></tr>
+    <tr><td><b>Closing a case.</b> Only a clinician, with a reason and written evidence (at least 15 characters). Reasons: plan agreed and started; informed refusal documented; care transferred.<br><i>Is this the right minimum evidence? What else should be required?</i></td><td class="ok"><span class="box"></span>Agree<span class="write"></span><span class="write"></span></td></tr>
+    <tr><td><b>Plan type.</b> "Treatment started" or "Surveillance (lifestyle plan and re-testing)".</td><td class="ok"><span class="box"></span>Agree<span class="write"></span></td></tr>
+  </tbody></table>
+
+  <h2>5. Patient messages (English)</h2>
+  <p class="tiny muted">The pre-written text patients see. The AI may reword it but must stay within the same facts, never diagnose, and never advise on medicines. The sentence "This is not a diagnosis." is always added. Please check accuracy, tone and safety.</p>
+  <div id="en-msgs"></div>
+  <p class="tiny">Safety line shown for the urgent band: "If you feel very thirsty, tired, sick or confused, or you are passing a lot of urine, get medical help straight away (ambulance: 998)." Is this appropriate? <span class="box"></span>Agree &nbsp; <span class="box"></span>Change: <span class="write"></span></p>
+  <table class="q"><thead><tr><th>Overall (English messages)</th><th>Your review</th></tr></thead><tbody><tr><td>Accurate, clear, calm, not frightening, no medical advice beyond seeing a clinician</td><td class="ok"><span class="box"></span>Agree<span class="write"></span><span class="write"></span></td></tr></tbody></table>
+
+  <h2>6. Patient messages (Arabic): for a native-speaking clinician</h2>
+  <p class="tiny muted">Written in Modern Standard Arabic. Please correct wording, medical terms (for example "السكر التراكمي"), and tone. Would a Gulf-dialect version be better for patients?</p>
+  <div id="ar-msgs"></div>
+  <table class="q"><thead><tr><th>Overall (Arabic messages)</th><th>Your review</th></tr></thead><tbody><tr><td>Correct medical terms, natural, respectful, easy to understand for a person with limited health literacy</td><td class="ok"><span class="box"></span>Agree<span class="write"></span><span class="write"></span></td></tr></tbody></table>
+
+  <h2>7. Sign-off</h2>
+  <p class="tiny muted">Until this is signed, Jissr will describe these rules as "proposed, not clinically validated".</p>
+  <table class="q sign"><tbody>
+    <tr><th style="width:180px">Reviewer name</th><td></td><th style="width:120px">Role</th><td></td></tr>
+    <tr><th>Organisation</th><td></td><th>Date</th><td></td></tr>
+    <tr><th>Guideline used</th><td colspan="3"></td></tr>
+    <tr><th>Overall</th><td colspan="3"><span class="box"></span>Approved as written &nbsp;&nbsp; <span class="box"></span>Approved with the changes above &nbsp;&nbsp; <span class="box"></span>Not approved</td></tr>
+    <tr><th>Signature</th><td colspan="3"></td></tr>
+  </tbody></table>
+  <p class="foot">Synthetic prototype · not medical advice · thank you for your time</p>
+</div>
+
+<script type="module">
+import { wordmark } from './core/ui.mjs';
+import { SLA, CONSULT_REPLY_DAYS, REFERRAL_REPLY_DAYS, NURSE_CALLBACK_DAYS } from './core/rules.mjs';
+import { explanation } from './core/templates.mjs';
+document.getElementById('brand').innerHTML = wordmark();
+document.getElementById('cd').textContent = CONSULT_REPLY_DAYS;
+
+// service levels, read from the real rules so this sheet always matches the app
+const lab = { urgent: 'Urgent (≥ 10.0 %)', priority: 'Priority (6.5 – 9.9 %)', routine: 'Routine (5.7 – 6.4 %)' };
+document.querySelector('#sla tbody').innerHTML = ['urgent', 'priority', 'routine'].map((k) => {
+  const r = SLA[k]; const d = (n) => n === 0 ? 'same day' : `within ${n} day${n === 1 ? '' : 's'}`;
+  return `<tr><td><b>${lab[k]}</b></td><td>${d(r.notified)}</td><td>${d(r.understood)}</td><td>${d(r.booked)}</td><td>${d(r.attended)}</td></tr>`;
+}).join('');
+
+const rows = [
+  ['Urgent result not yet communicated after 1 day', '3: clinical lead now'],
+  ['Case overdue by 7 days or more', '3: clinical lead now'],
+  ['Referral rejected by the receiving provider', '3: clinical lead now'],
+  ['Case overdue by 3 to 6 days', '2: coordinator or lead'],
+  ['Patient not notified within the service level', '2: coordinator or lead'],
+  ['No owner assigned', '2: coordinator or lead'],
+  [`No reply to a referral after ${REFERRAL_REPLY_DAYS} days`, '2: coordinator or lead'],
+  [`Patient asked for a nurse call and has waited ${NURSE_CALLBACK_DAYS} day`, '2: coordinator or lead'],
+  [`No answer to a clinician question after ${CONSULT_REPLY_DAYS} days`, '2: coordinator or lead'],
+];
+document.querySelector('#esc tbody').innerHTML = rows.map(([a, b]) => `<tr><td>${a}</td><td>${b}</td><td class="ok"><span class="box"></span>Agree<span class="write"></span></td></tr>`).join('');
+
+// patient messages, read from the real templates
+const names = { prediabetes: 'Prediabetes range, example value 6.1 %', diabetes: 'Diabetes range, example value 8.1 %', urgent: 'Urgent range, example value 11.2 %' };
+const ex = { prediabetes: 6.1, diabetes: 8.1, urgent: 11.2 };
+for (const lang of ['en', 'ar']) {
+  document.getElementById(lang + '-msgs').innerHTML = ['prediabetes', 'diabetes', 'urgent'].map((b) => `
+    <div class="msg" ${lang === 'ar' ? 'dir="rtl" lang="ar"' : ''}><div class="h" ${lang === 'ar' ? 'dir="ltr"' : ''}>${names[b]}</div>${explanation({ band: b, value: ex[b], lang, level: 'normal' })}
+    <div class="h" style="margin-top:8px" ${lang === 'ar' ? 'dir="ltr"' : ''}>Simpler version</div>${explanation({ band: b, value: ex[b], lang, level: 'simple' })}</div>`).join('');
+}
+</script>
+</body>
+</html>
