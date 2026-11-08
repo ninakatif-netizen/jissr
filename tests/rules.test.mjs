@@ -8,6 +8,7 @@ import {
 } from '../core/cases.mjs';
 import { buildState, STAFF } from '../core/data.mjs';
 import { explanation } from '../core/templates.mjs';
+import { caseToFhirBundle } from '../core/fhir.mjs';
 
 const TODAY = '2026-11-10';
 const nurse = { type: 'staff', role: 'nurse', name: 'Nurse N', id: 'n1', org: 'Screening programme' };
@@ -298,4 +299,34 @@ test('synthetic data: 30 patients, every band, consistent rules, visible excepti
   assert.ok(st.cases.some((c) => c.referral && c.referral.status === 'accepted'));
   // at least one clinician-ready case, at the care plan stage
   assert.ok(st.cases.some((c) => c.stage === 'care_plan'));
+});
+
+test('FHIR export: standard resources, correct codes, owner, referral, closure, and nothing AI-written', () => {
+  const st = buildState(TODAY);
+  const get = (b, type) => b.entry.map((e) => e.resource).filter((r) => r.resourceType === type);
+  // an open referred case
+  const chen = st.cases.find((c) => c.id === 'C-027');
+  const b = caseToFhirBundle(chen, st.staff);
+  assert.equal(b.resourceType, 'Bundle');
+  const obs = get(b, 'Observation')[0];
+  assert.equal(obs.code.coding[0].code, '4548-4');
+  assert.equal(obs.valueQuantity.value, 9.8);
+  const sr = get(b, 'ServiceRequest')[0];
+  assert.equal(sr.status, 'active');
+  assert.equal(sr.performer[0].reference, 'Organization/org-diabetes-centre');
+  const task = get(b, 'Task')[0];
+  assert.equal(task.status, 'in-progress');
+  assert.equal(task.owner.reference, 'Practitioner/prac-e2'); // hand-off owner
+  assert.equal(task.restriction.period.end, chen.due);
+  // rejected referral is revoked; unassigned case is flagged; closed case completes with evidence
+  assert.equal(get(caseToFhirBundle(st.cases.find((c) => c.id === 'C-015'), st.staff), 'ServiceRequest')[0].status, 'revoked');
+  const un = get(caseToFhirBundle(st.cases.find((c) => c.id === 'C-025'), st.staff), 'Task')[0];
+  assert.ok(!un.owner && un.extension.some((e) => e.valueBoolean === true));
+  const closed = get(caseToFhirBundle(st.cases.find((c) => c.stage === 'closed'), st.staff), 'Task')[0];
+  assert.equal(closed.status, 'completed');
+  assert.ok(closed.statusReason.text.length >= 15);
+  // every resource is tagged synthetic, and the AI message text is never exported
+  for (const e of b.entry) assert.equal(e.resource.meta.tag[0].code, 'SYNTHETIC');
+  const withAi = { ...chen, aiText: { text: 'AI WORDING SHOULD NOT LEAK', source: 'ai' } };
+  assert.ok(!JSON.stringify(caseToFhirBundle(withAi, st.staff)).includes('AI WORDING'));
 });

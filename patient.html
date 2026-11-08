@@ -42,6 +42,8 @@ body{font-size:17px}
 .center{text-align:center}
 .bigbtn{width:100%;font-size:1.1rem;min-height:56px}
 .slotbtn{padding:14px 8px}
+.bubble{background:var(--green-l);color:var(--ink);border-radius:16px 16px 16px 4px;padding:12px 14px;margin:8px 0;max-width:92%}
+[dir=rtl] .bubble{border-radius:16px 16px 4px 16px}
 </style>
 </head>
 <body>
@@ -98,6 +100,7 @@ const S = {
     qListen: 'Listen to my result', qNurse: 'Talk to a nurse', qFamily: 'Family helper',
     nurseT: 'Talk to a nurse', nurseSub: 'A nurse can explain your result, answer worries and help you book.', when: 'Best time to call', morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening',
     chanQ: 'How should we contact you?', chan: { app: 'This app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'Phone call' },
+    preview: 'This is how a message from us would look (demo):', previewMsg: 'Jissr: your result is ready. Tap to read it in plain words. We never put your result number in a message. This is not a diagnosis.',
     note: 'Anything you want the nurse to know (optional)', ask: 'Ask a nurse to call me', asked: 'Done! A nurse will call you back.',
     sos: 'If you feel very unwell, very thirsty, confused or sick, do not wait. Call the ambulance on 998.',
     fam: 'Family helper', famSub: 'Let one family member see your appointment and reminders, so they can help you. They never see your result number. You can stop at any time.',
@@ -140,6 +143,7 @@ const S = {
     qListen: 'استمع إلى نتيجتي', qNurse: 'تحدث مع ممرضة', qFamily: 'مساعد من العائلة',
     nurseT: 'تحدث مع ممرضة', nurseSub: 'يمكن للممرضة أن تشرح نتيجتك، وتجيب عن مخاوفك، وتساعدك في الحجز.', when: 'أفضل وقت للاتصال', morning: 'صباحاً', afternoon: 'بعد الظهر', evening: 'مساءً',
     chanQ: 'كيف تفضل أن نتواصل معك؟', chan: { app: 'هذا التطبيق', sms: 'رسالة نصية', whatsapp: 'واتساب', phone: 'اتصال هاتفي' },
+    preview: 'هكذا ستبدو رسالتنا إليك (تجريبي):', previewMsg: 'جسر: نتيجتك جاهزة. اضغط لتقرأها بكلمات بسيطة. لا نكتب رقم نتيجتك في الرسائل أبداً. هذا ليس تشخيصاً.',
     note: 'أي شيء تريد أن تعرفه الممرضة (اختياري)', ask: 'اطلب من ممرضة أن تتصل بي', asked: 'تم! ستتصل بك ممرضة.',
     sos: 'إذا شعرت بتعب شديد أو عطش شديد أو ارتباك أو غثيان فلا تنتظر. اتصل بالإسعاف على 998.',
     fam: 'مساعد من العائلة', famSub: 'اسمح لفرد واحد من عائلتك برؤية موعدك والتذكيرات ليساعدك. لن يرى رقم نتيجتك أبداً. ويمكنك التوقف في أي وقت.',
@@ -344,6 +348,7 @@ function nurseView(c) {
       ${waiting ? `<div class="tick" aria-hidden="true">✓</div><div class="ok-msg">${t.asked}<br><span class="tiny">${nurseText(lang)}</span></div>`
         : `<label for="nw">${t.when}</label><select id="nw"><option value="morning">${t.morning}</option><option value="afternoon">${t.afternoon}</option><option value="evening">${t.evening}</option></select>
         <label>${t.chanQ}</label><div class="chips">${['app', 'sms', 'whatsapp', 'phone'].map((k) => `<button class="pick" data-ch="${k}" aria-pressed="${c.channel === k}">${t.chan[k]}</button>`).join('')}</div>
+        ${['sms', 'whatsapp'].includes(c.channel) ? `<div class="tiny muted" style="margin-top:8px">${t.preview}</div><div class="bubble">${t.previewMsg}</div>` : ''}
         <label for="nn">${t.note}</label><textarea id="nn" maxlength="300">${esc(msg.nn || '')}</textarea>
         <p><button class="btn bigbtn" id="nurse-go">${t.ask}</button></p>`}
       <div class="sos" role="note">${t.sos}</div>

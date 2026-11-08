@@ -34,6 +34,7 @@
 
 <script type="module">
 import { loadState, saveState, resetState } from './core/store.mjs';
+import { caseToFhirBundle } from './core/fhir.mjs';
 import { STAGES, STAGE_LABEL, BARRIER_LABEL, barrierPlan, isOverdue, daysBetween, escalationsFor, maxLevel, SLA_STEPS, slaDeadline, CHANNEL_LABEL, REFERRAL_REPLY_DAYS, addDays } from './core/rules.mjs';
 import {
   advance, skipStage, closeCase, assignOwner, setDropReason, logContact, canRecord, nextStageOf,
@@ -239,7 +240,7 @@ function renderDetail() {
 
   const ai = c.aiText;
   box.innerHTML = `<div class="card" style="margin-top:0">
-    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(p.name)}</h2><button class="btn ghost small" id="x" aria-label="Close panel">✕</button></div>
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(p.name)}</h2><span class="row"><button class="btn ghost small" id="fhir" title="Standard hospital-system format (demo)">FHIR export</button><button class="btn ghost small" id="x" aria-label="Close panel">✕</button></span></div>
     <p class="muted tiny">${c.id} · ${p.age}${p.sex} · ${esc(p.nationality)} · speaks ${esc(p.language)}${p.shifts ? ' · works shifts' : ''} · contact by ${esc(CHANNEL_LABEL[c.channel] || 'app')}</p>
     <p><b style="font-size:1.4rem">${c.value}%</b> <span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span> <span class="tiny muted">urgency set by rules</span></p>
     <p class="tiny">Owner: <b>${ownerHtml(c.owner)}</b>${c.owner ? ` <span class="muted">(${esc(staffOf(c.owner)?.org || '')})</span>` : ''} · Due: <b>${fmt(c.due)}</b> · ${flagHtml(c)}</p>
@@ -267,6 +268,7 @@ function renderDetail() {
   const run = (fn, okMsg) => { try { fn(); save(); flash = { text: okMsg }; } catch (e) { flash = { text: e instanceof RuleError ? e.message : 'Something went wrong.', err: true }; } render(); };
   const v = (id) => ($(id) ? $(id).value : '');
   $('#x').onclick = () => { sel = null; flash = null; render(); };
+  $('#fhir').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(caseToFhirBundle(c, state.staff), null, 2)], { type: 'application/fhir+json' })); a.download = `jissr-${c.id}-fhir.json`; a.click(); };
   const next = nextStageOf(c);
   $('#step') && ($('#step').onclick = () => run(() => advance(state, c.id, next, actor, v('#stepnote').trim() || undefined, undefined, { planKind: v('#kind') || undefined }), 'Recorded: ' + STAGE_LABEL[next]));
   $('#skip') && ($('#skip').onclick = () => run(() => skipStage(state, c.id, $('#skip').dataset.stage, actor, v('#stepnote') || v('#rwhy')), 'Marked not required'));
