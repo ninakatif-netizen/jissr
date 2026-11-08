@@ -52,6 +52,17 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await shot(p, '07b-bowel-patient');
   await p.goto(BASE + 'patient.html?p=C-001&nosplash=1'); await p.waitForTimeout(200);
 
+  // natural voice: when the server says it is set up, Listen asks the server for the audio (Azure is faked here)
+  const vctx = await browser.newContext({ ...devices['iPhone 13'], locale: 'ar-AE', storageState: await phone.storageState() });
+  const v = await vctx.newPage(); watch(v, 'voice');
+  let voiceAsked = '';
+  await v.route('**/api/jissr-voice**', (r) => { const u = new URL(r.request().url()); if (!u.searchParams.get('text')) return r.fulfill({ contentType: 'application/json', body: '{"ok":true,"voice":true}' }); voiceAsked = u.search; return r.fulfill({ status: 503, body: '' }); });
+  await v.goto(BASE + 'patient.html?p=C-001&nosplash=1&view=result&lang=ar'); await v.waitForTimeout(400);
+  if (await v.locator('.otp .d').count()) { for (const [i, d] of [...'2026'].entries()) await v.fill(`.otp .d[data-i="${i}"]`, d); await v.waitForTimeout(300); }
+  await v.click('#listen'); await v.waitForTimeout(400);
+  ok(/lang=ar/.test(voiceAsked) && /text=/.test(voiceAsked), 'Listen uses the natural voice when it is set up');
+  await vctx.close();
+
   // ---------- care team (laptop, same browser storage) ----------
   const desk = await browser.newContext({ viewport: { width: 1280, height: 900 }, storageState: await phone.storageState() });
   const s = await desk.newPage(); watch(s, 'staff');

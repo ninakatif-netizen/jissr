@@ -406,6 +406,7 @@ let big = (() => { try { return localStorage.getItem('jissr.big') === '1'; } cat
 document.documentElement.classList.toggle('big', big);
 let level = 'normal';
 let speaking = false;
+let cloudVoice = false, player = null; // natural voice (see "read aloud")
 let msg = {};            // small, temporary screen state
 let aiBox = {};          // AI or template text already shown, by key
 const patientActor = () => ({ type: 'patient', name: 'Patient (in app)' });
@@ -632,7 +633,7 @@ function resultView(c) {
     <div class="rvalue"><span>${fit ? 'FIT' : 'HbA1c'}</span><b>${fit ? F.big : c.value + '%'}</b></div>
     ${fit ? '' : scaleHtml(c)}
     <div class="ractions">
-      ${'speechSynthesis' in window ? `<button class="btn ghost small" id="listen">${speaking ? ic('stop', 16) + ' ' + t.stop : ic('speaker', 16) + ' ' + t.listen}</button>` : ''}
+      ${cloudVoice || 'speechSynthesis' in window ? `<button class="btn ghost small" id="listen">${speaking ? ic('stop', 16) + ' ' + t.stop : ic('speaker', 16) + ' ' + t.listen}</button>` : ''}
       ${level === 'normal' ? `<button class="btn ghost small" id="simpler">${t.simpler}</button>` : ''}
     </div>
     ${msg.noVoice ? `<div class="err-msg" style="font-weight:500">${t.noVoice}</div>` : ''}
@@ -752,7 +753,7 @@ function wire(c) {
   $('#me-btn') && ($('#me-btn').onclick = () => window.toggleDemo());
   $('#install-go') && ($('#install-go').onclick = async () => { await promptInstall(); render(); });
   $('#next-go') && ($('#next-go').onclick = () => { const a = $('#next-go').dataset.a; a === 'ics' ? downloadIcs() : go(a); });
-  $('#listen') && ($('#listen').onclick = () => { speaking ? stopSpeak() : speak(explainNow(c).text); render(); });
+  $('#listen') && ($('#listen').onclick = () => { speaking ? stopSpeak() : listen(explainNow(c).text); render(); });
   $('#simpler') && ($('#simpler').onclick = () => { level = 'simple'; render(); });
   $('#yes') && ($('#yes').onclick = () => act(() => { if (stageIdx(c) < 2) advance(state, c.id, 'understood', patientActor(), 'Patient confirmed they understood'); msg.no = false; }));
   $('#no') && ($('#no').onclick = () => { level = 'simple'; msg.no = true; act(() => { if (c.barrier === 'none') setBarrier(state, c.id, 'dont_understand', patientActor()); }); });
@@ -775,7 +776,23 @@ function wire(c) {
   $('#fam-off') && ($('#fam-off').onclick = () => act(() => { c.familyHelper = null; c.events.push({ type: 'family', at: new Date().toISOString(), by: 'Patient (in app)', role: 'patient', note: 'Stopped sharing with family helper' }); }));
 }
 
-/* ---------- read aloud (your browser's built-in voice) ---------- */
+/* ---------- read aloud ---------- */
+// 1) A natural voice (Azure AI Speech, Emirati Arabic) when it is set up on the server.
+// 2) Otherwise, or if it fails, the phone's built-in voice below.
+
+fetch('/api/jissr-voice').then((r) => (r.ok ? r.json() : null)).then((j) => { if (j && j.voice) { cloudVoice = true; if (view === 'result') render(); } }).catch(() => { });
+// Must start straight from the tap (no waiting first), or iPhones stay silent.
+function listen(text) {
+  if (!cloudVoice) return speak(text);
+  msg.noVoice = false; stopSpeak();
+  const a = new Audio('/api/jissr-voice?lang=' + (lang === 'ar' ? 'ar' : 'en') + '&text=' + encodeURIComponent(text));
+  player = a; speaking = true; msg.soundTip = true;
+  a.onended = () => { if (player === a) { player = null; speaking = false; render(); } };
+  a.onerror = () => { if (player === a) { player = null; cloudVoice = false; speak(text); render(); } }; // fall back to the phone's voice
+  a.play().catch((e) => { if (e && e.name === 'NotAllowedError' && player === a) { player = null; speaking = false; render(); } });
+}
+
+/* the phone's built-in voice */
 // Voices load late in some browsers: ask for them early and keep the list up to date.
 let voices = [];
 const loadVoices = () => { try { voices = speechSynthesis.getVoices() || []; } catch { voices = []; } };
@@ -804,7 +821,7 @@ function speak(text) {
     if (speechSynthesis.paused) speechSynthesis.resume();
   } catch { speaking = false; msg.soundTip = true; }
 }
-function stopSpeak() { try { speechSynthesis.cancel(); } catch { } speaking = false; }
+function stopSpeak() { if (player) { try { player.pause(); } catch { } player = null; } try { speechSynthesis.cancel(); } catch { } speaking = false; }
 
 /* ---------- calendar file ---------- */
 function downloadIcs() {

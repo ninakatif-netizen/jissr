@@ -33,7 +33,7 @@ Open `patient.html` on a phone. Android (Chrome): menu, then "Install app". iPho
 
 ## Run and test
 ```
-npm test                      # 27 tests, no install needed
+npm test                      # 37 tests, no install needed
 npm run serve                 # then open http://localhost:8330/
 BASE=http://127.0.0.1:8330/ npm run test:e2e   # 24 browser checks (needs Playwright)
 ```
@@ -44,6 +44,9 @@ Import this repository, leave defaults, deploy. To switch the AI on, add environ
 - Gemini (free key from Google AI Studio): `GEMINI_API_KEY`, `JISSR_AI_PROVIDER=gemini` (optional `JISSR_AI_MODEL`, default `gemini-2.5-flash`)
 - Anthropic: `ANTHROPIC_API_KEY` (optional `JISSR_AI_MODEL`)
 - Azure OpenAI: `JISSR_AI_PROVIDER=azure-openai`, `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT`
+
+
+Natural voice for "Listen" (optional, Azure AI Speech): `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION` (optional `JISSR_VOICE_AR`, default `ar-AE-FatimaNeural`; `JISSR_VOICE_EN`, default `en-GB-SoniaNeural`). Without them the phone's built-in voice is used.
 
 Never commit keys.
 

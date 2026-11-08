@@ -34,6 +34,7 @@ No organiser data, no real patient data, no scraped data, and no third-party dat
 | Node.js built-ins | Tests and serverless function | MIT-style (Node.js licence) |
 | Playwright | Browser tests only; not shipped to users | Apache 2.0 |
 | AI provider (optional: Google Gemini, Anthropic, or Azure OpenAI) | Rewords patient messages at runtime when a key is configured | Provider terms. The provider receives **no personal data** (see below). |
+| Azure AI Speech (optional, Microsoft) | Reads the on-screen message aloud with a natural neural voice (Emirati Arabic `ar-AE-FatimaNeural`, English `en-GB-SoniaNeural`) when a key is configured; otherwise the phone's built-in voice is used | Microsoft terms. It receives **only the message text shown on screen**: no name, no patient detail. |
 
 ## 4. Personal data: what we keep, and why
 
