@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jissr: your result</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="demo">
+  <span>Demo · synthetic data only</span>
+  <span class="row">
+    <label for="who" style="margin:0;font-weight:400">Viewing as</label>
+    <select id="who" style="width:auto"></select>
+    <button id="reset">Reset demo</button>
+    <a href="index.html">Home</a>
+  </span>
+</div>
+<div class="wrap" id="app" aria-live="polite"></div>
+
+<script type="module">
+import { loadState, saveState, resetState, aiText } from './core/store.mjs';
+import { classify, slotsFor, barrierPlan, BARRIERS, addDays } from './core/rules.mjs';
+import { advance, setBarrier, requestNurse, recordAiText } from './core/cases.mjs';
+import { explanation, barrierText, nurseText } from './core/templates.mjs';
+
+/* ---------- words on the screen (English / Arabic) ---------- */
+const S = {
+  en: {
+    hello: (n) => `Hello ${n}`, sub: 'Here is your blood sugar test result, in plain words.',
+    yourTest: 'Your HbA1c result',
+    band: { prediabetes: 'A little higher than usual', diabetes: 'Higher than usual', urgent: 'Much higher than usual' },
+    notdx: 'This is not a diagnosis. Only a doctor can tell you what your result means.',
+    listen: 'Listen', stop: 'Stop', simpler: 'Say it more simply',
+    ai: 'Written with AI help and checked by safety rules', tpl: 'Pre-written message, checked by a clinician',
+    sense: 'Did this make sense?', yes: 'Yes, I understand', no: 'Not really',
+    thanks: 'Thank you. We have noted that you understand.',
+    barrierQ: 'Is anything making it hard to see a doctor?', barrierSub: 'Choose what fits best. There is no wrong answer, and it helps us help you.',
+    barrier: { fear: 'I am worried or afraid', cost: 'Cost', time_shift: 'No time / shift work', language: 'Language', dont_understand: 'I do not understand', none: 'Nothing, I am ready' },
+    book: 'Book your visit', bookWait: 'Please tell us whether the result made sense first, or talk to a nurse, then you can book.',
+    pick: 'Pick a time', confirm: 'Confirm this appointment', booked: 'Your visit is booked', where: 'Jissr demo clinic · 20 minutes · bring your Emirates ID or insurance card',
+    remind: 'Remind me the day before (SMS or WhatsApp)', remindOn: 'Reminder set for the day before. (Demo: no real message is sent.)', cal: 'Add to my calendar',
+    nurse: 'Talk to a nurse', nurseSub: 'A nurse can explain your result, answer worries and help you book.', when: 'Best time to call', morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening',
+    langq: 'Language you prefer', note: 'Anything you want the nurse to know (optional)', ask: 'Ask a nurse to call me', asked: 'Done. A nurse will call you back.',
+    sos: 'If you feel very unwell, very thirsty, confused or sick, do not wait. Call the ambulance on 998.',
+    fam: 'Family helper (optional)', famSub: 'You can let one family member see your appointment and reminders so they can help you. They never see your result number. You can stop at any time.',
+    famName: 'Their name', famRel: 'Who are they (daughter, son, friend...)', famOn: 'Share my appointment status with them', famDone: (n) => `${n} will see only your appointment status and reminders.`, famOff: 'Stop sharing',
+    famPreview: 'What they would receive:', famMsg: 'Mama\'s result has been explained and her appointment is booked.',
+    done: 'Your care is up to date. Thank you.', reset: 'Reset demo', seeStaff: 'See this case on the staff screen',
+    cost: 'We can check your insurance before you decide.', stepOf: ['Result', 'Understand', 'Plan', 'Book'], nurseReq: 'Nurse call requested',
+  },
+  ar: {
+    hello: (n) => `مرحباً ${n}`, sub: 'هذه نتيجة تحليل السكر لديك بكلمات بسيطة.',
+    yourTest: 'نتيجة تحليل السكر التراكمي (HbA1c)',
+    band: { prediabetes: 'أعلى قليلاً من المعتاد', diabetes: 'أعلى من المعتاد', urgent: 'أعلى بكثير من المعتاد' },
+    notdx: 'هذا ليس تشخيصاً. الطبيب وحده يستطيع أن يخبرك بمعنى نتيجتك.',
+    listen: 'استمع', stop: 'إيقاف', simpler: 'اشرحها لي ببساطة أكثر',
+    ai: 'كُتبت بمساعدة الذكاء الاصطناعي وتخضع لقواعد السلامة', tpl: 'رسالة مكتوبة مسبقاً وراجعها مختص',
+    sense: 'هل كان الشرح واضحاً؟', yes: 'نعم، فهمت', no: 'ليس تماماً',
+    thanks: 'شكراً لك. سجّلنا أنك فهمت النتيجة.',
+    barrierQ: 'هل هناك ما يجعل زيارة الطبيب صعبة عليك؟', barrierSub: 'اختر الأنسب. لا توجد إجابة خاطئة، وهذا يساعدنا على مساعدتك.',
+    barrier: { fear: 'أشعر بالقلق أو الخوف', cost: 'التكلفة', time_shift: 'ضيق الوقت / العمل بالمناوبات', language: 'اللغة', dont_understand: 'لا أفهم النتيجة', none: 'لا شيء، أنا جاهز' },
+    book: 'احجز زيارتك', bookWait: 'يرجى أن تخبرنا أولاً إن كانت النتيجة واضحة، أو تحدث مع ممرضة، ثم يمكنك الحجز.',
+    pick: 'اختر وقتاً', confirm: 'تأكيد الموعد', booked: 'تم حجز زيارتك', where: 'عيادة جسر التجريبية · 20 دقيقة · أحضر هويتك الإماراتية أو بطاقة التأمين',
+    remind: 'ذكّرني قبل يوم (رسالة نصية أو واتساب)', remindOn: 'تم ضبط التذكير قبل يوم. (تجريبي: لا تُرسل رسالة حقيقية.)', cal: 'أضف إلى تقويمي',
+    nurse: 'تحدث مع ممرضة', nurseSub: 'يمكن للممرضة أن تشرح نتيجتك، وتجيب عن مخاوفك، وتساعدك في الحجز.', when: 'أفضل وقت للاتصال', morning: 'صباحاً', afternoon: 'بعد الظهر', evening: 'مساءً',
+    langq: 'اللغة التي تفضلها', note: 'أي شيء تريد أن تعرفه الممرضة (اختياري)', ask: 'اطلب من ممرضة أن تتصل بي', asked: 'تم. ستتصل بك ممرضة.',
+    sos: 'إذا شعرت بتعب شديد أو عطش شديد أو ارتباك أو غثيان فلا تنتظر. اتصل بالإسعاف على 998.',
+    fam: 'مساعد من العائلة (اختياري)', famSub: 'يمكنك السماح لفرد واحد من عائلتك برؤية موعدك والتذكيرات ليساعدك. لن يرى رقم نتيجتك أبداً. ويمكنك التوقف في أي وقت.',
+    famName: 'اسمه', famRel: 'من هو (ابنتي، ابني، صديق...)', famOn: 'شارك معه حالة موعدي', famDone: (n) => `سيرى ${n} حالة موعدك والتذكيرات فقط.`, famOff: 'إيقاف المشاركة',
+    famPreview: 'ما سيصله:', famMsg: 'تم شرح نتيجة والدتك وحجز موعدها.',
+    done: 'رعايتك مكتملة. شكراً لك.', reset: 'إعادة ضبط العرض', seeStaff: 'شاهد هذه الحالة في شاشة الفريق',
+    cost: 'يمكننا التحقق من تأمينك قبل أن تقرر.', stepOf: ['النتيجة', 'الفهم', 'الخطة', 'الحجز'], nurseReq: 'تم طلب اتصال من ممرضة',
+  },
+};
+const LANGS = { ar: 'العربية', en: 'English', ur: 'اردو (Urdu)', hi: 'हिन्दी (Hindi)', tl: 'Tagalog' };
+
+/* ---------- state ---------- */
+let state = loadState();
+const params = new URLSearchParams(location.search);
+let id = params.get('p') || 'C-001';
+let lang = params.get('lang') || (() => { try { return localStorage.getItem('jissr.lang') || 'en'; } catch { return 'en'; } })();
+let level = 'normal';
+let speaking = false;
+let msg = {};            // small status messages
+let aiBox = {};          // cached AI text: key -> {text, source}
+const patientActor = () => ({ type: 'patient', name: 'Patient (in app)' });
+const sysActor = { type: 'system', name: 'Jissr system' };
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const cur = () => state.cases.find((c) => c.id === id) || state.cases[0];
+const save = () => saveState(state);
+const T = () => S[lang];
+const loc = () => (lang === 'ar' ? 'ar-AE' : 'en-GB');
+const fmtDay = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString(loc(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+
+// Opening the app counts as "patient notified" in this demo.
+function ensureNotified() {
+  const c = cur();
+  if (c.stage === 'result') { advance(state, c.id, 'notified', sysActor, 'Opened the result in the patient app (demo)'); save(); }
+}
+
+/* ---------- the explanation text: pre-written first, AI wording swapped in if it arrives ---------- */
+function explainNow(c) {
+  const key = `${c.id}|${lang}|${level}|explain`;
+  if (aiBox[key]) return aiBox[key];
+  const t = { text: explanation({ band: c.band, value: c.value, lang, level }), source: 'template' };
+  aiBox[key] = t;
+  aiText({ band: c.band, value: c.value, lang, level }).then((r) => {
+    if (r.source === 'ai') { aiBox[key] = r; recordAiText(state, c.id, r.text, 'ai'); save(); render(); }
+  });
+  recordAiText(state, c.id, t.text, 'template'); save();
+  return t;
+}
+function barrierNow(c) {
+  const key = `${c.id}|${lang}|${c.barrier}|barrier`;
+  if (aiBox[key]) return aiBox[key];
+  const t = { text: barrierText(c.barrier, lang), source: 'template' };
+  aiBox[key] = t;
+  if (c.barrier !== 'none') aiText({ task: 'barrier', band: c.band, value: c.value, lang, barrier: c.barrier }).then((r) => {
+    if (r.source === 'ai') { aiBox[key] = r; render(); }
+  });
+  return t;
+}
+
+/* ---------- screens ---------- */
+const stageIdx = (c) => ['result', 'notified', 'understood', 'booked', 'attended', 'care_plan', 'closed'].indexOf(c.stage);
+function stepsHtml(c) {
+  const i = stageIdx(c);
+  const n = i >= 3 ? 4 : i >= 2 ? 3 : c.barrier !== 'none' ? 2 : 1;
+  return `<div class="steps" aria-hidden="true">${[0, 1, 2, 3].map((k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}</div>
+  <div class="row tiny muted">${T().stepOf.map((l) => `<span>${l}</span>`).join(' · ')}</div>`;
+}
+
+function render() {
+  const c = cur();
+  const t = T();
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.title = 'Jissr · ' + (lang === 'ar' ? 'نتيجتك' : 'your result');
+  const first = c.patient.name.split(' ')[0];
+  const ex = explainNow(c);
+  const cls = classify(c.value);
+  const understood = stageIdx(c) >= 2;
+  const booked = stageIdx(c) >= 3;
+  const closed = c.stage === 'closed';
+  const slot = c.slot;
+  const bar = barrierNow(c);
+  const plan = barrierPlan(c.barrier);
+
+  let h = `<div class="top"><div class="brand">Jissr · جسر</div>
+    <div class="seg" role="group" aria-label="Language">
+      <button data-lang="en" aria-pressed="${lang === 'en'}">English</button>
+      <button data-lang="ar" aria-pressed="${lang === 'ar'}">العربية</button>
+    </div></div>
+    ${stepsHtml(c)}
+    <h1 style="margin-top:14px">${esc(t.hello(first))}</h1><p class="muted">${t.sub}</p>`;
+
+  // 1. the result
+  h += `<section class="card" aria-labelledby="r1">
+    <div class="tiny muted" id="r1">${t.yourTest}</div>
+    <div class="big">${cls.value}<span style="font-size:1.4rem"> %</span></div>
+    <span class="chip ${cls.urgency}">${t.band[cls.band]}</span>
+    <p style="margin-top:12px;font-size:1.05em">${esc(ex.text)}</p>
+    <div class="notdx" role="note">${t.notdx}</div>
+    <div class="row">
+      ${'speechSynthesis' in window ? `<button class="btn ghost small" id="listen">${speaking ? t.stop : '🔊 ' + t.listen}</button>` : ''}
+      ${level === 'normal' ? `<button class="btn ghost small" id="simpler">${t.simpler}</button>` : ''}
+    </div>
+    <div class="tag">${ex.source === 'ai' ? t.ai : t.tpl}</div>
+  </section>`;
+
+  if (closed) {
+    h += `<div class="ok-msg">${t.done}</div>`;
+  } else {
+    // 2. did it make sense
+    h += `<section class="card"><h2>${t.sense}</h2>`;
+    if (understood) h += `<div class="ok-msg">${t.thanks}</div>`;
+    else h += `<div class="row"><button class="btn" id="yes">${t.yes}</button><button class="btn ghost" id="no">${t.no}</button></div>`;
+    h += `</section>`;
+
+    // 3. what makes it hard
+    h += `<section class="card"><h2>${t.barrierQ}</h2><p class="muted">${t.barrierSub}</p>
+      <div class="chips">${BARRIERS.map((b) => `<button class="pick" data-b="${b}" aria-pressed="${c.barrier === b}">${t.barrier[b]}</button>`).join('')}</div>`;
+    if (c.barrier !== 'none') {
+      h += `<div class="card soft" style="margin-bottom:0"><p>${esc(bar.text)}</p>
+        <div class="tag">${bar.source === 'ai' ? t.ai : t.tpl}</div>`;
+      if (plan.offer === 'language_support') {
+        h += `<label for="lq">${t.langq}</label><select id="lq">${Object.entries(LANGS).map(([k, v]) => `<option value="${k}" ${k === c.patient.language ? 'selected' : ''}>${v}</option>`).join('')}</select>`;
+      }
+      if (['nurse_call_first', 'explain_again_and_nurse', 'cost_check', 'language_support'].includes(plan.offer)) {
+        h += `<p><button class="btn small" id="nurse-quick">${c.nurseRequest ? '✓ ' + t.nurseReq : t.ask}</button></p>`;
+      }
+      h += `</div>`;
+    }
+    h += `</section>`;
+
+    // 4. book
+    h += `<section class="card"><h2>${t.book}</h2>`;
+    if (booked) {
+      h += `<div class="ok-msg">✓ ${t.booked}${slot ? ': ' + fmtDay(slot.day) + ', ' + slot.time : ''}</div><p class="muted">${t.where}</p>
+        <label style="display:flex;gap:10px;align-items:center;font-weight:400"><input type="checkbox" id="rem" style="width:auto" ${c.reminder ? 'checked' : ''}> ${t.remind}</label>
+        ${c.reminder ? `<div class="ok-msg">${t.remindOn}</div>` : ''}
+        ${slot ? `<button class="btn ghost small" id="ics">📅 ${t.cal}</button>` : ''}`;
+    } else if (!understood) {
+      h += `<p class="muted">${t.bookWait}</p>`;
+    } else {
+      const slots = slotsFor({ band: c.band, barrier: c.barrier }, state.today);
+      h += `<p class="muted">${t.pick}</p><div class="slots">${slots.map((s, i) => `<button class="pick" data-slot="${i}" aria-pressed="${msg.slot === i}">${fmtDay(s.day)}<br><b>${s.time}</b></button>`).join('')}</div>
+        <p><button class="btn" id="confirm" ${msg.slot == null ? 'disabled' : ''}>${t.confirm}</button></p>`;
+    }
+    h += `</section>`;
+  }
+
+  // 5. nurse (always available)
+  h += `<section class="card" id="nurse"><h2>${t.nurse}</h2><p class="muted">${t.nurseSub}</p>`;
+  if (c.nurseRequest && !c.nurseRequest.done) h += `<div class="ok-msg">${t.asked}<br><span class="tiny">${nurseText(lang)}</span></div>`;
+  else h += `<label for="nw">${t.when}</label><select id="nw"><option value="morning">${t.morning}</option><option value="afternoon">${t.afternoon}</option><option value="evening">${t.evening}</option></select>
+    <label for="nn">${t.note}</label><textarea id="nn" maxlength="300"></textarea>
+    <p><button class="btn" id="nurse-go">${t.ask}</button></p>`;
+  h += `<div class="sos" role="note">${t.sos}</div></section>`;
+
+  // 6. family helper
+  const fh = c.familyHelper;
+  h += `<section class="card"><h2>${t.fam}</h2><p class="muted">${t.famSub}</p>`;
+  if (fh && fh.consent) {
+    h += `<div class="ok-msg">${esc(t.famDone(fh.name))}</div>
+      <div class="card soft"><div class="tiny muted">${t.famPreview}</div><p>${t.famMsg}</p></div>
+      <button class="btn ghost small" id="fam-off">${t.famOff}</button>`;
+  } else {
+    h += `<label for="fn">${t.famName}</label><input id="fn" maxlength="40"><label for="fr">${t.famRel}</label><input id="fr" maxlength="30">
+      <p><button class="btn" id="fam-on">${t.famOn}</button></p>`;
+  }
+  h += `</section>
+    <p class="foot"><a href="staff.html?c=${esc(c.id)}">${t.seeStaff}</a><br>Synthetic demo · not medical advice</p>`;
+
+  const keep = { fn: document.getElementById('fn')?.value, fr: document.getElementById('fr')?.value, nn: document.getElementById('nn')?.value };
+  document.getElementById('app').innerHTML = h;
+  if (keep.fn) document.getElementById('fn') && (document.getElementById('fn').value = keep.fn);
+  if (keep.fr) document.getElementById('fr') && (document.getElementById('fr').value = keep.fr);
+  if (keep.nn) document.getElementById('nn') && (document.getElementById('nn').value = keep.nn);
+  wire();
+}
+
+function act(fn) { try { fn(); save(); } catch (e) { alert(e.message); } render(); }
+
+function wire() {
+  const $ = (s) => document.querySelector(s);
+  const c = cur();
+  document.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => { lang = b.dataset.lang; try { localStorage.setItem('jissr.lang', lang); } catch { } stopSpeak(); render(); });
+  $('#listen') && ($('#listen').onclick = () => { speaking ? stopSpeak() : speak(explainNow(c).text); render(); });
+  $('#simpler') && ($('#simpler').onclick = () => { level = 'simple'; render(); });
+  $('#yes') && ($('#yes').onclick = () => act(() => advance(state, c.id, 'understood', patientActor(), 'Patient confirmed they understood')));
+  $('#no') && ($('#no').onclick = () => { level = 'simple'; msg.noted = true; act(() => setBarrier(state, c.id, c.barrier === 'none' ? 'dont_understand' : c.barrier, patientActor())); });
+  document.querySelectorAll('[data-b]').forEach((b) => b.onclick = () => act(() => setBarrier(state, c.id, b.dataset.b, patientActor())));
+  $('#nurse-quick') && ($('#nurse-quick').onclick = () => {
+    if (c.nurseRequest) return;
+    const l = $('#lq') ? ' (language: ' + $('#lq').value + ')' : '';
+    act(() => requestNurse(state, c.id, patientActor(), 'Asked for help: ' + c.barrier + l));
+  });
+  document.querySelectorAll('[data-slot]').forEach((b) => b.onclick = () => { msg.slot = +b.dataset.slot; render(); });
+  $('#confirm') && ($('#confirm').onclick = () => {
+    const s = slotsFor({ band: c.band, barrier: c.barrier }, state.today)[msg.slot];
+    act(() => { advance(state, c.id, 'booked', patientActor(), `Booked ${s.day} ${s.time}`); c.slot = s; msg.slot = null; });
+  });
+  $('#rem') && ($('#rem').onchange = (e) => act(() => { c.reminder = e.target.checked ? { when: '1 day before', at: new Date().toISOString() } : null; }));
+  $('#ics') && ($('#ics').onclick = downloadIcs);
+  $('#nurse-go') && ($('#nurse-go').onclick = () => act(() => requestNurse(state, c.id, patientActor(), `Preferred time: ${$('#nw').value}. ${$('#nn').value.trim()}`.trim())));
+  $('#fam-on') && ($('#fam-on').onclick = () => {
+    const n = $('#fn').value.trim();
+    if (!n) { $('#fn').focus(); return; }
+    act(() => { c.familyHelper = { name: n, relation: $('#fr').value.trim(), consent: true, at: new Date().toISOString() }; c.events.push({ type: 'family', at: new Date().toISOString(), by: 'Patient (in app)', role: 'patient', note: `Allowed ${n} to see appointment status (not the result)` }); });
+  });
+  $('#fam-off') && ($('#fam-off').onclick = () => act(() => { c.familyHelper = null; c.events.push({ type: 'family', at: new Date().toISOString(), by: 'Patient (in app)', role: 'patient', note: 'Stopped sharing with family helper' }); }));
+}
+
+/* ---------- read aloud (your browser's built-in voice) ---------- */
+function speak(text) {
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === 'ar' ? 'ar-SA' : 'en-GB'; u.rate = 0.9;
+    u.onend = u.onerror = () => { speaking = false; render(); };
+    speaking = true; speechSynthesis.speak(u);
+  } catch { speaking = false; }
+}
+function stopSpeak() { try { speechSynthesis.cancel(); } catch { } speaking = false; }
+
+/* ---------- calendar file ---------- */
+function downloadIcs() {
+  const c = cur(); if (!c.slot) return;
+  const d = c.slot.day.replace(/-/g, ''), tm = c.slot.time.replace(':', '') + '00';
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Jissr demo//EN', 'BEGIN:VEVENT', `UID:${c.id}-${d}@jissr-demo`, `DTSTAMP:${d}T000000Z`,
+    `DTSTART;TZID=Asia/Dubai:${d}T${tm}`, 'DURATION:PT20M', 'SUMMARY:Jissr demo visit (HbA1c follow-up)', 'DESCRIPTION:Demo only. Synthetic data.', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })); a.download = 'jissr-visit.ics'; a.click();
+}
+
+/* ---------- demo bar ---------- */
+const who = document.getElementById('who');
+who.innerHTML = state.cases.map((c) => `<option value="${c.id}">${esc(c.patient.name)} · ${c.value}%</option>`).join('');
+who.value = id;
+who.onchange = () => { id = who.value; level = 'normal'; msg = {}; stopSpeak(); ensureNotified(); render(); };
+document.getElementById('reset').onclick = () => { state = resetState(); aiBox = {}; msg = {}; level = 'normal'; ensureNotified(); render(); };
+if (!state.cases.some((c) => c.id === id)) id = state.cases[0].id;
+ensureNotified();
+render();
+</script>
+</body>
+</html>

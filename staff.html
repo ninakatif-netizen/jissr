@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jissr: care team</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="demo">
+  <span>Demo · synthetic data only · role switch is a demo, not a real login</span>
+  <span class="row">
+    <label for="me" style="margin:0;font-weight:400">Signed in as</label>
+    <select id="me" style="width:auto"></select>
+    <button id="reset">Reset demo</button>
+    <a href="index.html">Home</a>
+  </span>
+</div>
+<div class="wrap wide">
+  <div class="top"><div class="brand">Jissr · Care team</div><div class="muted tiny" id="today"></div></div>
+  <p class="muted" style="margin-top:-6px">Abnormal HbA1c follow-up. Urgency and deadlines are set by rules. The AI only helps word patient messages. It never diagnoses, assigns or closes a case.</p>
+  <div class="kpis" id="kpis"></div>
+  <div class="row" style="margin:8px 0">
+    <div class="chips" id="filters"></div>
+    <input id="q" type="search" placeholder="Search name or case…" style="max-width:240px" aria-label="Search">
+  </div>
+  <div class="split" id="split">
+    <div class="scroll"><table class="tbl stack" id="tbl"></table></div>
+    <div id="detail"></div>
+  </div>
+  <p class="foot">Synthetic demo · not medical advice</p>
+</div>
+
+<script type="module">
+import { loadState, saveState, resetState } from './core/store.mjs';
+import { STAGES, STAGE_LABEL, BARRIER_LABEL, barrierPlan, isOverdue, statusOf, daysBetween } from './core/rules.mjs';
+import { advance, closeCase, assignOwner, setDropReason, logContact, canRecord, CLOSE_TYPES, MIN_EVIDENCE, RuleError } from './core/cases.mjs';
+
+let state = loadState();
+const params = new URLSearchParams(location.search);
+let sel = params.get('c');
+let filter = 'open';
+let query = '';
+let flash = null;
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = (s) => document.querySelector(s);
+const me = () => { const s = state.staff.find((x) => x.id === meSel.value) || state.staff[0]; return { type: 'staff', id: s.id, role: s.role, name: s.name }; };
+const ownerName = (id) => state.staff.find((s) => s.id === id)?.name || 'Unassigned';
+const save = () => saveState(state);
+const fmt = (d) => d ? new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }) : '–';
+const fmtTs = (iso) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const URG = { urgent: 3, priority: 2, routine: 1 };
+const URG_LABEL = { urgent: 'Urgent', priority: 'Priority', routine: 'Routine' };
+
+/* ---------- the list ---------- */
+function visible() {
+  const t = state.today, mine = me().id;
+  let list = state.cases.filter((c) => {
+    if (filter === 'closed') return c.stage === 'closed';
+    if (c.stage === 'closed') return false;
+    if (filter === 'overdue') return isOverdue(c, t);
+    if (filter === 'urgent') return c.band === 'urgent';
+    if (filter === 'risk') return !!c.dropReason;
+    if (filter === 'mine') return c.owner === mine;
+    return true;
+  });
+  const q = query.trim().toLowerCase();
+  if (q) list = list.filter((c) => (c.patient.name + ' ' + c.id).toLowerCase().includes(q));
+  return list.sort((a, b) => {
+    const oa = isOverdue(a, t) ? daysBetween(a.due, t) : -1, ob = isOverdue(b, t) ? daysBetween(b.due, t) : -1;
+    return (ob >= 0) - (oa >= 0) || URG[b.urgency] - URG[a.urgency] || (a.due || '').localeCompare(b.due || '');
+  });
+}
+
+function flagHtml(c) {
+  if (c.stage === 'closed') return '<span class="chip ok">Closed</span>';
+  const t = state.today;
+  if (isOverdue(c, t)) return `<span class="chip bad">OVERDUE +${daysBetween(c.due, t)}d</span>`;
+  if (c.due === t) return '<span class="chip warn">Due today</span>';
+  const d = daysBetween(t, c.due);
+  return `<span class="chip grey">in ${d}d</span>`;
+}
+
+function render() {
+  const t = state.today;
+  $('#today').textContent = 'Today: ' + fmt(t);
+  const open = state.cases.filter((c) => c.stage !== 'closed');
+  const k = [
+    ['Open cases', open.length, ''],
+    ['Overdue', open.filter((c) => isOverdue(c, t)).length, 'bad'],
+    ['Urgent (open)', open.filter((c) => c.band === 'urgent').length, ''],
+    ['Drop-out risk', open.filter((c) => c.dropReason).length, ''],
+    ['Nurse call requested', open.filter((c) => c.nurseRequest && !c.nurseRequest.done).length, ''],
+    ['Closed', state.cases.length - open.length, ''],
+  ];
+  $('#kpis').innerHTML = k.map(([l, n, cl]) => `<div class="kpi ${cl}"><b>${n}</b>${l}</div>`).join('');
+  const F = [['open', 'All open'], ['overdue', 'Overdue'], ['urgent', 'Urgent'], ['risk', 'Drop-out risk'], ['mine', 'Mine'], ['closed', 'Closed']];
+  $('#filters').innerHTML = F.map(([id, l]) => `<button class="pick" data-f="${id}" aria-pressed="${filter === id}">${l}</button>`).join('');
+
+  const list = visible();
+  $('#tbl').innerHTML = `<thead><tr><th>Patient</th><th>HbA1c</th><th>Stage</th><th>Owner</th><th>Due</th><th>Flag</th><th>Drop-out reason</th></tr></thead><tbody>` +
+    (list.map((c) => `<tr class="click ${c.id === sel ? 'sel' : ''}" data-id="${c.id}" tabindex="0">
+      <td data-l="Patient"><b>${esc(c.patient.name)}</b><br><span class="muted tiny">${c.id} · ${c.patient.age}${c.patient.sex} · ${esc(c.patient.nationality)}</span></td>
+      <td data-l="HbA1c"><b>${c.value}%</b> <span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span></td>
+      <td data-l="Stage">${STAGE_LABEL[c.stage]}${c.nurseRequest && !c.nurseRequest.done ? ' <span class="chip warn">nurse call</span>' : ''}</td>
+      <td data-l="Owner">${esc(ownerName(c.owner))}</td>
+      <td data-l="Due">${fmt(c.due)}</td>
+      <td data-l="Flag">${flagHtml(c)}</td>
+      <td data-l="Drop-out reason">${c.dropReason ? esc(c.dropReason) : '<span class="muted">–</span>'}</td></tr>`).join('') ||
+      `<tr><td colspan="7" class="muted">No cases here.</td></tr>`) + `</tbody>`;
+  $('#split').classList.toggle('on', !!sel);
+  document.querySelectorAll('[data-f]').forEach((b) => b.onclick = () => { filter = b.dataset.f; render(); });
+  document.querySelectorAll('#tbl tr.click').forEach((r) => { r.onclick = () => { sel = r.dataset.id; flash = null; render(); }; r.onkeydown = (e) => { if (e.key === 'Enter') r.click(); }; });
+  renderDetail();
+}
+
+/* ---------- one case ---------- */
+function renderDetail() {
+  const box = $('#detail');
+  const c = state.cases.find((x) => x.id === sel);
+  if (!c) { box.innerHTML = ''; return; }
+  const actor = me(), t = state.today;
+  const idx = STAGES.indexOf(c.stage);
+  const next = STAGES[idx + 1];
+  const plan = barrierPlan(c.barrier);
+  const st = statusOf(c, t);
+  const p = c.patient;
+
+  const tl = STAGES.map((s, i) => {
+    const ev = [...c.events].reverse().find((e) => e.type === s);
+    const cls = s === 'closed' && c.stage === 'closed' ? 'closed done' : i <= idx ? 'done' : i === idx + 1 ? 'next' : 'future';
+    return `<li class="${cls}"><b>${STAGE_LABEL[s]}</b>${ev ? `<span class="tiny muted">${fmtTs(ev.at)} · ${esc(ev.by)}</span>${ev.note ? `<span class="tiny">${esc(ev.note)}</span>` : ''}` : i === idx + 1 ? '<span class="tiny muted">Next step</span>' : ''}</li>`;
+  }).join('');
+
+  const extra = c.events.filter((e) => !STAGES.includes(e.type)).slice(-6).reverse();
+
+  // what the next button does, and who is allowed
+  let stepHtml = '';
+  if (c.stage !== 'closed' && next && next !== 'closed') {
+    const ok = canRecord(next, actor);
+    stepHtml = `<div class="row"><input id="stepnote" placeholder="Note (optional)" style="flex:1;min-width:140px"><button class="btn small" id="step" ${ok ? '' : 'disabled'}>Record: ${STAGE_LABEL[next]}</button></div>
+      ${ok ? '' : `<div class="tiny muted">Only ${next === 'care_plan' ? 'a clinician' : 'staff with the right role'} can record this step.</div>`}`;
+  }
+
+  const isDoc = actor.role === 'clinician';
+  const closeHtml = c.stage === 'closed'
+    ? `<div class="ok-msg">Closed by ${esc(c.closed?.by || '')} · ${esc(CLOSE_TYPES[c.closed?.type] || '')}<br><span class="tiny">Evidence: ${esc(c.closed?.evidence || '')}</span></div>`
+    : `<div class="close-box ${isDoc ? '' : 'locked'}"><h3>Close this case</h3>
+        <p class="tiny muted">${isDoc ? 'A clinician must give a reason and write the evidence. The AI can never close a case.' : '🔒 Only a clinician can close a case, with written evidence. The AI can never close a case. Switch to a clinician at the top to try it.'}</p>
+        <label for="ctype">Reason</label><select id="ctype" ${isDoc ? '' : 'disabled'}>${Object.entries(CLOSE_TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
+        <label for="cev">Evidence (min ${MIN_EVIDENCE} characters)</label><textarea id="cev" ${isDoc ? '' : 'disabled'} placeholder="e.g. Seen 12 Nov, repeat HbA1c ordered, plan agreed, review in 3 months"></textarea>
+        <p><button class="btn danger" id="close" ${isDoc ? '' : 'disabled'}>Close case</button></p></div>`;
+
+  const ai = c.aiText;
+  box.innerHTML = `<div class="card" style="margin-top:0">
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(p.name)}</h2><button class="btn ghost small" id="x" aria-label="Close panel">✕</button></div>
+    <p class="muted tiny">${c.id} · ${p.age}${p.sex} · ${esc(p.nationality)} · speaks ${esc(p.language)}${p.shifts ? ' · works shifts' : ''}</p>
+    <p><b style="font-size:1.4rem">${c.value}%</b> <span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span> <span class="tiny muted">urgency set by rules</span></p>
+    <p class="tiny">Owner: <b>${esc(ownerName(c.owner))}</b> · Due: <b>${fmt(c.due)}</b> · ${flagHtml(c)}</p>
+    ${c.barrier !== 'none' ? `<p class="tiny">Patient's barrier: <span class="chip warn">${BARRIER_LABEL[c.barrier]}</span></p>` : ''}
+    ${c.nurseRequest && !c.nurseRequest.done ? `<div class="err-msg">Patient asked for a nurse call (${fmtTs(c.nurseRequest.at)}). ${esc(c.nurseRequest.note)}</div>` : ''}
+    ${c.dropReason ? `<p class="tiny">Drop-out reason: <b>${esc(c.dropReason)}</b></p>` : ''}
+    ${flash ? `<div class="${flash.err ? 'err-msg' : 'ok-msg'}">${esc(flash.text)}</div>` : ''}
+    <h3 style="margin-top:14px">Timeline</h3><ol class="timeline">${tl}</ol>
+    <div class="card soft"><h3>Suggested next step (rules)</h3><p>${esc(plan.staffTask)}</p>
+      ${ai ? `<div class="tiny muted">Message the patient saw: ${ai.source === 'ai' ? 'AI-assisted draft, safety-checked' : 'pre-written template'}.</div><p class="tiny" style="white-space:pre-wrap">${esc(ai.text)}</p>` : '<div class="tiny muted">Patient has not opened the message yet.</div>'}
+    </div>
+    ${c.stage !== 'closed' ? `<h3>Actions (as ${esc(actor.name)})</h3>
+      ${stepHtml}
+      <div class="row" style="margin-top:10px"><select id="owner" style="flex:1">${state.staff.map((s) => `<option value="${s.id}" ${s.id === c.owner ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select><button class="btn ghost small" id="assign">Assign owner</button></div>
+      <div class="row" style="margin-top:10px"><input id="contact" placeholder="Log a call / message (optional note)" style="flex:1"><button class="btn ghost small" id="log">Log contact</button></div>
+      <div class="row" style="margin-top:10px"><input id="drop" value="${esc(c.dropReason || '')}" placeholder="Drop-out reason (e.g. night shifts)" style="flex:1"><button class="btn ghost small" id="dropbtn">Save reason</button></div>` : ''}
+    ${closeHtml}
+    ${extra.length ? `<h3 style="margin-top:14px">Recent activity</h3><ul class="tiny" style="padding-inline-start:18px">${extra.map((e) => `<li>${fmtTs(e.at)} · ${esc(e.by)}: ${esc(e.type.replace('_', ' '))}${e.note ? ' · ' + esc(e.note) : ''}</li>`).join('')}</ul>` : ''}
+  </div>`;
+
+  const run = (fn, okMsg) => { try { fn(); save(); flash = { text: okMsg }; } catch (e) { flash = { text: e instanceof RuleError ? e.message : 'Something went wrong.', err: true }; } render(); };
+  $('#x').onclick = () => { sel = null; flash = null; render(); };
+  $('#step') && ($('#step').onclick = () => run(() => advance(state, c.id, next, actor, $('#stepnote').value.trim() || undefined), 'Recorded: ' + STAGE_LABEL[next]));
+  $('#assign') && ($('#assign').onclick = () => run(() => assignOwner(state, c.id, $('#owner').value, actor), 'Owner updated'));
+  $('#log') && ($('#log').onclick = () => run(() => logContact(state, c.id, actor, $('#contact').value.trim()), 'Contact logged'));
+  $('#dropbtn') && ($('#dropbtn').onclick = () => run(() => setDropReason(state, c.id, $('#drop').value, actor), 'Drop-out reason saved'));
+  $('#close') && ($('#close').onclick = () => run(() => closeCase(state, c.id, actor, { type: $('#ctype').value, evidence: $('#cev').value }), 'Case closed'));
+}
+
+/* ---------- demo bar ---------- */
+const meSel = document.getElementById('me');
+meSel.innerHTML = state.staff.map((s) => `<option value="${s.id}">${esc(s.name)} · ${s.role}</option>`).join('');
+meSel.value = 'n1';
+meSel.onchange = () => { flash = null; render(); };
+$('#reset').onclick = () => { state = resetState(); flash = null; render(); };
+$('#q').oninput = (e) => { query = e.target.value; render(); };
+// the patient page may change things in another tab: refresh when it does
+addEventListener('storage', () => { state = loadState(); render(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { state = loadState(); render(); } });
+render();
+</script>
+</body>
+</html>
