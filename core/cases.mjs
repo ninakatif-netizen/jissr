@@ -2,14 +2,15 @@
 // and how it can be closed. These rules are enforced here in code (not just by greying out buttons).
 // The AI is never an actor: any attempt by it to change a case is refused.
 
-import { STAGES, OPTIONAL_STAGES, classify, dueDate, addDays, isoDay, BARRIERS, CHANNELS, CONSULT_REPLY_DAYS, ownerRoleFor } from './rules.mjs';
+import { STAGES, OPTIONAL_STAGES, classify, classifyFit, dueDate, addDays, isoDay, BARRIERS, CHANNELS, CONSULT_REPLY_DAYS, ownerRoleFor } from './rules.mjs';
+import { targetsFor } from './programmes.mjs';
 
 export class RuleError extends Error {
   constructor(code, message) { super(message); this.code = code; }
 }
 
 export const ROLES = ['nurse', 'coordinator', 'clinician'];
-export const ORGS = ['Screening programme', 'Primary care clinic', 'Hospital endocrinology', 'Diabetes centre'];
+export const ORGS = ['Screening programme', 'Primary care clinic', 'Hospital endocrinology', 'Diabetes centre', 'Colorectal clinic', 'Hospital oncology'];
 export const REFERRAL_TARGETS = ['Hospital endocrinology', 'Diabetes centre'];
 export const PLAN_KINDS = { treatment: 'Treatment started', surveillance: 'Surveillance (lifestyle plan and re-testing)' };
 export const CLOSE_TYPES = {
@@ -98,7 +99,7 @@ export function sendReferral(state, id, actor, { to, reason } = {}) {
   const c = findCase(state, id);
   if (c.stage === 'closed') throw new RuleError('already_closed', 'This case is already closed.');
   if (!isClinician(actor)) throw new RuleError('clinician_only', 'Only a clinician can refer a patient.');
-  if (!REFERRAL_TARGETS.includes(to)) throw new RuleError('bad_target', 'Choose where to refer the patient.');
+  if (!targetsFor(c).includes(to)) throw new RuleError('bad_target', 'Choose where to refer the patient.');
   const resend = c.stage === 'referred' && c.referral && c.referral.status === 'rejected';
   if (!resend && nextStageOf(c) !== 'referred') throw new RuleError('out_of_order', `Next step is "${nextStageOf(c)}".`);
   const why = needText(reason, MIN_REASON, 'reason_required', `Write the reason for referral (at least ${MIN_REASON} characters).`);
@@ -150,7 +151,7 @@ export function requestConsult(state, id, actor, { to, question } = {}) {
   refuseAI(actor);
   const c = findCase(state, id);
   if (!isClinician(actor)) throw new RuleError('clinician_only', 'Only a clinician can ask a colleague for advice.');
-  if (!REFERRAL_TARGETS.includes(to)) throw new RuleError('bad_target', 'Choose who to ask.');
+  if (!targetsFor(c).includes(to)) throw new RuleError('bad_target', 'Choose who to ask.');
   const q = needText(question, MIN_REASON, 'reason_required', `Write the question (at least ${MIN_REASON} characters).`);
   const item = { id: 'Q' + ((c.consults || []).length + 1), to, question: q, askedBy: actor.name, askedAt: new Date().toISOString(), due: addDays(isoDay(Date.now()), CONSULT_REPLY_DAYS), answer: null };
   c.consults = [...(c.consults || []), item];
@@ -266,7 +267,7 @@ export const LANGUAGES = ['ar', 'en', 'ur', 'hi', 'tl', 'bn', 'ml'];
 // A NEW RESULT ARRIVES (from the lab, or typed in by staff). The rules decide everything:
 // urgency and due date from the HbA1c, and the owner (urgent -> the least busy nurse, otherwise the least busy coordinator).
 // Results below 5.7% are not actionable, so no case is opened.
-export function createCase(state, actor, { name, age, language, value, today } = {}) {
+export function createCase(state, actor, { name, age, language, value, today, programme = 'hba1c', result } = {}) {
   refuseAI(actor);
   if (!actor || !['staff', 'system'].includes(actor.type)) throw new RuleError('not_allowed', 'Only staff or the lab system can add a result.');
   const nm = (name || '').trim();
@@ -274,9 +275,10 @@ export function createCase(state, actor, { name, age, language, value, today } =
   const ag = Number(age);
   if (!Number.isInteger(ag) || ag < 18 || ag > 110) throw new RuleError('bad_age', 'Enter an age between 18 and 110.');
   if (!LANGUAGES.includes(language)) throw new RuleError('bad_language', 'Choose a language.');
-  const k = classify(value);
-  if (k.band === 'invalid') throw new RuleError('bad_value', 'Enter an HbA1c between 3 and 20%.');
-  if (!k.inProgramme) throw new RuleError('not_actionable', 'Below 5.7%: not an actionable result, so no case is opened.');
+  if (!['hba1c', 'fit'].includes(programme)) throw new RuleError('bad_programme', 'Unknown screening programme.');
+  const k = programme === 'fit' ? classifyFit(result) : classify(value);
+  if (k.band === 'invalid') throw new RuleError('bad_value', programme === 'fit' ? 'Choose positive or negative.' : 'Enter an HbA1c between 3 and 20%.');
+  if (!k.inProgramme) throw new RuleError('not_actionable', programme === 'fit' ? 'A negative FIT is not an actionable result, so no case is opened.' : 'Below 5.7%: not an actionable result, so no case is opened.');
   const day = today || isoDay(Date.now());
   const n = state.cases.reduce((m, c) => Math.max(m, parseInt(c.id.slice(2), 10) || 0), 0) + 1;
   const role = ownerRoleFor(k.band);
@@ -284,7 +286,7 @@ export function createCase(state, actor, { name, age, language, value, today } =
   const pool = state.staff.filter((s) => s.role === role && s.org === 'Screening programme').sort((a, b) => open(a.id) - open(b.id) || a.id.localeCompare(b.id));
   const owner = pool[0] ? pool[0].id : null;
   const c = newCase({
-    id: 'C-' + String(n).padStart(3, '0'), value: k.value, resultDay: day, owner,
+    id: 'C-' + String(n).padStart(3, '0'), value: k.value, resultDay: day, owner, programme,
     patient: { id: 'P-' + String(n).padStart(3, '0'), name: nm, age: ag, language, shifts: false },
   });
   c.events[0].at = new Date().toISOString();
@@ -294,14 +296,15 @@ export function createCase(state, actor, { name, age, language, value, today } =
   return c;
 }
 
-export function newCase({ id, patient, value, resultDay, owner }) {
-  const k = classify(value);
+export function newCase({ id, patient, value, resultDay, owner, programme = 'hba1c' }) {
+  const fit = programme === 'fit';
+  const k = fit ? classifyFit('positive') : classify(value);
   return {
-    id, patient, value: k.value, band: k.band, urgency: k.urgency,
-    resultDay, due: dueDate(resultDay, value), owner,
+    id, programme, patient, value: fit ? null : k.value, band: k.band, urgency: k.urgency,
+    resultDay, due: fit ? addDays(resultDay, k.dueDays) : dueDate(resultDay, value), owner,
     stage: 'result', barrier: 'none', dropReason: null, nurseRequest: null, aiText: null, closed: null, familyHelper: null,
     referral: null, consults: [], plan: null, channel: 'app', confidence: null,
-    events: [{ type: 'result', at: resultDay + 'T08:00:00.000Z', by: 'Lab system', role: 'system', note: `HbA1c ${k.value}%` }],
+    events: [{ type: 'result', at: resultDay + 'T08:00:00.000Z', by: 'Lab system', role: 'system', note: fit ? 'FIT positive (hidden blood found)' : `HbA1c ${k.value}%` }],
   };
 }
 

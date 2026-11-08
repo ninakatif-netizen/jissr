@@ -46,6 +46,12 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await shot(p, '06-arabic');
   await p.click('[data-lang=en]');
 
+  await p.click('#me-btn'); await p.selectOption('#who', 'C-031'); await p.waitForTimeout(250);
+  await p.click('.tab[data-go=result]'); await p.waitForTimeout(250);
+  ok(/Positive/.test(await text()) && /colonoscopy/i.test(await text()) && /not a diagnosis/.test(await text()), 'a bowel screening patient sees their own result and next step');
+  await shot(p, '07b-bowel-patient');
+  await p.goto(BASE + 'patient.html?p=C-001&nosplash=1'); await p.waitForTimeout(200);
+
   // ---------- care team (laptop, same browser storage) ----------
   const desk = await browser.newContext({ viewport: { width: 1280, height: 900 }, storageState: await phone.storageState() });
   const s = await desk.newPage(); watch(s, 'staff');
@@ -59,8 +65,16 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await shot(s, '07-new-result');
   await s.click('#i-go'); await s.waitForTimeout(300);
   const dr = await s.innerText('#drawer');
-  ok(/C-031/.test(dr) && /Nurse/.test(dr) && /Urgent/.test(dr), 'a new urgent result is owned by a nurse, by rule');
+  ok(/C-0[3-9][0-9]/.test(dr) && /Nurse/.test(dr) && /Urgent/.test(dr), 'a new urgent result is owned by a nurse, by rule');
   await shot(s, '08-new-case');
+  await s.goto(BASE + 'staff.html?as=c1&new=1'); await s.waitForTimeout(200);
+  await s.fill('#i-name', 'Bowel Test'); await s.selectOption('#i-prog', 'fit'); await s.selectOption('#i-fit', 'negative'); await s.click('#i-go');
+  ok(/negative FIT/i.test(await s.innerText('#i-err')), 'a negative bowel screening test opens no case');
+  await s.selectOption('#i-fit', 'positive'); await s.click('#i-go'); await s.waitForTimeout(300);
+  ok(/FIT \+/.test(await s.innerText('#drawer')) && /Bowel cancer screening/.test(await s.innerText('#drawer')), 'a positive bowel screening test opens a case in the same engine');
+  await s.goto(BASE + 'staff.html?as=n1&prog=fit'); await s.waitForTimeout(200);
+  ok((await s.locator('#tbl tr.click').count()) >= 6 && !(/HbA1c ·/.test(await s.innerText('#tbl'))), 'the list can be filtered to one programme');
+  await shot(s, '12-bowel-programme');
   await s.goto(BASE + 'staff.html?as=n1&c=C-002'); await s.waitForTimeout(200);
   ok(await s.isDisabled('#close'), 'a nurse cannot close a case');
   await s.selectOption('#me', 'd1'); await s.waitForTimeout(100);

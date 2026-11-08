@@ -9,11 +9,13 @@ const T = {
     explain: {
       prediabetes: (v) => `Your HbA1c result is ${v}%. HbA1c shows your average blood sugar over the last 2 to 3 months. Yours is a little higher than usual. This is common, and it can often be improved with changes to food and activity, and regular check-ups. A nurse or doctor needs to look at your result with you.`,
       diabetes: (v) => `Your HbA1c result is ${v}%. HbA1c shows your average blood sugar over the last 2 to 3 months. Yours is higher than the usual range. A doctor needs to check you and talk through what it means. Many people with a result like this stay well with the right care. Please see a doctor in the next two weeks.`,
+      fit_positive: () => 'Your bowel screening test (FIT) found a small amount of blood in your stool sample that cannot be seen by eye. This is common and has many possible causes, such as piles or small growths called polyps. Most people with a positive result do not have cancer, but a camera test of the bowel (colonoscopy) is the way to find out. Please book it in the next few weeks.',
       urgent: (v) => `Your HbA1c result is ${v}%. HbA1c shows your average blood sugar over the last 2 to 3 months. Yours is much higher than the usual range, and we want a nurse to speak with you in the next day or two. Please do not wait. If you feel very thirsty, tired, sick or confused, or you are passing a lot of urine, get medical help straight away (ambulance: 998).`,
     },
     simple: {
       prediabetes: (v) => `Your blood sugar test (HbA1c) is ${v}%. It is a little high. This is common. A nurse or doctor will explain what to do next. Small changes often help.`,
       diabetes: (v) => `Your blood sugar test (HbA1c) is ${v}%. It is higher than normal. A doctor needs to see you soon to explain it. Many people stay well with the right care.`,
+      fit_positive: () => 'Your bowel test (FIT) found a little hidden blood. This has many possible causes, and most are not cancer. A camera test called a colonoscopy will check. A nurse will help you book it.',
       urgent: (v) => `Your blood sugar test (HbA1c) is ${v}%. It is much higher than normal. A nurse will call you in the next day or two. If you feel very unwell, call 998.`,
     },
     barrier: {
@@ -30,11 +32,13 @@ const T = {
     explain: {
       prediabetes: (v) => `نتيجة تحليل السكر التراكمي (HbA1c) لديك ${v}%. يُظهر هذا التحليل متوسط مستوى السكر في دمك خلال الشهرين أو الثلاثة الماضية. نتيجتك أعلى قليلاً من المعتاد. هذا أمر شائع، ويمكن غالباً تحسينه بتغيير الطعام والنشاط والمتابعة المنتظمة. يحتاج الأمر أن تراجع نتيجتك مع ممرضة أو طبيب.`,
       diabetes: (v) => `نتيجة تحليل السكر التراكمي (HbA1c) لديك ${v}%. يُظهر هذا التحليل متوسط مستوى السكر في دمك خلال الشهرين أو الثلاثة الماضية. نتيجتك أعلى من المعدل المعتاد. يحتاج الطبيب إلى فحصك ومناقشة معنى النتيجة معك. كثير من الناس بنتائج مشابهة يبقون بصحة جيدة مع الرعاية المناسبة. يرجى مراجعة الطبيب خلال أسبوعين.`,
+      fit_positive: () => 'وجد فحص الكشف المبكر عن سرطان القولون (FIT) كمية صغيرة من الدم في عينة البراز لا تُرى بالعين. هذا أمر شائع وله أسباب كثيرة، مثل البواسير أو زوائد صغيرة تسمى السلائل. معظم من تكون نتيجتهم إيجابية ليس لديهم سرطان، لكن فحص القولون بالمنظار هو الطريقة لمعرفة السبب. يرجى حجزه خلال الأسابيع القليلة القادمة.',
       urgent: (v) => `نتيجة تحليل السكر التراكمي (HbA1c) لديك ${v}%. يُظهر هذا التحليل متوسط مستوى السكر في دمك خلال الشهرين أو الثلاثة الماضية. نتيجتك أعلى بكثير من المعدل المعتاد، ونريد أن تتحدث معك ممرضة خلال يوم أو يومين. يرجى عدم الانتظار. إذا شعرت بعطش شديد أو تعب أو غثيان أو ارتباك، أو كنت تتبول كثيراً، فاطلب مساعدة طبية فوراً (الإسعاف: 998).`,
     },
     simple: {
       prediabetes: (v) => `نتيجة تحليل السكر (HbA1c) لديك ${v}%. هي أعلى قليلاً من المعتاد، وهذا شائع. ستشرح لك ممرضة أو طبيب ما يمكن فعله. التغييرات الصغيرة تفيد كثيراً.`,
       diabetes: (v) => `نتيجة تحليل السكر (HbA1c) لديك ${v}%. هي أعلى من المعتاد. يحتاج الطبيب أن يراك قريباً ليشرح لك ذلك. كثيرون يبقون بصحة جيدة مع الرعاية المناسبة.`,
+      fit_positive: () => 'وجد فحص القولون (FIT) القليل من الدم الخفي. لهذا أسباب كثيرة، ومعظمها ليس سرطاناً. سيتحقق فحص بالمنظار يسمى تنظير القولون من السبب. ستساعدك ممرضة على الحجز.',
       urgent: (v) => `نتيجة تحليل السكر (HbA1c) لديك ${v}%. هي أعلى بكثير من المعتاد. ستتصل بك ممرضة خلال يوم أو يومين. إذا شعرت بتعب شديد فاتصل بالإسعاف 998.`,
     },
     barrier: {

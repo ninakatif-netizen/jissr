@@ -121,6 +121,11 @@ body{font-size:16px}
 .splash .name span{font-family:"Plex",sans-serif;font-weight:600;opacity:.85;margin-inline-start:10px}
 .splash p{opacity:.9;max-width:22ch;margin-top:8px}
 @keyframes splash{to{opacity:0;visibility:hidden}}
+/* bowel screening result */
+.fitres{text-align:center;padding:8px 0 2px}
+.fitic{width:56px;height:56px;border-radius:18px;background:#fff;color:#1d3a6b;display:inline-flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+.fitbig{font-size:2.3rem;font-weight:700;color:#1d3a6b;margin-top:8px}
+.fitres p{margin:4px auto 0;max-width:30ch;color:var(--ink)}
 /* identity check */
 .gate{text-align:center;padding-top:18px}
 .gico{width:76px;height:76px;border-radius:24px;background:var(--p-blue);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:8px auto 18px}
@@ -182,10 +187,21 @@ import { explanation, barrierText, nurseText } from './core/templates.mjs';
 import { ic, wordmark, logo } from './core/ui.mjs';
 import { registerSW, isStandalone, isIOS, onInstallReady, canPrompt, promptInstall } from './core/pwa.mjs';
 import { startTour } from './core/tour.mjs';
+import { resultText, progOf } from './core/programmes.mjs';
 
 /* ---------- words on the screen (English / Arabic) ---------- */
 const S = {
   en: {
+    fit: {
+      steps: ['Result', 'Book', 'Colonoscopy', 'Results', 'Plan'], yourTest: 'Your bowel screening test (FIT)', bandLabel: 'Needs a follow-up test',
+      checkBy: 'Colonoscopy by', nextBook: 'Book a colonoscopy', big: 'Positive', bigSub: 'A small amount of hidden blood was found. A colonoscopy will check why.',
+      n: {
+        book: ['calendar', 'Book your colonoscopy', 'Pick a time that suits you. The clinic will explain how to prepare.', 'Choose a time'],
+        attended: ['doctor', 'Your colonoscopy is done', 'If samples were taken, the results take a little time. Your care team will contact you; you do not need to chase them.', 'Ask a nurse a question'],
+        confirmed: ['plan', 'Your doctor is reviewing your results', 'They will decide with you whether a specialist team should see you. We will tell you as soon as there is news.', 'Ask a nurse a question'],
+        surv: ['leaf', 'Your plan: a check-up colonoscopy later', 'Your doctor has agreed a plan with you. We will remind you when your next colonoscopy is due.', 'Ask a nurse a question'],
+      },
+    },
     gateT: 'Is it you?', gateSub: 'To keep your result private, enter the 4-digit code from the text message we sent you.', gateBtn: 'Show my result', gateErr: 'That code is not right. Please try again.', gateHint: 'Demo code: 2026', gateHelp: 'No code? Ask at your clinic or call the number in your letter.', textSize: 'Bigger text',
     hello: (n) => `Hello ${n}`, hi: 'Hello,', journey: 'Your journey', stepOf: (n) => `Step ${n} of 5`, allDone: 'All done',
     quick: 'Quick help', tListen: 'Listen', tNurse: 'Nurse', tFamily: 'Family', tBook: 'Appointment',
@@ -236,6 +252,16 @@ const S = {
     seeStaff: 'See this case on the staff screen',
   },
   ar: {
+    fit: {
+      steps: ['النتيجة', 'الحجز', 'التنظير', 'النتائج', 'الخطة'], yourTest: 'فحص الكشف المبكر عن سرطان القولون (FIT)', bandLabel: 'يحتاج إلى فحص إضافي',
+      checkBy: 'التنظير قبل', nextBook: 'احجز تنظير القولون', big: 'إيجابية', bigSub: 'وُجدت كمية صغيرة من الدم الخفي. سيتحقق تنظير القولون من السبب.',
+      n: {
+        book: ['calendar', 'احجز تنظير القولون', 'اختر وقتاً يناسبك. ستشرح لك العيادة كيفية التحضير.', 'اختر وقتاً'],
+        attended: ['doctor', 'تم تنظير القولون', 'إذا أُخذت عينات، فإن النتائج تحتاج بعض الوقت. سيتواصل معك فريق رعايتك، ولا يلزمك متابعتهم.', 'اسأل ممرضة'],
+        confirmed: ['plan', 'طبيبك يراجع نتائجك', 'سيقرر معك إن كان يلزم أن يراك فريق متخصص. سنخبرك فور وجود أي جديد.', 'اسأل ممرضة'],
+        surv: ['leaf', 'خطتك: تنظير متابعة لاحقاً', 'اتفق معك طبيبك على خطة. سنذكّرك عند حلول موعد التنظير القادم.', 'اسأل ممرضة'],
+      },
+    },
     gateT: 'هل هذا أنت؟', gateSub: 'لحماية خصوصية نتيجتك، أدخل الرمز المكوّن من 4 أرقام الموجود في الرسالة النصية التي أرسلناها لك.', gateBtn: 'اعرض نتيجتي', gateErr: 'الرمز غير صحيح. يرجى المحاولة مرة أخرى.', gateHint: 'رمز العرض التجريبي: 2026', gateHelp: 'لم يصلك رمز؟ اسأل في عيادتك أو اتصل بالرقم الموجود في رسالتك.', textSize: 'خط أكبر',
     hello: (n) => `مرحباً ${n}`, hi: 'مرحباً،', journey: 'رحلتك', stepOf: (n) => `الخطوة ${n} من 5`, allDone: 'اكتمل كل شيء',
     quick: 'مساعدة سريعة', tListen: 'استمع', tNurse: 'الممرضة', tFamily: 'العائلة', tBook: 'الموعد',
@@ -371,7 +397,7 @@ function journeyStep(c) {
 function trackerHtml(c) {
   const now = journeyStep(c), t = T();
   return `<div class="journey"><div class="jh"><span>${t.journey}</span><b>${now >= 5 ? t.allDone : t.stepOf(now + 1)}</b></div>
-    <div class="track" role="list" aria-label="${t.journey}">${t.steps.map((l, i) => {
+    <div class="track" role="list" aria-label="${t.journey}">${(c.programme === 'fit' ? t.fit.steps : t.steps).map((l, i) => {
     const cls = i < now ? 'done' : i === now ? 'now' : '';
     return `<div class="trk ${cls}" role="listitem"><div class="dot">${i < now ? ic('check', 13) : i + 1}</div>${l}</div>`;
   }).join('')}</div></div>`;
@@ -379,7 +405,7 @@ function trackerHtml(c) {
 
 // the one big card: what happens next, in one sentence, with one button
 function nextCard(c) {
-  const t = T(), n = t.n;
+  const t = T(), n = c.programme === 'fit' ? { ...t.n, ...t.fit.n } : t.n;
   if (c.stage === 'booked' && c.slot) {
     return `<section class="next ok"><div class="lbl">${t.upcoming}</div>${apptHtml(c)}<p>${esc(n.booked('')[2])}</p>
       <button class="btn" id="next-go" data-a="ics">${ic('calendar', 18)} ${t.cal}</button></section>`;
@@ -482,14 +508,15 @@ function homeView(c) {
 function resultView(c) {
   const t = T();
   const ex = explainNow(c);
-  const cls = classify(c.value);
+  const fit = c.programme === 'fit', F = T().fit;
+  const cls = fit ? { urgency: c.urgency, band: c.band } : classify(c.value);
   const understood = stageIdx(c) >= 2;
-  const nextTxt = stageIdx(c) >= 3 ? t.nextBooked : t.nextBook;
+  const nextTxt = stageIdx(c) >= 3 ? t.nextBooked : fit ? F.nextBook : t.nextBook;
   return `${topBar()}<div class="view">${pageBar(t.tabs[1])}
-    <div class="report"><div class="lbl">${t.yourTest}</div>${gaugeHtml(c)}
-      <div class="center" style="margin-top:10px"><span class="chip ${cls.urgency}">${t.band[cls.band]}</span></div></div>
+    <div class="report"><div class="lbl">${fit ? F.yourTest : t.yourTest}</div>${fit ? `<div class="fitres"><span class="fitic">${ic('flask', 28)}</span><div class="fitbig">${F.big}</div><p>${F.bigSub}</p></div>` : gaugeHtml(c)}
+      <div class="center" style="margin-top:10px"><span class="chip ${cls.urgency}">${fit ? F.bandLabel : t.band[cls.band]}</span></div></div>
     <div class="minis">
-      <div class="mini" style="background:var(--p-pink)"><span style="color:#d4527a">${ic('calendar', 22)}</span><small>${t.checkBy}</small><b>${c.due ? fmtDay(c.due) : '–'}</b></div>
+      <div class="mini" style="background:var(--p-pink)"><span style="color:#d4527a">${ic('calendar', 22)}</span><small>${fit ? F.checkBy : t.checkBy}</small><b>${c.due ? fmtDay(c.due) : '–'}</b></div>
       <div class="mini" style="background:var(--p-yellow)"><span style="color:#c58a10">${ic('doctor', 22)}</span><small>${t.nextLbl}</small><b>${nextTxt}</b></div>
     </div>
     <section class="card"><h3>${t.whatMeans}</h3>
@@ -659,7 +686,7 @@ function downloadIcs() {
 
 /* ---------- demo bar ---------- */
 const who = document.getElementById('who');
-who.innerHTML = state.cases.map((c) => `<option value="${c.id}">${esc(c.patient.name)} · ${c.value}%</option>`).join('');
+who.innerHTML = state.cases.map((c) => `<option value="${c.id}">${esc(c.patient.name)} · ${progOf(c).test} ${c.programme === 'fit' ? '+' : c.value + '%'}</option>`).join('');
 who.onchange = () => { demoBar.classList.remove('open'); id = who.value; verified[id] = true; level = 'normal'; msg = {}; view = 'home'; stopSpeak(); ensureNotified(); render(); }; // the demo panel skips the code
 document.getElementById('reset').onclick = () => { state = resetState(); aiBox = {}; msg = {}; level = 'normal'; view = 'home'; if (verified[id]) ensureNotified(); render(); };
 if (!state.cases.some((c) => c.id === id)) id = state.cases[0].id;

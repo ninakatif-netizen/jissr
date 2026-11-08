@@ -117,10 +117,10 @@ const rows = [
 document.querySelector('#esc tbody').innerHTML = rows.map(([a, b]) => `<tr><td>${a}</td><td>${b}</td><td class="ok"><span class="box"></span>Agree<span class="write"></span></td></tr>`).join('');
 
 // patient messages, read from the real templates
-const names = { prediabetes: 'Prediabetes range, example value 6.1 %', diabetes: 'Diabetes range, example value 8.1 %', urgent: 'Urgent range, example value 11.2 %' };
-const ex = { prediabetes: 6.1, diabetes: 8.1, urgent: 11.2 };
+const names = { prediabetes: 'Prediabetes range, example value 6.1 %', diabetes: 'Diabetes range, example value 8.1 %', urgent: 'Urgent range, example value 11.2 %', fit_positive: 'Bowel screening: positive FIT (colonoscopy within 30 days, proposed)' };
+const ex = { prediabetes: 6.1, diabetes: 8.1, urgent: 11.2, fit_positive: null };
 for (const lang of ['en', 'ar']) {
-  document.getElementById(lang + '-msgs').innerHTML = ['prediabetes', 'diabetes', 'urgent'].map((b) => `
+  document.getElementById(lang + '-msgs').innerHTML = ['prediabetes', 'diabetes', 'urgent', 'fit_positive'].map((b) => `
     <div class="msg" ${lang === 'ar' ? 'dir="rtl" lang="ar"' : ''}><div class="h" ${lang === 'ar' ? 'dir="ltr"' : ''}>${names[b]}</div>${explanation({ band: b, value: ex[b], lang, level: 'normal' })}
     <div class="h" style="margin-top:8px" ${lang === 'ar' ? 'dir="ltr"' : ''}>Simpler version</div>${explanation({ band: b, value: ex[b], lang, level: 'simple' })}</div>`).join('');
 }

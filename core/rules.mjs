@@ -23,7 +23,16 @@ export const BANDS = {
   prediabetes: { label: 'Prediabetes range',     urgency: 'routine',  dueDays: 30 },
   diabetes:    { label: 'Diabetes range',        urgency: 'priority', dueDays: 14 },
   urgent:      { label: 'Urgent range',          urgency: 'urgent',   dueDays: 2 },
+  fit_positive: { label: 'Positive FIT',         urgency: 'priority', dueDays: 30 },
 };
+
+// BOWEL CANCER SCREENING (FIT stool test). The lab reports positive or negative.
+// A positive result needs a colonoscopy. Deadlines are proposals for a clinician to confirm.
+export function classifyFit(result) {
+  if (result === 'positive') return { band: 'fit_positive', inProgramme: true, ...BANDS.fit_positive };
+  if (result === 'negative') return { band: 'fit_negative', inProgramme: false };
+  return { band: 'invalid', inProgramme: false };
+}
 
 export function classify(value) {
   const x = Number(value);
@@ -149,8 +158,10 @@ export const REFERRAL_REPLY_DAYS = 2;   // a referral should be accepted or reje
 export const CONSULT_REPLY_DAYS = 2;    // a clinician-to-clinician question should be answered within 2 days
 export const NURSE_CALLBACK_DAYS = 1;   // a requested nurse call should happen within 1 day
 
+// Programmes with their own service levels (days after the result). FIT: proposal, colonoscopy within 30 days.
+export const PROGRAMME_SLA = { fit: { notified: 2, understood: 7, booked: 14, attended: 30 } };
 export function slaDeadline(c, step) {
-  const row = SLA[c.urgency];
+  const row = PROGRAMME_SLA[c.programme] || SLA[c.urgency];
   return row && step in row ? addDays(c.resultDay, row[step]) : null;
 }
 

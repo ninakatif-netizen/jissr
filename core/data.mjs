@@ -13,6 +13,7 @@ export const STAFF = [
   { id: 'd2', name: 'Dr Arjun Menon', role: 'clinician', org: 'Primary care clinic' },
   { id: 'e1', name: 'Dr Salma Haddad', role: 'clinician', org: 'Hospital endocrinology' },
   { id: 'e2', name: 'Dr Rahul Verma', role: 'clinician', org: 'Diabetes centre' },
+  { id: 'e3', name: 'Dr Khalid Rahman', role: 'clinician', org: 'Colorectal clinic' },
 ];
 
 // Journey stages by index: 0 result, 1 notified, 2 understood, 3 booked, 4 attended,
@@ -52,18 +53,32 @@ const ROWS = [
   [30, 'Grace Wanjiru', 36, 'en', 6.7, 26, 0, 'none', 'c1', 'Could not be reached (phone number not working)', 0],
 ];
 
+// BOWEL CANCER SCREENING (FIT stool test): all invented. A positive FIT needs a colonoscopy.
+// [id, name, age, language, days since result, stage index, barrier, owner, drop-out reason, works shifts]
+const FIT_ROWS = [
+  [31, 'Salem Al Mazrouei', 62, 'ar', 9, 1, 'fear', 'c1', 'Afraid of the colonoscopy', 0],
+  [32, 'Rosa Fernandez', 55, 'tl', 40, 2, 'time_shift', 'c2', 'Cannot take a day off for the bowel preparation', 1],
+  [33, 'Abdullah Karim', 58, 'ur', 16, 3, 'none', 'c1', '', 0],
+  [34, 'Meera Pillai', 51, 'ml', 25, 4, 'none', 'd2', '', 0],
+  [35, 'Hessa Al Dhaheri', 67, 'ar', 33, 6, 'none', 'd1', '', 0],
+  [36, 'John Abraham', 49, 'en', 4, 0, 'none', null, '', 0],
+  [37, 'Fawzia Saeed', 70, 'ar', 60, 8, 'none', 'd1', '', 0],
+  [38, 'Arjun Nair', 46, 'en', 6, 1, 'cost', 'c2', '', 0],
+];
+
 // Extra story for a few cases: referrals in different states, a hand-off, a question to a specialist, a waiting nurse call.
 const REFERRALS = {
   19: { to: 'Hospital endocrinology', status: 'sent', ago: 3, reason: 'HbA1c 7.7% with symptoms; specialist review requested.' },
   15: { to: 'Hospital endocrinology', status: 'rejected', ago: 6, replyAgo: 5, by: 'e1', reason: 'HbA1c 9.1%, no repeat test yet; specialist advice on treatment.', reply: 'Please complete the repeat HbA1c and a kidney profile first, then resubmit.' },
   27: { to: 'Diabetes centre', status: 'accepted', ago: 5, replyAgo: 4, by: 'e2', reason: 'HbA1c 9.8%; needs structured diabetes education and review.', reply: '' },
+  35: { to: 'Colorectal clinic', status: 'accepted', ago: 12, replyAgo: 11, by: 'e3', reason: 'Colonoscopy found a lesion; biopsy needs specialist review.', reply: '' },
 };
 const CONSULTS = { 18: { to: 'Hospital endocrinology', ago: 4, question: '72-year-old, HbA1c 10.8%, no treatment yet. Advice on how soon she should be seen?' } };
 const NURSE_WAITING = { 5: 2 };       // days ago the patient asked for a nurse call (still waiting)
-const PLAN_KIND = { 2: 'treatment', 12: 'surveillance', 26: 'surveillance', 29: 'treatment' };
+const PLAN_KIND = { 2: 'treatment', 12: 'surveillance', 26: 'surveillance', 29: 'treatment', 37: 'surveillance' };
 // Some patients were notified or reached late (days of delay), so the measures show real-looking gaps.
 const LATE = { 3: 4, 7: 5, 13: 3, 21: 4, 23: 3, 10: 2, 16: 2, 4: 3, 17: 2 };
-const CHANNEL_BY_LANG = { ar: 'whatsapp', ur: 'sms', hi: 'sms', en: 'app' };
+const CHANNEL_BY_LANG = { ar: 'whatsapp', ur: 'sms', hi: 'sms', en: 'app', tl: 'whatsapp', ml: 'whatsapp' };
 
 // Days after the result when each step happened (never later than "today").
 const STEP_OFFSET = { notified: 0, understood: 1, booked: 3, attended: 9, confirmed: 9, referred: 10, care_plan: 11, closed: 12 };
@@ -71,11 +86,13 @@ const STEP_OFFSET = { notified: 0, understood: 1, booked: 3, attended: 9, confir
 export function buildState(today) {
   const staff = STAFF.map((s) => ({ ...s }));
   const byId = Object.fromEntries(staff.map((s) => [s.id, s]));
-  const cases = ROWS.map(([n, name, age, language, value, ago, stageIdx, barrier, owner, dropReason, shifts]) => {
+  const rows = [...ROWS.map((r) => [...r, 'hba1c']), ...FIT_ROWS.map(([n, nm, ag, lg, ...rest]) => [n, nm, ag, lg, null, ...rest, 'fit'])];
+  const cases = rows.map(([n, name, age, language, value, ago, stageIdx, barrier, owner, dropReason, shifts, programme]) => {
+    const fit = programme === 'fit';
     const resultDay = addDays(today, -ago);
     const id = 'C-' + String(n).padStart(3, '0');
     const c = newCase({
-      id, value, resultDay, owner,
+      id, value, resultDay, owner, programme,
       patient: { id: 'P-' + String(n).padStart(3, '0'), name, age, language, shifts: !!shifts },
     });
     c.barrier = barrier;
@@ -91,8 +108,8 @@ export function buildState(today) {
       let by, role, note = '', skipped = false;
       if (stage === 'notified') { by = 'Jissr system'; role = 'system'; }
       else if (stage === 'understood' || stage === 'booked') { by = 'Patient (in app)'; role = 'patient'; }
-      else if (stage === 'attended') { [by, role] = staffBy(byId[owner]); note = 'Seen in clinic'; }
-      else if (stage === 'confirmed') { [by, role] = staffBy(clin); note = 'Repeat HbA1c confirms the first result'; }
+      else if (stage === 'attended') { [by, role] = staffBy(byId[owner]); note = fit ? 'Colonoscopy done' : 'Seen in clinic'; }
+      else if (stage === 'confirmed') { [by, role] = staffBy(clin); note = fit ? 'Biopsy results reviewed with the patient' : 'Repeat HbA1c confirms the first result'; }
       else if (stage === 'referred') {
         [by, role] = staffBy(clin);
         if (ref) note = `Referred to ${ref.to}: ${ref.reason}`;
@@ -101,7 +118,7 @@ export function buildState(today) {
         [by, role] = staffBy(clin);
         const kind = PLAN_KIND[n] || 'treatment';
         c.plan = { kind, at: addDays(resultDay, off) + 'T10:00:00.000Z', by };
-        note = kind === 'surveillance' ? 'Surveillance plan agreed: lifestyle advice, re-test in 3 months' : 'Treatment plan agreed and started';
+        note = fit ? (kind === 'surveillance' ? 'Surveillance plan agreed: repeat colonoscopy in 3 years' : 'Treatment plan agreed with the specialist team') : kind === 'surveillance' ? 'Surveillance plan agreed: lifestyle advice, re-test in 3 months' : 'Treatment plan agreed and started';
       } else if (stage === 'closed') { [by, role] = staffBy(clin); }
       let at = addDays(resultDay, off) + 'T10:00:00.000Z';
       if (stage === 'referred' && ref) at = addDays(today, -ref.ago) + 'T09:00:00.000Z';
@@ -142,7 +159,9 @@ export function buildState(today) {
       const closer = clin;
       c.closed = {
         type: 'care_plan_agreed',
-        evidence: c.plan && c.plan.kind === 'surveillance'
+        evidence: fit
+          ? 'Colonoscopy done, two small polyps removed, biopsy benign, surveillance colonoscopy planned in 3 years.'
+          : c.plan && c.plan.kind === 'surveillance'
           ? 'Seen in clinic, repeat HbA1c confirmed, lifestyle plan given, re-test booked in 3 months.'
           : 'Seen in clinic, repeat HbA1c confirmed, treatment started, review booked in 3 months.',
         by: closer.name, at: addDays(resultDay, Math.min(STEP_OFFSET.closed, ago)) + 'T12:00:00.000Z',

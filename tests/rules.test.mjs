@@ -9,6 +9,7 @@ import {
 import { buildState, STAFF } from '../core/data.mjs';
 import { explanation } from '../core/templates.mjs';
 import { caseToFhirBundle } from '../core/fhir.mjs';
+import { stageLabel, targetsFor, resultText } from '../core/programmes.mjs';
 
 const TODAY = '2026-11-10';
 const nurse = { type: 'staff', role: 'nurse', name: 'Nurse N', id: 'n1', org: 'Screening programme' };
@@ -265,7 +266,7 @@ test('AI output safety filter', () => {
 });
 
 test('every patient message always says "not a diagnosis" (English and Arabic)', () => {
-  for (const band of ['prediabetes', 'diabetes', 'urgent']) {
+  for (const band of ['prediabetes', 'diabetes', 'urgent', 'fit_positive']) {
     for (const level of ['normal', 'simple']) {
       assert.match(explanation({ band, value: 8, lang: 'en', level }), /This is not a diagnosis\.$/);
       assert.match(explanation({ band, value: 8, lang: 'ar', level }), /هذا ليس تشخيصاً\.$/);
@@ -276,13 +277,16 @@ test('every patient message always says "not a diagnosis" (English and Arabic)',
 
 test('synthetic data: 30 patients, every band, consistent rules, visible exceptions', () => {
   const st = buildState(TODAY);
-  assert.equal(st.cases.length, 30);
-  assert.deepEqual([...new Set(st.cases.map((c) => c.band))].sort(), ['diabetes', 'prediabetes', 'urgent']);
+  assert.equal(st.cases.length, 38);
+  const hb = st.cases.filter((c) => c.programme === 'hba1c');
+  assert.equal(hb.length, 30);
+  assert.equal(st.cases.filter((c) => c.programme === 'fit').length, 8);
+  assert.deepEqual([...new Set(hb.map((c) => c.band))].sort(), ['diabetes', 'prediabetes', 'urgent']);
   assert.ok(st.cases.filter((c) => isOverdue(c, TODAY)).length >= 5);
-  assert.equal(st.cases.filter((c) => c.stage === 'closed').length, 3);
+  assert.equal(hb.filter((c) => c.stage === 'closed').length, 3);
   for (const c of st.cases) {
-    assert.equal(c.band, classify(c.value).band);
-    assert.equal(c.due, dueDate(c.resultDay, c.value));
+    if (c.programme === 'hba1c') { assert.equal(c.band, classify(c.value).band); assert.equal(c.due, dueDate(c.resultDay, c.value)); }
+    else { assert.equal(c.band, 'fit_positive'); assert.equal(c.due, addDays(c.resultDay, 30)); }
     assert.ok(c.events.every((e) => e.at.slice(0, 10) <= TODAY), `no events in the future (${c.id})`);
     // events appear in journey order
     const order = c.events.map((e) => STAGES.indexOf(e.type)).filter((i) => i >= 0);
@@ -293,8 +297,8 @@ test('synthetic data: 30 patients, every band, consistent rules, visible excepti
   }
   // exceptions are present AND flagged by the rules
   const flagged = (code) => st.cases.filter((c) => escalationsFor(c, TODAY).some((e) => e.code === code)).length;
-  assert.equal(st.cases.filter((c) => !c.owner).length, 2);
-  assert.equal(flagged('unassigned'), 2);
+  assert.equal(st.cases.filter((c) => !c.owner).length, 3);
+  assert.equal(flagged('unassigned'), 3);
   assert.ok(flagged('referral_rejected') >= 1 && flagged('referral_unanswered') >= 1 && flagged('consult_late') >= 1 && flagged('nurse_callback_late') >= 1);
   assert.ok(st.cases.some((c) => c.referral && c.referral.status === 'accepted'));
   // at least one clinician-ready case, at the care plan stage
@@ -338,7 +342,7 @@ test('a new result: rules set urgency, due date and the least busy owner; non-ac
   const before = st.cases.length;
   const u = createCase(st, lab, { ...base, value: 11.4 });
   assert.equal(st.cases.length, before + 1);
-  assert.equal(u.id, 'C-031');
+  assert.equal(u.id, 'C-' + String(before + 1).padStart(3, '0'));
   assert.equal(u.band, 'urgent');
   assert.equal(u.due, addDays(TODAY, 2));
   assert.equal(st.staff.find((s) => s.id === u.owner).role, 'nurse');
@@ -363,4 +367,32 @@ test('data minimisation: patients carry only what the follow-up needs', () => {
   for (const c of st.cases) assert.deepEqual(Object.keys(c.patient).sort(), ['age', 'id', 'language', 'name', 'shifts']);
   const fhirPatient = caseToFhirBundle(st.cases[0], st.staff).entry[0].resource;
   assert.ok(!('gender' in fhirPatient) && !('birthDate' in fhirPatient) && !('telecom' in fhirPatient) && !('address' in fhirPatient));
+});
+
+test('bowel screening (FIT) runs through the same engine with its own content', () => {
+  const st = buildState(TODAY);
+  const lab = { type: 'staff', role: 'coordinator', name: 'Coord C', id: 'c1' };
+  const base = { name: 'Test Patient', age: 60, language: 'en', today: TODAY, programme: 'fit' };
+  const c = createCase(st, lab, { ...base, result: 'positive' });
+  assert.equal(c.programme, 'fit');
+  assert.equal(c.band, 'fit_positive');
+  assert.equal(c.due, addDays(TODAY, 30));
+  assert.equal(st.staff.find((s) => s.id === c.owner).role, 'coordinator');
+  assert.equal(resultText(c), 'FIT +');
+  assert.throws(() => createCase(st, lab, { ...base, result: 'negative' }), codeOf('not_actionable'));
+  assert.throws(() => createCase(st, lab, { ...base, result: 'maybe' }), codeOf('bad_value'));
+  assert.equal(stageLabel(c, 'attended'), 'Colonoscopy done');
+  assert.equal(slaDeadline(c, 'attended'), addDays(TODAY, 30));
+  // same loop, same rules: referral only to the right places, only a clinician closes
+  const s = { type: 'system', name: 's' };
+  advance(st, c.id, 'notified', s); advance(st, c.id, 'understood', patient); advance(st, c.id, 'booked', patient); advance(st, c.id, 'attended', nurse);
+  advance(st, c.id, 'confirmed', doc, 'Biopsy reviewed');
+  assert.throws(() => sendReferral(st, c.id, doc, { to: 'Diabetes centre', reason: 'Wrong place for a bowel case.' }), codeOf('bad_target'));
+  assert.deepEqual(targetsFor(c), ['Colorectal clinic', 'Hospital oncology']);
+  sendReferral(st, c.id, doc, { to: 'Colorectal clinic', reason: 'Lesion needs specialist review.' });
+  assert.throws(() => closeCase(st, c.id, nurse, { type: 'transferred_care', evidence: 'Sent to the colorectal clinic.' }), codeOf('clinician_only'));
+  assert.throws(() => closeCase(st, c.id, ai, { type: 'transferred_care', evidence: 'Sent to the colorectal clinic.' }), codeOf('ai_not_allowed'));
+  const fb = caseToFhirBundle(c, st.staff).entry.map((e) => e.resource).find((r) => r.resourceType === 'Observation');
+  assert.equal(fb.valueString, 'Positive');
+  assert.ok(!JSON.stringify(fb).includes('4548-4'), 'no HbA1c code on a FIT result');
 });

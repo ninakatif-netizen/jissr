@@ -37,10 +37,12 @@ export function caseToFhirBundle(c, staff = []) {
   add({
     resourceType: 'Observation', id: `obs-${c.id}`, meta: meta(), status: 'final',
     category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: 'laboratory' }] }],
-    code: { coding: [{ system: 'http://loinc.org', code: '4548-4', display: 'Hemoglobin A1c/Hemoglobin.total in Blood' }] },
+    code: c.programme === 'fit'
+      ? { text: 'Faecal immunochemical test (FIT) for hidden blood in stool (LOINC code to be confirmed)' }
+      : { coding: [{ system: 'http://loinc.org', code: '4548-4', display: 'Hemoglobin A1c/Hemoglobin.total in Blood' }] },
     subject: { reference: `Patient/${pid}` },
     effectiveDateTime: c.resultDay,
-    valueQuantity: { value: c.value, unit: '%', system: 'http://unitsofmeasure.org', code: '%' },
+    ...(c.programme === 'fit' ? { valueString: 'Positive' } : { valueQuantity: { value: c.value, unit: '%', system: 'http://unitsofmeasure.org', code: '%' } }),
     interpretation: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', code: c.band === 'urgent' ? 'HH' : 'H' }] }],
   });
 
@@ -55,7 +57,7 @@ export function caseToFhirBundle(c, staff = []) {
       resourceType: 'ServiceRequest', id: `ref-${c.id}`, meta: meta(),
       status: REFERRAL_STATUS[r.status] || 'unknown', intent: 'order',
       priority: PRIORITY[c.urgency] || 'routine',
-      code: { text: 'Referral for specialist review of raised HbA1c' },
+      code: { text: c.programme === 'fit' ? 'Referral to specialist team after colonoscopy' : 'Referral for specialist review of raised HbA1c' },
       subject: { reference: `Patient/${pid}` },
       performer: [{ reference: `Organization/${orgId}` }],
       authoredOn: r.sentAt,
