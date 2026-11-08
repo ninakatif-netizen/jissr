@@ -304,6 +304,28 @@ html.big .hello{font-size:36px}
 .linkbtn{background:none;border:0;padding:10px 0 0;font:inherit;font-size:14px;font-weight:500;color:var(--ink);text-decoration:underline;text-underline-offset:4px;cursor:pointer;min-height:44px}
 .tbopts{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .tbopts .btn{width:100%;justify-content:center}
+
+/* cancer-screening result: result card + navy next-step card */
+.rcard{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;margin:2px 0 14px;box-shadow:0 12px 32px rgba(120,90,40,.08)}
+.rlabel{display:block;font-size:12.5px;font-weight:600;color:#86602c;margin-bottom:6px}
+.rcard .rhero{font-size:22px;margin:0 0 12px}
+.rmeans{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:12px}
+.rmeans b{display:flex;align-items:center;gap:6px;font-weight:600;font-size:14.5px}
+.rmeans p{margin:6px 0 0;font-size:14.5px;line-height:1.55}
+.rcard .ractions{margin-bottom:0}
+.micro.navy{background:#14284b;color:#fff;border:0;padding:18px}
+.micro.navy h2{color:#fff;font-size:19px;margin:0;font-family:var(--display);font-weight:600}
+[dir=rtl] .micro.navy h2{font-family:var(--text);font-weight:500}
+.micro.navy .gtile{background:rgba(255,255,255,.1);color:#e3c38f}
+.micro.navy .msub{color:#d3d9e6;font-size:14px;margin:8px 0 4px}
+.mday1{font-size:13px;font-weight:500;margin:10px 0 6px}
+.micro.navy .mday1{color:#e3c38f}
+.micro.navy .mslot{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:#fff}
+.micro.navy .mslot small{color:#cfd6e4}
+.micro.navy .mslot:active{background:#e3c38f;color:#14284b}
+.micro.navy .linkbtn{color:#fff}
+.micro.navy .pick{background:rgba(255,255,255,.1);color:#fff}.micro.navy .pick[aria-pressed=true]{background:#e3c38f;color:#14284b}
+.micro.navy.booked{background:#1f6f4f;color:#fff}
 </style>
 </head>
 <body>
@@ -546,8 +568,8 @@ const T3 = {
       hero: { birads0: 'Your mammogram needs a few more pictures. This is common.', birads4: 'Your mammogram found an area that needs a closer look. This is not a diagnosis of cancer.', birads5: 'Your mammogram found an area that needs to be checked soon. A nurse is with you at every step.' },
       sum: {
         birads0: [['What we found', 'The pictures were not clear enough for a full answer.'], ['What it means', 'Usually nothing is wrong. A few more pictures or an ultrasound will tell.'], ['What happens next', 'Book the extra pictures within two weeks.']],
-        birads4: [['What we found', 'An area in the breast that needs a closer look (BI-RADS 4).'], ['What it means', 'Many areas like this are harmless. Only a small needle test (biopsy) can tell for sure.'], ['What happens next', 'Book the biopsy within two weeks. A nurse helps you.']],
-        birads5: [['What we found', 'An area in the breast that needs to be checked soon (BI-RADS 5).'], ['What it means', 'A doctor needs a tiny sample (biopsy) to find out what it is.'], ['What happens next', 'A nurse calls you and helps you book the biopsy this week.']],
+        birads4: [['What we found', 'An area in the breast that needs a closer look (\u2066BI\u2011RADS 4\u2069).'], ['What it means', 'Many areas like this are harmless. Only a small needle test (biopsy) can tell for sure.'], ['What happens next', 'Book the biopsy within two weeks. A nurse helps you.']],
+        birads5: [['What we found', 'An area in the breast that needs to be checked soon (\u2066BI\u2011RADS 5\u2069).'], ['What it means', 'A doctor needs a tiny sample (biopsy) to find out what it is.'], ['What happens next', 'A nurse calls you and helps you book the biopsy this week.']],
       },
       nextSteps: (d, band) => band === 'birads0' ? [`Book the extra pictures before ${d}`, 'The radiologist looks at them', 'You get the answer, explained'] : [`Book the biopsy before ${d}`, 'A doctor takes a tiny sample with a needle', 'The breast team explains the result with you'],
       n: {
@@ -559,6 +581,7 @@ const T3 = {
     },
     reassure: (n) => `Take a breath. Finding something to check is what screening is for. ${n} is your nurse navigator and is with you at every step.`,
     sumT: 'In plain words',
+    navT: 'Your next step: talk to a nurse', navSub: 'A 10-minute phone call with a nurse, to explain what happens next and answer your questions.', navWho: 'Your nurse navigator', navWith: 'With you at every step', meansT: 'What does this result mean?',
     microMore: 'More times', microT: 'Talk it through: 10 minutes with a nurse', microSub: 'One tap books a short phone call. No preparation needed.',
     microBooked: (d, tm, n) => `Your 10-minute call: ${d} at ${tm} with ${n}. We will call your phone.`, microDone: 'Your 10-minute call is done.',
     tbQ: 'Quick check: what is your next step?', tbWhy: 'This helps us make sure the message was clear.',
@@ -585,8 +608,8 @@ const T3 = {
       hero: { birads0: 'يحتاج الماموغرام إلى بعض الصور الإضافية. هذا شائع.', birads4: 'وجد الماموغرام منطقة تحتاج إلى فحص أدق. هذا ليس تشخيصاً للسرطان.', birads5: 'وجد الماموغرام منطقة يجب فحصها قريباً. ممرضة معكِ في كل خطوة.' },
       sum: {
         birads0: [['ماذا وجدنا', 'لم تكن الصور واضحة بما يكفي لإجابة كاملة.'], ['ماذا يعني ذلك', 'غالباً لا توجد مشكلة. ستوضح صور إضافية أو موجات فوق صوتية الأمر.'], ['ماذا بعد', 'احجزي الصور الإضافية خلال أسبوعين.']],
-        birads4: [['ماذا وجدنا', 'منطقة في الثدي تحتاج إلى فحص أدق (BI-RADS 4).'], ['ماذا يعني ذلك', 'كثير من هذه المناطق غير ضار. فقط فحص صغير بالإبرة (خزعة) يؤكد ذلك.'], ['ماذا بعد', 'احجزي الخزعة خلال أسبوعين. ستساعدك ممرضة.']],
-        birads5: [['ماذا وجدنا', 'منطقة في الثدي يجب فحصها قريباً (BI-RADS 5).'], ['ماذا يعني ذلك', 'يحتاج الطبيب إلى عينة صغيرة (خزعة) لمعرفة طبيعتها.'], ['ماذا بعد', 'ستتصل بك ممرضة وتساعدك على حجز الخزعة هذا الأسبوع.']],
+        birads4: [['ماذا وجدنا', 'منطقة في الثدي تحتاج إلى فحص أدق (\u2066BI\u2011RADS 4\u2069).'], ['ماذا يعني ذلك', 'كثير من هذه المناطق غير ضار. فقط فحص صغير بالإبرة (خزعة) يؤكد ذلك.'], ['ماذا بعد', 'احجزي الخزعة خلال أسبوعين. ستساعدك ممرضة.']],
+        birads5: [['ماذا وجدنا', 'منطقة في الثدي يجب فحصها قريباً (\u2066BI\u2011RADS 5\u2069).'], ['ماذا يعني ذلك', 'يحتاج الطبيب إلى عينة صغيرة (خزعة) لمعرفة طبيعتها.'], ['ماذا بعد', 'ستتصل بك ممرضة وتساعدك على حجز الخزعة هذا الأسبوع.']],
       },
       nextSteps: (d, band) => band === 'birads0' ? [`احجزي الصور الإضافية قبل ${d}`, 'يراجعها أخصائي الأشعة', 'تحصلين على الإجابة مشروحة'] : [`احجزي الخزعة قبل ${d}`, 'يأخذ الطبيب عينة صغيرة بإبرة', 'يشرح لك فريق الثدي النتيجة'],
       n: {
@@ -596,8 +619,9 @@ const T3 = {
       },
       doc: 'خزعة أو صور إضافية', tests: 'نتائج الفحص', testsSub: 'يراجعها معك فريق الثدي.',
     },
-    reassure: (n) => `خذ نفساً عميقاً. اكتشاف شيء يحتاج إلى فحص هو هدف الكشف المبكر. ${n} هي الممرضة المرافقة لك، وهي معك في كل خطوة.`,
+    reassure: (n) => `خذ نفساً عميقاً. اكتشاف شيء يحتاج إلى فحص هو هدف الكشف المبكر. ${n} من فريق التمريض يرافقك في كل خطوة.`,
     sumT: 'بكلمات بسيطة',
+    navT: 'خطوتك التالية: تحدّث مع فريق التمريض', navSub: 'مكالمة هاتفية لمدة 10 دقائق مع فريق التمريض، لشرح الخطوات القادمة والإجابة عن أسئلتك.', navWho: 'مرافقك من فريق التمريض', navWith: 'معك في كل خطوة', meansT: 'ماذا تعني هذه النتيجة؟',
     microMore: 'أوقات أخرى', microT: 'لنتحدث: 10 دقائق مع ممرضة', microSub: 'لمسة واحدة تحجز مكالمة قصيرة. لا تحتاج إلى أي تحضير.',
     microBooked: (d, tm, n) => `مكالمتك لمدة 10 دقائق: ${d} الساعة ${tm} مع ${n}. سنتصل بهاتفك.`, microDone: 'تمت مكالمتك لمدة 10 دقائق.',
     tbQ: 'سؤال سريع: ما خطوتك التالية؟', tbWhy: 'يساعدنا هذا على التأكد من أن الرسالة كانت واضحة.',
@@ -790,27 +814,42 @@ function resultView(c) {
   const steps = fit ? F.nextSteps(due) : mammo ? M.nextSteps(due, c.band) : t.nextSteps(due, c.band);
   const o = staffOf(c.owner);
   const hero = fit ? F.bigSub : mammo ? M.hero[c.band] : t.hero[c.band];
-  return `${topBar()}<div class="view">${pageBar(t.tabs[1])}
-    ${(fit || mammo) && o ? `<div class="reassure" role="note">${ic('shield', 22)}<span>${esc(u.reassure(o.name))}</span></div>` : ''}
-    <h1 class="rhero">${hero}</h1>
-    <div class="rvalue ${mammo ? 'words' : ''}"><span>${fit ? 'FIT' : mammo ? 'BI-RADS ' + c.value : 'HbA1c'}</span><b>${fit ? F.big : mammo ? M.big[c.band] : c.value + '%'}</b></div>
-    ${fit || mammo ? '' : scaleHtml(c)}
-    ${mammo ? `<section class="rsum" aria-label="${u.sumT}"><h2>${u.sumT}</h2>${M.sum[c.band].map(([k, v]) => `<div><b>${k}</b><span>${v}</span></div>`).join('')}</section>` : ''}
-    <div class="ractions">
+  const actions = `<div class="ractions">
       ${cloudVoice || 'speechSynthesis' in window ? `<button class="btn ghost small" id="listen">${speaking ? ic('stop', 16) + ' ' + t.stop : ic('speaker', 16) + ' ' + t.listen}</button>` : ''}
       ${level === 'normal' ? `<button class="btn ghost small" id="simpler">${t.simpler}</button>` : ''}
     </div>
     ${msg.noVoice ? `<div class="err-msg" style="font-weight:500">${t.noVoice}</div>` : ''}
-    ${msg.soundTip && !msg.noVoice ? `<div class="tiny muted">${t.soundTip}</div>` : ''}
-    <section class="rnext"><h2>${t.whatNext}</h2>${steps.map((st, i) => `<div class="rstep ${i === 0 ? 'on' : ''}"><i></i><span>${esc(st)}</span></div>`).join('')}</section>
-    <p class="rnotdx">${ic('shield', 20)}<span>${t.notdx}</span></p>
-    <details class="rmore" ${level === 'simple' ? 'open' : ''}><summary>${t.moreDetail}</summary><p>${esc(ex.text)}</p><div class="tag">${ex.source === 'ai' ? t.ai : t.tpl}</div></details>
-    <section class="card center" id="sense"><h2>${msg.tb ? u.tbQ : t.sense}</h2>
+    ${msg.soundTip && !msg.noVoice ? `<div class="tiny muted">${t.soundTip}</div>` : ''}`;
+  const sense = `<section class="card center" id="sense"><h2>${msg.tb ? u.tbQ : t.sense}</h2>
       ${understood ? `${tickHtml()}<p class="ok-msg">${t.thanks}</p><button class="btn bigbtn" data-go="home">${t.cont}</button>`
         : msg.tb ? teachBackHtml(c)
         : msg.no ? `<p class="muted">${t.noHelp}</p><div class="row" style="justify-content:center"><button class="btn" id="yes">${t.yes}</button><button class="btn ghost" data-go="nurse">${t.qNurse}</button></div>`
         : `<div class="row" style="justify-content:center"><button class="btn bigbtn" id="yes">${t.yes}</button><button class="btn ghost bigbtn" id="no">${t.no}</button></div>`}
-    </section>
+    </section>`;
+  const more = `<details class="rmore" ${level === 'simple' ? 'open' : ''}><summary>${t.moreDetail}</summary><p>${esc(ex.text)}</p><div class="tag">${ex.source === 'ai' ? t.ai : t.tpl}</div></details>`;
+  const stepsHtml = `<section class="rnext"><h2>${t.whatNext}</h2>${steps.map((st, i) => `<div class="rstep ${i === 0 ? 'on' : ''}"><i></i><span>${esc(st)}</span></div>`).join('')}</section>`;
+  const notdx = `<p class="rnotdx">${ic('shield', 20)}<span>${t.notdx}</span></p>`;
+
+  if (fit || mammo) {
+    // Cancer screening: a nurse first. The result in one card, then the 10-minute call as the next step.
+    const means = mammo ? M.sum[c.band].slice(1).map(([, v]) => v).join(' ') : '';
+    return `${topBar()}<div class="view">${pageBar(t.tabs[1])}
+      <section class="rcard">
+        <span class="rlabel">${fit ? F.yourTest : M.yourTest} · ${fit ? 'FIT ' + F.big : 'BI-RADS ' + c.value}</span>
+        <h1 class="rhero">${hero}</h1>
+        ${mammo ? `<div class="rmeans"><b>${ic('shield', 18)} ${u.meansT}</b><p>${esc(M.sum[c.band][0][1])} ${esc(means)}</p></div>` : ''}
+        ${actions}
+      </section>
+      ${microHtml(c, true)}
+      ${o ? `<section class="hlist"><div class="lrow who2"><span class="avatar2" aria-hidden="true">${esc(initials(o.name))}</span><span class="wt"><small>${u.navWho} · ${u.navWith}</small><b>${esc(o.name)}</b></span>
+        <button class="call2" data-go="nurse" aria-label="${t.qNurse}">${ic('phone', 19)}</button></div></section>` : ''}
+      ${stepsHtml}${notdx}${sense}${more}</div>`;
+  }
+  return `${topBar()}<div class="view">${pageBar(t.tabs[1])}
+    <h1 class="rhero">${hero}</h1>
+    <div class="rvalue"><span>HbA1c</span><b>${c.value}%</b></div>
+    ${scaleHtml(c)}
+    ${actions}${stepsHtml}${notdx}${more}${sense}
     ${microHtml(c)}</div>`;
 }
 
@@ -826,17 +865,18 @@ function teachBackHtml(c) {
 }
 
 // 10-MINUTE CALL with a nurse navigator: one tap books it.
-function microHtml(c) {
+function microHtml(c, navy) {
   const u = T3n(), m = c.microConsult;
   if (stageIdx(c) >= 3 && !m) return '';
-  if (m) return `<section class="micro booked">${ic(m.status === 'done' ? 'check' : 'phone', 22)}<span>${m.status === 'done' ? u.microDone : esc(u.microBooked(fmtDay(m.day), m.time, m.nurseName))}</span></section>`;
+  const cls = navy ? 'micro navy' : 'micro';
+  if (m) return `<section class="${cls} booked">${ic(m.status === 'done' ? 'check' : 'phone', 22)}<span>${m.status === 'done' ? u.microDone : esc(u.microBooked(fmtDay(m.day), m.time, m.nurseName))}</span></section>`;
   const slots = microConsultSlots(state.staff, state.cases, state.today);
   const days = [...new Set(slots.map((x) => x.day))];
   const day = days.includes(msg.mday) ? msg.mday : days[0];
-  return `<section class="micro"><h2>${ic('phone', 20)} ${u.microT}</h2><p class="tiny muted">${u.microSub}</p>
-    ${msg.microAll ? `<div class="mdays">${days.map((d) => `<button class="pick" data-mday="${d}" aria-pressed="${d === day}">${fmtDay(d)}</button>`).join('')}</div>` : `<div class="tiny" style="margin:8px 0 6px;font-weight:500">${fmtDay(day)}</div>`}
+  return `<section class="${cls}">${navy ? `<div class="nhead"><span class="gtile">${ic('phone', 22)}</span><div><h2>${u.navT}</h2></div></div><p class="msub">${u.navSub}</p>` : `<h2>${ic('phone', 20)} ${u.microT}</h2><p class="tiny muted">${u.microSub}</p>`}
+    ${msg.microAll ? `<div class="mdays">${days.map((d) => `<button class="pick" data-mday="${d}" aria-pressed="${d === day}">${fmtDay(d)}</button>`).join('')}</div>` : `<div class="mday1">${fmtDay(day)}</div>`}
     <div class="mgrid">${slots.filter((x) => x.day === day).slice(0, msg.microAll ? 99 : 3).map((x) => `<button class="mslot" data-micro="${x.day}|${x.time}|${x.nurseId}"><b>${x.time}</b><small>${esc(x.nurseName.replace(/^Nurse /, ''))}</small></button>`).join('')}</div>
-    ${msg.microAll ? '' : `<button class="linkbtn" id="micro-more">${T3n().microMore}</button>`}</section>`;
+    ${msg.microAll ? '' : `<button class="linkbtn" id="micro-more">${u.microMore}</button>`}</section>`;
 }
 
 function ringHtml(n, total = 5) {

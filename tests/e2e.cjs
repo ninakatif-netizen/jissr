@@ -65,7 +65,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   // CLOE: a BI-RADS 4 mammogram patient
   await p.click('.tab[data-go=home]'); await p.waitForTimeout(150); await p.click('#me-btn'); await p.selectOption('#who', 'C-040'); await p.waitForTimeout(250);
   await p.click('.tab[data-go=result]'); await p.waitForTimeout(250);
-  ok(await p.locator('.reassure').count() === 1 && await p.locator('.rsum').count() === 1 && /biopsy/i.test(await text()) && /not a diagnosis/.test(await text()), 'mammogram: reassurance banner and plain-language summary');
+  ok(await p.locator('.rcard .rmeans').count() === 1 && await p.locator('.micro.navy').count() === 1 && /biopsy/i.test(await text()) && /not a diagnosis/.test(await text()), 'mammogram: result card with a plain-language meaning, then the nurse call as the next step');
   await shot(p, '07c-mammo-result');
   await p.click('.mslot >> nth=0'); await p.waitForTimeout(200);
   ok(/Your 10-minute call/.test(await text()), 'one tap books a 10-minute call with a nurse navigator');
