@@ -3,16 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Jissr: care team</title>
 <meta name="theme-color" content="#f6f1e8">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<title>Jissr: care team</title>
 <link rel="stylesheet" href="styles.css">
+<style>
+body{font-size:15px}
+.page{max-width:1240px;margin:0 auto;padding:0 20px 60px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0 4px;flex-wrap:wrap}
+.hello2{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:14px 0 18px;position:relative}
+.hello2 h1{font-size:1.75rem;margin:0}
+.hello2 .sub{color:var(--muted);margin-top:2px}
+.hello2 .art{position:absolute;inset-inline-end:220px;bottom:-14px;color:var(--brand);pointer-events:none}
+@media(max-width:900px){.hello2 .art{display:none}}
+.rolechip{display:inline-flex;gap:10px;align-items:center;background:var(--card);box-shadow:var(--shadow);border-radius:999px;padding:6px 16px 6px 6px;font-size:13.5px}
+.rolechip .av{width:34px;height:34px;border-radius:50%;background:var(--p-lilac);color:#7a5cd6;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.rolechip small{display:block;color:var(--muted);font-size:12px;line-height:1.2}
+.today{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+@media(max-width:900px){.today{grid-template-columns:1fr}}
+.panel{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:18px}
+.panel h2{font-size:1.02rem;display:flex;align-items:center;gap:8px;margin:0 0 10px}
+.panel h2 .n{background:var(--card2);border-radius:999px;font-size:12px;padding:1px 9px;color:var(--muted);font-weight:600}
+.task{display:flex;gap:12px;align-items:center;padding:10px;border-radius:16px;cursor:pointer;width:100%;background:none;border:0;font:inherit;color:inherit;text-align:start}
+.task:hover{background:var(--card2)}
+.task .ic{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex:none}
+.task .t{flex:1;min-width:0}.task .t b{display:block;font-size:14.5px;font-weight:600}.task .t span{font-size:13px;color:var(--muted)}
+.task .due{font-size:12px;white-space:nowrap}
+.empty{color:var(--muted);font-size:14px;padding:10px}
+.alerts{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 120' fill='none' stroke='white' stroke-opacity='.2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M196 104V44h14v60M200 52h6M200 62h6M200 72h6M200 82h6'/%3E%0A    %3Cpath d='M216 104V26c0-6 10-6 10 0v78M221 14v8'/%3E%0A    %3Cpath d='M232 104V58q9-12 18 0v46'/%3E%0A    %3Cpath d='M256 104V36h12v68M256 48h12M256 60h12'/%3E%0A    %3Cpath d='M274 104V64c0-8 14-8 14 0v40'/%3E%0A    %3Cpath d='M294 104V50l10-8 10 8v54'/%3E%0A    %3Cpath d='M320 104V70h16v34'/%3E%0A    %3Cpath d='M6 104h184'/%3E%0A    %3Cpath d='M12 104c14-30 34-30 48 0M56 104c18-40 44-40 62 0M114 104c14-30 34-30 48 0'/%3E%0A    %3Cpath d='M34 104V92M87 104V86M138 104V92'/%3E%0A    %3Cpath d='M0 112c40-6 80-6 120 0s80 6 120 0 80-6 120 0' stroke-opacity='.55'/%3E%3C/svg%3E") right -20px bottom -10px/260px auto no-repeat,linear-gradient(135deg,#2c5294,#1a3463);color:#fff;position:relative;overflow:hidden}
+.alerts:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.06);top:-90px;inset-inline-end:-70px;pointer-events:none}
+.alerts h2{color:#fff}.alerts .n{background:rgba(255,255,255,.15)!important;color:#fff!important}
+.alerts .task:hover{background:rgba(255,255,255,.08)}.alerts .task .t span{color:rgba(255,255,255,.75)}
+.alerts .task .ic{background:rgba(255,255,255,.14);color:#f5b544}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:18px 0 6px}
+.stat{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:14px 16px;display:flex;gap:12px;align-items:center;cursor:pointer;border:2px solid transparent;font:inherit;color:inherit;text-align:start;transition:border-color .15s,transform .15s}
+.stat:hover{transform:translateY(-2px)}
+.stat[aria-pressed=true]{border-color:var(--brand)}
+.stat .ic{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex:none}
+.stat b{display:block;font-size:1.45rem;line-height:1.1;font-weight:700}.stat span{font-size:12.5px;color:var(--muted)}
+.listhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:24px 0 12px}
+.listhead h2{margin:0;font-size:1.15rem}
+.pname{display:flex;gap:10px;align-items:center}
+.pav{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex:none}
+.u-urgent{background:var(--red-l);color:var(--red)}.u-priority{background:var(--p-yellow);color:#b47a10}.u-routine{background:var(--p-blue);color:var(--brand)}
+.drawer{position:fixed;top:0;bottom:0;inset-inline-end:0;width:min(540px,100%);background:var(--bg);box-shadow:-20px 0 60px rgba(27,34,56,.18);z-index:90;overflow-y:auto;transform:translateX(105%);transition:transform .3s cubic-bezier(.2,.8,.2,1);padding:16px 18px 40px}
+[dir=rtl] .drawer{transform:translateX(-105%)}
+.drawer.open{transform:none}
+.scrim{position:fixed;inset:0;background:rgba(27,34,56,.28);z-index:85;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.open{opacity:1;pointer-events:auto}
+.dhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.dhead h2{margin:0;font-size:1.35rem}
+.dsec{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:16px;margin:12px 0}
+.dsec h3{margin:0 0 10px;font-size:.98rem}
+.bigv{display:flex;align-items:center;gap:12px;margin-top:10px}
+.bigv b{font-size:2rem;line-height:1}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:95;padding:16px;background:rgba(27,34,56,.35)}
+.modal.open{display:flex}
+.modal .box{background:var(--card);border-radius:24px;box-shadow:0 30px 80px rgba(27,34,56,.3);width:min(540px,100%);padding:22px;max-height:92vh;overflow:auto;animation:pop2 .25s ease}
+@keyframes pop2{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.rulebox{background:var(--card2);border-radius:16px;padding:12px 14px;margin-top:12px;font-size:13.5px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(140px);background:#1b2238;color:#fff;padding:12px 18px;border-radius:14px;z-index:99;transition:transform .3s;font-size:14px;max-width:92vw;box-shadow:0 14px 40px rgba(27,34,56,.3)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.iconbtn{width:40px;height:40px;border-radius:12px;border:0;background:var(--card);box-shadow:var(--shadow);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink)}
+</style>
 </head>
 <body>
 <div class="demo">
-  <span>Demo · synthetic data only · role switch is a demo, not a real login</span>
+  <span>Demo · synthetic data only · the role switch is a demo, not a real login</span>
   <span class="row">
     <label for="me" style="margin:0;font-weight:400">Signed in as</label>
     <select id="me" style="width:auto"></select>
@@ -21,61 +81,133 @@
     <a href="index.html">Home</a>
   </span>
 </div>
-<div class="wrap wide">
-  <div class="top"><div class="brand" id="brand"></div><div class="muted tiny" id="today"></div></div>
-  <p class="muted" style="margin-top:-6px">Abnormal HbA1c follow-up across providers. Urgency, deadlines and escalation are set by fixed rules. The AI only helps word patient messages. It never diagnoses, assigns, refers or closes a case.</p>
-  <div class="kpis" id="kpis"></div>
-  <div class="row" style="margin:8px 0">
-    <div class="chips" id="filters"></div>
-    <input id="q" type="search" placeholder="Search name or case…" style="max-width:240px" aria-label="Search">
+<div class="page">
+  <div class="head"><div class="brand" id="brand"></div><button class="btn" id="new-result"></button></div>
+  <div class="hello2">
+    <div><h1 id="greet"></h1><div class="sub" id="today"></div></div>
+    <div class="art" id="art"></div>
+    <div class="rolechip" id="rolechip"></div>
   </div>
-  <div class="split" id="split">
-    <div class="scroll"><table class="tbl stack" id="tbl"></table></div>
-    <div id="detail"></div>
+  <div class="today">
+    <section class="panel" id="mytasks"></section>
+    <section class="panel alerts" id="alerts"></section>
   </div>
-  <p class="foot">Synthetic demo · not medical advice</p>
+  <div class="stats" id="stats"></div>
+  <div class="listhead"><h2 id="listtitle">All open cases</h2>
+    <div class="row"><div class="chips" id="filters"></div><input id="q" type="search" placeholder="Search name or case…" style="width:220px" aria-label="Search"></div></div>
+  <div class="scroll"><table class="tbl stack" id="tbl"></table></div>
+  <p class="foot">Synthetic demo · not medical advice · <a href="review.html">clinical review sheet</a></p>
 </div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Case details"></aside>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle"><div class="box" id="mbox"></div></div>
+<div class="toast" id="toast" role="status"></div>
 
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
-registerSW();
 import { wordmark, ic } from './core/ui.mjs';
+import { skyline } from './core/art.mjs';
+import { startTour } from './core/tour.mjs';
 import { loadState, saveState, resetState } from './core/store.mjs';
 import { caseToFhirBundle } from './core/fhir.mjs';
-import { STAGES, STAGE_LABEL, BARRIER_LABEL, barrierPlan, isOverdue, daysBetween, escalationsFor, maxLevel, SLA_STEPS, slaDeadline, CHANNEL_LABEL, REFERRAL_REPLY_DAYS, addDays } from './core/rules.mjs';
+import { STAGES, STAGE_LABEL, BARRIER_LABEL, barrierPlan, isOverdue, daysBetween, escalationsFor, maxLevel, SLA_STEPS, slaDeadline, CHANNEL_LABEL, REFERRAL_REPLY_DAYS, addDays, classify } from './core/rules.mjs';
 import {
   advance, skipStage, closeCase, assignOwner, setDropReason, logContact, canRecord, nextStageOf,
-  sendReferral, respondReferral, completeReferral, requestConsult, answerConsult,
-  CLOSE_TYPES, PLAN_KINDS, REFERRAL_TARGETS, MIN_EVIDENCE, RuleError,
+  sendReferral, respondReferral, completeReferral, requestConsult, answerConsult, createCase,
+  LANGUAGES, CLOSE_TYPES, PLAN_KINDS, REFERRAL_TARGETS, MIN_EVIDENCE, RuleError,
 } from './core/cases.mjs';
+registerSW();
 
 let state = loadState();
 const params = new URLSearchParams(location.search);
 let sel = params.get('c');
-let filter = 'open';
+let filter = params.get('filter') || 'open';
 let query = '';
 let flash = null;
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = (s) => document.querySelector(s);
-$('#brand').innerHTML = wordmark() + '<span class="sub">Care team</span>';
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const staffOf = (id) => state.staff.find((s) => s.id === id);
 const me = () => { const s = staffOf(meSel.value) || state.staff[0]; return { type: 'staff', id: s.id, role: s.role, name: s.name, org: s.org }; };
-const ownerHtml = (id) => id ? esc(staffOf(id)?.name || id) : '<span class="chip bad">UNASSIGNED</span>';
+const initials = (n) => n.replace(/\((.*?)\)/g, '').split(/\s+/).filter((w) => !/^(Nurse|Dr)$/i.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+const ownerHtml = (id) => id ? esc(staffOf(id)?.name || id) : '<span class="chip bad">Unassigned</span>';
 const save = () => saveState(state);
 const fmt = (d) => d ? new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }) : '–';
 const fmtTs = (iso) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 const URG = { urgent: 3, priority: 2, routine: 1 };
 const URG_LABEL = { urgent: 'Urgent', priority: 'Priority', routine: 'Routine' };
-const REF_CHIP = { sent: ['warn', 'Sent, waiting for reply'], accepted: ['ok', 'Accepted'], rejected: ['bad', 'Rejected'], completed: ['ok', 'Completed, report back received'], cancelled: ['grey', 'Cancelled'] };
-const esc2 = (c) => escalationsFor(c, state.today);
+const REF_CHIP = { sent: ['warn', 'Sent, waiting for reply'], accepted: ['ok', 'Accepted'], rejected: ['bad', 'Rejected'], completed: ['ok', 'Report back received'], cancelled: ['grey', 'Cancelled'] };
+const escOf = (c) => escalationsFor(c, state.today);
+const open = () => state.cases.filter((c) => c.stage !== 'closed');
+function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => el.classList.remove('show'), 3600); }
 
-/* ---------- the list ---------- */
+/* ---------- what a person should do next on this case (plain words) ---------- */
+function nextAction(c) {
+  const r = c.referral;
+  if (c.nurseRequest && !c.nurseRequest.done) return ['phone', 'Call the patient back', 'b-yellow'];
+  if (!c.owner) return ['users', 'Assign an owner', 'b-pink'];
+  switch (c.stage) {
+    case 'result': return ['send', 'Notify the patient', 'b-blue'];
+    case 'notified': return ['phone', 'Check the patient understood', 'b-blue'];
+    case 'understood': return ['calendar', 'Help the patient book', 'b-lilac'];
+    case 'booked': return ['check', 'Record attendance', 'b-mint'];
+    case 'attended': return ['flask', 'Confirmatory test', 'b-lilac'];
+    case 'confirmed': return ['send', 'Decide on referral', 'b-blue'];
+    case 'referred':
+      if (r && r.status === 'sent') return ['clock', `Waiting for ${r.to}`, 'b-yellow'];
+      if (r && r.status === 'accepted') return ['file', 'Specialist to report back', 'b-yellow'];
+      if (r && r.status === 'rejected') return ['refresh', 'Referral rejected: new plan', 'b-pink'];
+      return ['plan', 'Record the plan', 'b-mint'];
+    case 'care_plan': return ['shield', 'Close with evidence', 'b-mint'];
+    default: return ['check', 'Closed', 'b-mint'];
+  }
+}
+const dueChip = (c) => {
+  if (c.stage === 'closed') return '<span class="chip ok">Closed</span>';
+  const t = state.today;
+  if (isOverdue(c, t)) return `<span class="chip bad">+${daysBetween(c.due, t)}d late</span>`;
+  if (c.due === t) return '<span class="chip warn">Due today</span>';
+  return `<span class="chip grey">in ${daysBetween(t, c.due)}d</span>`;
+};
+
+/* ---------- top of the page: greeting, my tasks, alerts, stats ---------- */
+function renderTop() {
+  const m = me(), s = staffOf(m.id);
+  const h = new Date().getHours();
+  $('#greet').textContent = `${h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'}, ${s.name.replace(/^(Nurse|Dr)\s+/, '').split(' ')[0]}`;
+  $('#today').textContent = new Date(state.today + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }) + ' · HbA1c follow-up programme';
+  $('#rolechip').innerHTML = `<span class="av">${esc(initials(s.name))}</span><span><b>${esc(s.name)}</b><small>${s.role} · ${esc(s.org)}</small></span>`;
+
+  const mine = open().filter((c) => c.owner === m.id).sort((a, b) => maxLevel(escOf(b)) - maxLevel(escOf(a)) || (a.due || '').localeCompare(b.due || ''));
+  $('#mytasks').innerHTML = `<h2>${ic('list', 18)} My tasks <span class="n">${mine.length}</span></h2>` +
+    (mine.length ? mine.slice(0, 5).map((c) => { const [i, txt, cl] = nextAction(c); return `<button class="task" data-open="${c.id}"><span class="ic ${cl}">${ic(i, 20)}</span><span class="t"><b>${esc(c.patient.name)} · ${c.value}%</b><span>${txt}</span></span><span class="due">${dueChip(c)}</span></button>`; }).join('')
+      + (mine.length > 5 ? `<button class="task" data-filter="mine"><span class="t"><span>See all ${mine.length} →</span></span></button>` : '')
+      : `<div class="empty">Nothing owned by you right now. ${m.role === 'clinician' ? 'Clinicians mostly act on alerts and closing.' : ''}</div>`);
+
+  const al = open().filter((c) => escOf(c).some((e) => e.level >= 3)).sort((a, b) => URG[b.urgency] - URG[a.urgency]);
+  $('#alerts').innerHTML = `<h2>${ic('shield', 18)} Clinical lead alerts <span class="n">${al.length}</span></h2>` +
+    (al.length ? al.slice(0, 5).map((c) => { const top = escOf(c).sort((a, b) => b.level - a.level)[0]; return `<button class="task" data-open="${c.id}"><span class="ic">${ic('clock', 20)}</span><span class="t"><b>${esc(c.patient.name)} · ${c.value}%</b><span>${esc(top.text)}</span></span></button>`; }).join('')
+      : '<div class="empty" style="color:rgba(255,255,255,.75)">No urgent alerts. Good.</div>');
+
+  const t = state.today, o = open();
+  const S = [
+    ['open', 'inbox', 'b-blue', o.length, 'Open cases'],
+    ['attention', 'shield', 'b-pink', o.filter((c) => escOf(c).length).length, 'Need attention'],
+    ['overdue', 'clock', 'b-yellow', o.filter((c) => isOverdue(c, t)).length, 'Overdue'],
+    ['unassigned', 'users', 'b-lilac', o.filter((c) => !c.owner).length, 'Unassigned'],
+    ['referral', 'send', 'b-blue', o.filter((c) => c.referral && ['sent', 'accepted', 'rejected'].includes(c.referral.status)).length, 'In referral'],
+    ['closed', 'check', 'b-mint', state.cases.length - o.length, 'Closed with evidence'],
+  ];
+  $('#stats').innerHTML = S.map(([f, i, cl, n, l]) => `<button class="stat" data-filter="${f}" aria-pressed="${filter === f}"><span class="ic ${cl}">${ic(i, 20)}</span><span><b>${n}</b><span>${l}</span></span></button>`).join('');
+}
+
+/* ---------- the case list ---------- */
+const FILTERS = [['open', 'All open'], ['attention', 'Needs attention'], ['overdue', 'Overdue'], ['unassigned', 'Unassigned'], ['urgent', 'Urgent'], ['referral', 'Referrals'], ['risk', 'Drop-out risk'], ['mine', 'Mine'], ['closed', 'Closed']];
 function visible() {
   const t = state.today, mine = me().id;
   let list = state.cases.filter((c) => {
     if (filter === 'closed') return c.stage === 'closed';
     if (c.stage === 'closed') return false;
-    if (filter === 'attention') return esc2(c).length > 0;
+    if (filter === 'attention') return escOf(c).length > 0;
     if (filter === 'overdue') return isOverdue(c, t);
     if (filter === 'unassigned') return !c.owner;
     if (filter === 'urgent') return c.band === 'urgent';
@@ -86,203 +218,131 @@ function visible() {
   });
   const q = query.trim().toLowerCase();
   if (q) list = list.filter((c) => (c.patient.name + ' ' + c.id).toLowerCase().includes(q));
-  return list.sort((a, b) => maxLevel(esc2(b)) - maxLevel(esc2(a)) || URG[b.urgency] - URG[a.urgency] || (a.due || '').localeCompare(b.due || ''));
+  return list.sort((a, b) => maxLevel(escOf(b)) - maxLevel(escOf(a)) || URG[b.urgency] - URG[a.urgency] || (a.due || '').localeCompare(b.due || ''));
 }
-
-function flagHtml(c) {
-  if (c.stage === 'closed') return '<span class="chip ok">Closed</span>';
-  const t = state.today;
-  if (isOverdue(c, t)) return `<span class="chip bad">OVERDUE +${daysBetween(c.due, t)}d</span>`;
-  if (c.due === t) return '<span class="chip warn">Due today</span>';
-  return `<span class="chip grey">in ${daysBetween(t, c.due)}d</span>`;
-}
-function attnHtml(c) {
-  const e = esc2(c);
-  if (!e.length) return '<span class="muted">–</span>';
-  const top = [...e].sort((a, b) => b.level - a.level)[0];
-  return `<span class="chip ${top.level >= 3 ? 'bad' : 'warn'}">${top.level >= 3 ? '!! ' : '! '}${esc(top.text)}</span>${e.length > 1 ? ` <span class="tiny muted">+${e.length - 1} more</span>` : ''}`;
-}
-
-function render() {
-  const t = state.today;
-  $('#today').textContent = 'Today: ' + fmt(t);
-  const open = state.cases.filter((c) => c.stage !== 'closed');
-  const k = [
-    ['Open cases', open.length, ''],
-    ['Need attention', open.filter((c) => esc2(c).length).length, 'bad'],
-    ['Overdue', open.filter((c) => isOverdue(c, t)).length, 'bad'],
-    ['Unassigned', open.filter((c) => !c.owner).length, 'bad'],
-    ['Referrals stuck', open.filter((c) => c.referral && ['rejected'].includes(c.referral.status) || esc2(c).some((e) => e.code === 'referral_unanswered')).length, ''],
-    ['Urgent (open)', open.filter((c) => c.band === 'urgent').length, ''],
-    ['Closed with evidence', state.cases.length - open.length, ''],
-  ];
-  $('#kpis').innerHTML = k.map(([l, n, cl]) => `<div class="kpi ${cl}"><b>${n}</b>${l}</div>`).join('');
-  const F = [['open', 'All open'], ['attention', 'Needs attention'], ['overdue', 'Overdue'], ['unassigned', 'Unassigned'], ['urgent', 'Urgent'], ['referral', 'Referrals'], ['risk', 'Drop-out risk'], ['mine', 'Mine'], ['closed', 'Closed']];
-  $('#filters').innerHTML = F.map(([id, l]) => `<button class="pick" data-f="${id}" aria-pressed="${filter === id}">${l}</button>`).join('');
-
+function renderList() {
+  $('#listtitle').textContent = (FILTERS.find((f) => f[0] === filter) || FILTERS[0])[1];
+  $('#filters').innerHTML = FILTERS.map(([id, l]) => `<button class="pick" data-filter="${id}" aria-pressed="${filter === id}">${l}</button>`).join('');
   const list = visible();
-  $('#tbl').innerHTML = `<thead><tr><th>Patient</th><th>HbA1c</th><th>Stage</th><th>Owner</th><th>Due</th><th>Needs attention</th><th>Drop-out reason</th></tr></thead><tbody>` +
-    (list.map((c) => `<tr class="click ${c.id === sel ? 'sel' : ''}" data-id="${c.id}" tabindex="0">
-      <td data-l="Patient"><b>${esc(c.patient.name)}</b><br><span class="muted tiny">${c.id} · ${c.patient.age}${c.patient.sex} · ${esc(c.patient.nationality)}</span></td>
-      <td data-l="HbA1c"><b>${c.value}%</b> <span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span></td>
+  $('#tbl').innerHTML = `<thead><tr><th>Patient</th><th>HbA1c</th><th>Stage</th><th>Next action</th><th>Owner</th><th>Due</th><th>Drop-out reason</th></tr></thead><tbody>` +
+    (list.map((c) => { const [i, txt] = nextAction(c); const e = escOf(c); return `<tr class="click ${c.id === sel ? 'sel' : ''}" data-open="${c.id}" tabindex="0">
+      <td data-l="Patient"><div class="pname"><span class="pav u-${c.urgency}">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><br><span class="muted tiny">${c.id} · ${c.patient.age}${c.patient.sex} · ${esc(c.patient.nationality)}</span></span></div></td>
+      <td data-l="HbA1c"><b>${c.value}%</b><br><span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span></td>
       <td data-l="Stage">${STAGE_LABEL[c.stage]}${c.referral && c.stage === 'referred' ? `<br><span class="tiny muted">${esc(c.referral.to)}: ${REF_CHIP[c.referral.status][1]}</span>` : ''}</td>
+      <td data-l="Next action">${txt}${e.length ? `<br><span class="chip ${maxLevel(e) >= 3 ? 'bad' : 'warn'}">${maxLevel(e) >= 3 ? 'Lead now' : 'Attention'}${e.length > 1 ? ' · ' + e.length : ''}</span>` : ''}</td>
       <td data-l="Owner">${ownerHtml(c.owner)}</td>
-      <td data-l="Due">${fmt(c.due)} ${flagHtml(c)}</td>
-      <td data-l="Needs attention">${attnHtml(c)}</td>
-      <td data-l="Drop-out reason">${c.dropReason ? esc(c.dropReason) : '<span class="muted">–</span>'}</td></tr>`).join('') ||
+      <td data-l="Due">${fmt(c.due)}<br>${dueChip(c)}</td>
+      <td data-l="Drop-out reason">${c.dropReason ? esc(c.dropReason) : '<span class="muted">–</span>'}</td></tr>`; }).join('') ||
       `<tr><td colspan="7" class="muted">No cases here.</td></tr>`) + `</tbody>`;
-  $('#split').classList.toggle('on', !!sel);
-  document.querySelectorAll('[data-f]').forEach((b) => b.onclick = () => { filter = b.dataset.f; render(); });
-  document.querySelectorAll('#tbl tr.click').forEach((r) => { r.onclick = () => { sel = r.dataset.id; flash = null; render(); }; r.onkeydown = (e) => { if (e.key === 'Enter') r.click(); }; });
-  renderDetail();
 }
 
-/* ---------- one case ---------- */
-const orgOptions = (cur) => REFERRAL_TARGETS.map((o) => `<option ${o === cur ? 'selected' : ''}>${o}</option>`).join('');
-
+/* ---------- one case, in a side panel ---------- */
+const orgOptions = () => REFERRAL_TARGETS.map((o) => `<option>${o}</option>`).join('');
 function slaHtml(c) {
   const t = state.today;
-  const rows = SLA_STEPS.map((s) => {
-    const ev = c.events.find((e) => e.type === s);
-    const dl = slaDeadline(c, s);
-    const doneDay = ev ? ev.at.slice(0, 10) : null;
-    let chip;
-    if (doneDay) chip = doneDay <= dl ? '<span class="chip ok">on time</span>' : `<span class="chip warn">late +${daysBetween(dl, doneDay)}d</span>`;
-    else chip = t > dl ? `<span class="chip bad">missed +${daysBetween(dl, t)}d</span>` : '<span class="chip grey">pending</span>';
+  return `<table class="tbl"><tbody>${SLA_STEPS.map((s) => {
+    const ev = c.events.find((e) => e.type === s), dl = slaDeadline(c, s), dd = ev ? ev.at.slice(0, 10) : null;
+    const chip = dd ? (dd <= dl ? '<span class="chip ok">on time</span>' : `<span class="chip warn">late +${daysBetween(dl, dd)}d</span>`) : (t > dl ? `<span class="chip bad">missed +${daysBetween(dl, t)}d</span>` : '<span class="chip grey">pending</span>');
     return `<tr><td>${STAGE_LABEL[s]}</td><td>by ${fmt(dl)}</td><td>${chip}</td></tr>`;
-  }).join('');
-  return `<h3>Service levels</h3><table class="tbl" style="margin-bottom:8px"><tbody>${rows}</tbody></table>`;
+  }).join('')}</tbody></table>`;
 }
-
 function stepControls(c, actor) {
   if (c.stage === 'closed') return '';
-  const next = nextStageOf(c);
-  const r = c.referral;
-  const isDoc = actor.role === 'clinician';
-  let h = '';
+  const next = nextStageOf(c), r = c.referral, isDoc = actor.role === 'clinician';
   if (c.stage === 'referred' && r && ['sent', 'accepted', 'rejected'].includes(r.status)) {
-    const [cls, lab] = REF_CHIP[r.status];
-    const recv = isDoc && actor.org === r.to;
-    h += `<div class="card soft" style="margin:0 0 10px"><h3>Referral to ${esc(r.to)} <span class="chip ${cls}">${lab}</span></h3>
+    const [cls, lab] = REF_CHIP[r.status], recv = isDoc && actor.org === r.to;
+    let h = `<div class="rulebox" style="margin-top:0"><b>Referral to ${esc(r.to)}</b> <span class="chip ${cls}">${lab}</span>
       <p class="tiny">Reason: ${esc(r.reason)}<br>Sent ${fmtTs(r.sentAt)}${r.status === 'sent' ? ` · reply due ${fmt(addDays(r.sentAt.slice(0, 10), REFERRAL_REPLY_DAYS))}` : ''}${r.note ? `<br>Reply: ${esc(r.note)}` : ''}</p>
       ${(r.history || []).map((x) => `<p class="tiny muted">Earlier: ${esc(x.to)}, ${esc(x.status)}${x.note ? ': ' + esc(x.note) : ''}</p>`).join('')}`;
-    if (r.status === 'sent') {
-      h += recv
-        ? `<textarea id="rnote" placeholder="Note to the referrer (required if rejecting)"></textarea><div class="row" style="margin-top:8px"><button class="btn small" id="racc">Accept (I become the owner)</button><button class="btn ghost small" id="rrej">Reject</button></div>`
-        : `<p class="tiny muted">Only a clinician at ${esc(r.to)} can reply. Switch the signed-in user at the top to try it.</p>`;
-    } else if (r.status === 'accepted') {
-      h += recv
-        ? `<textarea id="rrep" placeholder="Report back (min ${MIN_EVIDENCE} characters)"></textarea><p><button class="btn small" id="rdone">Complete and report back</button></p>`
-        : `<p class="tiny muted">Owner is now ${ownerHtml(c.owner)}. The specialist must report back before a plan is recorded.</p>`;
-    } else if (r.status === 'rejected') {
-      h += isDoc
-        ? `<label for="rto">Send to</label><select id="rto">${orgOptions()}</select><textarea id="rwhy" placeholder="Reason for the new referral"></textarea><p><button class="btn small" id="rsend">Re-send referral</button></p>`
-        : `<p class="tiny muted">A clinician must decide the next step.</p>`;
-    }
-    h += `</div>`;
-    return h;
+    if (r.status === 'sent') h += recv ? `<textarea id="rnote" placeholder="Note to the referrer (required if rejecting)"></textarea><div class="row" style="margin-top:8px"><button class="btn small" id="racc">Accept (I become the owner)</button><button class="btn ghost small" id="rrej">Reject</button></div>` : `<p class="tiny muted">Only a clinician at ${esc(r.to)} can reply. Switch the signed-in user to try it.</p>`;
+    else if (r.status === 'accepted') h += recv ? `<textarea id="rrep" placeholder="Report back (min ${MIN_EVIDENCE} characters)"></textarea><p><button class="btn small" id="rdone">Complete and report back</button></p>` : `<p class="tiny muted">The specialist must report back before a plan is recorded.</p>`;
+    else h += isDoc ? `<label for="rto">Send to</label><select id="rto">${orgOptions()}</select><textarea id="rwhy" placeholder="Reason for the new referral" style="margin-top:8px"></textarea><p><button class="btn small" id="rsend">Re-send referral</button></p>` : `<p class="tiny muted">A clinician must decide the next step.</p>`;
+    return h + '</div>';
   }
   if (next === 'confirmed') {
     const ok = canRecord('confirmed', actor);
-    h += `<div class="row"><input id="stepnote" placeholder="Result / note (or the reason, if not required)" style="flex:1;min-width:140px"><button class="btn small" id="step" ${ok ? '' : 'disabled'}>Record confirmatory test</button><button class="btn ghost small" id="skip" data-stage="confirmed" ${isDoc ? '' : 'disabled'}>Not required</button></div>
-      <div class="tiny muted">${ok ? '' : 'Only a nurse or clinician can record this. '}Whether confirmation is needed is a clinical decision.</div>`;
-  } else if (next === 'referred') {
-    h += `<div class="card soft" style="margin:0"><h3>Refer to a specialist?</h3>
-      <label for="rto">Refer to</label><select id="rto" ${isDoc ? '' : 'disabled'}>${orgOptions()}</select>
-      <textarea id="rwhy" ${isDoc ? '' : 'disabled'} placeholder="Reason for referral (or why it is not required)"></textarea>
-      <div class="row" style="margin-top:8px"><button class="btn small" id="rsend" ${isDoc ? '' : 'disabled'}>Send referral</button><button class="btn ghost small" id="skip" data-stage="referred" ${isDoc ? '' : 'disabled'}>Referral not required</button></div>
-      ${isDoc ? '' : '<div class="tiny muted">Only a clinician can refer, or decide a referral is not needed.</div>'}</div>`;
-  } else if (next === 'care_plan') {
-    h += `<div class="row"><select id="kind" style="width:auto" ${isDoc ? '' : 'disabled'}>${Object.entries(PLAN_KINDS).map(([k2, v]) => `<option value="${k2}">${v}</option>`).join('')}</select><input id="stepnote" placeholder="Note (optional)" style="flex:1;min-width:140px"><button class="btn small" id="step" ${isDoc ? '' : 'disabled'}>Record plan</button></div>
-      ${isDoc ? '' : '<div class="tiny muted">Only a clinician can record the treatment or surveillance plan.</div>'}`;
-  } else if (next && next !== 'closed') {
-    const ok = canRecord(next, actor);
-    h += `<div class="row"><input id="stepnote" placeholder="Note (optional)" style="flex:1;min-width:140px"><button class="btn small" id="step" ${ok ? '' : 'disabled'}>Record: ${STAGE_LABEL[next]}</button></div>
-      ${ok ? '' : `<div class="tiny muted">Your role cannot record this step.</div>`}`;
+    return `<div class="row"><input id="stepnote" placeholder="Result / note (or the reason, if not required)" style="flex:1;min-width:140px"><button class="btn small" id="step" ${ok ? '' : 'disabled'}>Record confirmatory test</button><button class="btn ghost small" id="skip" data-stage="confirmed" ${isDoc ? '' : 'disabled'}>Not required</button></div><div class="tiny muted" style="margin-top:6px">${ok ? '' : 'Only a nurse or clinician can record this. '}Whether confirmation is needed is a clinical decision.</div>`;
   }
-  return h;
+  if (next === 'referred') {
+    return `<label for="rto" style="margin-top:0">Refer to a specialist?</label><select id="rto" ${isDoc ? '' : 'disabled'}>${orgOptions()}</select>
+      <textarea id="rwhy" ${isDoc ? '' : 'disabled'} placeholder="Reason for referral (or why it is not required)" style="margin-top:8px"></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn small" id="rsend" ${isDoc ? '' : 'disabled'}>Send referral</button><button class="btn ghost small" id="skip" data-stage="referred" ${isDoc ? '' : 'disabled'}>Referral not required</button></div>
+      ${isDoc ? '' : '<div class="tiny muted" style="margin-top:6px">Only a clinician can refer, or decide a referral is not needed.</div>'}`;
+  }
+  if (next === 'care_plan') {
+    return `<div class="row"><select id="kind" style="width:auto" ${isDoc ? '' : 'disabled'}>${Object.entries(PLAN_KINDS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select><input id="stepnote" placeholder="Note (optional)" style="flex:1;min-width:140px"><button class="btn small" id="step" ${isDoc ? '' : 'disabled'}>Record plan</button></div>${isDoc ? '' : '<div class="tiny muted" style="margin-top:6px">Only a clinician can record the treatment or surveillance plan.</div>'}`;
+  }
+  if (next && next !== 'closed') {
+    const ok = canRecord(next, actor);
+    return `<div class="row"><input id="stepnote" placeholder="Note (optional)" style="flex:1;min-width:140px"><button class="btn small" id="step" ${ok ? '' : 'disabled'}>Record: ${STAGE_LABEL[next]}</button></div>${ok ? '' : '<div class="tiny muted" style="margin-top:6px">Your role cannot record this step.</div>'}`;
+  }
+  return '';
 }
-
 function consultHtml(c, actor) {
-  const isDoc = actor.role === 'clinician';
-  const t = state.today;
-  let h = `<h3 style="margin-top:14px">Clinician-to-clinician advice</h3>`;
-  if (!(c.consults || []).length) h += '<p class="tiny muted">No questions asked.</p>';
+  const isDoc = actor.role === 'clinician', t = state.today;
+  let h = (c.consults || []).length ? '' : '<p class="tiny muted" style="margin:0 0 8px">No questions asked yet.</p>';
   for (const q of c.consults || []) {
     const late = !q.answer && t > q.due;
-    h += `<div class="card soft" style="margin:0 0 8px"><p class="tiny"><b>${esc(q.askedBy)}</b> asked <b>${esc(q.to)}</b> (${fmtTs(q.askedAt)}): ${esc(q.question)}</p>
+    h += `<div class="rulebox" style="margin:0 0 8px"><p class="tiny" style="margin:0"><b>${esc(q.askedBy)}</b> asked <b>${esc(q.to)}</b> (${fmtTs(q.askedAt)}): ${esc(q.question)}</p>
       ${q.answer ? `<p class="tiny"><span class="chip ok">answered</span> ${esc(q.answer.by)}: ${esc(q.answer.text)}</p>`
-        : `<p class="tiny"><span class="chip ${late ? 'bad' : 'warn'}">${late ? 'overdue' : 'waiting'}</span> reply due ${fmt(q.due)}</p>
-           ${isDoc && actor.org === q.to ? `<textarea data-qa="${q.id}" placeholder="Your answer"></textarea><button class="btn small" data-qans="${q.id}">Send answer</button>` : ''}`}</div>`;
+        : `<p class="tiny"><span class="chip ${late ? 'bad' : 'warn'}">${late ? 'overdue' : 'waiting'}</span> reply due ${fmt(q.due)}</p>${isDoc && actor.org === q.to ? `<textarea data-qa="${q.id}" placeholder="Your answer"></textarea><button class="btn small" data-qans="${q.id}" style="margin-top:6px">Send answer</button>` : ''}`}</div>`;
   }
   if (c.stage !== 'closed' && isDoc) h += `<div class="row"><select id="qto" style="width:auto">${orgOptions()}</select><input id="qtext" placeholder="Ask a specialist a question" style="flex:1;min-width:160px"><button class="btn ghost small" id="qask">Ask</button></div>`;
+  else if (!isDoc) h += '<p class="tiny muted" style="margin:0">Only clinicians can ask a specialist.</p>';
   return h;
 }
 
-function renderDetail() {
-  const box = $('#detail');
-  const c = state.cases.find((x) => x.id === sel);
+function renderDrawer() {
+  const box = $('#drawer'), c = state.cases.find((x) => x.id === sel);
+  $('#drawer').classList.toggle('open', !!c); $('#scrim').classList.toggle('open', !!c);
   if (!c) { box.innerHTML = ''; return; }
-  const actor = me(), t = state.today;
-  const idx = STAGES.indexOf(c.stage);
-  const plan = barrierPlan(c.barrier);
-  const p = c.patient;
-  const esca = esc2(c);
-
+  const actor = me(), idx = STAGES.indexOf(c.stage), plan = barrierPlan(c.barrier), p = c.patient, e = escOf(c), isDoc = actor.role === 'clinician', ai = c.aiText;
   const tl = STAGES.map((s, i) => {
-    const ev = [...c.events].reverse().find((e) => e.type === s);
+    const ev = [...c.events].reverse().find((x) => x.type === s);
     const cls = s === 'closed' && c.stage === 'closed' ? 'closed done' : i <= idx ? 'done' : i === idx + 1 ? 'next' : 'future';
-    const label = ev && ev.skipped ? STAGE_LABEL[s] + ' (not required)' : STAGE_LABEL[s];
-    return `<li class="${cls}"><b>${label}</b>${ev ? `<span class="tiny muted">${fmtTs(ev.at)} · ${esc(ev.by)}</span>${ev.note ? `<span class="tiny">${esc(ev.note)}</span>` : ''}` : i === idx + 1 ? '<span class="tiny muted">Next step</span>' : ''}</li>`;
+    return `<li class="${cls}"><b>${STAGE_LABEL[s]}${ev && ev.skipped ? ' (not required)' : ''}</b>${ev ? `<span class="tiny muted">${fmtTs(ev.at)} · ${esc(ev.by)}</span>${ev.note ? `<span class="tiny">${esc(ev.note)}</span>` : ''}` : i === idx + 1 ? '<span class="tiny muted">Next step</span>' : ''}</li>`;
   }).join('');
-  const extra = c.events.filter((e) => !STAGES.includes(e.type)).slice(-6).reverse();
-
-  const isDoc = actor.role === 'clinician';
-  const closeHtml = c.stage === 'closed'
-    ? `<div class="ok-msg">Closed by ${esc(c.closed?.by || '')} · ${esc(CLOSE_TYPES[c.closed?.type] || '')}<br><span class="tiny">Evidence: ${esc(c.closed?.evidence || '')}</span></div>`
-    : `<div class="close-box ${isDoc ? '' : 'locked'}"><h3>Close this case</h3>
-        <p class="tiny muted">${isDoc ? 'A clinician must give a reason and write the evidence. The AI can never close a case.' : 'Only a clinician can close a case, with written evidence. The AI can never close a case. Switch to a clinician at the top to try it.'}</p>
-        <label for="ctype">Reason</label><select id="ctype" ${isDoc ? '' : 'disabled'}>${Object.entries(CLOSE_TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
-        <label for="cev">Evidence (min ${MIN_EVIDENCE} characters)</label><textarea id="cev" ${isDoc ? '' : 'disabled'} placeholder="e.g. Seen 12 Nov, repeat HbA1c 7.2%, plan agreed, review in 3 months"></textarea>
-        <p><button class="btn danger" id="close" ${isDoc ? '' : 'disabled'}>Close case</button></p></div>`;
-
-  const ai = c.aiText;
-  box.innerHTML = `<div class="card" style="margin-top:0">
-    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(p.name)}</h2><span class="row"><button class="btn ghost small" id="fhir" title="Standard hospital-system format (demo)">FHIR export</button><button class="btn ghost small" id="x" aria-label="Close panel">${ic('close', 16)}</button></span></div>
-    <p class="muted tiny">${c.id} · ${p.age}${p.sex} · ${esc(p.nationality)} · speaks ${esc(p.language)}${p.shifts ? ' · works shifts' : ''} · contact by ${esc(CHANNEL_LABEL[c.channel] || 'app')}</p>
-    <p><b style="font-size:1.4rem">${c.value}%</b> <span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span> <span class="tiny muted">urgency set by rules</span></p>
-    <p class="tiny">Owner: <b>${ownerHtml(c.owner)}</b>${c.owner ? ` <span class="muted">(${esc(staffOf(c.owner)?.org || '')})</span>` : ''} · Due: <b>${fmt(c.due)}</b> · ${flagHtml(c)}</p>
-    ${esca.length ? `<div class="err-msg"><b>Needs attention</b><ul style="margin:4px 0 0;padding-inline-start:18px">${esca.map((e) => `<li>${e.level >= 3 ? '<b>Clinical lead now:</b> ' : ''}${esc(e.text)}</li>`).join('')}</ul></div>` : ''}
-    ${c.barrier !== 'none' ? `<p class="tiny">Patient's barrier: <span class="chip warn">${BARRIER_LABEL[c.barrier]}</span></p>` : ''}
-    ${c.nurseRequest && !c.nurseRequest.done ? `<div class="err-msg">Patient asked for a nurse call (${fmtTs(c.nurseRequest.at)}). ${esc(c.nurseRequest.note)}</div>` : ''}
-    ${c.dropReason ? `<p class="tiny">Drop-out reason: <b>${esc(c.dropReason)}</b></p>` : ''}
-    ${c.confidence ? `<p class="tiny">Patient confidence about next steps: <b>${c.confidence.score}/5</b></p>` : ''}
-    ${flash ? `<div class="${flash.err ? 'err-msg' : 'ok-msg'}">${esc(flash.text)}</div>` : ''}
-    <h3 style="margin-top:14px">Journey</h3><ol class="timeline">${tl}</ol>
-    ${slaHtml(c)}
-    <div class="card soft"><h3>Suggested next step (rules)</h3><p>${esc(plan.staffTask)}</p>
-      ${ai ? `<div class="tiny muted">Message the patient saw: ${ai.source === 'ai' ? 'AI-assisted draft, safety-checked' : 'pre-written template'}.</div><p class="tiny" style="white-space:pre-wrap">${esc(ai.text)}</p>` : '<div class="tiny muted">Patient has not opened the message yet.</div>'}
+  const extra = c.events.filter((x) => !STAGES.includes(x.type)).slice(-6).reverse();
+  box.innerHTML = `
+    <div class="dhead"><div class="pname"><span class="pav u-${c.urgency}" style="width:46px;height:46px;font-size:14px">${esc(initials(p.name))}</span><div><h2>${esc(p.name)}</h2><div class="tiny muted">${c.id} · ${p.age}${p.sex} · ${esc(p.nationality)} · speaks ${esc(p.language)}${p.shifts ? ' · works shifts' : ''} · ${esc(CHANNEL_LABEL[c.channel] || 'app')}</div></div></div>
+      <button class="iconbtn" id="x" aria-label="Close panel">${ic('close', 18)}</button></div>
+    <div class="dsec">
+      <div class="bigv"><b>${c.value}%</b><span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span><span class="tiny muted">urgency set by rules</span></div>
+      <p class="tiny" style="margin:10px 0 0">Owner: <b>${ownerHtml(c.owner)}</b>${c.owner ? ` <span class="muted">(${esc(staffOf(c.owner)?.org || '')})</span>` : ''} · Due <b>${fmt(c.due)}</b> ${dueChip(c)}</p>
+      <div class="row" style="margin-top:12px"><a class="btn ghost small" href="patient.html?p=${c.id}&nosplash=1" target="_blank" rel="noopener">${ic('phone', 16)} Open as this patient</a><button class="btn ghost small" id="fhir">${ic('file', 16)} FHIR export</button></div>
     </div>
-    ${c.stage !== 'closed' ? `<h3>Actions (as ${esc(actor.name)}, ${esc(actor.org)})</h3>
-      ${stepControls(c, actor)}
-      <div class="row" style="margin-top:10px"><select id="owner" style="flex:1">${c.owner ? '' : '<option value="">Choose an owner…</option>'}${state.staff.map((s) => `<option value="${s.id}" ${s.id === c.owner ? 'selected' : ''}>${esc(s.name)} · ${esc(s.org)}</option>`).join('')}</select><button class="btn ghost small" id="assign">Assign owner</button></div>
-      <div class="row" style="margin-top:10px"><input id="contact" placeholder="Log a call / message (optional note)" style="flex:1"><button class="btn ghost small" id="log">Log contact</button></div>
-      <div class="row" style="margin-top:10px"><input id="drop" value="${esc(c.dropReason || '')}" placeholder="Drop-out reason (e.g. night shifts)" style="flex:1"><button class="btn ghost small" id="dropbtn">Save reason</button></div>` : ''}
-    ${consultHtml(c, actor)}
-    ${closeHtml}
-    ${extra.length ? `<h3 style="margin-top:14px">Recent activity</h3><ul class="tiny" style="padding-inline-start:18px">${extra.map((e) => `<li>${fmtTs(e.at)} · ${esc(e.by)}: ${esc(e.type.replace(/_/g, ' '))}${e.note ? ' · ' + esc(e.note) : ''}</li>`).join('')}</ul>` : ''}
-  </div>`;
+    ${e.length ? `<div class="err-msg"><b>Needs attention</b><ul style="margin:4px 0 0;padding-inline-start:18px">${e.map((x) => `<li>${x.level >= 3 ? '<b>Clinical lead now:</b> ' : ''}${esc(x.text)}</li>`).join('')}</ul></div>` : ''}
+    ${c.nurseRequest && !c.nurseRequest.done ? `<div class="err-msg" style="background:var(--p-yellow);color:#8a5a00">Patient asked for a nurse call (${fmtTs(c.nurseRequest.at)}). ${esc(c.nurseRequest.note)}</div>` : ''}
+    ${flash ? `<div class="${flash.err ? 'err-msg' : 'ok-msg'}">${esc(flash.text)}</div>` : ''}
+    ${c.stage !== 'closed' ? `<div class="dsec"><h3>Next step</h3>${stepControls(c, actor) || '<p class="tiny muted" style="margin:0">Nothing to record.</p>'}
+      <div class="rulebox"><b>Suggested by the rules:</b> ${esc(plan.staffTask)}${c.barrier !== 'none' ? `<br><span class="tiny">Patient's barrier: <b>${BARRIER_LABEL[c.barrier]}</b></span>` : ''}${c.dropReason ? `<br><span class="tiny">Drop-out reason: <b>${esc(c.dropReason)}</b></span>` : ''}${c.confidence ? `<br><span class="tiny">Patient confidence: <b>${c.confidence.score}/5</b></span>` : ''}</div></div>` : ''}
+    <div class="dsec"><h3>Journey</h3><ol class="timeline">${tl}</ol></div>
+    <div class="dsec"><h3>Service levels</h3>${slaHtml(c)}</div>
+    <div class="dsec"><h3>What the patient was told</h3>${ai ? `<div class="tiny muted">${ai.source === 'ai' ? 'AI-assisted draft, safety-checked' : 'Pre-written message'}</div><p class="tiny" style="white-space:pre-wrap;margin-bottom:0">${esc(ai.text)}</p>` : '<p class="tiny muted" style="margin:0">The patient has not opened the message yet.</p>'}</div>
+    ${c.stage !== 'closed' ? `<div class="dsec"><h3>Team actions <span class="tiny muted" style="font-weight:400">as ${esc(actor.name)}</span></h3>
+      <div class="row"><select id="owner" style="flex:1">${c.owner ? '' : '<option value="">Choose an owner…</option>'}${state.staff.map((s) => `<option value="${s.id}" ${s.id === c.owner ? 'selected' : ''}>${esc(s.name)} · ${esc(s.org)}</option>`).join('')}</select><button class="btn ghost small" id="assign">Assign</button></div>
+      <div class="row" style="margin-top:10px"><input id="contact" placeholder="Log a call or message (note)" style="flex:1"><button class="btn ghost small" id="log">Log contact</button></div>
+      <div class="row" style="margin-top:10px"><input id="drop" value="${esc(c.dropReason || '')}" placeholder="Drop-out reason (e.g. night shifts)" style="flex:1"><button class="btn ghost small" id="dropbtn">Save</button></div></div>` : ''}
+    <div class="dsec"><h3>Clinician-to-clinician advice</h3>${consultHtml(c, actor)}</div>
+    ${c.stage === 'closed'
+      ? `<div class="ok-msg">Closed by ${esc(c.closed?.by || '')} · ${esc(CLOSE_TYPES[c.closed?.type] || '')}<br><span class="tiny">Evidence: ${esc(c.closed?.evidence || '')}</span></div>`
+      : `<div class="dsec" style="${isDoc ? '' : 'opacity:.85'}"><h3>${ic('shield', 18)} Close this case</h3>
+        <p class="tiny muted" style="margin-top:0">${isDoc ? 'Give a reason and write the evidence. The AI can never close a case.' : 'Only a clinician can close a case, with written evidence. The AI can never close a case. Switch to a clinician at the top to try it.'}</p>
+        <select id="ctype" ${isDoc ? '' : 'disabled'}>${Object.entries(CLOSE_TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
+        <textarea id="cev" ${isDoc ? '' : 'disabled'} placeholder="Evidence (min ${MIN_EVIDENCE} characters), e.g. Seen 12 Nov, repeat HbA1c 7.2%, plan agreed, review in 3 months" style="margin-top:8px"></textarea>
+        <p style="margin-bottom:0"><button class="btn danger" id="close" ${isDoc ? '' : 'disabled'}>Close case</button></p></div>`}
+    ${extra.length ? `<div class="dsec"><h3>Recent activity</h3><ul class="tiny" style="padding-inline-start:18px;margin:0">${extra.map((x) => `<li>${fmtTs(x.at)} · ${esc(x.by)}: ${esc(x.type.replace(/_/g, ' '))}${x.note ? ' · ' + esc(x.note) : ''}</li>`).join('')}</ul></div>` : ''}`;
 
-  const run = (fn, okMsg) => { try { fn(); save(); flash = { text: okMsg }; } catch (e) { flash = { text: e instanceof RuleError ? e.message : 'Something went wrong.', err: true }; } render(); };
-  const v = (id) => ($(id) ? $(id).value : '');
-  $('#x').onclick = () => { sel = null; flash = null; render(); };
-  $('#fhir').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(caseToFhirBundle(c, state.staff), null, 2)], { type: 'application/fhir+json' })); a.download = `jissr-${c.id}-fhir.json`; a.click(); };
+  const run = (fn, ok) => { try { fn(); save(); flash = { text: ok }; } catch (er) { flash = { text: er instanceof RuleError ? er.message : 'Something went wrong.', err: true }; } render(); };
+  const v = (s) => ($(s) ? $(s).value : '');
   const next = nextStageOf(c);
+  $('#x').onclick = closeDrawer;
+  $('#fhir').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(caseToFhirBundle(c, state.staff), null, 2)], { type: 'application/fhir+json' })); a.download = `jissr-${c.id}-fhir.json`; a.click(); };
   $('#step') && ($('#step').onclick = () => run(() => advance(state, c.id, next, actor, v('#stepnote').trim() || undefined, undefined, { planKind: v('#kind') || undefined }), 'Recorded: ' + STAGE_LABEL[next]));
   $('#skip') && ($('#skip').onclick = () => run(() => skipStage(state, c.id, $('#skip').dataset.stage, actor, v('#stepnote') || v('#rwhy')), 'Marked not required'));
   $('#rsend') && ($('#rsend').onclick = () => run(() => sendReferral(state, c.id, actor, { to: v('#rto'), reason: v('#rwhy') }), 'Referral sent'));
   $('#racc') && ($('#racc').onclick = () => run(() => respondReferral(state, c.id, actor, { accept: true, note: v('#rnote') }), 'Accepted. You now own this case.'));
-  $('#rrej') && ($('#rrej').onclick = () => run(() => respondReferral(state, c.id, actor, { accept: false, note: v('#rnote') }), 'Rejected, the referrer has been told.'));
+  $('#rrej') && ($('#rrej').onclick = () => run(() => respondReferral(state, c.id, actor, { accept: false, note: v('#rnote') }), 'Rejected. The referrer has been told.'));
   $('#rdone') && ($('#rdone').onclick = () => run(() => completeReferral(state, c.id, actor, v('#rrep')), 'Report back recorded. Ownership returned to the referrer.'));
   $('#qask') && ($('#qask').onclick = () => run(() => requestConsult(state, c.id, actor, { to: v('#qto'), question: v('#qtext') }), 'Question sent. A reply is due in 2 days.'));
   document.querySelectorAll('[data-qans]').forEach((b) => b.onclick = () => run(() => answerConsult(state, c.id, b.dataset.qans, actor, $(`[data-qa="${b.dataset.qans}"]`).value), 'Answer sent'));
@@ -291,18 +351,73 @@ function renderDetail() {
   $('#dropbtn') && ($('#dropbtn').onclick = () => run(() => setDropReason(state, c.id, v('#drop'), actor), 'Drop-out reason saved'));
   $('#close') && ($('#close').onclick = () => run(() => closeCase(state, c.id, actor, { type: v('#ctype'), evidence: v('#cev') }), 'Case closed'));
 }
+function openCase(id) { sel = id; flash = null; render(); }
+function closeDrawer() { sel = null; flash = null; render(); }
 
-/* ---------- demo bar ---------- */
-const meSel = document.getElementById('me');
+/* ---------- a new result arrives ---------- */
+function openIntake() {
+  const m = me();
+  $('#mbox').innerHTML = `<div class="dhead"><h2 id="mtitle" style="margin:0">${ic('flask', 22)} New HbA1c result</h2><button class="iconbtn" id="mx" aria-label="Close">${ic('close', 18)}</button></div>
+    <p class="tiny muted">In real life this comes from the lab automatically. Here you can type one in. Synthetic data only.</p>
+    <label for="i-name">Patient name</label><input id="i-name" maxlength="60" placeholder="e.g. Mariam Al Suwaidi">
+    <div class="grid2"><div><label for="i-age">Age</label><input id="i-age" type="number" min="18" max="110" value="54"></div>
+      <div><label for="i-sex">Sex</label><select id="i-sex"><option value="F">F</option><option value="M">M</option></select></div></div>
+    <div class="grid2"><div><label for="i-nat">Nationality</label><input id="i-nat" placeholder="e.g. Emirati"></div>
+      <div><label for="i-lang">Language</label><select id="i-lang">${LANGUAGES.map((l) => `<option value="${l}">${l}</option>`).join('')}</select></div></div>
+    <label for="i-val">HbA1c (%)</label><input id="i-val" type="number" step="0.1" min="3" max="20" placeholder="e.g. 10.6">
+    <div class="rulebox" id="i-preview">Type a value to see what the rules will do.</div>
+    <div id="i-err"></div>
+    <p style="margin-bottom:0"><button class="btn" id="i-go" style="width:100%">${ic('send', 18)} Add result</button></p>
+    <p class="tiny muted" style="text-align:center;margin-bottom:0">Entered as ${esc(m.name)}</p>`;
+  $('#modal').classList.add('open');
+  setTimeout(() => $('#i-name').focus(), 50);
+  const preview = () => {
+    const k = classify($('#i-val').value);
+    $('#i-preview').innerHTML = k.band === 'invalid' ? 'Type a value between 3 and 20 to see what the rules will do.'
+      : !k.inProgramme ? '<b>Below 5.7%:</b> not an actionable result. No case will be opened.'
+      : `<b>${URG_LABEL[k.urgency]}</b> (${k.label}) · due within <b>${k.dueDays} day${k.dueDays === 1 ? '' : 's'}</b> · owner: the least busy <b>${k.band === 'urgent' ? 'nurse' : 'coordinator'}</b>. Set by fixed rules, not AI.`;
+  };
+  $('#i-val').oninput = preview;
+  $('#mx').onclick = closeIntake;
+  $('#i-go').onclick = () => {
+    try {
+      const c = createCase(state, me(), { name: $('#i-name').value, age: +$('#i-age').value, sex: $('#i-sex').value, nationality: $('#i-nat').value, language: $('#i-lang').value, value: $('#i-val').value, today: state.today });
+      save(); closeIntake(); filter = 'open';
+      toast(`${c.id} added · ${URG_LABEL[c.urgency]} · owner ${staffOf(c.owner)?.name || 'unassigned'} · due ${fmt(c.due)}`);
+      flash = { text: 'New case created by the rules. Open it as the patient to see what they receive.' };
+      sel = c.id; render(); flash = { text: 'New case created by the rules. Open it as the patient to see what they receive.' };
+    } catch (er) { $('#i-err').innerHTML = `<div class="err-msg">${esc(er instanceof RuleError ? er.message : 'Something went wrong.')}</div>`; }
+  };
+}
+function closeIntake() { $('#modal').classList.remove('open'); }
+
+/* ---------- render + events ---------- */
+function render() { renderTop(); renderList(); renderDrawer(); }
+document.addEventListener('click', (e) => {
+  const o = e.target.closest('[data-open]'); if (o) { openCase(o.dataset.open); return; }
+  const f = e.target.closest('[data-filter]'); if (f) { filter = f.dataset.filter; render(); document.querySelector('.listhead').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { if ($('#modal').classList.contains('open')) closeIntake(); else if (sel) closeDrawer(); }
+  if (e.key === 'Enter' && e.target.matches('tr[data-open]')) openCase(e.target.dataset.open);
+});
+$('#scrim').onclick = closeDrawer;
+$('#modal').onclick = (e) => { if (e.target.id === 'modal') closeIntake(); };
+$('#brand').innerHTML = wordmark() + '<span class="sub">Care team</span>';
+$('#art').innerHTML = skyline({ width: 230, opacity: 0.22, sun: true });
+$('#new-result').innerHTML = ic('flask', 18) + ' New result';
+$('#new-result').onclick = openIntake;
+const meSel = $('#me');
 meSel.innerHTML = state.staff.map((s) => `<option value="${s.id}">${esc(s.name)} · ${s.role} · ${esc(s.org)}</option>`).join('');
-meSel.value = 'n1';
+meSel.value = state.staff.some((s) => s.id === params.get('as')) ? params.get('as') : 'n1';
 meSel.onchange = () => { flash = null; render(); };
-$('#reset').onclick = () => { state = resetState(); flash = null; render(); };
-$('#q').oninput = (e) => { query = e.target.value; render(); };
-// the patient page may change things in another tab: refresh when it does
+$('#reset').onclick = () => { state = resetState(); flash = null; sel = null; render(); toast('Demo data reset'); };
+$('#q').oninput = (e) => { query = e.target.value; renderList(); };
 addEventListener('storage', () => { state = loadState(); render(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { state = loadState(); render(); } });
 render();
+if (params.has('new')) openIntake();
+startTour();
 </script>
 </body>
 </html>

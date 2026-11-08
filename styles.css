@@ -101,7 +101,7 @@ textarea{min-height:84px}
 .hero{padding:38px 0 14px}
 .hero h1{font-size:2.4rem;max-width:15ch;line-height:1.15}
 .hero .lead{font-size:1.05em;color:var(--muted);max-width:58ch}
-.arch-band{background:linear-gradient(135deg,#2c5294,#1a3463);color:#fff;border-radius:24px;padding:26px 24px;margin:18px 0;position:relative;overflow:hidden}
+.arch-band{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 120' fill='none' stroke='white' stroke-opacity='.2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M196 104V44h14v60M200 52h6M200 62h6M200 72h6M200 82h6'/%3E%0A    %3Cpath d='M216 104V26c0-6 10-6 10 0v78M221 14v8'/%3E%0A    %3Cpath d='M232 104V58q9-12 18 0v46'/%3E%0A    %3Cpath d='M256 104V36h12v68M256 48h12M256 60h12'/%3E%0A    %3Cpath d='M274 104V64c0-8 14-8 14 0v40'/%3E%0A    %3Cpath d='M294 104V50l10-8 10 8v54'/%3E%0A    %3Cpath d='M320 104V70h16v34'/%3E%0A    %3Cpath d='M6 104h184'/%3E%0A    %3Cpath d='M12 104c14-30 34-30 48 0M56 104c18-40 44-40 62 0M114 104c14-30 34-30 48 0'/%3E%0A    %3Cpath d='M34 104V92M87 104V86M138 104V92'/%3E%0A    %3Cpath d='M0 112c40-6 80-6 120 0s80 6 120 0 80-6 120 0' stroke-opacity='.55'/%3E%3C/svg%3E") right -20px bottom -14px/300px auto no-repeat,linear-gradient(135deg,#2c5294,#1a3463);color:#fff;border-radius:24px;padding:26px 24px;margin:18px 0;position:relative;overflow:hidden}
 .arch-band:after{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.08);top:-90px;inset-inline-end:-60px}
 .arch-band h2,.arch-band h3{color:#fff}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
@@ -140,3 +140,6 @@ textarea{min-height:84px}
 }
 .foot{margin-top:30px;color:var(--muted);font-size:13px;text-align:center}
 .tbl .chip{border-radius:10px}
+
+/* pastel tiles, shared by every page */
+.b-blue{background:var(--p-blue);color:#1d3a6b}.b-sand{background:#f1e6d2;color:#9a6a1c}.b-yellow{background:var(--p-yellow);color:#c58a10}.b-pink{background:var(--p-pink);color:#d4527a}.b-lilac{background:var(--p-lilac);color:#7a5cd6}.b-mint{background:var(--p-mint);color:#22895e}

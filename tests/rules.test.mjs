@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { classify, dueDate, isOverdue, statusOf, slotsFor, safeText, withDisclaimer, addDays, escalationsFor, maxLevel, slaDeadline, STAGES } from '../core/rules.mjs';
 import {
   advance, skipStage, closeCase, newCase, RuleError, setBarrier, requestNurse, assignOwner,
-  sendReferral, respondReferral, completeReferral, requestConsult, answerConsult, recordConfidence, setChannel,
+  sendReferral, respondReferral, completeReferral, requestConsult, answerConsult, recordConfidence, setChannel, createCase,
 } from '../core/cases.mjs';
 import { buildState, STAFF } from '../core/data.mjs';
 import { explanation } from '../core/templates.mjs';
@@ -329,4 +329,31 @@ test('FHIR export: standard resources, correct codes, owner, referral, closure, 
   for (const e of b.entry) assert.equal(e.resource.meta.tag[0].code, 'SYNTHETIC');
   const withAi = { ...chen, aiText: { text: 'AI WORDING SHOULD NOT LEAK', source: 'ai' } };
   assert.ok(!JSON.stringify(caseToFhirBundle(withAi, st.staff)).includes('AI WORDING'));
+});
+
+test('a new result: rules set urgency, due date and the least busy owner; non-actionable and bad input are refused', () => {
+  const st = buildState(TODAY);
+  const lab = { type: 'staff', role: 'coordinator', name: 'Coord C', id: 'c1' };
+  const base = { name: 'Test Patient', age: 50, sex: 'F', nationality: 'Emirati', language: 'ar', today: TODAY };
+  const before = st.cases.length;
+  const u = createCase(st, lab, { ...base, value: 11.4 });
+  assert.equal(st.cases.length, before + 1);
+  assert.equal(u.id, 'C-031');
+  assert.equal(u.band, 'urgent');
+  assert.equal(u.due, addDays(TODAY, 2));
+  assert.equal(st.staff.find((s) => s.id === u.owner).role, 'nurse');
+  const openFor = (sid) => st.cases.filter((c) => c.owner === sid && c.stage !== 'closed').length;
+  const nurses = st.staff.filter((s) => s.role === 'nurse' && s.id !== u.owner);
+  assert.ok(nurses.every((n) => openFor(n.id) >= openFor(u.owner) - 1), 'picked the least busy nurse');
+  const r = createCase(st, lab, { ...base, value: 6.0 });
+  assert.equal(r.band, 'prediabetes');
+  assert.equal(st.staff.find((s) => s.id === r.owner).role, 'coordinator');
+  assert.equal(r.stage, 'result');
+  assert.throws(() => createCase(st, lab, { ...base, value: 5.4 }), codeOf('not_actionable'));
+  assert.throws(() => createCase(st, lab, { ...base, value: 'abc' }), codeOf('bad_value'));
+  assert.throws(() => createCase(st, lab, { ...base, value: 8, age: 7 }), codeOf('bad_age'));
+  assert.throws(() => createCase(st, lab, { ...base, value: 8, name: '' }), codeOf('bad_name'));
+  assert.throws(() => createCase(st, { type: 'patient', name: 'P' }, { ...base, value: 8 }), codeOf('not_allowed'));
+  assert.throws(() => createCase(st, ai, { ...base, value: 8 }), codeOf('ai_not_allowed'));
+  assert.equal(st.cases.length, before + 2);
 });

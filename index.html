@@ -29,14 +29,16 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
 <div class="wrap">
   <div class="top"><div class="brand" id="brand"></div></div>
 
-  <div class="hero">
+  <div class="hero" style="position:relative">
     <div class="kicker">Closing the screening-to-care loop</div>
     <h1>No abnormal result left behind.</h1>
     <p class="lead">One programme: abnormal HbA1c from screening. Jissr helps the patient understand the result in plain English or Arabic, get past what is stopping them, and reach care. It gives the care team a list where every case has an owner, a due date and an honest status, and where a case can only be closed by a clinician with evidence.</p>
     <div class="row cta">
       <a class="btn" href="animation/index.html" id="b1"></a>
       <a class="btn ghost" href="patient.html" id="b2"></a>
+      <a class="btn accent" href="patient.html?p=C-001&fresh=1&tour=0" id="b3"></a>
     </div>
+    <div id="hero-art" style="position:absolute;inset-inline-end:-30px;top:40px;color:var(--brand);pointer-events:none"></div>
   </div>
 
   <div class="arch-band" aria-label="The journey of every case">
@@ -99,10 +101,13 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
 import { registerSW } from './core/pwa.mjs';
 registerSW();
 import { ic, wordmark } from './core/ui.mjs';
+import { skyline } from './core/art.mjs';
 document.getElementById('brand').innerHTML = wordmark();
 document.querySelectorAll('[data-ic]').forEach((el) => { el.innerHTML = ic(el.dataset.ic, +el.dataset.s || 22); el.style.cssText = 'display:block;color:var(--accent-d);margin-bottom:8px'; });
 document.getElementById('b1').innerHTML = ic('wave', 18) + ' Watch the story';
 document.getElementById('b2').innerHTML = ic('phone', 18) + ' Open the patient app';
+document.getElementById('b3').innerHTML = ic('next', 18) + ' Take the 3-minute guided tour';
+if (innerWidth > 1000) document.getElementById('hero-art').innerHTML = skyline({ width: 300, opacity: 0.35 });
 const steps = ['Result', 'Notified', 'Understood', 'Booked', 'Seen', 'Confirmed', 'Referred', 'Plan', 'Closed with evidence'];
 document.getElementById('flow').innerHTML = steps.map((s) => `<span>${s}</span>`).join('<i aria-hidden="true">›</i>');
 </script>

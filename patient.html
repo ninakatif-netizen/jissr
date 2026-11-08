@@ -20,6 +20,7 @@ body{font-size:16px}
 @keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .back{width:42px;height:42px;border-radius:14px;background:var(--card);box-shadow:var(--shadow);border:0;display:inline-flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;flex:none}
 [dir=rtl] .back .ico{transform:scaleX(-1)}
+[dir=rtl] .next{background-position:left -10px bottom -6px,0 0}
 .bar{display:flex;align-items:center;gap:12px;margin:4px 0 12px}
 .bar h1{margin:0;font-size:1.3rem;flex:1}
 .greet{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 6px}
@@ -40,12 +41,12 @@ body{font-size:16px}
 .trk.now .dot{background:var(--accent);color:#1e2a44;box-shadow:0 0 0 5px var(--accent-l)}
 .trk.now{color:var(--ink);font-weight:600}
 /* the blue "next step" card */
-.next{position:relative;overflow:hidden;background:linear-gradient(135deg,#2c5294,#1a3463);color:#fff;border-radius:24px;padding:22px 20px;margin:14px 0;box-shadow:0 14px 30px rgba(26,52,99,.28)}
+.next{position:relative;overflow:hidden;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 120' fill='none' stroke='white' stroke-opacity='.2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M196 104V44h14v60M200 52h6M200 62h6M200 72h6M200 82h6'/%3E%0A    %3Cpath d='M216 104V26c0-6 10-6 10 0v78M221 14v8'/%3E%0A    %3Cpath d='M232 104V58q9-12 18 0v46'/%3E%0A    %3Cpath d='M256 104V36h12v68M256 48h12M256 60h12'/%3E%0A    %3Cpath d='M274 104V64c0-8 14-8 14 0v40'/%3E%0A    %3Cpath d='M294 104V50l10-8 10 8v54'/%3E%0A    %3Cpath d='M320 104V70h16v34'/%3E%0A    %3Cpath d='M6 104h184'/%3E%0A    %3Cpath d='M12 104c14-30 34-30 48 0M56 104c18-40 44-40 62 0M114 104c14-30 34-30 48 0'/%3E%0A    %3Cpath d='M34 104V92M87 104V86M138 104V92'/%3E%0A    %3Cpath d='M0 112c40-6 80-6 120 0s80 6 120 0 80-6 120 0' stroke-opacity='.55'/%3E%3C/svg%3E") right -10px bottom -6px/240px auto no-repeat,linear-gradient(135deg,#2c5294,#1a3463);color:#fff;border-radius:24px;padding:22px 20px;margin:14px 0;box-shadow:0 14px 30px rgba(26,52,99,.28)}
 .next:before,.next:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.09);pointer-events:none}
 .next:before{width:210px;height:210px;top:-90px;inset-inline-end:-70px}
-.next:after{width:120px;height:120px;bottom:-60px;inset-inline-start:-30px}
+.next:after{display:none}
 .next>*{position:relative;z-index:1}
-.next.ok{background:linear-gradient(135deg,#2fa774,#1f7f57);box-shadow:0 14px 30px rgba(31,127,87,.25)}
+.next.ok{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 120' fill='none' stroke='white' stroke-opacity='.2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M196 104V44h14v60M200 52h6M200 62h6M200 72h6M200 82h6'/%3E%0A    %3Cpath d='M216 104V26c0-6 10-6 10 0v78M221 14v8'/%3E%0A    %3Cpath d='M232 104V58q9-12 18 0v46'/%3E%0A    %3Cpath d='M256 104V36h12v68M256 48h12M256 60h12'/%3E%0A    %3Cpath d='M274 104V64c0-8 14-8 14 0v40'/%3E%0A    %3Cpath d='M294 104V50l10-8 10 8v54'/%3E%0A    %3Cpath d='M320 104V70h16v34'/%3E%0A    %3Cpath d='M6 104h184'/%3E%0A    %3Cpath d='M12 104c14-30 34-30 48 0M56 104c18-40 44-40 62 0M114 104c14-30 34-30 48 0'/%3E%0A    %3Cpath d='M34 104V92M87 104V86M138 104V92'/%3E%0A    %3Cpath d='M0 112c40-6 80-6 120 0s80 6 120 0 80-6 120 0' stroke-opacity='.55'/%3E%3C/svg%3E") right -10px bottom -6px/240px auto no-repeat,linear-gradient(135deg,#2fa774,#1f7f57);box-shadow:0 14px 30px rgba(31,127,87,.25)}
 .next .badge{width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
 .next h2{font-size:1.3rem;margin:0 0 6px;color:#fff}
 .next p{margin:0 0 16px;opacity:.92;font-size:14.5px}
@@ -115,11 +116,24 @@ body{font-size:16px}
 .tab[aria-current=page]{color:var(--brand);font-weight:600}
 .tab[aria-current=page] .ico{background:var(--brand-l)}
 /* welcome screen */
-.splash{position:absolute;inset:0;z-index:50;background:linear-gradient(160deg,#2c5294,#1a3463);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;animation:splash .5s 1.2s ease forwards}
+.splash{position:absolute;inset:0;z-index:50;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 120' fill='none' stroke='white' stroke-opacity='.2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M196 104V44h14v60M200 52h6M200 62h6M200 72h6M200 82h6'/%3E%0A    %3Cpath d='M216 104V26c0-6 10-6 10 0v78M221 14v8'/%3E%0A    %3Cpath d='M232 104V58q9-12 18 0v46'/%3E%0A    %3Cpath d='M256 104V36h12v68M256 48h12M256 60h12'/%3E%0A    %3Cpath d='M274 104V64c0-8 14-8 14 0v40'/%3E%0A    %3Cpath d='M294 104V50l10-8 10 8v54'/%3E%0A    %3Cpath d='M320 104V70h16v34'/%3E%0A    %3Cpath d='M6 104h184'/%3E%0A    %3Cpath d='M12 104c14-30 34-30 48 0M56 104c18-40 44-40 62 0M114 104c14-30 34-30 48 0'/%3E%0A    %3Cpath d='M34 104V92M87 104V86M138 104V92'/%3E%0A    %3Cpath d='M0 112c40-6 80-6 120 0s80 6 120 0 80-6 120 0' stroke-opacity='.55'/%3E%3C/svg%3E") center bottom 40px/320px auto no-repeat,linear-gradient(160deg,#2c5294,#1a3463);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;animation:splash .5s 1.2s ease forwards}
 .splash .name{font-weight:700;font-size:2.2rem;margin-top:14px}
 .splash .name span{font-family:"Plex",sans-serif;font-weight:600;opacity:.85;margin-inline-start:10px}
 .splash p{opacity:.9;max-width:22ch;margin-top:8px}
 @keyframes splash{to{opacity:0;visibility:hidden}}
+/* identity check */
+.gate{text-align:center;padding-top:18px}
+.gico{width:76px;height:76px;border-radius:24px;background:var(--p-blue);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:8px auto 18px}
+.otp{display:flex;gap:10px;justify-content:center;margin:20px 0}
+.otp input{width:58px;height:66px;text-align:center;font-size:1.6rem;font-weight:700;border-radius:16px;padding:0;background:var(--card);box-shadow:var(--shadow);border:2px solid transparent}
+.otp input:focus{border-color:var(--brand)}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
+/* text size */
+.aa{border:0;background:var(--card);box-shadow:var(--shadow);border-radius:999px;font:inherit;font-weight:700;font-size:13px;min-width:40px;height:40px;cursor:pointer;color:var(--ink)}
+.aa[aria-pressed=true]{background:var(--brand);color:#fff}
+.topr{display:flex;gap:8px;align-items:center}
+html.big body{font-size:19px} html.big .trk,html.big .svc button,html.big .tab{font-size:14px} html.big .next p,html.big .tiny,html.big .legend{font-size:15.5px}
 /* ---------- app shell ---------- */
 html,body{height:100%}
 body{margin:0;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
@@ -167,10 +181,12 @@ import { advance, setBarrier, requestNurse, recordAiText, setChannel, recordConf
 import { explanation, barrierText, nurseText } from './core/templates.mjs';
 import { ic, wordmark, logo } from './core/ui.mjs';
 import { registerSW, isStandalone, isIOS, onInstallReady, canPrompt, promptInstall } from './core/pwa.mjs';
+import { startTour } from './core/tour.mjs';
 
 /* ---------- words on the screen (English / Arabic) ---------- */
 const S = {
   en: {
+    gateT: 'Is it you?', gateSub: 'To keep your result private, enter the 4-digit code from the text message we sent you.', gateBtn: 'Show my result', gateErr: 'That code is not right. Please try again.', gateHint: 'Demo code: 2026', gateHelp: 'No code? Ask at your clinic or call the number in your letter.', textSize: 'Bigger text',
     hello: (n) => `Hello ${n}`, hi: 'Hello,', journey: 'Your journey', stepOf: (n) => `Step ${n} of 5`, allDone: 'All done',
     quick: 'Quick help', tListen: 'Listen', tNurse: 'Nurse', tFamily: 'Family', tBook: 'Appointment',
     upcoming: 'Upcoming appointment', clinic: 'Jissr demo clinic', whatMeans: 'What this means',
@@ -220,6 +236,7 @@ const S = {
     seeStaff: 'See this case on the staff screen',
   },
   ar: {
+    gateT: 'هل هذا أنت؟', gateSub: 'لحماية خصوصية نتيجتك، أدخل الرمز المكوّن من 4 أرقام الموجود في الرسالة النصية التي أرسلناها لك.', gateBtn: 'اعرض نتيجتي', gateErr: 'الرمز غير صحيح. يرجى المحاولة مرة أخرى.', gateHint: 'رمز العرض التجريبي: 2026', gateHelp: 'لم يصلك رمز؟ اسأل في عيادتك أو اتصل بالرقم الموجود في رسالتك.', textSize: 'خط أكبر',
     hello: (n) => `مرحباً ${n}`, hi: 'مرحباً،', journey: 'رحلتك', stepOf: (n) => `الخطوة ${n} من 5`, allDone: 'اكتمل كل شيء',
     quick: 'مساعدة سريعة', tListen: 'استمع', tNurse: 'الممرضة', tFamily: 'العائلة', tBook: 'الموعد',
     upcoming: 'موعدك القادم', clinic: 'عيادة جسر التجريبية', whatMeans: 'ماذا يعني هذا',
@@ -276,7 +293,12 @@ const params = new URLSearchParams(location.search);
 let id = params.get('p') || 'C-001';
 const phoneLang = (navigator.language || 'en').toLowerCase().startsWith('ar') ? 'ar' : 'en';
 let lang = params.get('lang') || (() => { try { return localStorage.getItem('jissr.lang') || phoneLang; } catch { return phoneLang; } })();
-let view = 'home';       // home | result | book | nurse | family
+let view = ['home', 'result', 'book', 'nurse', 'family'].includes(params.get('view')) ? params.get('view') : 'home';
+const DEMO_CODE = '2026';   // demo only: a real service would send a one-time code by SMS
+let verified = (() => { try { return JSON.parse(sessionStorage.getItem('jissr.ok') || '{}'); } catch { return {}; } })();
+if (params.has('fresh')) { state = resetState(); verified = {}; try { sessionStorage.removeItem('jissr.ok'); } catch { } }
+let big = (() => { try { return localStorage.getItem('jissr.big') === '1'; } catch { return false; } })();
+document.documentElement.classList.toggle('big', big);
 let level = 'normal';
 let speaking = false;
 let msg = {};            // small, temporary screen state
@@ -325,10 +347,10 @@ function barrierNow(c) {
 const tickHtml = () => `<div class="tick" aria-hidden="true">${ic('check', 44)}</div>`;
 const initials = (n) => n.replace(/\((.*?)\)/g, '').split(/\s+/).filter((w) => !/^(Nurse|Dr)$/i.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
 const topBar = () => `<div class="top"><div class="brand">${wordmark()}</div>
-  <div class="seg" role="group" aria-label="Language">
+  <div class="topr"><button class="aa" id="aa" aria-pressed="${big}" aria-label="${T().textSize}" title="${T().textSize}">Aa</button><div class="seg" role="group" aria-label="Language">
     <button data-lang="en" aria-pressed="${lang === 'en'}">EN</button>
     <button data-lang="ar" aria-pressed="${lang === 'ar'}">عربي</button>
-  </div></div>`;
+  </div></div></div>`;
 const pageBar = (title) => `<div class="bar"><button class="back" data-go="home" aria-label="${T().back}">${ic('back', 20)}</button><h1>${title}</h1></div>`;
 const dparts = (day) => { const d = new Date(day + 'T00:00:00Z'), o = { timeZone: 'UTC' };
   return { num: d.toLocaleDateString(loc(), { ...o, day: 'numeric' }), wd: d.toLocaleDateString(loc(), { ...o, weekday: 'short' }), mon: d.toLocaleDateString(loc(), { ...o, month: 'short' }), month: d.toLocaleDateString(loc(), { ...o, month: 'long' }) }; };
@@ -416,6 +438,17 @@ function gaugeHtml(c) {
 }
 
 /* ---------- views ---------- */
+function gateView(c) {
+  const t = T();
+  return `${topBar()}<div class="view gate"><div class="gico">${ic('shield', 34)}</div>
+    <h1>${t.gateT}</h1><p class="muted">${t.gateSub}</p>
+    <div class="otp ${msg.gateErr ? 'shake' : ''}" dir="ltr">${[0, 1, 2, 3].map((i) => `<input class="d" data-i="${i}" inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Digit ${i + 1}">`).join('')}</div>
+    ${msg.gateErr ? `<div class="err-msg">${t.gateErr}</div>` : ''}
+    <button class="btn bigbtn" id="gate-go">${t.gateBtn}</button>
+    <p class="tiny muted" style="margin-top:14px"><span class="chip grey">${t.gateHint}</span></p>
+    <p class="tiny muted">${t.gateHelp}</p></div>`;
+}
+
 function installCard() {
   if (isStandalone()) return '';
   const t = T();
@@ -535,6 +568,12 @@ function render() {
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   document.title = 'Jissr · ' + (lang === 'ar' ? 'نتيجتك' : 'your result');
+  if (!verified[c.id]) {
+    document.getElementById('app').innerHTML = gateView(c);
+    document.getElementById('tabs').innerHTML = '';
+    wireGate(c);
+    return;
+  }
   const v = { home: homeView, result: resultView, book: bookView, nurse: nurseView, family: familyView }[view] || homeView;
   document.getElementById('app').innerHTML = v(c);
   // bottom tab bar (always visible, like a real phone app)
@@ -548,10 +587,29 @@ function render() {
 function act(fn) { try { fn(); save(); } catch (e) { alert(e.message); } render(); }
 const go = (v) => { view = v; msg = { ...msg, no: false }; stopSpeak(); render(); document.getElementById('screen').scrollTo({ top: 0 }); };
 
+function wireGate(c) {
+  const ds = [...document.querySelectorAll('.otp .d')];
+  const tryCode = () => {
+    const code = ds.map((d) => d.value).join('');
+    if (code === DEMO_CODE) { verified[c.id] = true; try { sessionStorage.setItem('jissr.ok', JSON.stringify(verified)); } catch { } msg.gateErr = false; ensureNotified(); render(); }
+    else { msg.gateErr = true; render(); }
+  };
+  ds.forEach((d, i) => {
+    d.oninput = () => { d.value = d.value.replace(/\D/g, '').slice(0, 1); if (d.value && ds[i + 1]) ds[i + 1].focus(); if (ds.every((x) => x.value)) tryCode(); };
+    d.onkeydown = (e) => { if (e.key === 'Backspace' && !d.value && ds[i - 1]) ds[i - 1].focus(); };
+  });
+  document.getElementById('gate-go').onclick = tryCode;
+  document.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => { lang = b.dataset.lang; try { localStorage.setItem('jissr.lang', lang); } catch { } render(); });
+  document.getElementById('aa').onclick = toggleBig;
+  setTimeout(() => ds[0] && ds[0].focus(), 60);
+}
+function toggleBig() { big = !big; try { localStorage.setItem('jissr.big', big ? '1' : '0'); } catch { } document.documentElement.classList.toggle('big', big); render(); }
+
 function wire(c) {
   const $ = (s) => document.querySelector(s);
   document.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => { lang = b.dataset.lang; try { localStorage.setItem('jissr.lang', lang); } catch { } stopSpeak(); render(); });
   document.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => go(b.dataset.go));
+  $('#aa') && ($('#aa').onclick = toggleBig);
   $('#me-btn') && ($('#me-btn').onclick = () => window.toggleDemo());
   $('#install-go') && ($('#install-go').onclick = async () => { await promptInstall(); render(); });
   $('#next-go') && ($('#next-go').onclick = () => { const a = $('#next-go').dataset.a; a === 'ics' ? downloadIcs() : go(a); });
@@ -602,8 +660,8 @@ function downloadIcs() {
 /* ---------- demo bar ---------- */
 const who = document.getElementById('who');
 who.innerHTML = state.cases.map((c) => `<option value="${c.id}">${esc(c.patient.name)} · ${c.value}%</option>`).join('');
-who.onchange = () => { demoBar.classList.remove('open'); id = who.value; level = 'normal'; msg = {}; view = 'home'; stopSpeak(); ensureNotified(); render(); };
-document.getElementById('reset').onclick = () => { state = resetState(); aiBox = {}; msg = {}; level = 'normal'; view = 'home'; ensureNotified(); render(); };
+who.onchange = () => { demoBar.classList.remove('open'); id = who.value; verified[id] = true; level = 'normal'; msg = {}; view = 'home'; stopSpeak(); ensureNotified(); render(); }; // the demo panel skips the code
+document.getElementById('reset').onclick = () => { state = resetState(); aiBox = {}; msg = {}; level = 'normal'; view = 'home'; if (verified[id]) ensureNotified(); render(); };
 if (!state.cases.some((c) => c.id === id)) id = state.cases[0].id;
 who.value = id;
 const demoBar = document.getElementById('demo');
@@ -611,8 +669,9 @@ window.toggleDemo = () => demoBar.classList.toggle('open');
 demoBar.addEventListener('click', (e) => { if (e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return; });
 registerSW();
 onInstallReady(() => { if (view === 'home') render(); });
-ensureNotified();
+if (verified[cur().id]) ensureNotified();
 render();
+startTour();
 
 /* ---------- a short welcome screen, once per visit ---------- */
 try {

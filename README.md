@@ -22,10 +22,17 @@ One programme: abnormal HbA1c from screening. **All data is synthetic. Not medic
 ## Install it like an app
 Open `patient.html` on a phone. Android (Chrome): menu, then "Install app". iPhone (Safari): Share, then "Add to Home Screen". It then opens full-screen and works offline (`sw.js`). **Bump `VERSION` in `sw.js` on every release.**
 
+## Demo tips
+- **Guided tour:** home page, "Take the 3-minute guided tour" (or open `patient.html?p=C-001&fresh=1&tour=0`).
+- **Patient identity check:** the demo code is **2026**. Tapping the patient's avatar opens the demo panel (switch patient, reset), which skips the code.
+- **New result:** on the care-team screen, "New result". The rules set urgency, due date and the least busy owner.
+- **Story video:** `media/jissr-story.mp4` (silent, subtitled). Live animation: `animation/`.
+
 ## Run and test
 ```
 npm test                      # 27 tests, no install needed
 npm run serve                 # then open http://localhost:8330/
+BASE=http://127.0.0.1:8330/ npm run test:e2e   # 24 browser checks (needs Playwright)
 ```
 Without an AI key everything still works using the pre-written messages.
 

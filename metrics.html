@@ -63,7 +63,9 @@
 
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
+import { startTour } from './core/tour.mjs';
 registerSW();
+startTour();
 import { wordmark } from './core/ui.mjs';
 import { loadState } from './core/store.mjs';
 import { STAGES, STAGE_LABEL, daysBetween, isOverdue, escalationsFor, slaDeadline } from './core/rules.mjs';
