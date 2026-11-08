@@ -213,6 +213,7 @@ const S = {
     band: { prediabetes: 'A little higher than usual', diabetes: 'Higher than usual', urgent: 'Much higher than usual' },
     notdx: 'This is not a diagnosis. Only a doctor can tell you what your result means.',
     listen: 'Listen', stop: 'Stop', simpler: 'Say it more simply',
+    noVoice: 'This phone has no English voice installed, so it cannot read aloud. You can add one in your phone settings (Accessibility, then Spoken content), or ask a nurse to explain it by phone.', soundTip: 'No sound? Turn the volume up and check that the phone is not on silent.',
     ai: 'Written with AI help and checked by safety rules', tpl: 'Pre-written message',
     sense: 'Did this make sense?', yes: 'Yes, I understand', no: 'Not really',
     noHelp: 'That is okay. Here it is in simpler words. A nurse can also explain it to you.',
@@ -273,6 +274,7 @@ const S = {
     band: { prediabetes: 'أعلى قليلاً من المعتاد', diabetes: 'أعلى من المعتاد', urgent: 'أعلى بكثير من المعتاد' },
     notdx: 'هذا ليس تشخيصاً. الطبيب وحده يستطيع أن يخبرك بمعنى نتيجتك.',
     listen: 'استمع', stop: 'إيقاف', simpler: 'اشرحها ببساطة أكثر',
+    noVoice: 'لا يوجد صوت عربي مثبّت على هذا الهاتف، لذلك لا يمكنه القراءة بصوت عالٍ. يمكنك إضافته من إعدادات الهاتف (تسهيلات الاستخدام، ثم المحتوى المنطوق)، أو أن تطلب من ممرضة أن تشرح لك النتيجة بالهاتف.', soundTip: 'لا يوجد صوت؟ ارفع مستوى الصوت وتأكد أن الهاتف ليس على الوضع الصامت.',
     ai: 'كُتبت بمساعدة الذكاء الاصطناعي وتخضع لقواعد السلامة', tpl: 'رسالة مكتوبة مسبقاً',
     sense: 'هل كان الشرح واضحاً؟', yes: 'نعم، فهمت', no: 'ليس تماماً',
     noHelp: 'لا بأس. هذا شرح أبسط. ويمكن لممرضة أن تشرحها لك أيضاً.',
@@ -526,6 +528,8 @@ function resultView(c) {
         ${'speechSynthesis' in window ? `<button class="btn ghost small" id="listen">${speaking ? ic('stop', 16) + ' ' + t.stop : ic('speaker', 16) + ' ' + t.listen}</button>` : ''}
         ${level === 'normal' ? `<button class="btn ghost small" id="simpler">${t.simpler}</button>` : ''}
       </div>
+      ${msg.noVoice ? `<div class="err-msg" style="font-weight:500">${t.noVoice}</div>` : ''}
+      ${msg.soundTip && !msg.noVoice ? `<div class="tiny muted" style="margin-top:6px">${t.soundTip}</div>` : ''}
       <div class="tag">${ex.source === 'ai' ? t.ai : t.tpl}</div>
     </section>
     <section class="card center"><h2>${t.sense}</h2>
@@ -664,14 +668,33 @@ function wire(c) {
 }
 
 /* ---------- read aloud (your browser's built-in voice) ---------- */
+// Voices load late in some browsers: ask for them early and keep the list up to date.
+let voices = [];
+const loadVoices = () => { try { voices = speechSynthesis.getVoices() || []; } catch { voices = []; } };
+if ('speechSynthesis' in window) { loadVoices(); try { speechSynthesis.addEventListener('voiceschanged', loadVoices); } catch { } }
+function pickVoice(code) {
+  const ok = voices.filter((v) => (v.lang || '').toLowerCase().replace('_', '-').startsWith(code));
+  return ok.find((v) => v.localService) || ok[0] || null;
+}
+// Must run straight from the tap (no waiting), or iPhones stay silent.
 function speak(text) {
+  msg.noVoice = false;
   try {
-    speechSynthesis.cancel();
+    loadVoices();
+    const code = lang === 'ar' ? 'ar' : 'en';
+    const voice = pickVoice(code);
+    if (voices.length && !voice) { msg.noVoice = true; speaking = false; return; }
+    if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang === 'ar' ? 'ar-SA' : 'en-GB'; u.rate = 0.9;
-    u.onend = u.onerror = () => { speaking = false; render(); };
-    speaking = true; speechSynthesis.speak(u);
-  } catch { speaking = false; }
+    if (voice) u.voice = voice;
+    u.lang = voice ? voice.lang : (code === 'ar' ? 'ar-SA' : 'en-GB');
+    u.rate = 0.9;
+    u.onend = () => { speaking = false; render(); };
+    u.onerror = (e) => { speaking = false; if (e && e.error && !['interrupted', 'canceled'].includes(e.error)) msg.soundTip = true; render(); };
+    speaking = true; msg.soundTip = true;
+    speechSynthesis.speak(u);
+    if (speechSynthesis.paused) speechSynthesis.resume();
+  } catch { speaking = false; msg.soundTip = true; }
 }
 function stopSpeak() { try { speechSynthesis.cancel(); } catch { } speaking = false; }
 
