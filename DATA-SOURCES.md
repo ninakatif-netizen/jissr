@@ -25,9 +25,8 @@ No organiser data, no real patient data, no scraped data, and no third-party dat
 | What | Source | Rights / licence |
 |---|---|---|
 | Font: Readex Pro (Arabic and Latin) | Thomas Jockin and Nadine Chahine. Obtained through the Fontsource package and bundled in `/fonts`. | SIL Open Font License 1.1 (licence files included in `/fonts`). |
-| Font: Playfair Display (Latin headings) | Claus Eggers Sørensen and the Playfair Display Project Authors. Obtained through the Fontsource package and bundled in `/fonts`. | SIL Open Font License 1.1 (licence file included in `/fonts`). |
 | Logo, icons, Abu Dhabi skyline illustration, animation, video (`media/jissr-story.mp4`) | **Drawn by the team in code.** The bridge drawing is an original illustration *inspired by* the Sheikh Zayed Bridge (architect: Zaha Hadid); no photo, plan or image of the bridge is used. | Our own work. |
-| Visual inspiration | A public Figma community file, a public video, and a concept board the team generated, viewed for style ideas only (ivory and gold palette, progress ring, care-plan list). | **No assets, images, photos or layouts were copied.** |
+| Visual inspiration | A public Figma community file, a public video, and a concept board the team generated, viewed for style ideas only (progress ring, care-plan list). A design review against Anthropic's public frontend-design guidance (github.com/anthropics/skills) led to the v4 look: one typeface for both scripts, fewer boxes, no template chrome. | **No assets, images, photos or layouts were copied.** |
 
 ## 3. Software
 

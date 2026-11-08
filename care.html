@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Jissr · care team</title>
 <meta name="description" content="Jissr care team app: today's tasks, cases, alerts and protocols, on a phone. Synthetic demo.">
-<meta name="theme-color" content="#f5eee3">
+<meta name="theme-color" content="#ebe4d6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Jissr">
@@ -60,7 +60,7 @@
 .tl li{display:flex;gap:10px;padding:6px 0;font-size:13.5px}
 .tl li i{width:14px;height:14px;border-radius:50%;border:2px solid #c9b99c;flex:none;margin-top:3px}
 .tl li.done i{background:#2f8a5b;border-color:#2f8a5b}
-.tl li.next i{border-color:#b8894d;box-shadow:0 0 0 3px #f4e7d2}
+.tl li.next i{border-color:#c4954a;box-shadow:0 0 0 3px #efe1c6}
 .tl li.todo{color:var(--muted)}
 .tl small{display:block;color:var(--muted);font-size:12px}
 .rules2{font-size:12.5px;color:var(--muted);padding-inline-start:18px;margin:8px 0 0}
@@ -68,21 +68,34 @@
 .me-card{display:flex;gap:12px;align-items:center}
 .linkrow{display:flex;align-items:center;gap:12px;width:100%;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:0 0 8px;text-decoration:none;cursor:pointer;text-align:start}
 .linkrow span{flex:1}
+.rows{border-top:1px solid var(--line);margin:0 -2px}
+.citem,.alert,.sopq,.linkrow{background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;margin:0!important;padding:14px 2px!important;box-shadow:none}
+.citem .ci{display:flex;flex-direction:column;gap:2px}
+.ci .act{display:block;color:var(--muted);margin:0 0 4px}
+.trk{display:flex;align-items:center;gap:10px}
+.trk .mini{flex:none}
+.when{font-size:12.5px;font-weight:600;color:var(--muted)}
+.when.breached{color:#a3311f}.when.warning{color:#8a5a0e}.when.on_track{color:#1f6b45}
+.navy .when.breached{color:#ffb4a6}.navy .when.warning{color:#f1cd8a}.navy .when.on_track{color:#a9dcbc}
+.hbr{display:flex;align-items:center;gap:10px;margin:2px 0 6px;font-size:13.5px;font-weight:500}
+.navy .mini path:first-child{stroke:#5d6d8c}.navy .mini path:nth-child(2){stroke:#c9d2e3}
+.more{display:block;width:100%;background:none;border:0;font:inherit;font-weight:600;color:var(--ink);padding:14px 0;text-align:start;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+.alert.l3 .gtile{background:#fbe1dc;color:#a3311f}
 </style>
 </head>
 <body>
-<div class="demo" style="justify-content:space-between;padding:8px 16px;font-size:13px"><span>Demo · synthetic data only · the role is not a real login</span><span><a href="staff.html">Desktop dashboard</a> · <a href="index.html">About</a></span></div>
+<div class="demo" style="justify-content:space-between;padding:8px 16px;font-size:13px"><span>Demo with synthetic data. Choosing a role is not a login.</span><span><a href="staff.html">Desktop dashboard</a>&nbsp;&nbsp;<a href="index.html">About</a></span></div>
 <div class="device">
   <div class="screen" id="screen"><div class="wrap" id="app" aria-live="polite"></div></div>
   <nav class="tabs" id="tabs" aria-label="Main"></nav>
 </div>
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
-import { ic, logo, slaBadge, phaseChip } from './core/ui.mjs';
+import { ic, logo, slaBadge, phaseChip, miniBridge } from './core/ui.mjs';
 import { loadState, saveState, resetState } from './core/store.mjs';
 import { roleView, roleFilter, CARE_ROLES } from './core/roles.mjs';
 import { progOf, stageLabel, resultText, targetsFor } from './core/programmes.mjs';
-import { STAGES, escalationsFor, maxLevel, cloePhase, slaClock, sopsFor, SOPS } from './core/rules.mjs';
+import { STAGES, escalationsFor, maxLevel, cloePhase, slaClock, sopsFor, SOPS, slaText, journeyStep, CLOE_LABEL } from './core/rules.mjs';
 import {
   advance, skipStage, closeCase, sendReferral, respondReferral, completeReferral, runSop, completeMicroConsult, logContact,
   canRecord, nextStageOf, CLOSE_TYPES, PLAN_KINDS, CLOSURE_RULES, validateClosure, MIN_EVIDENCE, RuleError,
@@ -104,10 +117,12 @@ const me = () => { const s = staffOf(RV.as); return { type: 'staff', id: s.id, r
 const initials = (n) => n.replace(/\((.*?)\)/g, '').split(/\s+/).filter((w) => !/^(Nurse|Dr)$/i.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
 const fmt = (d) => d ? new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }) : '–';
 const fmtTs = (iso) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const dueDay = (k) => 'by the end of ' + fmt(new Date(Date.parse(k.deadline) - 1).toISOString().slice(0, 10));
 const nowMs = () => Date.parse(state.today + 'T' + new Date().toISOString().slice(11));
 const clockOf = (c) => slaClock(c, nowMs());
 const open = () => state.cases.filter((c) => c.stage !== 'closed');
 const escOf = (c) => escalationsFor(c, state.today);
+const LANG = { ar: 'Arabic', en: 'English', ur: 'Urdu', hi: 'Hindi', tl: 'Tagalog', bn: 'Bengali', ml: 'Malayalam' };
 const TIER_RANK = { BREACHED: 0, WARNING: 1, ON_TRACK: 2 };
 const byUrgency = (a, b) => (TIER_RANK[clockOf(a)?.tier] ?? 3) - (TIER_RANK[clockOf(b)?.tier] ?? 3) || maxLevel(escOf(b)) - maxLevel(escOf(a));
 
@@ -135,11 +150,11 @@ function myCases() {
 }
 const caseItem = (c) => {
   const k = clockOf(c);
-  return `<button class="citem" data-case="${c.id}"><span class="pav ${c.urgency === 'urgent' ? 'urgent' : ''}">${esc(initials(c.patient.name))}</span>
-    <span class="ci"><span class="nm"><b>${esc(c.patient.name)}</b><span class="res">${resultText(c)}</span></span>
-    <div class="act">${esc(nextText(c))}</div>
-    <span class="chips2"><span class="prog">${progOf(c).test}</span>${phaseChip(cloePhase(c))}${k ? slaBadge(k) : ''}</span></span></button>`;
+  return `<button class="citem" data-case="${c.id}"><span class="ci"><span class="nm"><b>${esc(c.patient.name)}</b><span class="res">${resultText(c)}</span></span>
+    <span class="act">${esc(nextText(c))}</span>
+    <span class="trk">${miniBridge(journeyStep(c), stageLabel(c, c.stage))}<span class="when ${k ? k.tier.toLowerCase() : ''}">${k ? slaText(k) : 'No deadline running'}</span></span></span></button>`;
 };
+const rows = (html, empty) => html ? `<div class="rows">${html}</div>` : `<div class="empty2">${empty}</div>`;
 
 /* ---------- tabs ---------- */
 function topBar() {
@@ -160,8 +175,8 @@ function todayView() {
       <button class="stat3 amber" data-tab="cases" data-f="WARNING"><b>${t.WARNING}</b><span>Due soon</span></button>
     </div>
     <p class="sec">${title}</p>
-    ${list.slice(0, 12).map(caseItem).join('') || `<div class="empty2">${ic('check', 28)}<p>Nothing waiting for you. Good.</p></div>`}
-    ${list.length > 12 ? `<button class="linkrow" data-tab="cases"><span>See all ${list.length}</span>${ic('next', 18)}</button>` : ''}
+    ${rows(list.slice(0, 12).map(caseItem).join(''), 'Nothing is waiting for you.')}
+    ${list.length > 12 ? `<button class="more" data-tab="cases">See all ${list.length} cases</button>` : ''}
   </div>`;
 }
 function casesView() {
@@ -175,7 +190,7 @@ function casesView() {
   return `${topBar()}<div class="view"><h1 class="hi" style="font-size:26px">Cases</h1>
     <input class="search" id="q" type="search" placeholder="Search name or case number" value="${esc(query)}" aria-label="Search">
     <div class="fchips">${sopFilter ? `<button data-cf="all" aria-pressed="true">Protocol: ${SOPS[sopFilter].label} ×</button>` : F.map(([id, l]) => `<button data-cf="${id}" aria-pressed="${cfilter === id}">${l}</button>`).join('')}</div>
-    ${list.map(caseItem).join('') || '<div class="empty2">No cases here.</div>'}</div>`;
+    ${rows(list.map(caseItem).join(''), 'No case matches. Clear the search or pick another filter.')}</div>`;
 }
 function alertsView() {
   const al = open().flatMap((c) => escOf(c).map((e) => ({ c, e }))).sort((x, y) => y.e.level - x.e.level);
@@ -183,20 +198,21 @@ function alertsView() {
   return `${topBar()}<div class="view"><h1 class="hi" style="font-size:26px">Alerts</h1>
     <p class="sub2">Raised by fixed rules, never by the AI.</p>
     <p class="sec">Protocols to run</p>
-    ${Object.entries(SOPS).map(([code, sp]) => `<button class="sopq" data-sop-list="${code}"><span><span style="font-weight:600">${sp.label}</span><small>${sp.when}</small></span><b>${sopN(code)}</b></button>`).join('')}
+    <div class="rows">${Object.entries(SOPS).map(([code, sp]) => `<button class="sopq" data-sop-list="${code}"><span><span style="font-weight:600">${sp.label}</span><small>${sp.when}</small></span><b>${sopN(code)}</b></button>`).join('')}</div>
     <p class="sec">Alerts (${al.length})</p>
-    ${al.slice(0, 25).map(({ c, e }) => `<button class="alert ${e.level >= 3 ? 'l3' : ''}" data-case="${c.id}"><span class="gtile">${ic(e.level >= 3 ? 'shield' : 'clock', 18)}</span><span class="ci"><b style="font-weight:600">${esc(c.patient.name)} · ${resultText(c)}</b><div class="act" style="margin:2px 0 0">${e.level >= 3 ? '<b>Clinical lead now:</b> ' : ''}${esc(e.text)}</div></span></button>`).join('')}
+    <div class="rows">${al.slice(0, 25).map(({ c, e }) => `<button class="alert ${e.level >= 3 ? 'l3' : ''}" data-case="${c.id}"><span class="gtile">${ic(e.level >= 3 ? 'shield' : 'clock', 18)}</span><span class="ci"><b style="font-weight:600">${esc(c.patient.name)} · ${resultText(c)}</b><span class="act" style="margin:2px 0 0">${e.level >= 3 ? '<b>Clinical lead now:</b> ' : ''}${esc(e.text)}</span></span></button>`).join('')}</div>
   </div>`;
 }
 function meView() {
   const a = me();
   return `${topBar()}<div class="view"><h1 class="hi" style="font-size:26px">Me</h1>
-    <div class="card2 navy me-card"><span class="gtile">${ic(RV.icon, 22)}</span><span><b style="font-size:16px">${esc(a.name)}</b><div class="tiny">${RV.title} · ${esc(a.org)}</div></span></div>
+    <div class="card2 navy me-card"><span class="gtile">${ic(RV.icon, 22)}</span><span><b style="font-size:16px">${esc(a.name)}</b><div class="tiny">${RV.title}, ${esc(a.org)}</div></span></div>
     <p class="sub2">${RV.part}</p>
+    <div class="rows">
     <a class="linkrow" href="app.html?care=1">${ic('users', 20)}<span>Switch role</span>${ic('next', 18)}</a>
     <a class="linkrow" href="app.html">${ic('home', 20)}<span>Back to the start screen</span>${ic('next', 18)}</a>
     <a class="linkrow" href="staff.html?view=${roleId}&as=${a.id}">${ic('chart', 20)}<span>Open the desktop dashboard</span>${ic('next', 18)}</a>
-    <button class="linkrow" id="reset">${ic('refresh', 20)}<span>Reset the demo data</span></button>
+    <button class="linkrow" id="reset">${ic('refresh', 20)}<span>Reset the demo data</span></button></div>
     <p class="note2" style="display:flex;gap:8px">${ic('shield', 18)}<span>The AI only words messages for patients. It cannot change, assign or close a case. Only a clinician can close a case, with written evidence.</span></p>
   </div>`;
 }
@@ -239,11 +255,11 @@ function caseView() {
   return `${topBar()}<div class="view">
     <div class="bar2"><button class="backbtn" id="back" aria-label="Back">${ic('back', 20)}</button><h1>${c.id}</h1></div>
     ${flash ? `<div class="flash ${flash.err ? 'err' : 'ok'}">${esc(flash.text)}</div>` : ''}
-    <section class="phead navy"><h2>${esc(c.patient.name)}</h2><div class="meta">Age ${c.patient.age} · speaks ${esc(c.patient.language)} · ${progOf(c).name}</div>
+    <section class="phead navy"><h2>${esc(c.patient.name)}</h2><div class="meta">${c.patient.age} years old, speaks ${LANG[c.patient.language] || esc(c.patient.language)}.<br>${progOf(c).name}</div>
       <div class="big"><b>${resultText(c)}</b><span class="tiny">${({ urgent: 'Urgent', priority: 'Priority', routine: 'Routine' })[c.urgency] || ''}</span></div>
-      <div class="row2">${phaseChip(cloePhase(c))}${slaBadge(k)}</div>
-      ${k ? `<div class="own">${k.stepText}, by ${fmtTs(k.deadline)}</div>` : ''}
-      <div class="own">Owner: <b style="color:#fff">${o ? esc(o.name) : 'Unassigned'}</b>${o ? ` · ${esc(o.org)}` : ''}</div></section>
+      <div class="hbr">${miniBridge(journeyStep(c), stageLabel(c, c.stage))}<span>${CLOE_LABEL[cloePhase(c)]}</span></div>
+      ${k ? `<div class="own"><span class="when ${k.tier.toLowerCase()}">${slaText(k)}</span>: ${k.stepText.toLowerCase()}, ${dueDay(k)}</div>` : ''}
+      <div class="own">Owner: <b style="color:#fff">${o ? esc(o.name) : 'Unassigned'}</b>${o ? `, ${esc(o.org)}` : ''}</div></section>
     ${e.length ? `<div class="flash err"><b>Needs attention</b>${e.map((x) => `<div>${x.level >= 3 ? 'Clinical lead now: ' : ''}${esc(x.text)}</div>`).join('')}</div>` : ''}
     ${c.stage !== 'closed' ? actionsHtml(c) : `<div class="flash ok">Closed by ${esc(c.closed?.by || '')}: ${esc(CLOSE_TYPES[c.closed?.type] || '')}<br>${esc(c.closed?.evidence || '')}</div>`}
     ${c.stage !== 'closed' ? `<div class="card2 act-card"><h3>${ic('phone', 16)} Contact</h3><input id="contact" placeholder="Log a call or message"><button class="btn ghost" id="log">Log contact</button></div>` : ''}

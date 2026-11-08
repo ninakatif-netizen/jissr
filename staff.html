@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f5eee3">
+<meta name="theme-color" content="#ebe4d6">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -45,7 +45,7 @@ body{font-size:15px}
 .qbtn b{font-size:18px}.qbtn small{display:block;color:var(--muted);font-size:12px}
 .qbtn .sla{font-size:13px}
 .sopbox{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--bg)}
-.sopbox.on{border-color:#b8894d;background:#fbf3e6}
+.sopbox.on{border-color:#c4954a;background:#fbf3e6}
 .sopbox ol{margin:6px 0 8px;padding-inline-start:18px;font-size:13px}
 .rules{font-size:12.5px;margin:10px 0 0;padding-inline-start:18px;color:var(--muted)}
 .rules li.bad{color:#a3311f;font-weight:500}
@@ -61,7 +61,7 @@ body{font-size:15px}
 .funnel h2 small{font-family:var(--text);font-weight:400;font-size:12.5px;color:var(--muted);margin-inline-start:auto}
 .frow{display:grid;grid-template-columns:190px 1fr 160px;gap:12px;align-items:center;padding:5px 0;font-size:14px}
 .fbar{height:22px;background:var(--card2);border-radius:8px;overflow:hidden}
-.fbar i{display:block;height:100%;background:linear-gradient(90deg,#d8bb8c,#b8894d);border-radius:8px}
+.fbar i{display:block;height:100%;background:linear-gradient(90deg,#d8bb8c,#c4954a);border-radius:8px}
 .frow.last .fbar i{background:#2f8a5b}
 .frow b{font-weight:600}.frow em{font-style:normal;color:var(--muted);font-size:12.5px;margin-inline-start:6px}
 .frow.drop em{color:#b4462b;font-weight:600}
@@ -226,7 +226,7 @@ function renderTop() {
   const mine = open().filter((c) => c.owner === m.id).sort((a, b) => maxLevel(escOf(b)) - maxLevel(escOf(a)) || (a.due || '').localeCompare(b.due || ''));
   $('#mytasks').innerHTML = `<h2>${ic('list', 18)} My tasks <span class="n">${mine.length}</span></h2>` +
     (mine.length ? mine.slice(0, 5).map((c) => { const [i, txt, cl] = nextAction(c); return `<button class="task" data-open="${c.id}"><span class="ic ${cl}">${ic(i, 20)}</span><span class="t"><b>${esc(c.patient.name)} · ${resultText(c)}</b><span>${txt}</span></span><span class="due">${dueChip(c)}</span></button>`; }).join('')
-      + (mine.length > 5 ? `<button class="task" data-filter="mine"><span class="t"><span>See all ${mine.length} →</span></span></button>` : '')
+      + (mine.length > 5 ? `<button class="task" data-filter="mine"><span class="t"><span>See all ${mine.length}</span></span></button>` : '')
       : `<div class="empty">Nothing owned by you right now. ${m.role === 'clinician' ? 'Clinicians mostly act on alerts and closing.' : ''}</div>`);
 
   const al = open().filter((c) => escOf(c).some((e) => e.level >= 3)).sort((a, b) => URG[b.urgency] - URG[a.urgency]);
@@ -384,7 +384,7 @@ function renderDrawer() {
     <div class="dsec">
       <div class="bigv"><b>${resultText(c)}</b><span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span><span class="tiny muted">urgency set by rules</span></div>
       <p class="tiny muted" style="margin:6px 0 0">${progOf(c).name}</p>
-      <p class="tiny" style="margin:8px 0 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center">${phaseChip(cloePhase(c))} ${slaBadge(clockOf(c))} ${clockOf(c) ? `<span class="muted">${clockOf(c).stepText}, by ${fmtTs(clockOf(c).deadline)}</span>` : ''}</p>
+      <p class="tiny" style="margin:8px 0 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center">${phaseChip(cloePhase(c))} ${slaBadge(clockOf(c))} ${clockOf(c) ? `<span class="muted">${clockOf(c).stepText}, by the end of ${fmt(new Date(Date.parse(clockOf(c).deadline) - 1).toISOString().slice(0, 10))}</span>` : ''}</p>
       <p class="tiny" style="margin:10px 0 0">Owner: <b>${ownerHtml(c.owner)}</b>${c.owner ? ` <span class="muted">(${esc(staffOf(c.owner)?.org || '')})</span>` : ''} · Due <b>${fmt(c.due)}</b> ${dueChip(c)}</p>
       <div class="row" style="margin-top:12px"><a class="btn ghost small" href="patient.html?p=${c.id}&nosplash=1" target="_blank" rel="noopener">${ic('phone', 16)} Open as this patient</a><button class="btn ghost small" id="fhir">${ic('file', 16)} FHIR export</button></div>
     </div>

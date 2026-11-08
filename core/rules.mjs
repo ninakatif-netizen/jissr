@@ -327,3 +327,15 @@ export function sopsFor(c, now = Date.now()) {
   if (c.refusal || c.declined) out.push('refusal');
   return out;
 }
+
+// Where the patient is on the five-step journey shown everywhere as a bridge (0..4), or 5 when everything is done.
+export function journeyStep(c) {
+  switch (c.stage) {
+    case 'closed': return 5;
+    case 'result': case 'notified': return 0;
+    case 'understood': return 1;
+    case 'booked': return 2;
+    case 'attended': case 'confirmed': case 'referred': return 3;
+    default: return 4; // care_plan
+  }
+}

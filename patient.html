@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f5eee3">
+<meta name="theme-color" content="#ebe4d6">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Jissr">
@@ -16,7 +16,6 @@
 <style>
 body{font-size:16px}
 .wrap{max-width:540px;padding-bottom:120px}
-.view{animation:in .3s ease}
 @keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .back{width:42px;height:42px;border-radius:14px;background:var(--card);box-shadow:var(--shadow);border:0;display:inline-flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;flex:none}
 [dir=rtl] .back .ico{transform:scaleX(-1)}
@@ -166,7 +165,7 @@ button:active:not([disabled]){transform:scale(.97)}
 /* ---------- v2: the bridge ---------- */
 .langs{display:flex;gap:2px}
 .langs button{border:0;background:transparent;font:inherit;font-size:14px;color:var(--muted);padding:10px 8px;min-height:44px;cursor:pointer}
-.langs button[aria-pressed=true]{color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-color:#b8894d;text-decoration-thickness:2px;text-underline-offset:6px}
+.langs button[aria-pressed=true]{color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-color:#c4954a;text-decoration-thickness:2px;text-underline-offset:6px}
 .aa{background:transparent;box-shadow:none;font-size:15px;color:var(--ink)}
 .aa[aria-pressed=true]{background:var(--ink);color:#fff}
 .greet{align-items:flex-start;margin:4px 0 2px}
@@ -174,7 +173,7 @@ button:active:not([disabled]){transform:scale(.97)}
 html.big .hello{font-size:36px}
 .gsub{margin:4px 0 0;color:var(--muted);font-size:15px}
 .me{background:var(--card2);box-shadow:none;color:var(--ink);font-size:14px}
-.me:after{background:#b8894d}
+.me:after{background:#c4954a}
 .bridge{margin:12px 0 4px}
 .bridge svg{width:100%;height:auto;display:block}
 [dir=rtl] .bridge svg{transform:scaleX(-1)}
@@ -185,11 +184,11 @@ html.big .hello{font-size:36px}
 .next{background:#14284b!important;box-shadow:none;border-radius:22px;padding:22px 20px 20px}
 .next.ok{background:#1f6f4f!important}
 .next:before,.next:after{display:none}
-.nlbl{display:block;font-size:13px;color:#b8894d;font-weight:500;margin-bottom:6px}
+.nlbl{display:block;font-size:13px;color:#c4954a;font-weight:500;margin-bottom:6px}
 .next.ok .nlbl{color:#f6d79b}
 .next h2{font-size:23px;font-weight:500;line-height:1.2}
 .next p{color:#d3d9e6;opacity:1}
-.next .btn{background:#b8894d;color:#14284b}
+.next .btn{background:#c4954a;color:#14284b}
 .next.wait .btn{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6)}
 .next.ok .btn{background:#fff;color:#1f6f4f}
 .hlist{background:var(--card);border-radius:20px;display:flex;flex-direction:column;margin:14px 0}
@@ -219,7 +218,7 @@ html.big .hello{font-size:36px}
 .rnext h2{font-size:17px;font-weight:500;margin:10px 0 10px}
 .rstep{display:flex;gap:12px;align-items:flex-start;margin:0 0 10px;font-size:15px;color:#3e3830}
 .rstep i{width:12px;height:12px;border-radius:50%;border:2px solid #a8977a;flex:none;margin-top:5px}
-.rstep.on{color:var(--ink);font-weight:500}.rstep.on i{background:#b8894d;border-color:var(--ink)}
+.rstep.on{color:var(--ink);font-weight:500}.rstep.on i{background:#c4954a;border-color:var(--ink)}
 .rnotdx{display:flex;gap:10px;font-size:13.5px;line-height:1.5;border-top:1px solid var(--line);padding-top:14px;margin:6px 0 12px;color:#3e3830}
 .rnotdx .ico{color:var(--ink);flex:none}
 .rmore{background:var(--card);border-radius:18px;padding:12px 14px;margin:12px 0}
@@ -228,7 +227,7 @@ html.big .hello{font-size:36px}
 .tab .ico{padding:0;background:transparent!important}
 .tab[aria-current=page]{color:var(--ink)}
 .tab:after{content:"";width:18px;height:3px;border-radius:2px;margin-top:2px;background:transparent}
-.tab[aria-current=page]:after{background:#b8894d}
+.tab[aria-current=page]:after{background:#c4954a}
 .splash{background:#14284b}
 @media (min-width:700px){body{background:radial-gradient(circle at 30% 0%,#f1e7d4,#e2d4bb)}.device{border-color:#14284b}.device:before{background:#14284b}}
 
@@ -236,7 +235,7 @@ html.big .hello{font-size:36px}
 .hello,.rhero,.next h2,.ring .rnum b{font-family:var(--display);font-weight:600;letter-spacing:-.01em}
 [dir=rtl] .hello,[dir=rtl] .rhero,[dir=rtl] .next h2,[dir=rtl] .bar h1{font-family:var(--text);font-weight:500;letter-spacing:0}
 .bar h1{font-family:var(--display);font-weight:600}
-.gtile{width:46px;height:46px;border-radius:14px;background:#f4e7d2;color:#86602c;display:flex;align-items:center;justify-content:center;flex:none}
+.gtile{width:46px;height:46px;border-radius:14px;background:#efe1c6;color:#86602c;display:flex;align-items:center;justify-content:center;flex:none}
 .nhead{display:flex;gap:14px;align-items:center;margin-bottom:8px}
 .nhead .nlbl{margin-bottom:2px}
 .next .gtile{background:rgba(255,255,255,.1);color:#e3c38f}
@@ -259,11 +258,12 @@ html.big .hello{font-size:36px}
 .chk li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;line-height:1.3}
 .chk li i{width:18px;height:18px;border-radius:50%;border:2px solid #c9b99c;flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px}
 .chk li.done i{background:#2f8a5b;border-color:#2f8a5b;color:#fff}
-.chk li.now i{border-color:#b8894d;box-shadow:0 0 0 3px #f4e7d2}
+.chk li.now i{border-color:#c4954a;box-shadow:0 0 0 3px #efe1c6}
 .chk li.todo{color:var(--muted)}
 .chk b{font-weight:500;display:block}.chk small{color:var(--muted);font-size:12px}
-.plist{display:flex;flex-direction:column;gap:10px;margin:0 0 14px}
-.pitem{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;font:inherit;color:var(--ink);text-align:start;width:100%;cursor:pointer;min-height:68px}
+.plist{display:flex;flex-direction:column;margin:0 0 14px;background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.pitem{display:flex;align-items:center;gap:12px;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:12px 14px;font:inherit;color:var(--ink);text-align:start;width:100%;cursor:pointer;min-height:68px}
+.pitem:last-child{border-bottom:0}
 .pitem:disabled{cursor:default;opacity:1;color:var(--ink)}
 .pitem>.ico:last-child{color:#a8977a;flex:none}
 [dir=rtl] .pitem>.ico:last-child{transform:scaleX(-1)}
@@ -289,7 +289,7 @@ html.big .hello{font-size:36px}
 .rsum h2{font-size:16px;margin:0 0 8px}
 .rsum div{display:flex;flex-direction:column;padding:8px 0;border-top:1px solid var(--line)}
 .rsum div:first-of-type{border-top:0;padding-top:0}
-.rsum b{font-size:12.5px;color:#86602c;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.rsum b{font-size:13.5px;color:#86602c;font-weight:600}
 [dir=rtl] .rsum b{text-transform:none;letter-spacing:0}
 .rsum span{font-size:15px}
 .micro{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:12px 0}
@@ -326,6 +326,10 @@ html.big .hello{font-size:36px}
 .micro.navy .linkbtn{color:#fff}
 .micro.navy .pick{background:rgba(255,255,255,.1);color:#fff}.micro.navy .pick[aria-pressed=true]{background:#e3c38f;color:#14284b}
 .micro.navy.booked{background:#1f6f4f;color:#fff}
+.bridge .lit{stroke-dasharray:360;stroke-dashoffset:360;animation:lit 1.2s .25s cubic-bezier(.3,.7,.3,1) forwards}
+@keyframes lit{to{stroke-dashoffset:0}}
+.splashing .bridge .lit{animation-delay:1.6s}
+@media (prefers-reduced-motion:reduce){.bridge .lit{animation:none;stroke-dashoffset:0}}
 </style>
 </head>
 <body>
@@ -655,25 +659,26 @@ function journeyStep(c) {
   }
 }
 // The journey drawn as a bridge whose arches are inspired by the Sheikh Zayed Bridge (Zaha Hadid).
+let litOnce = false; // the bridge lights up once, the first time the home screen opens
 function trackerHtml(c) {
   const now = journeyStep(c), t = T();
   const X = [35, 105, 175, 245, 315];
   const prog = now >= 5 ? 346 : X[now];
   const nodes = X.map((x, i) => i < now
-    ? `<circle cx="${x}" cy="118" r="7.5" fill="#14284b"/><path d="M${x - 3.5} 118.5l2.4 2.4 4.6-4.8" stroke="#f5eee3" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`
-    : i === now ? `<circle cx="${x}" cy="118" r="16" fill="#b8894d" opacity=".25"/><circle cx="${x}" cy="118" r="8.5" fill="#b8894d" stroke="#14284b" stroke-width="2.5"/>`
-    : `<circle cx="${x}" cy="118" r="6" fill="#f5eee3" stroke="#14284b" stroke-width="2"/>`).join('');
+    ? `<circle cx="${x}" cy="118" r="7.5" fill="#14284b"/><path d="M${x - 3.5} 118.5l2.4 2.4 4.6-4.8" stroke="#ebe4d6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`
+    : i === now ? `<circle cx="${x}" cy="118" r="16" fill="#c4954a" opacity=".25"/><circle cx="${x}" cy="118" r="8.5" fill="#c4954a" stroke="#14284b" stroke-width="2.5"/>`
+    : `<circle cx="${x}" cy="118" r="6" fill="#ebe4d6" stroke="#14284b" stroke-width="2"/>`).join('');
   const steps = PS(c) ? PS(c).steps : t.steps;
   const where = now >= 5 ? t.allDone : t.stepOf(now + 1);
   return `<div class="bridge"><svg viewBox="0 0 350 138" role="img" aria-label="${t.journey}: ${where}">
-    <ellipse cx="200" cy="112" rx="95" ry="26" fill="#b8894d" opacity=".12"/>
+    <ellipse cx="200" cy="112" rx="95" ry="26" fill="#c4954a" opacity=".12"/>
     <path d="M2 132C40 128 70 136 110 131S190 127 230 132 310 136 348 130" fill="none" stroke="#c9b99c" stroke-width="1.4"/>
     <path d="M18 118C48 82 104 82 132 118M120 118C158 28 242 28 280 118M268 118C290 88 326 86 342 108" fill="none" stroke="#a8977a" stroke-width="1.6"/>
     <path d="M8 118C40 68 110 68 140 118M110 118C150 10 250 10 290 118M260 118C285 72 330 72 346 102" fill="none" stroke="#14284b" stroke-width="3.2" stroke-linecap="round"/>
     <path d="M150 118V66M175 118V48M200 118V40M225 118V48M250 118V66" stroke="#c9b99c" stroke-width="1"/>
     <path d="M4 118H346" stroke="#14284b" stroke-width="4" stroke-linecap="round"/>
-    <path d="M4 118H${prog}" stroke="#b8894d" stroke-width="4" stroke-linecap="round"/>
-    ${nodes}</svg>
+    <path class="${litOnce ? '' : 'lit'}" d="M4 118H${prog}" stroke="#c4954a" stroke-width="4" stroke-linecap="round"/>
+    ${nodes}</svg>${(litOnce = true) ? '' : ''}
     <div class="blabels">${steps.map((l, i) => `<span class="${i === now ? 'on' : ''}">${l}</span>`).join('')}</div>
     <div class="bmeta"><b>${where}</b><i>${t.inspired}</i></div></div>`;
 }
@@ -881,8 +886,8 @@ function microHtml(c, navy) {
 
 function ringHtml(n, total = 5) {
   const R = 46, C = 2 * Math.PI * R, f = Math.min(n, total) / total;
-  return `<svg viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="${R}" fill="none" stroke="#eadfcb" stroke-width="9"/>
-    ${f > 0 ? `<circle cx="56" cy="56" r="${R}" fill="none" stroke="#b8894d" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(C * f).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 56 56)"/>` : ''}</svg>`;
+  return `<svg viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="${R}" fill="none" stroke="#d9cfbd" stroke-width="9"/>
+    ${f > 0 ? `<circle cx="56" cy="56" r="${R}" fill="none" stroke="#c4954a" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(C * f).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 56 56)"/>` : ''}</svg>`;
 }
 const STEP_EVENTS = [['understood'], ['booked'], ['attended'], ['confirmed', 'referred', 'consult', 'skip'], ['care_plan', 'closed']];
 function stepDate(c, i) {
@@ -1133,6 +1138,7 @@ startTour();
 try {
   if (!sessionStorage.getItem('jissr.splash') && !params.has('nosplash')) {
     sessionStorage.setItem('jissr.splash', '1');
+    document.documentElement.classList.add('splashing'); // the bridge lights up after the welcome screen
     const sp = document.createElement('div');
     sp.className = 'splash'; sp.setAttribute('aria-hidden', 'true');
     sp.innerHTML = `${logo(64)}<div class="name">Jissr<span>جسر</span></div><p>${T().tag.replace('\n', '<br>')}</p>`;

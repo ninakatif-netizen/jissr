@@ -59,3 +59,16 @@ export function slaBadge(clock) {
   return `<span class="sla ${clock.tier.toLowerCase()}" title="${TIER_WORD[clock.tier]}: ${clock.stepText}">${ic('clock', 13)}<span>${slaText(clock)}</span></span>`;
 }
 export const phaseChip = (phase) => `<span class="phase ph-${phase.toLowerCase()}">${CLOE_LABEL[phase]}</span>`;
+
+// The mini bridge: the same five-step journey as the patient's home screen, small enough for a list row.
+// Done steps in night blue, the current one in gold (the bridge's light), the rest unlit.
+export function miniBridge(now, label = '') {
+  const X = [6, 34, 62, 90, 118], end = now >= 5 ? 118 : X[now];
+  const dots = X.map((x, i) => i < now || now >= 5 ? `<circle cx="${x}" cy="20" r="3.4" fill="#14284b"/>`
+    : i === now ? `<circle cx="${x}" cy="20" r="4.6" fill="#c4954a" stroke="#14284b" stroke-width="1.6"/>`
+    : `<circle cx="${x}" cy="20" r="3" fill="#ebe4d6" stroke="#a8977a" stroke-width="1.4"/>`).join('');
+  return `<svg class="mini" viewBox="0 0 124 26" width="124" height="26" role="img" aria-label="${label || 'Step ' + Math.min(now + 1, 5) + ' of 5'}">
+    <path d="M6 20C17 9 23 9 34 20M34 20C46 1 78 1 90 20M90 20C101 9 107 9 118 20" fill="none" stroke="#a8977a" stroke-width="1.3"/>
+    <path d="M6 20H118" stroke="#14284b" stroke-width="2" stroke-linecap="round"/>
+    ${end > 6 ? `<path d="M6 20H${end}" stroke="#c4954a" stroke-width="2.4" stroke-linecap="round"/>` : ''}${dots}</svg>`;
+}
