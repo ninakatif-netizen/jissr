@@ -96,6 +96,15 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await s.click('#close'); await s.waitForTimeout(150);
   ok(/Not closed/.test(await s.innerText('#drawer')) && await s.locator('.rules li.bad').count() >= 1, 'closing without evidence lists the closure rules that are broken');
   await shot(s, '08b-command-center');
+  // one case, many organisations: a page per role
+  await s.goto(BASE + 'roles.html'); await s.waitForTimeout(250);
+  ok(await s.locator('.role').count() === 7, 'the "who are you?" page offers patient, lab, nurse, family doctor, specialist, clinical lead and programme manager');
+  await shot(s, '08c-roles');
+  await s.click('[data-role=specialist]'); await s.waitForTimeout(400);
+  ok(/Hospital specialist/.test(await s.innerText('#rolebar')) && /Referral inbox/.test(await s.innerText('#listtitle')) && await s.locator('#tbl tr[data-open]').count() >= 1 && !(await s.isVisible('#funnel')), 'the hospital specialist opens on their referral inbox');
+  await s.goto(BASE + 'roles.html'); await s.click('[data-role=gp]'); await s.waitForTimeout(400);
+  ok(/Decisions for the family doctor/.test(await s.innerText('#listtitle')) && await s.locator('#tbl tr[data-open]').count() >= 1, 'the family doctor opens on the decisions waiting for them');
+  await s.goto(BASE + 'staff.html?as=n1&c=C-001'); await s.waitForTimeout(300);
   ok(/Care journey funnel/.test(await s.innerText('#funnel')) && /synthetic/.test(await s.innerText('#funnel')), 'the care team sees where patients drop out, labelled as demo data');
   ok(/Appointment booked/.test(await s.innerText('#drawer')), 'the care team sees the patient\'s booking');
   await s.goto(BASE + 'staff.html?as=c1&new=1'); await s.waitForTimeout(200);

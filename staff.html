@@ -50,6 +50,13 @@ body{font-size:15px}
 .rules{font-size:12.5px;margin:10px 0 0;padding-inline-start:18px;color:var(--muted)}
 .rules li.bad{color:#a3311f;font-weight:500}
 @media (max-width:800px){.cmd .grid{grid-template-columns:1fr}}
+.rolebar{display:flex;align-items:center;gap:12px;background:#14284b;color:#fff;border-radius:18px;padding:12px 16px;margin:14px 0 4px}
+.rolebar .tiny{color:#d3d9e6}
+.rolebar .rb-ic{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.1);color:#e3c38f;display:flex;align-items:center;justify-content:center;flex:none}
+.rolebar>span:nth-child(2){flex:1}
+.rolebar .btn{background:#fff;color:#14284b;flex:none}
+.hide-funnel #funnel,.hide-cmd #cmd,.hide-mytasks #mytasks,.hide-alerts #alerts,.hide-today .today,.hide-newresult #new-result{display:none!important}
+.hide-mytasks .today,.hide-alerts .today{grid-template-columns:1fr}
 .funnel{margin:12px 0 4px}
 .funnel h2 small{font-family:var(--text);font-weight:400;font-size:12.5px;color:var(--muted);margin-inline-start:auto}
 .frow{display:grid;grid-template-columns:190px 1fr 160px;gap:12px;align-items:center;padding:5px 0;font-size:14px}
@@ -108,6 +115,7 @@ body{font-size:15px}
   </span>
 </div>
 <div class="page">
+  <div class="rolebar" id="rolebar"></div>
   <div class="head"><div class="brand" id="brand"></div><button class="btn" id="new-result"></button></div>
   <div class="hello2">
     <div><h1 id="greet"></h1><div class="sub" id="today"></div></div>
@@ -135,6 +143,7 @@ body{font-size:15px}
 import { registerSW } from './core/pwa.mjs';
 import { wordmark, ic, slaBadge, phaseChip } from './core/ui.mjs';
 import { skyline } from './core/art.mjs';
+import { roleView, roleFilter } from './core/roles.mjs';
 import { startTour } from './core/tour.mjs';
 import { loadState, saveState, resetState } from './core/store.mjs';
 import { caseToFhirBundle } from './core/fhir.mjs';
@@ -151,7 +160,8 @@ registerSW();
 let state = loadState();
 const params = new URLSearchParams(location.search);
 let sel = params.get('c');
-let filter = params.get('filter') || 'open';
+const RV = roleView(params.get('view'));
+let filter = params.get('filter') || (RV ? RV.filter : 'open');
 let prog = PROGRAMMES[params.get('prog')] ? params.get('prog') : 'all';
 let query = '';
 let flash = null;
@@ -259,7 +269,7 @@ function renderTop() {
 }
 
 /* ---------- the case list ---------- */
-const MORE_FILTERS = [['sla_breached', 'SLA breached'], ['sla_warning', 'SLA warning'], ['sla_on_track', 'SLA on track'], ...Object.entries(SOPS).map(([k, v]) => ['sop_' + k, 'Protocol: ' + v.label])];
+const MORE_FILTERS = [['gp', 'Decisions for the family doctor'], ['inbox', 'Referral inbox'], ['sla_breached', 'SLA breached'], ['sla_warning', 'SLA warning'], ['sla_on_track', 'SLA on track'], ...Object.entries(SOPS).map(([k, v]) => ['sop_' + k, 'Protocol: ' + v.label])];
 const FILTERS = [['open', 'All open'], ['attention', 'Needs attention'], ['overdue', 'Overdue'], ['unassigned', 'Unassigned'], ['urgent', 'Urgent'], ['referral', 'Referrals'], ['risk', 'Drop-out risk'], ['mine', 'Mine'], ['closed', 'Closed']];
 function visible() {
   const t = state.today, mine = me().id;
@@ -273,6 +283,7 @@ function visible() {
     if (filter === 'risk') return !!c.dropReason;
     if (filter === 'referral') return !!c.referral && ['sent', 'rejected', 'accepted'].includes(c.referral.status);
     if (filter === 'mine') return c.owner === mine;
+    { const r = roleFilter(filter, c, me()); if (r !== null) return r; }
     if (filter.startsWith('sla_')) { const k = clockOf(c); return !!k && k.tier === filter.slice(4).toUpperCase(); }
     if (filter.startsWith('sop_')) return sopOf(c).includes(filter.slice(4));
     return true;
@@ -495,9 +506,16 @@ $('#brand').innerHTML = wordmark() + '<span class="sub">Care team</span>';
 $('#art').innerHTML = skyline({ width: 230, opacity: 0.22, sun: true });
 $('#new-result').innerHTML = ic('flask', 18) + ' New result';
 $('#new-result').onclick = openIntake;
+// ROLE VIEW: a banner saying whose view this is and what their part of the journey is
+if (RV) {
+  document.body.classList.add(...RV.hide.map((h) => 'hide-' + h));
+  $('#rolebar').innerHTML = `<span class="rb-ic">${ic(RV.icon, 20)}</span><span><b>${RV.title}</b> · ${RV.org}<br><span class="tiny">${RV.part}</span></span><a class="btn ghost small" href="roles.html">Switch role</a>`;
+} else {
+  $('#rolebar').innerHTML = `<span class="rb-ic">${ic('users', 20)}</span><span><b>Care team view</b><br><span class="tiny">Every role, every case. Pick a role to see one person's part of the journey.</span></span><a class="btn ghost small" href="roles.html">Choose a role</a>`;
+}
 const meSel = $('#me');
 meSel.innerHTML = state.staff.map((s) => `<option value="${s.id}">${esc(s.name)} · ${s.role} · ${esc(s.org)}</option>`).join('');
-meSel.value = state.staff.some((s) => s.id === params.get('as')) ? params.get('as') : 'n1';
+meSel.value = state.staff.some((s) => s.id === params.get('as')) ? params.get('as') : RV ? RV.as : 'n1';
 meSel.onchange = () => { flash = null; render(); };
 $('#reset').onclick = () => { state = resetState(); flash = null; sel = null; render(); toast('Demo data reset'); };
 $('#q').oninput = (e) => { query = e.target.value; renderList(); };
