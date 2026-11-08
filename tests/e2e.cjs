@@ -114,9 +114,9 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await s.goto(BASE + 'roles.html'); await s.waitForTimeout(250);
   ok(await s.locator('.role').count() === 7, 'the "who are you?" page offers patient, lab, nurse, family doctor, specialist, clinical lead and programme manager');
   await shot(s, '08c-roles');
-  await s.click('[data-role=specialist]'); await s.waitForTimeout(400);
+  await s.click('[data-role=specialist]'); await s.waitForSelector('#tbl tr[data-open]');
   ok(/Hospital specialist/.test(await s.innerText('#rolebar')) && /Referral inbox/.test(await s.innerText('#listtitle')) && await s.locator('#tbl tr[data-open]').count() >= 1 && !(await s.isVisible('#funnel')), 'the hospital specialist opens on their referral inbox');
-  await s.goto(BASE + 'roles.html'); await s.click('[data-role=gp]'); await s.waitForTimeout(400);
+  await s.goto(BASE + 'roles.html'); await s.click('[data-role=gp]'); await s.waitForSelector('#tbl tr[data-open]');
   ok(/Decisions for the family doctor/.test(await s.innerText('#listtitle')) && await s.locator('#tbl tr[data-open]').count() >= 1, 'the family doctor opens on the decisions waiting for them');
   await s.goto(BASE + 'staff.html?as=n1&c=C-001'); await s.waitForTimeout(300);
   ok(/Care journey funnel/.test(await s.innerText('#funnel')) && /synthetic/.test(await s.innerText('#funnel')), 'the care team sees where patients drop out, labelled as demo data');
