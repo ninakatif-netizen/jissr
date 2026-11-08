@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#ebe4d6">
+<meta name="theme-color" content="#0d1b35">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Jissr">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -339,6 +339,7 @@ html.bigtext .hello{font-size:36px}
 .dates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;gap:8px}
 .dates .dt{width:auto}
 </style>
+<link rel="stylesheet" href="night.css">
 </head>
 <body>
 <div class="demo" id="demo">
@@ -670,22 +671,27 @@ function journeyStep(c) {
 let litOnce = false; // the bridge lights up once, the first time the home screen opens
 function trackerHtml(c) {
   const now = journeyStep(c), t = T();
-  const X = [35, 105, 175, 245, 315];
+  const X = [35, 105, 175, 245, 315], D = 118, IV = '#ece3d0', G = '#d6a85a';
   const prog = now >= 5 ? 346 : X[now];
-  const nodes = X.map((x, i) => i < now
-    ? `<circle cx="${x}" cy="118" r="7.5" fill="#14284b"/><path d="M${x - 3.5} 118.5l2.4 2.4 4.6-4.8" stroke="#ebe4d6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`
-    : i === now ? `<circle cx="${x}" cy="118" r="16" fill="#c4954a" opacity=".25"/><circle cx="${x}" cy="118" r="8.5" fill="#c4954a" stroke="#14284b" stroke-width="2.5"/>`
-    : `<circle cx="${x}" cy="118" r="6" fill="#ebe4d6" stroke="#14284b" stroke-width="2"/>`).join('');
+  // the arches as ribbons of fine strokes, like an engraving (same drawing as the Jissr poster)
+  const ribbon = (x0, x1, cy, n) => Array.from({ length: n }, (_, i) => {
+    const k = i / (n - 1), w = x1 - x0, ins = k * w * .04, dr = k * (D - cy) * .18;
+    return `<path d="M${(x0 + ins).toFixed(1)} ${D}C${(x0 + w * .18).toFixed(1)} ${(cy + dr).toFixed(1)} ${(x1 - w * .18).toFixed(1)} ${(cy + dr).toFixed(1)} ${(x1 - ins).toFixed(1)} ${D}" stroke="${IV}" stroke-width="${i ? .55 : 1.2}" opacity="${(.18 + .55 * (1 - k)).toFixed(2)}"/>`;
+  }).join('');
+  const hangers = [140, 152, 164, 176, 188, 200, 212, 224, 236].map((x) => `<line x1="${x}" y1="${(30 + Math.abs(x - 188) * 1.15).toFixed(0)}" x2="${x}" y2="${D}"/>`).join('');
+  const nodes = X.map((x, i) => i < now || now >= 5
+    ? `<circle cx="${x}" cy="${D}" r="5.5" fill="${IV}"/>`
+    : i === now ? `<circle cx="${x}" cy="${D}" r="15" fill="${G}" opacity=".28" filter="url(#bglow)"/><circle cx="${x}" cy="${D}" r="6.5" fill="${G}"/>`
+      + [0, 1, 2, 3, 4].map((k) => `<line x1="${x - 11 + k * 1.6}" y1="${D + 10 + k * 5}" x2="${x + 11 - k * 1.6}" y2="${D + 10 + k * 5}" stroke="${G}" stroke-width="1.2" opacity="${(.55 - k * .1).toFixed(2)}"/>`).join('')
+    : `<circle cx="${x}" cy="${D}" r="4.5" fill="#0d1b35" stroke="${IV}" stroke-width="1.3" opacity=".75"/>`).join('');
   const steps = PS(c) ? PS(c).steps : t.steps;
   const where = now >= 5 ? t.allDone : t.stepOf(now + 1);
-  return `<div class="bridge"><svg viewBox="0 0 350 138" role="img" aria-label="${t.journey}: ${where}">
-    <ellipse cx="200" cy="112" rx="95" ry="26" fill="#c4954a" opacity=".12"/>
-    <path d="M2 132C40 128 70 136 110 131S190 127 230 132 310 136 348 130" fill="none" stroke="#c9b99c" stroke-width="1.4"/>
-    <path d="M18 118C48 82 104 82 132 118M120 118C158 28 242 28 280 118M268 118C290 88 326 86 342 108" fill="none" stroke="#a8977a" stroke-width="1.6"/>
-    <path d="M8 118C40 68 110 68 140 118M110 118C150 10 250 10 290 118M260 118C285 72 330 72 346 102" fill="none" stroke="#14284b" stroke-width="3.2" stroke-linecap="round"/>
-    <path d="M150 118V66M175 118V48M200 118V40M225 118V48M250 118V66" stroke="#c9b99c" stroke-width="1"/>
-    <path d="M4 118H346" stroke="#14284b" stroke-width="4" stroke-linecap="round"/>
-    <path class="${litOnce ? '' : 'lit'}" d="M4 118H${prog}" stroke="#c4954a" stroke-width="4" stroke-linecap="round"/>
+  return `<div class="bridge"><svg viewBox="0 0 350 148" role="img" aria-label="${t.journey}: ${where}">
+    <defs><filter id="bglow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4"/></filter></defs>
+    <g fill="none">${ribbon(6, 132, 70, 10)}${ribbon(104, 272, -6, 16)}${ribbon(244, 346, 74, 10)}</g>
+    <g stroke="${IV}" stroke-width=".4" opacity=".28">${hangers}</g>
+    <path d="M4 ${D}H346" stroke="${IV}" stroke-width="1.3" opacity=".45"/>
+    <path class="${litOnce ? '' : 'lit'}" d="M4 ${D}H${prog}" stroke="${G}" stroke-width="2.6" stroke-linecap="round"/>
     ${nodes}</svg>${(litOnce = true) ? '' : ''}
     <div class="blabels">${steps.map((l, i) => `<span class="${i === now ? 'on' : ''}">${l}</span>`).join('')}</div>
     <div class="bmeta"><b>${where}</b><i>${t.inspired}</i></div></div>`;

@@ -1,0 +1,114 @@
+/* JISSR "NIGHT ON THE BRIDGE" (direction A), for the phone apps: patient, start screen, care team.
+   Night blue ground, ivory ink, gold only for light (the current step, progress, the main action's accent).
+   The one thing that must stand out on each screen (the next step) is a sand card: day light in the night.
+   The desktop dashboard keeps the light theme (styles.css). Loaded last, so it wins. */
+
+:root{
+  --bg:#0d1b35; --card:#12244a; --card2:#1a2f59; --ink:#ece3d0; --muted:#9fadc7; --line:rgba(236,227,208,.14);
+  --brand:#ece3d0; --brand-d:#ffffff; --brand-l:#1a2f59; --accent:#d6a85a; --accent-d:#e7c489; --accent-l:rgba(214,168,90,.16);
+  --sand:#ebe4d6; --navy:#14284b; --gold:#d6a85a;
+  --shadow:none;
+}
+html,body{background:var(--bg);color:var(--ink)}
+a{color:var(--ink)}
+.muted,.tiny.muted,.sub2,.gsub{color:var(--muted)}
+
+/* header and brand */
+.top{background:var(--bg)!important;box-shadow:0 1px 0 var(--line)!important}
+.brand,.top .logo{color:var(--ink)!important}
+.brand .ar{color:var(--ink)}
+.langs button{color:var(--muted)}.langs button[aria-pressed=true]{color:var(--ink);text-decoration-color:var(--gold)}
+.aa{color:var(--ink)}.aa[aria-pressed=true]{background:var(--sand);color:var(--navy)}
+.me{background:var(--card2);color:var(--ink)}.me:after{background:var(--gold)}
+
+/* buttons: primary is sand on night, secondary is an ivory outline */
+.btn{background:var(--sand);color:var(--navy)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px rgba(236,227,208,.55)}
+.btn[disabled]{background:var(--card2);color:var(--muted)}
+.btn.danger{background:#c2413a;color:#fff}
+.pick,.fchips button{background:var(--card2);color:var(--ink)}
+.pick[aria-pressed=true],.fchips button[aria-pressed=true]{background:var(--sand);color:var(--navy)}
+input,select,textarea{background:var(--card2)!important;color:var(--ink)!important;border-color:var(--line)!important}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+
+/* surfaces: dark, with hairlines */
+.card,.card2,.hlist,.rmore,.rcard,.rsum,.ring,.plist,.micro,.modes button,.dt,.stat3,.mslot{background:var(--card)!important;border-color:var(--line)!important;color:var(--ink)}
+.card .card.soft{border-inline-start-color:var(--gold)}
+.lrow,.pitem{color:var(--ink);border-color:var(--line)!important}
+.lrow>.ico:first-child,.lrow>.ico:last-child,.pitem>.ico:last-child{color:var(--gold)}
+.gtile{background:var(--accent-l)!important;color:var(--gold)!important}
+.avatar2{background:transparent;color:var(--ink);box-shadow:0 0 0 1.5px var(--gold)}
+.call2{border-color:rgba(236,227,208,.5);color:var(--ink)}
+.sec,.nlbl,.rlabel,.rsum b,.chk small,.pt small{color:var(--gold)}
+.pt small,.chk small{color:var(--muted)}
+
+/* THE NEXT STEP: a sand card, the brightest thing on the screen */
+.next,.next.ok,.next.wait,.micro.navy{background:var(--sand)!important;color:var(--navy)!important;border:0!important}
+.next h2,.micro.navy h2{color:var(--navy)!important}
+.next p,.micro.navy .msub,.next .appt .sub{color:#5c5446!important}
+.next .nlbl,.micro.navy .mday1{color:#86602c!important}
+.next.ok .nlbl{color:#1f6b45!important}
+.next .gtile,.micro.navy .gtile{background:rgba(20,40,75,.08)!important;color:var(--navy)!important}
+.next .btn,.next.ok .btn,.micro.navy .btn{background:var(--navy)!important;color:#fff!important}
+.next.wait .btn{background:transparent!important;color:var(--navy)!important;box-shadow:inset 0 0 0 1.5px var(--navy);border:0}
+.next .datebox{background:var(--navy);color:#fff}
+.micro.navy .mslot{background:transparent!important;border:1.5px solid rgba(20,40,75,.25)!important;color:var(--navy)}
+.micro.navy .mslot small{color:#5c5446}
+.micro.navy .linkbtn{color:var(--navy)}
+.micro.navy.booked,.micro.booked{background:#e3efe6!important;color:#1f6b45!important}
+
+/* the bridge */
+.blabels span{color:var(--muted)}.blabels .on{color:var(--gold)}
+.bmeta,.bmeta i{color:var(--muted)}.bmeta b{color:var(--ink)}
+
+/* result */
+.rhero,.rvalue b,.hello,h1,h2,h3{color:var(--ink)}
+.rvalue span,.htick,.hnames span{color:var(--muted)}.hnames .on{color:var(--ink)}
+.hpin b{background:var(--sand);color:var(--navy)}.hpin i{background:var(--sand)}
+.rstep{color:var(--muted)}.rstep.on{color:var(--ink)}.rstep i{border-color:var(--muted)}.rstep.on i{background:var(--gold);border-color:var(--gold)}
+.rnotdx{color:var(--muted);border-color:var(--line)}.rnotdx .ico{color:var(--gold)}
+.rmeans{background:var(--card2)!important;border-color:var(--line)!important}
+.reassure,.ontrack{background:rgba(120,190,150,.12)!important;color:#bfe3cc!important}
+.ontrack.late{background:rgba(214,110,90,.14)!important;color:#ffc2b4!important}
+.err-msg{background:rgba(214,110,90,.14);color:#ffc2b4}
+.ok-msg{background:rgba(120,190,150,.12);color:#bfe3cc}
+.tag{color:var(--muted)}
+
+/* plan */
+.chk li i{border-color:var(--muted)}.chk li.done i{background:#4fae7f;border-color:#4fae7f}.chk li.now i{border-color:var(--gold);box-shadow:0 0 0 3px var(--accent-l)}
+.pok{background:#4fae7f}
+.pitem.done .gtile{background:rgba(79,174,127,.16)!important;color:#7fd0a6!important}
+
+/* tab bar */
+.tabs{background:#0a162c!important;border-top:1px solid var(--line)!important;box-shadow:none!important}
+.tab{color:var(--muted)}.tab[aria-current=page]{color:var(--gold)}.tab[aria-current=page]:after{background:var(--gold)}
+.tab .dot{background:#c2413a}
+
+/* care app details */
+.navy{background:var(--card2)!important}
+.phead{background:var(--card2)!important}
+.when.breached{color:#ff9d8a}.when.warning{color:#f1cd8a}.when.on_track{color:#9fe0bb}
+.flash.ok{background:rgba(120,190,150,.12);color:#bfe3cc}.flash.err{background:rgba(214,110,90,.14);color:#ffc2b4}
+.alert.l3{background:rgba(214,110,90,.1)!important}
+.tl li.done i{background:#4fae7f;border-color:#4fae7f}
+.mini path:first-child{stroke:#5d6d8c}.mini path:nth-child(2){stroke:#c9d2e3}
+
+/* start screen */
+.pick.navy{background:var(--sand)!important;color:var(--navy)!important}
+.pick.navy b{color:var(--navy)!important}.pick.navy small{color:#5c5446!important}
+.pick.navy .gtile{background:rgba(20,40,75,.08)!important;color:var(--navy)!important}
+.pick.navy>.ico:last-child{color:var(--navy)!important}
+.hero .mark{color:var(--ink)!important}
+
+/* phone frame on a computer */
+@media (min-width:700px){body{background:radial-gradient(circle at 30% 0%,#1b3263,#0a1428)!important}.device{border-color:#05070d!important}.device:before{background:#05070d!important}}
+
+/* fixes found on the screenshot sweep */
+.top>span:first-child{color:var(--ink)!important}
+.top>span:first-child svg path{stroke:var(--ink)}
+.bubble{background:#1d3a33;color:#d8efe2}
+.hero h1 span{color:var(--gold)!important}
+.stat3.red b{color:#ff9d8a}.stat3.amber b{color:#f1cd8a}
+.card .card.soft{border-inline-start-color:var(--gold)!important;background:transparent!important;border-top:0!important;border-bottom:0!important;border-inline-end:0!important}
+.backbtn,.back{background:var(--card2)!important;color:var(--ink)!important}
+.installcard{background:transparent!important}

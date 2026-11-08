@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Jissr · جسر</title>
 <meta name="description" content="Jissr: one app for the screening-to-care loop, for patients and for the care team. Synthetic demo.">
-<meta name="theme-color" content="#ebe4d6">
+<meta name="theme-color" content="#0d1b35">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jissr">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
@@ -34,6 +34,7 @@
 .cont{display:block;text-align:center;margin:16px 0 0;font-weight:600}
 .foot2{text-align:center;font-size:12.5px;color:var(--muted);margin:22px 0 0}
 </style>
+<link rel="stylesheet" href="night.css">
 </head>
 <body>
 <div class="demo" style="justify-content:space-between;padding:8px 16px;font-size:13px"><span>Demo with synthetic data. Not medical advice.</span><a href="index.html">About the project</a></div>
@@ -62,7 +63,7 @@ function render() {
       <p class="sub2">Each role sees its own part of the same case.</p>
       <div class="roles2">${CARE_ROLES.map((id) => roleView(id)).map((r) => `<button class="pick" data-go="care.html?role=${r.id}" data-role="${r.id}"><span class="gtile">${ic(r.icon, 22)}</span><span class="t"><b>${r.title}</b><small><b style="font-size:13px;font-family:var(--text);color:#86602c;display:inline">${r.org}.</b> ${r.part}</small></span>${ic('next', 18)}</button>`).join('')}</div>
       <p class="foot2">Lab and programme manager views are on the <a href="roles.html">desktop dashboard</a>.<br>Demo: choosing a role is not a login.</p>`}
-    ${!showRoles ? `<p class="foot2">Synthetic demo · not medical advice</p>` : ''}
+    ${!showRoles ? `<p class="foot2">Synthetic demo. Not medical advice.</p>` : ''}
   </div>`;
   app.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => {
     try { localStorage.setItem('jissr.lastApp', b.dataset.role ? 'care:' + b.dataset.role : 'patient'); } catch { }
