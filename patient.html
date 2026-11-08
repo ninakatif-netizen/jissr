@@ -50,6 +50,22 @@ body{font-size:17px}
 .slotbtn{padding:14px 8px}
 .bubble{background:var(--green-l);color:var(--ink);border-radius:16px 16px 16px 4px;padding:12px 14px;margin:8px 0;max-width:92%}
 [dir=rtl] .bubble{border-radius:16px 16px 4px 16px}
+.wrap{padding-bottom:120px}
+.tabs{position:fixed;inset-inline:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:20;padding-bottom:env(safe-area-inset-bottom)}
+.tabs div{max-width:540px;margin:0 auto;display:flex}
+.tab{flex:1;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font:inherit;font-size:12px;color:var(--muted);padding:9px 0 8px;min-height:58px;cursor:pointer}
+.tab[aria-current=page]{color:var(--brand);font-weight:600}
+.tab[aria-current=page] .ico{color:var(--accent-d)}
+.gauge{text-align:center;margin:4px 0 2px}
+.gauge svg{width:100%;max-width:300px;height:auto}
+.gauge .gv{font-family:var(--display);font-weight:600;font-size:34px;fill:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;font-size:12.5px;color:var(--muted);margin-top:2px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:5px}
+.splash{position:fixed;inset:0;z-index:50;background:var(--panel);background-image:var(--star);color:#fffcf6;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;animation:splash .5s 1.2s ease forwards}
+.splash .name{font-family:var(--display);font-weight:600;font-size:2.4rem;margin-top:14px}
+.splash .name span{font-family:"Kufi",serif;color:#e3a44a;margin-inline-start:10px}
+.splash p{opacity:.9;max-width:22ch;margin-top:10px}
+@keyframes splash{to{opacity:0;visibility:hidden}}
 .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 [dir=rtl] .lbl{letter-spacing:0;text-transform:none;font-size:13px}
 </style>
@@ -71,7 +87,7 @@ import { loadState, saveState, resetState, aiText } from './core/store.mjs';
 import { classify, slotsFor, BARRIERS } from './core/rules.mjs';
 import { advance, setBarrier, requestNurse, recordAiText, setChannel, recordConfidence } from './core/cases.mjs';
 import { explanation, barrierText, nurseText } from './core/templates.mjs';
-import { ic, wordmark } from './core/ui.mjs';
+import { ic, wordmark, logo } from './core/ui.mjs';
 
 /* ---------- words on the screen (English / Arabic) ---------- */
 const S = {
@@ -106,6 +122,7 @@ const S = {
       done: ['star', 'All done. Your care is up to date.', 'Thank you for taking care of your health.', ''],
     },
     careBy: 'Looking after you', noOwner: 'A team member will be assigned to you very soon.', role: { nurse: 'Nurse', coordinator: 'Care coordinator', clinician: 'Doctor' },
+    tabs: ['Home', 'My result', 'Nurse', 'Family'], gaugeCap: 'Where your result sits', zones: ['Usual', 'A bit high', 'High', 'Very high'], tag: 'Your result, explained.\nYour next step, clear.',
     qListen: 'Listen to my result', qNurse: 'Talk to a nurse', qFamily: 'Family helper',
     nurseT: 'Talk to a nurse', nurseSub: 'A nurse can explain your result, answer worries and help you book.', when: 'Best time to call', morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening',
     chanQ: 'How should we contact you?', chan: { app: 'This app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'Phone call' },
@@ -150,6 +167,7 @@ const S = {
       done: ['star', 'اكتمل كل شيء. رعايتك محدّثة.', 'شكراً لاهتمامك بصحتك.', ''],
     },
     careBy: 'من يعتني بك', noOwner: 'سيُخصَّص لك أحد أعضاء الفريق قريباً جداً.', role: { nurse: 'ممرضة', coordinator: 'منسق الرعاية', clinician: 'طبيب' },
+    tabs: ['الرئيسية', 'نتيجتي', 'الممرضة', 'العائلة'], gaugeCap: 'أين تقع نتيجتك', zones: ['معتاد', 'أعلى قليلاً', 'مرتفع', 'مرتفع جداً'], tag: 'نتيجتك واضحة،\nوخطوتك التالية معروفة.',
     qListen: 'استمع إلى نتيجتي', qNurse: 'تحدث مع ممرضة', qFamily: 'مساعد من العائلة',
     nurseT: 'تحدث مع ممرضة', nurseSub: 'يمكن للممرضة أن تشرح نتيجتك، وتجيب عن مخاوفك، وتساعدك في الحجز.', when: 'أفضل وقت للاتصال', morning: 'صباحاً', afternoon: 'بعد الظهر', evening: 'مساءً',
     chanQ: 'كيف تفضل أن نتواصل معك؟', chan: { app: 'هذا التطبيق', sms: 'رسالة نصية', whatsapp: 'واتساب', phone: 'اتصال هاتفي' },
@@ -169,7 +187,8 @@ const S = {
 let state = loadState();
 const params = new URLSearchParams(location.search);
 let id = params.get('p') || 'C-001';
-let lang = params.get('lang') || (() => { try { return localStorage.getItem('jissr.lang') || 'en'; } catch { return 'en'; } })();
+const phoneLang = (navigator.language || 'en').toLowerCase().startsWith('ar') ? 'ar' : 'en';
+let lang = params.get('lang') || (() => { try { return localStorage.getItem('jissr.lang') || phoneLang; } catch { return phoneLang; } })();
 let view = 'home';       // home | result | book | nurse | family
 let level = 'normal';
 let speaking = false;
@@ -281,6 +300,24 @@ function contactCard(c) {
   </section>`;
 }
 
+/* ---------- the gauge: where the result sits (a picture, not a diagnosis) ---------- */
+function gaugeHtml(c) {
+  const t = T(), MIN = 4, MAX = 12, cx = 120, cy = 112, r = 88;
+  const pt = (v, rad) => { const a = Math.PI * (1 - (Math.min(MAX, Math.max(MIN, v)) - MIN) / (MAX - MIN)); return [cx + rad * Math.cos(a), cy - rad * Math.sin(a)]; };
+  const arc = (a, b) => { const [x1, y1] = pt(a, r), [x2, y2] = pt(b, r); return `M${x1.toFixed(1)} ${y1.toFixed(1)} A${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`; };
+  const zones = [[4, 5.7, '#2d6a4c'], [5.7, 6.5, '#d9a12e'], [6.5, 10, '#d0702e'], [10, 12, '#a33a2a']];
+  const [mx, my] = pt(c.value, r);
+  const zi = c.value < 5.7 ? 0 : c.value < 6.5 ? 1 : c.value < 10 ? 2 : 3;
+  return `<div class="gauge" role="img" aria-label="HbA1c ${c.value}%: ${t.zones[zi]}">
+    <svg viewBox="0 0 240 132" aria-hidden="true">
+      ${zones.map(([a, b, col]) => `<path d="${arc(a + 0.03, b - 0.03)}" fill="none" stroke="${col}" stroke-width="16" stroke-linecap="butt" opacity="${zones.findIndex((z) => z[0] === a) === zi ? 1 : 0.38}"/>`).join('')}
+      <circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="9" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/>
+      <text class="gv" x="${cx}" y="${cy - 10}" text-anchor="middle">${c.value}%</text>
+    </svg>
+    <div class="legend">${zones.map(([, , col], i) => `<span><i style="background:${col}"></i>${t.zones[i]}</span>`).join('')}</div>
+  </div>`;
+}
+
 /* ---------- views ---------- */
 function homeView(c) {
   const t = T();
@@ -289,12 +326,7 @@ function homeView(c) {
     <h1 class="hello">${esc(t.hello(first))}</h1>
     ${trackerHtml(c)}
     ${nextCard(c)}
-    ${contactCard(c)}
-    <div class="actions">
-      <button class="act" data-go="result">${ic('speaker', 24)}${t.qListen}</button>
-      <button class="act" data-go="nurse">${ic('phone', 24)}${t.qNurse}</button>
-      <button class="act" data-go="family">${ic('users', 24)}${t.qFamily}</button>
-    </div>`;
+    ${contactCard(c)}`;
   if (stageIdx(c) >= 3 && c.stage !== 'closed') {
     h += `<section class="card"><h3>${t.confQ}</h3><div class="scale">${[1, 2, 3, 4, 5].map((n) => `<button data-conf="${n}" aria-label="${n}" aria-pressed="${!!c.confidence && c.confidence.score === n}">${n}</button>`).join('')}</div>
       <div class="row tiny muted" style="justify-content:space-between;margin-top:6px"><span>${t.confLow}</span><span>${t.confHigh}</span></div>
@@ -311,8 +343,8 @@ function resultView(c) {
   const understood = stageIdx(c) >= 2;
   return `${topBar()}<div class="view"><button class="back" data-go="home">${ic('back', 18)}${t.back}</button>
     <section class="card"><div class="lbl">${t.yourTest}</div>
-      <div class="big">${cls.value}<span style="font-size:1.4rem"> %</span></div>
-      <span class="chip ${cls.urgency}">${t.band[cls.band]}</span>
+      ${gaugeHtml(c)}
+      <div class="center"><span class="chip ${cls.urgency}">${t.band[cls.band]}</span></div>
       <p style="margin-top:12px;font-size:1.05em">${esc(ex.text)}</p>
       <div class="notdx" role="note">${ic('shield', 22)}<span>${t.notdx}</span></div>
       <div class="row">
@@ -389,6 +421,12 @@ function render() {
   document.title = 'Jissr · ' + (lang === 'ar' ? 'نتيجتك' : 'your result');
   const v = { home: homeView, result: resultView, book: bookView, nurse: nurseView, family: familyView }[view] || homeView;
   document.getElementById('app').innerHTML = v(c);
+  // bottom tab bar (always visible, like a real phone app)
+  const tabsDef = [['home', 'home'], ['result', 'result'], ['nurse', 'phone'], ['family', 'users']];
+  const activeTab = view === 'book' ? 'home' : view;
+  let nav = document.getElementById('tabs');
+  if (!nav) { nav = document.createElement('nav'); nav.id = 'tabs'; nav.className = 'tabs'; nav.setAttribute('aria-label', 'Main'); document.body.appendChild(nav); }
+  nav.innerHTML = '<div>' + tabsDef.map(([v2, icon], i) => `<button class="tab" data-go="${v2}" ${activeTab === v2 ? 'aria-current="page"' : ''}>${ic(icon, 22)}${T().tabs[i]}</button>`).join('') + '</div>';
   wire(c);
 }
 
@@ -453,6 +491,18 @@ if (!state.cases.some((c) => c.id === id)) id = state.cases[0].id;
 who.value = id;
 ensureNotified();
 render();
+
+/* ---------- a short welcome screen, once per visit ---------- */
+try {
+  if (!sessionStorage.getItem('jissr.splash') && !params.has('nosplash')) {
+    sessionStorage.setItem('jissr.splash', '1');
+    const sp = document.createElement('div');
+    sp.className = 'splash'; sp.setAttribute('aria-hidden', 'true');
+    sp.innerHTML = `${logo(64)}<div class="name">Jissr<span>جسر</span></div><p>${T().tag.replace('\n', '<br>')}</p>`;
+    document.body.appendChild(sp);
+    setTimeout(() => sp.remove(), 2000);
+  }
+} catch { /* the app works without the welcome screen */ }
 </script>
 </body>
 </html>
