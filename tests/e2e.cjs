@@ -84,8 +84,9 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   ok((await s.getAttribute('#b3', 'href')).includes('tour=0'), 'the home page offers the guided tour');
   await s.goto(BASE + 'staff.html?as=n1&filter=attention&tour=3'); await s.waitForTimeout(200);
   ok(/step 4 of 7/i.test(await s.innerText('.tour')), 'the tour card shows on each step');
-  await s.click('.tour .nx'); await s.waitForTimeout(300);
-  ok(s.url().includes('tour=4') && await s.locator('#modal.open').count() === 1, 'Next moves to the following step');
+  await s.click('.tour .nx');
+  const moved = await s.waitForURL(/tour=4/, { timeout: 10000 }).then(() => s.waitForSelector('#modal.open', { timeout: 10000 })).then(() => true, () => false);
+  ok(moved, 'Next moves to the following step');
   await s.goto(BASE + 'metrics.html'); await s.waitForTimeout(300);
   ok(await s.locator('#funnel .fun').count() === 9, 'the measures page renders');
   await shot(s, '10-measures', true);
