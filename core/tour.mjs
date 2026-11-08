@@ -7,6 +7,7 @@ const STEPS = [
   { url: 'staff.html?as=n1&filter=attention', title: 'The care team sees every case', text: 'Each case has a named owner and a deadline set by rules. This queue shows what needs a person now, like an urgent result with no owner or a rejected referral.' },
   { url: 'staff.html?as=c1&new=1', title: 'A new result arrives', text: 'Type an HbA1c and add it. The rules set urgency, the due date and the least busy owner at once. No AI is involved.' },
   { url: 'staff.html?as=d1&c=C-002', title: 'Only a clinician closes, with evidence', text: 'Dr Mariam can close this case only by writing the evidence. A nurse cannot, and the AI cannot change anything. This is enforced in code and tested.' },
+  { url: 'trust.html?run=1', title: 'Try to break it', text: 'Every safety promise is checked live on the real code. Then press any red button: make the AI close a case, close without proof, make a case vanish. The rules block each one.' },
   { url: 'metrics.html', title: 'Proving it works', text: 'Time to each step, referral completion, unresolved results and why patients drop out. These numbers are synthetic: this is what a pilot would measure.' },
 ];
 export const tourUrl = (i) => { const s = STEPS[i]; return s.url + (s.url.includes('?') ? '&' : '?') + 'tour=' + i; };

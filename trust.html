@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f6f1e8">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<title>Jissr: try to break it</title>
+<meta name="description" content="Run Jissr's safety rules live and try to break them yourself. Synthetic data only.">
+<link rel="stylesheet" href="styles.css">
+<style>
+.wrap{max-width:980px}
+.hero2{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:center;margin:18px 0 8px}
+@media(max-width:820px){.hero2{grid-template-columns:1fr}}
+.hero2 h1{font-size:2.3rem;line-height:1.15;margin:6px 0 10px}
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#b47a10;font-weight:600}
+.scorecard{background:linear-gradient(135deg,#2c5294,#1a3463);color:#fff;border-radius:26px;padding:24px;box-shadow:0 18px 40px rgba(26,52,99,.3);position:relative;overflow:hidden}
+.scorecard .big2{font-size:3.4rem;font-weight:700;line-height:1}
+.scorecard .bar{height:10px;border-radius:5px;background:rgba(255,255,255,.18);overflow:hidden;margin:14px 0 8px}
+.scorecard .bar i{display:block;height:100%;width:0;background:#f5b544;transition:width .25s}
+.scorecard .btn{background:#f5b544;color:#1b2238;box-shadow:none;width:100%;margin-top:12px}
+.groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-top:18px}
+.grp{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:16px}
+.grp h3{display:flex;gap:8px;align-items:center;margin:0 0 10px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.chk:first-of-type{border-top:0}
+.st{width:24px;height:24px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:var(--card2);color:var(--muted);margin-top:1px;transition:background .2s}
+.st.run{background:var(--accent-l);animation:pulse .6s infinite alternate}
+.st.pass{background:#22a06b;color:#fff}.st.fail{background:var(--red);color:#fff}
+@keyframes pulse{to{background:var(--accent)}}
+.chk small{display:block;color:var(--muted);font-size:12.5px}
+.attack{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}
+.atk{background:var(--card);border:2px solid transparent;border-radius:18px;box-shadow:var(--shadow);padding:14px;text-align:start;font:inherit;color:inherit;cursor:pointer;display:flex;gap:10px;align-items:flex-start;transition:border-color .15s,transform .15s}
+.atk:hover{border-color:var(--red);transform:translateY(-2px)}
+.atk .ic2{width:38px;height:38px;border-radius:12px;background:var(--red-l);color:var(--red);display:flex;align-items:center;justify-content:center;flex:none}
+.atk b{display:block;font-size:14.5px}.atk span{font-size:12.5px;color:var(--muted)}
+.verdict{border-radius:20px;padding:16px 18px;margin-top:6px;display:none;animation:in .3s ease}
+.verdict.on{display:block}
+.verdict.blocked{background:#1b2238;color:#fff}
+.verdict .vh{display:flex;gap:10px;align-items:center;font-weight:700;font-size:1.05rem;color:#f5b544}
+.verdict code{background:rgba(255,255,255,.1);padding:2px 6px;border-radius:6px;font-size:13px}
+.verdict p{margin:8px 0 0;color:rgba(255,255,255,.88)}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.rt td:first-child{font-weight:600}
+</style>
+</head>
+<body>
+<div class="demo"><span>Prototype · synthetic data only · these checks run on the same code the app uses</span><span class="row"><a href="patient.html">Patient app</a><a href="staff.html">Care team</a><a href="index.html">Home</a></span></div>
+<div class="wrap">
+  <div class="top"><div class="brand" id="brand"></div></div>
+  <div class="hero2">
+    <div>
+      <div class="kicker">Safety proof</div>
+      <h1>Can a case get lost? Can the AI act on its own? Test it yourself.</h1>
+      <p class="muted">Jissr's promises are written as rules in code. Press the button to check every promise live, in your browser, on fresh synthetic data. Then try to break them below.</p>
+    </div>
+    <div class="scorecard"><div class="kicker" style="color:#f5b544">Live check</div>
+      <div class="big2" id="score">–</div><div id="scoresub" style="opacity:.85">rules not checked yet</div>
+      <div class="bar"><i id="bar"></i></div>
+      <button class="btn" id="run"></button></div>
+  </div>
+  <div class="groups" id="groups"></div>
+
+  <h2 style="margin-top:34px">Try to break it</h2>
+  <p class="muted" style="margin-top:0">Each button really attempts the action against the rules, on a fresh copy of the demo data. You see the engine's own answer.</p>
+  <div class="attack" id="attack"></div>
+  <div class="verdict blocked" id="verdict" role="status"></div>
+
+  <h2 style="margin-top:34px">What is real, what is simulated</h2>
+  <div class="scroll" style="max-height:none"><table class="tbl rt"><thead><tr><th>Part</th><th>In this prototype</th><th>For a pilot</th></tr></thead><tbody>
+    <tr><td>Rules, ownership, escalation, closing</td><td><span class="chip ok">Real code</span> tested automatically (30 rule tests, 24 browser checks)</td><td>Clinical sign-off of thresholds and deadlines</td></tr>
+    <tr><td>Patient app and care-team screens</td><td><span class="chip ok">Real</span> with 30 invented patients</td><td>Real sign-in (for example Microsoft Entra ID), hosting in the UAE</td></tr>
+    <tr><td>AI wording of messages</td><td><span class="chip warn">Real when a key is added</span>; otherwise pre-written messages</td><td>Azure OpenAI in-country, ongoing review of outputs</td></tr>
+    <tr><td>SMS, WhatsApp, reminders, identity code</td><td><span class="chip grey">Simulated</span> (demo code 2026)</td><td>A messaging provider and real one-time codes</td></tr>
+    <tr><td>Hospital systems and Malaffi</td><td><span class="chip warn">FHIR export prototype</span>, not checked with the official validator</td><td>Integration and testing with Malaffi</td></tr>
+    <tr><td>Clinical content (English and Arabic)</td><td><span class="chip warn">Proposed</span>, awaiting clinician review</td><td>Signed clinical review, native Arabic review</td></tr>
+    <tr><td>Measures</td><td><span class="chip grey">Synthetic numbers</span></td><td>Baseline from the current process, then a 90-day pilot</td></tr>
+    <tr><td>Data protection</td><td>No real data; nothing stored on a server</td><td>DoH Abu Dhabi policy, ADHICS, consent management</td></tr>
+  </tbody></table></div>
+  <p class="foot">Synthetic prototype · not medical advice</p>
+</div>
+
+<script type="module">
+import { registerSW } from './core/pwa.mjs';
+import { startTour } from './core/tour.mjs';
+import { wordmark, ic } from './core/ui.mjs';
+import { classify, escalationsFor, safeText, isoDay, addDays } from './core/rules.mjs';
+import { advance, skipStage, closeCase, createCase, sendReferral, respondReferral, completeReferral, assignOwner, setBarrier, requestNurse, newCase, RuleError } from './core/cases.mjs';
+import { buildState } from './core/data.mjs';
+import { explanation } from './core/templates.mjs';
+import { aiText } from './core/store.mjs';
+import { caseToFhirBundle } from './core/fhir.mjs';
+registerSW();
+const $ = (s) => document.querySelector(s);
+$('#brand').innerHTML = wordmark() + '<span class="sub">Safety proof</span>';
+$('#run').innerHTML = ic('shield', 18) + ' Run the safety checks';
+
+const TODAY = isoDay(Date.now());
+const fresh = () => buildState(TODAY);
+const nurse = { type: 'staff', role: 'nurse', name: 'Nurse Huda Al Ali', id: 'n1', org: 'Screening programme' };
+const coord = { type: 'staff', role: 'coordinator', name: 'Sara Khan', id: 'c1', org: 'Screening programme' };
+const doc = { type: 'staff', role: 'clinician', name: 'Dr Mariam Al Hosani', id: 'd1', org: 'Primary care clinic' };
+const endo = { type: 'staff', role: 'clinician', name: 'Dr Salma Haddad', id: 'e1', org: 'Hospital endocrinology' };
+const patient = { type: 'patient', name: 'Patient' };
+const ai = { type: 'ai', name: 'AI' };
+const assert = (c, m) => { if (!c) throw new Error(m || 'check failed'); };
+const blocked = (fn, code) => { try { fn(); } catch (e) { if (e instanceof RuleError && (!code || e.code === code)) return e.message; throw new Error('wrong refusal: ' + e.message); } throw new Error('was NOT blocked'); };
+const toPlan = (st, id) => {   // walk a case to "plan agreed" the proper way
+  const s = { type: 'system', name: 'system' };
+  advance(st, id, 'notified', s); advance(st, id, 'understood', patient); advance(st, id, 'booked', patient); advance(st, id, 'attended', nurse);
+  advance(st, id, 'confirmed', doc); skipStage(st, id, 'referred', doc, 'Managed in primary care'); advance(st, id, 'care_plan', doc, 'Plan', undefined, { planKind: 'treatment' });
+};
+const one = (value = 8.1) => ({ staff: fresh().staff, cases: [newCase({ id: 'X', patient: { id: 'P', name: 'Test' }, value, resultDay: TODAY, owner: 'n1' })] });
+
+const GROUPS = [
+  ['users', 'No case is ever lost', [
+    ['Every open case has an owner, or a lead is alerted', 'Unassigned cases are raised to a coordinator or lead.', () => { const st = fresh(); for (const c of st.cases) if (c.stage !== 'closed') assert(c.owner || escalationsFor(c, TODAY).some((e) => e.code === 'unassigned')); }],
+    ['Steps cannot be skipped', 'You cannot book before the result is understood.', () => blocked(() => advance(one(), 'X', 'booked', patient), 'out_of_order')],
+    ['A specialist who accepts a referral owns the case', 'And ownership returns with the report.', () => { const st = one(); const s = { type: 'system', name: 's' }; advance(st, 'X', 'notified', s); advance(st, 'X', 'understood', patient); advance(st, 'X', 'booked', patient); advance(st, 'X', 'attended', nurse); advance(st, 'X', 'confirmed', doc); sendReferral(st, 'X', doc, { to: 'Hospital endocrinology', reason: 'Specialist review needed.' }); respondReferral(st, 'X', endo, { accept: true }); assert(st.cases[0].owner === 'e1'); completeReferral(st, 'X', endo, 'Seen, plan agreed, review in 3 months.'); assert(st.cases[0].owner === 'n1'); }],
+    ['A rejected referral alerts the clinical lead', 'It cannot silently disappear.', () => { const c = fresh().cases.find((x) => x.referral && x.referral.status === 'rejected'); assert(escalationsFor(c, TODAY).some((e) => e.code === 'referral_rejected' && e.level === 3)); }],
+    ['An urgent result not told to the patient within a day alerts the lead', 'Level 3: clinical lead now.', () => { const c = newCase({ id: 'U', patient: {}, value: 11, resultDay: addDays(TODAY, -1), owner: 'n1' }); assert(escalationsFor(c, TODAY).some((e) => e.code === 'urgent_not_notified' && e.level === 3)); }],
+  ]],
+  ['shield', 'Only a clinician closes, with proof', [
+    ['A nurse cannot close a case', '', () => { const st = one(); toPlan(st, 'X'); blocked(() => closeCase(st, 'X', nurse, { type: 'care_plan_agreed', evidence: 'Seen in clinic, plan agreed.' }), 'clinician_only'); }],
+    ['A coordinator cannot close a case', '', () => { const st = one(); toPlan(st, 'X'); blocked(() => closeCase(st, 'X', coord, { type: 'care_plan_agreed', evidence: 'Seen in clinic, plan agreed.' }), 'clinician_only'); }],
+    ['A clinician cannot close without written evidence', '', () => { const st = one(); toPlan(st, 'X'); blocked(() => closeCase(st, 'X', doc, { type: 'care_plan_agreed', evidence: 'ok' }), 'evidence_required'); }],
+    ['"Plan agreed" needs a recorded plan', '', () => { const st = one(); blocked(() => closeCase(st, 'X', doc, { type: 'care_plan_agreed', evidence: 'A long enough evidence note.' }), 'no_care_plan'); }],
+    ['A case cannot close while a referral is open', '', () => { const st = fresh(); const c = st.cases.find((x) => x.referral && x.referral.status === 'sent'); blocked(() => closeCase(st, c.id, doc, { type: 'documented_refusal', evidence: 'Long enough evidence here.' }), 'referral_open'); }],
+  ]],
+  ['star', 'The AI can only write words', [
+    ['The AI cannot close a case', '', () => { const st = one(); toPlan(st, 'X'); blocked(() => closeCase(st, 'X', ai, { type: 'care_plan_agreed', evidence: 'The AI decided this is fine.' }), 'ai_not_allowed'); }],
+    ['The AI cannot refer, assign, or move a case', '', () => { const st = one(); for (const f of [() => sendReferral(st, 'X', ai, { to: 'Diabetes centre', reason: 'AI referral attempt.' }), () => assignOwner(st, 'X', 'n2', ai), () => advance(st, 'X', 'notified', ai), () => setBarrier(st, 'X', 'fear', ai), () => requestNurse(st, 'X', ai)]) blocked(f, 'ai_not_allowed'); }],
+    ['The AI cannot open cases', '', () => blocked(() => createCase(fresh(), ai, { name: 'Test', age: 50, sex: 'F', language: 'ar', value: 8 }), 'ai_not_allowed')],
+    ['AI text that diagnoses is rejected', '"You have diabetes" never reaches a patient.', () => assert(safeText('You have diabetes. Please see a doctor soon about it.', 'en') === null)],
+    ['AI text that advises medicine is rejected', '', () => assert(safeText('Take metformin every morning with breakfast.', 'en') === null)],
+    ['AI text in the wrong language is rejected', '', () => assert(safeText('Your result is higher than usual, please book a visit.', 'ar') === null)],
+  ]],
+  ['doctor', 'Patients get safe, clear words', [
+    ['Every message says "this is not a diagnosis"', 'English and Arabic, all bands, normal and simple.', () => { for (const b of ['prediabetes', 'diabetes', 'urgent']) for (const l of ['normal', 'simple']) { assert(explanation({ band: b, value: 8, lang: 'en', level: l }).endsWith('This is not a diagnosis.')); assert(explanation({ band: b, value: 8, lang: 'ar', level: l }).endsWith('هذا ليس تشخيصاً.')); } }],
+    ['Urgency comes only from fixed rules', 'Boundaries 5.7, 6.5 and 10.0 %.', () => { assert(classify(5.6).band === 'normal' && classify(5.7).band === 'prediabetes' && classify(6.4).band === 'prediabetes' && classify(6.5).band === 'diabetes' && classify(9.9).band === 'diabetes' && classify(10).band === 'urgent'); }],
+    ['An urgent result gets a nurse and a 2-day deadline', '', () => { const st = fresh(); const c = createCase(st, coord, { name: 'Test', age: 50, sex: 'F', language: 'ar', value: 11.2, today: TODAY }); assert(st.staff.find((s) => s.id === c.owner).role === 'nurse' && c.due === addDays(TODAY, 2)); }],
+    ['A result below 5.7 % opens no case', '', () => blocked(() => createCase(fresh(), coord, { name: 'Test', age: 50, sex: 'F', language: 'ar', value: 5.2 }), 'not_actionable')],
+  ]],
+  ['file', 'Privacy', [
+    ['The AI is never sent a name', 'Only a band, a number and a barrier leave the device.', async () => {
+      const real = window.fetch; let body = '';
+      window.fetch = async (u, o) => { body = o.body; throw new Error('offline for the test'); };
+      try { await aiText({ ...fresh().cases[0], lang: 'en' }); } finally { window.fetch = real; }
+      assert(body && !body.includes('Fatima') && !body.includes('P-001') && JSON.parse(body).value === 8.1, 'request body leaked data');
+    }],
+    ['Exported records are marked synthetic and carry no AI text', '', () => { const st = fresh(); const c = { ...st.cases[0], aiText: { text: 'AI WORDING', source: 'ai' } }; const b = JSON.stringify(caseToFhirBundle(c, st.staff)); assert(b.includes('SYNTHETIC') && !b.includes('AI WORDING')); }],
+  ]],
+];
+const ALL = GROUPS.flatMap(([, , list]) => list);
+$('#groups').innerHTML = GROUPS.map(([icon, title, list], g) => `<section class="grp"><h3><span class="b-blue" style="width:32px;height:32px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center">${ic(icon, 18)}</span>${title}</h3>
+  ${list.map(([t, sub], i) => `<div class="chk"><span class="st" id="s${g}-${i}">${ic('check', 14)}</span><span>${t}${sub ? `<small>${sub}</small>` : ''}<small class="err" id="e${g}-${i}" style="color:var(--red)"></small></span></div>`).join('')}</section>`).join('');
+
+async function runAll() {
+  const btn = $('#run'); btn.disabled = true;
+  let pass = 0, n = 0; const t0 = performance.now();
+  document.querySelectorAll('.st').forEach((el) => { el.className = 'st'; });
+  for (const [g, [, , list]] of GROUPS.entries()) {
+    for (const [i, [, , fn]] of list.entries()) {
+      const el = $(`#s${g}-${i}`); el.className = 'st run';
+      await new Promise((r) => setTimeout(r, 110));
+      try { await fn(); el.className = 'st pass'; pass++; } catch (e) { el.className = 'st fail'; $(`#e${g}-${i}`).textContent = e.message; }
+      n++; $('#bar').style.width = `${(100 * n) / ALL.length}%`; $('#score').textContent = `${pass}/${ALL.length}`;
+    }
+  }
+  $('#scoresub').textContent = pass === ALL.length ? `every rule held · checked on ${ALL.length} promises` : `${ALL.length - pass} rule(s) failed`;
+  btn.disabled = false; btn.innerHTML = ic('refresh', 18) + ' Run again';
+  document.body.dataset.result = `${pass}/${ALL.length}`;
+}
+$('#run').onclick = runAll;
+
+/* ---------- try to break it ---------- */
+const ATTACKS = [
+  ['The AI closes a case', 'As if the model decided the patient is fine.', () => { const st = one(); toPlan(st, 'X'); return blocked(() => closeCase(st, 'X', ai, { type: 'care_plan_agreed', evidence: 'The model thinks the patient is fine.' })); }],
+  ['A nurse closes a case', 'Without a clinician.', () => { const st = one(); toPlan(st, 'X'); return blocked(() => closeCase(st, 'X', nurse, { type: 'care_plan_agreed', evidence: 'Patient seemed fine on the phone.' })); }],
+  ['Close without evidence', 'A clinician types "ok".', () => { const st = one(); toPlan(st, 'X'); return blocked(() => closeCase(st, 'X', doc, { type: 'care_plan_agreed', evidence: 'ok' })); }],
+  ['Skip straight to booking', 'Before the patient understood.', () => blocked(() => advance(one(), 'X', 'booked', patient))],
+  ['The AI tells a patient "You have diabetes"', 'And to start metformin.', () => { const bad = 'You have diabetes. Start metformin tomorrow morning.'; const okText = safeText(bad, 'en'); assert(okText === null); return `The safety filter rejected it. The patient sees the pre-written message instead: “${explanation({ band: 'diabetes', value: 8.1, lang: 'en' })}”`; }],
+  ['Make a case vanish', 'Remove its owner.', () => { const c = newCase({ id: 'V', patient: {}, value: 8, resultDay: TODAY, owner: null }); const e = escalationsFor(c, TODAY); assert(e.some((x) => x.code === 'unassigned')); return 'It cannot vanish: an unowned case goes straight to the "needs attention" queue and alerts a lead (“No owner assigned”).'; }],
+];
+$('#attack').innerHTML = ATTACKS.map(([t, s], i) => `<button class="atk" data-a="${i}"><span class="ic2">${ic('close', 18)}</span><span><b>${t}</b><span>${s}</span></span></button>`).join('');
+document.querySelectorAll('[data-a]').forEach((b) => b.onclick = () => {
+  const [t, , fn] = ATTACKS[+b.dataset.a]; let msg;
+  try { msg = fn(); } catch (e) { msg = 'Unexpected: ' + e.message; }
+  const v = $('#verdict'); v.classList.remove('on'); void v.offsetWidth; v.classList.add('on');
+  v.innerHTML = `<div class="vh">${ic('shield', 22)} Blocked by the rules</div><p><b>Attempt:</b> ${t}</p><p><b>Engine's answer:</b> ${msg.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]))}</p>`;
+  document.body.dataset.attack = 'blocked';
+});
+startTour();
+if (new URLSearchParams(location.search).has('run')) runAll();
+</script>
+</body>
+</html>

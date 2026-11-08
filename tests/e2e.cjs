@@ -83,10 +83,16 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);
   ok((await s.getAttribute('#b3', 'href')).includes('tour=0'), 'the home page offers the guided tour');
   await s.goto(BASE + 'staff.html?as=n1&filter=attention&tour=3'); await s.waitForTimeout(200);
-  ok(/step 4 of 7/i.test(await s.innerText('.tour')), 'the tour card shows on each step');
+  ok(/step 4 of 8/i.test(await s.innerText('.tour')), 'the tour card shows on each step');
   await s.click('.tour .nx');
   const moved = await s.waitForURL(/tour=4/, { timeout: 10000 }).then(() => s.waitForSelector('#modal.open', { timeout: 10000 })).then(() => true, () => false);
   ok(moved, 'Next moves to the following step');
+  await s.goto(BASE + 'trust.html?run=1');
+  const res = await s.waitForFunction(() => document.body.dataset.result, null, { timeout: 15000 }).then((h) => h.jsonValue(), () => 'none');
+  ok(/^(\d+)\/\1$/.test(res), 'the live safety checks all pass (' + res + ')');
+  await s.click('[data-a="0"]');
+  ok(/Blocked/.test(await s.innerText('#verdict')) && /AI cannot/.test(await s.innerText('#verdict')), 'trying to make the AI close a case is blocked');
+  await shot(s, '11-safety', true);
   await s.goto(BASE + 'metrics.html'); await s.waitForTimeout(300);
   ok(await s.locator('#funnel .fun').count() === 9, 'the measures page renders');
   await shot(s, '10-measures', true);
