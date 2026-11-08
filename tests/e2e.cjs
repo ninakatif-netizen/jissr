@@ -107,6 +107,14 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await s.click('[data-a="0"]');
   ok(/Blocked/.test(await s.innerText('#verdict')) && /AI cannot/.test(await s.innerText('#verdict')), 'trying to make the AI close a case is blocked');
   await shot(s, '11-safety', true);
+  await s.goto(BASE + 'impact.html'); await s.waitForTimeout(200);
+  const before = await s.innerText('#r-x');
+  await s.fill('#c-u', '30'); await s.dispatchEvent('#c-u', 'input'); await s.waitForTimeout(100);
+  ok(before !== await s.innerText('#r-x') && (await s.locator('.fact cite a').count()) >= 5, 'impact page: every figure has a source and the calculator responds');
+  await shot(s, '13-impact', true);
+  await s.goto(BASE + 'pilot.html'); await s.waitForTimeout(200);
+  ok((await s.locator('.ph').count()) === 3 && (await s.locator('#arch svg').count()) === 1, 'pilot page shows the 90-day plan and the architecture');
+  await shot(s, '14-pilot', true);
   await s.goto(BASE + 'metrics.html'); await s.waitForTimeout(300);
   ok(await s.locator('#funnel .fun').count() === 9, 'the measures page renders');
   await shot(s, '10-measures', true);

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f6f1e8">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<title>Jissr: path to pilot</title>
+<meta name="description" content="How Jissr goes from prototype to a 90-day pilot: plan, success criteria, architecture, business model and risks.">
+<link rel="stylesheet" href="styles.css">
+<style>
+.wrap{max-width:1040px}
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#b47a10;font-weight:600}
+.hero3 h1{font-size:2.4rem;line-height:1.12;margin:6px 0 10px;max-width:20ch}
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+@media(max-width:820px){.phases{grid-template-columns:1fr}}
+.ph{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:18px;position:relative}
+.ph .wk{display:inline-block;background:var(--brand);color:#fff;border-radius:999px;font-size:12px;font-weight:600;padding:3px 12px}
+.ph h3{margin:10px 0 8px}
+.ph ul{margin:0;padding-inline-start:18px;font-size:14px}.ph li{margin:5px 0}
+.arch{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:18px;overflow-x:auto}
+.arch svg{min-width:760px;width:100%;height:auto}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:820px){.two{grid-template-columns:1fr}}
+.ask{background:linear-gradient(135deg,#2c5294,#1a3463);color:#fff;border-radius:24px;padding:24px;margin:24px 0}
+.ask h2{color:#fff;margin-top:0}.ask li{margin:6px 0}
+</style>
+</head>
+<body>
+<div class="demo"><span>Prototype · proposals to agree with a pilot partner; no prices or contracts are claimed</span><span class="row"><a href="impact.html">Impact</a><a href="index.html">Home</a></span></div>
+<div class="wrap">
+  <div class="top"><div class="brand" id="brand"></div></div>
+  <div class="hero3"><div class="kicker">Path to pilot</div>
+    <h1>From prototype to a measured pilot in 90 days.</h1>
+    <p class="muted" style="max-width:64ch">One clinic, one programme (abnormal HbA1c), run next to the current process. We measure the same things before and during the pilot, then decide together whether to extend it.</p></div>
+
+  <div class="phases">
+    <div class="ph"><span class="wk">Weeks 1–3</span><h3>Prepare</h3><ul>
+      <li>Name a clinical lead; sign off thresholds, deadlines and messages</li>
+      <li>Native Arabic review of every patient message</li>
+      <li>Data protection impact assessment; DoH approvals and ethics as required</li>
+      <li>Connect the lab result feed (FHIR); test with Malaffi where possible</li>
+      <li>Measure the baseline from the last months of the current process</li>
+      <li>Train the nurse, coordinator and clinicians (one hour)</li></ul></div>
+    <div class="ph"><span class="wk">Weeks 4–10</span><h3>Run</h3><ul>
+      <li>Every new actionable HbA1c result enters Jissr automatically</li>
+      <li>Patients get their result in plain Arabic or English, with consent</li>
+      <li>The care team works from "My tasks" and the alerts queue</li>
+      <li>Weekly 15-minute review of alerts and any safety concern</li>
+      <li>AI wording only after clinical sign-off; templates otherwise</li></ul></div>
+    <div class="ph"><span class="wk">Weeks 11–13</span><h3>Measure and decide</h3><ul>
+      <li>Compare every measure with the baseline</li>
+      <li>Interview patients and staff</li>
+      <li>Safety report: every escalation and how it was resolved</li>
+      <li>Decide: stop, adjust, extend to more clinics, or add a programme (for example bowel screening)</li></ul></div>
+  </div>
+
+  <h2>How success is measured</h2>
+  <div class="scroll" style="max-height:none"><table class="tbl"><thead><tr><th>Measure</th><th>How</th><th>Target</th></tr></thead><tbody>
+    <tr><td>Time to notification</td><td>Result issued → patient told</td><td>Within the agreed service level, better than baseline</td></tr>
+    <tr><td>Follow-up completed on time</td><td>Seen by a clinician by the due date</td><td>Better than baseline (the main outcome)</td></tr>
+    <tr><td>Unresolved actionable results</td><td>Open past due, or unassigned, at day 30</td><td>Lower than baseline</td></tr>
+    <tr><td>Documented closure</td><td>Closed cases with clinician evidence</td><td>100% (enforced by design)</td></tr>
+    <tr><td>Patient understanding and confidence</td><td>"Did this make sense?" and a 1–5 question</td><td>Better than baseline</td></tr>
+    <tr><td>Staff time</td><td>Minutes per case, from staff logs</td><td>Not higher than today</td></tr>
+  </tbody></table></div>
+  <p class="tiny muted">Exact targets are set with the clinical partner before the pilot starts, once the baseline is known. All of these are already calculated on the <a href="metrics.html">measures page</a>.</p>
+
+  <h2 style="margin-top:28px">What a pilot partner provides</h2>
+  <div class="two">
+    <div class="card" style="margin:0"><ul style="margin:0;padding-inline-start:18px">
+      <li>A clinical lead (about 2 hours a week)</li><li>One nurse and one coordinator using Jissr in their normal work</li>
+      <li>Access to the lab result feed for one programme</li><li>Help with approvals, consent wording and the security review</li></ul></div>
+    <div class="card" style="margin:0"><ul style="margin:0;padding-inline-start:18px">
+      <li>We provide: the software, set-up, training, weekly support</li><li>Hosting planned in a UAE cloud region, so data stays in the country</li>
+      <li>A full evaluation report at week 13</li><li>Everything already built: patient app, care team, rules, measures, safety tests</li></ul></div>
+  </div>
+
+  <h2 style="margin-top:28px">Deployment architecture</h2>
+  <p class="muted" style="margin-top:0">Today the prototype runs in the browser with synthetic data. For a pilot, the same rules engine moves behind a secure service hosted in the UAE.</p>
+  <div class="arch" id="arch"></div>
+
+  <h2 style="margin-top:28px">Business model (proposal)</h2>
+  <div class="two">
+    <div class="card" style="margin:0"><h3>Who benefits and who pays</h3>
+      <p class="tiny">Provider networks and payers: fewer people lost after screening, earlier care, quality measures they can report. Health authority: one view of whether screening programmes lead to care.</p>
+      <p class="tiny"><b>Pricing options to agree with a partner:</b> an annual licence per screening programme, or a fee per actionable result managed. No price is claimed here.</p></div>
+    <div class="card" style="margin:0"><h3>Why it can scale cheaply</h3>
+      <p class="tiny">One engine runs every programme: adding one means adding its content (thresholds, messages, referral places), not new software. Running costs are hosting, messages (SMS or WhatsApp) and short AI wording requests. The main cost is set-up and training per site.</p></div>
+  </div>
+
+  <h2 style="margin-top:28px">Risks and how they are handled</h2>
+  <div class="scroll" style="max-height:none"><table class="tbl"><thead><tr><th>Risk</th><th>How Jissr handles it</th></tr></thead><tbody>
+    <tr><td>A wrong clinical rule or message</td><td>Clinical sign-off before the pilot; rules are explicit and tested; weekly review</td></tr>
+    <tr><td>AI says something unsafe</td><td>AI only rewords; safety filter; pre-written fallback; it can never act on a case (<a href="trust.html">proof</a>)</td></tr>
+    <tr><td>Personal data</td><td>Only what the follow-up needs; UAE hosting; consent; nothing personal sent to the AI</td></tr>
+    <tr><td>Staff have no time</td><td>"My tasks" shows only the next action; rules do the triage and deadlines</td></tr>
+    <tr><td>Patients do not engage</td><td>Arabic and other languages, read aloud, chosen channel, nurse call, family helper with consent</td></tr>
+    <tr><td>Integration effort</td><td>Standard FHIR format from day one; start with one result feed</td></tr>
+  </tbody></table></div>
+
+  <div class="ask"><h2>Our ask</h2><ul>
+    <li>A clinical partner and one primary care clinic in Abu Dhabi</li>
+    <li>90 days, one programme (abnormal HbA1c), measured against today's baseline</li>
+    <li>Then a joint decision on scaling to more clinics and programmes</li></ul></div>
+  <p class="foot">Synthetic prototype · proposals only · not medical advice</p>
+</div>
+<script type="module">
+import { registerSW } from './core/pwa.mjs';
+import { startTour } from './core/tour.mjs';
+import { wordmark } from './core/ui.mjs';
+registerSW();
+document.getElementById('brand').innerHTML = wordmark() + '<span class="sub">Path to pilot</span>';
+// architecture drawing: boxes and arrows, drawn in SVG so it stays sharp and editable
+const box = (x, y, w, h, title, sub, fill = '#fffdf9', ink = '#1b2238') => `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="${fill}" stroke="#e2d6c1"/><text x="${x + 14}" y="${y + 24}" font-size="14" font-weight="600" fill="${ink}">${title}</text>${sub.map((s, i) => `<text x="${x + 14}" y="${y + 44 + i * 17}" font-size="12" fill="${ink === '#fff' ? '#d9e2f5' : '#6b6a75'}">${s}</text>`).join('')}</g>`;
+const arrow = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1d3a6b" stroke-width="2" marker-end="url(#ah)"/>`;
+document.getElementById('arch').innerHTML = `<svg viewBox="0 0 900 380" role="img" aria-label="Deployment architecture" font-family="Poppins, sans-serif">
+  <defs><marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#1d3a6b"/></marker></defs>
+  ${box(20, 30, 200, 80, 'Patient app', ['Phone, installable, offline', 'Arabic and English'])}
+  ${box(20, 150, 200, 80, 'Care-team web app', ['Nurses, coordinators', 'clinicians, leads'])}
+  ${box(20, 270, 200, 80, 'Sign-in', ['Staff: Microsoft Entra ID', 'Patients: one-time SMS code'])}
+  ${box(300, 110, 280, 160, 'Jissr service (UAE region)', ['Same rules engine as the prototype', 'Owners, deadlines, escalation', 'Clinician-only closing', 'Audit log of every action', 'Database, encrypted'], '#1d3a6b', '#fff')}
+  ${box(660, 20, 220, 80, 'Lab and records', ['Result feed (FHIR)', 'Malaffi, where approved'])}
+  ${box(660, 120, 220, 80, 'Messaging', ['SMS or WhatsApp provider', 'Reminders, codes'])}
+  ${box(660, 220, 220, 80, 'Azure OpenAI', ['Words only, UAE region if available', 'No names or identifiers'])}
+  ${box(660, 310, 220, 56, 'Measures and reports', ['For the clinic and the programme'])}
+  ${arrow(222, 70, 298, 150)}${arrow(222, 190, 298, 190)}${arrow(222, 300, 298, 240)}
+  ${arrow(658, 60, 582, 140)}${arrow(582, 175, 658, 160)}${arrow(582, 220, 658, 258)}${arrow(582, 255, 658, 336)}
+</svg>`;
+startTour();
+</script>
+</body>
+</html>

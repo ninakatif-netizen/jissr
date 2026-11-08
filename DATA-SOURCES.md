@@ -15,6 +15,8 @@ The organisers provide no data. Jissr uses **only material we created or have th
 | HbA1c code in the FHIR export (LOINC 4548-4) | LOINC. | Used under the LOINC licence: "This material contains content from LOINC (http://loinc.org). LOINC is copyright © Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license." |
 | FHIR R4 resource structure | HL7 FHIR standard. | Open standard (published by HL7 under a CC0 licence). |
 
+**Figures quoted on the impact page** (quoted, not modified): IDF Diabetes Atlas 11th edition (2024), UAE country page; a cohort study on follow-up of abnormal glucose results (PMC1562409); a 2020 study of colonoscopy after positive FIT in two US Medicaid plans (Journal of Primary Care & Community Health); Casalino et al., Archives of Internal Medicine 2009; Diabetes Prevention Program, NEJM 2002 (PubMed 11832527). Links are on `impact.html`. All other numbers there are labelled assumptions.
+
 No organiser data, no real patient data, no scraped data, and no third-party datasets are used.
 
 ## 2. Design and media
