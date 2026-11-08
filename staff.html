@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Jissr: care team</title>
+<meta name="theme-color" content="#f4ecdd">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -33,6 +37,8 @@
 </div>
 
 <script type="module">
+import { registerSW } from './core/pwa.mjs';
+registerSW();
 import { wordmark, ic } from './core/ui.mjs';
 import { loadState, saveState, resetState } from './core/store.mjs';
 import { caseToFhirBundle } from './core/fhir.mjs';

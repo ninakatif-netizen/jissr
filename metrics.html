@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Jissr: measures</title>
+<meta name="theme-color" content="#f4ecdd">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
 <style>
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:12px 0}
@@ -58,6 +62,8 @@
 </div>
 
 <script type="module">
+import { registerSW } from './core/pwa.mjs';
+registerSW();
 import { wordmark } from './core/ui.mjs';
 import { loadState } from './core/store.mjs';
 import { STAGES, STAGE_LABEL, daysBetween, isOverdue, escalationsFor, slaDeadline } from './core/rules.mjs';

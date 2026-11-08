@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Jissr: closing the screening-to-care loop</title>
 <meta name="description" content="Prototype: helping people with an abnormal HbA1c understand it, book care, and not get lost. Synthetic data only.">
+<meta name="theme-color" content="#f4ecdd">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
 <style>
 .kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-d);font-weight:600;margin-bottom:10px}
@@ -92,6 +96,8 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
 </div>
 
 <script type="module">
+import { registerSW } from './core/pwa.mjs';
+registerSW();
 import { ic, wordmark } from './core/ui.mjs';
 document.getElementById('brand').innerHTML = wordmark();
 document.querySelectorAll('[data-ic]').forEach((el) => { el.innerHTML = ic(el.dataset.ic, +el.dataset.s || 22); el.style.cssText = 'display:block;color:var(--accent-d);margin-bottom:8px'; });

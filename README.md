@@ -19,6 +19,9 @@ One programme: abnormal HbA1c from screening. **All data is synthetic. Not medic
 - `api/_jissr-ai.js`: the one place that talks to an AI provider (Anthropic or Azure OpenAI)
 - `api/jissr-explain.js`: serverless endpoint that asks the AI to word a message, then safety-checks it
 
+## Install it like an app
+Open `patient.html` on a phone. Android (Chrome): menu, then "Install app". iPhone (Safari): Share, then "Add to Home Screen". It then opens full-screen and works offline (`sw.js`). **Bump `VERSION` in `sw.js` on every release.**
+
 ## Run and test
 ```
 npm test                      # 27 tests, no install needed

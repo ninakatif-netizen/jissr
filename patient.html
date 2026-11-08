@@ -2,7 +2,15 @@
 <html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4ecdd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Jissr">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <title>Jissr: your result</title>
 <link rel="stylesheet" href="styles.css">
 <style>
@@ -66,12 +74,41 @@ body{font-size:17px}
 .splash .name span{font-family:"Kufi",serif;color:#e3a44a;margin-inline-start:10px}
 .splash p{opacity:.9;max-width:22ch;margin-top:10px}
 @keyframes splash{to{opacity:0;visibility:hidden}}
+/* ---------- app shell ---------- */
+html,body{height:100%}
+body{margin:0;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+button,.tab,.act{-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.device{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+.screen{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-top:env(safe-area-inset-top)}
+.tabs{position:absolute;inset-inline:0;bottom:0;padding-bottom:env(safe-area-inset-bottom)}
+.top{position:sticky;top:0;z-index:6;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.splash{position:absolute}
+button:active:not([disabled]){transform:scale(.97)}
+#demo-toggle{position:fixed;top:calc(env(safe-area-inset-top) + 8px);inset-inline-end:10px;z-index:70;font:inherit;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 10px;opacity:.85}
+.demo{position:relative;z-index:60}
+@media (max-width:699px){
+  .demo{display:none}
+  .demo.open{display:flex;position:fixed;top:0;left:0;right:0}
+  .top{padding-inline-end:56px}
+}
+@media (min-width:700px){
+  #demo-toggle{display:none}
+  body{background:radial-gradient(circle at 30% 0%,#efe2c8,#e6d8bb);display:flex;flex-direction:column;align-items:center;min-height:100vh}
+  .demo{width:100%}
+  .device{position:relative;inset:auto;width:392px;height:min(860px,calc(100vh - 96px));margin:20px auto;border-radius:48px;border:11px solid #1b2238;box-shadow:0 34px 70px rgba(27,34,56,.32),0 0 0 2px #38405c}
+  .device:before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:92px;height:24px;border-radius:14px;background:#1b2238;z-index:80}
+  .screen{padding-top:26px}
+  .installcard{display:none!important}
+}
+.installcard{display:flex;gap:12px;align-items:center}
+.installcard .ico{color:var(--accent-d)}
 .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 [dir=rtl] .lbl{letter-spacing:0;text-transform:none;font-size:13px}
 </style>
 </head>
 <body>
-<div class="demo">
+<button id="demo-toggle" aria-expanded="false">Demo</button>
+<div class="demo" id="demo">
   <span>Demo · synthetic data only</span>
   <span class="row">
     <label for="who" style="margin:0;font-weight:400">Viewing as</label>
@@ -80,7 +117,10 @@ body{font-size:17px}
     <a href="index.html">Home</a>
   </span>
 </div>
-<div class="wrap" id="app" aria-live="polite"></div>
+<div class="device" id="device">
+  <div class="screen" id="screen"><div class="wrap" id="app" aria-live="polite"></div></div>
+  <nav id="tabs" class="tabs" aria-label="Main"></nav>
+</div>
 
 <script type="module">
 import { loadState, saveState, resetState, aiText } from './core/store.mjs';
@@ -88,6 +128,7 @@ import { classify, slotsFor, BARRIERS } from './core/rules.mjs';
 import { advance, setBarrier, requestNurse, recordAiText, setChannel, recordConfidence } from './core/cases.mjs';
 import { explanation, barrierText, nurseText } from './core/templates.mjs';
 import { ic, wordmark, logo } from './core/ui.mjs';
+import { registerSW, isStandalone, isIOS, onInstallReady, canPrompt, promptInstall } from './core/pwa.mjs';
 
 /* ---------- words on the screen (English / Arabic) ---------- */
 const S = {
@@ -123,6 +164,7 @@ const S = {
     },
     careBy: 'Looking after you', noOwner: 'A team member will be assigned to you very soon.', role: { nurse: 'Nurse', coordinator: 'Care coordinator', clinician: 'Doctor' },
     tabs: ['Home', 'My result', 'Nurse', 'Family'], gaugeCap: 'Where your result sits', zones: ['Usual', 'A bit high', 'High', 'Very high'], tag: 'Your result, explained.\nYour next step, clear.',
+    inst: 'Install Jissr on your phone', instSub: 'Add it to your home screen to open it like an app, even without internet.', instBtn: 'Install', instIos: 'Tap the Share button, then "Add to Home Screen".',
     qListen: 'Listen to my result', qNurse: 'Talk to a nurse', qFamily: 'Family helper',
     nurseT: 'Talk to a nurse', nurseSub: 'A nurse can explain your result, answer worries and help you book.', when: 'Best time to call', morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening',
     chanQ: 'How should we contact you?', chan: { app: 'This app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'Phone call' },
@@ -168,6 +210,7 @@ const S = {
     },
     careBy: 'من يعتني بك', noOwner: 'سيُخصَّص لك أحد أعضاء الفريق قريباً جداً.', role: { nurse: 'ممرضة', coordinator: 'منسق الرعاية', clinician: 'طبيب' },
     tabs: ['الرئيسية', 'نتيجتي', 'الممرضة', 'العائلة'], gaugeCap: 'أين تقع نتيجتك', zones: ['معتاد', 'أعلى قليلاً', 'مرتفع', 'مرتفع جداً'], tag: 'نتيجتك واضحة،\nوخطوتك التالية معروفة.',
+    inst: 'ثبّت جسر على هاتفك', instSub: 'أضفه إلى الشاشة الرئيسية ليفتح مثل أي تطبيق، حتى دون إنترنت.', instBtn: 'تثبيت', instIos: 'اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».',
     qListen: 'استمع إلى نتيجتي', qNurse: 'تحدث مع ممرضة', qFamily: 'مساعد من العائلة',
     nurseT: 'تحدث مع ممرضة', nurseSub: 'يمكن للممرضة أن تشرح نتيجتك، وتجيب عن مخاوفك، وتساعدك في الحجز.', when: 'أفضل وقت للاتصال', morning: 'صباحاً', afternoon: 'بعد الظهر', evening: 'مساءً',
     chanQ: 'كيف تفضل أن نتواصل معك؟', chan: { app: 'هذا التطبيق', sms: 'رسالة نصية', whatsapp: 'واتساب', phone: 'اتصال هاتفي' },
@@ -319,6 +362,14 @@ function gaugeHtml(c) {
 }
 
 /* ---------- views ---------- */
+function installCard() {
+  if (isStandalone()) return '';
+  const t = T();
+  if (canPrompt()) return `<section class="card installcard">${ic('phone', 26)}<div style="flex:1"><b>${t.inst}</b><div class="tiny muted">${t.instSub}</div></div><button class="btn small" id="install-go">${t.instBtn}</button></section>`;
+  if (isIOS()) return `<section class="card installcard">${ic('phone', 26)}<div><b>${t.inst}</b><div class="tiny muted">${t.instIos}</div></div></section>`;
+  return '';
+}
+
 function homeView(c) {
   const t = T();
   const first = c.patient.name.split(' ')[0];
@@ -327,6 +378,7 @@ function homeView(c) {
     ${trackerHtml(c)}
     ${nextCard(c)}
     ${contactCard(c)}`;
+  h += installCard();
   if (stageIdx(c) >= 3 && c.stage !== 'closed') {
     h += `<section class="card"><h3>${t.confQ}</h3><div class="scale">${[1, 2, 3, 4, 5].map((n) => `<button data-conf="${n}" aria-label="${n}" aria-pressed="${!!c.confidence && c.confidence.score === n}">${n}</button>`).join('')}</div>
       <div class="row tiny muted" style="justify-content:space-between;margin-top:6px"><span>${t.confLow}</span><span>${t.confHigh}</span></div>
@@ -424,19 +476,19 @@ function render() {
   // bottom tab bar (always visible, like a real phone app)
   const tabsDef = [['home', 'home'], ['result', 'result'], ['nurse', 'phone'], ['family', 'users']];
   const activeTab = view === 'book' ? 'home' : view;
-  let nav = document.getElementById('tabs');
-  if (!nav) { nav = document.createElement('nav'); nav.id = 'tabs'; nav.className = 'tabs'; nav.setAttribute('aria-label', 'Main'); document.body.appendChild(nav); }
+  const nav = document.getElementById('tabs');
   nav.innerHTML = '<div>' + tabsDef.map(([v2, icon], i) => `<button class="tab" data-go="${v2}" ${activeTab === v2 ? 'aria-current="page"' : ''}>${ic(icon, 22)}${T().tabs[i]}</button>`).join('') + '</div>';
   wire(c);
 }
 
 function act(fn) { try { fn(); save(); } catch (e) { alert(e.message); } render(); }
-const go = (v) => { view = v; msg = { ...msg, no: false }; stopSpeak(); window.scrollTo({ top: 0 }); render(); };
+const go = (v) => { view = v; msg = { ...msg, no: false }; stopSpeak(); render(); document.getElementById('screen').scrollTo({ top: 0 }); };
 
 function wire(c) {
   const $ = (s) => document.querySelector(s);
   document.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => { lang = b.dataset.lang; try { localStorage.setItem('jissr.lang', lang); } catch { } stopSpeak(); render(); });
   document.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => go(b.dataset.go));
+  $('#install-go') && ($('#install-go').onclick = async () => { await promptInstall(); render(); });
   $('#next-go') && ($('#next-go').onclick = () => { const a = $('#next-go').dataset.a; a === 'ics' ? downloadIcs() : go(a); });
   $('#listen') && ($('#listen').onclick = () => { speaking ? stopSpeak() : speak(explainNow(c).text); render(); });
   $('#simpler') && ($('#simpler').onclick = () => { level = 'simple'; render(); });
@@ -489,6 +541,10 @@ who.onchange = () => { id = who.value; level = 'normal'; msg = {}; view = 'home'
 document.getElementById('reset').onclick = () => { state = resetState(); aiBox = {}; msg = {}; level = 'normal'; view = 'home'; ensureNotified(); render(); };
 if (!state.cases.some((c) => c.id === id)) id = state.cases[0].id;
 who.value = id;
+const demoBar = document.getElementById('demo'), demoBtn = document.getElementById('demo-toggle');
+demoBtn.onclick = () => { const open = demoBar.classList.toggle('open'); demoBtn.setAttribute('aria-expanded', open); demoBtn.textContent = open ? 'Close' : 'Demo'; };
+registerSW();
+onInstallReady(() => { if (view === 'home') render(); });
 ensureNotified();
 render();
 
@@ -499,7 +555,7 @@ try {
     const sp = document.createElement('div');
     sp.className = 'splash'; sp.setAttribute('aria-hidden', 'true');
     sp.innerHTML = `${logo(64)}<div class="name">Jissr<span>جسر</span></div><p>${T().tag.replace('\n', '<br>')}</p>`;
-    document.body.appendChild(sp);
+    document.getElementById('device').appendChild(sp);
     setTimeout(() => sp.remove(), 2000);
   }
 } catch { /* the app works without the welcome screen */ }
