@@ -28,6 +28,7 @@ Without an AI key everything still works using the pre-written messages.
 
 ## Deploy (free): Vercel
 Import this repository, leave defaults, deploy. To switch the AI on, add environment variables in Vercel:
+- Gemini (free key from Google AI Studio): `GEMINI_API_KEY`, `JISSR_AI_PROVIDER=gemini` (optional `JISSR_AI_MODEL`, default `gemini-2.5-flash`)
 - Anthropic: `ANTHROPIC_API_KEY` (optional `JISSR_AI_MODEL`)
 - Azure OpenAI: `JISSR_AI_PROVIDER=azure-openai`, `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT`
 

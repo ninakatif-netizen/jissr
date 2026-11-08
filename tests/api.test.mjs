@@ -52,6 +52,25 @@ test('values outside the programme are refused; only enums and a number are used
   assert.equal(r2.code, 200); // unknown barrier is treated as "none"; extra fields are ignored
 });
 
+test('Gemini provider: calls the Gemini API with the key in a header and uses a safe answer', async () => {
+  process.env.JISSR_AI_PROVIDER = 'gemini'; process.env.GEMINI_API_KEY = 'g-test';
+  let seen;
+  globalThis.fetch = async (url, init) => { seen = { url, headers: init.headers, body: JSON.parse(init.body) }; return { ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: 'Your result is higher than usual. A doctor will talk it through with you and help you plan the next step.' }] } }] }) }; };
+  const r = await call({ band: 'diabetes', value: 8.1, lang: 'en' }, '6.6.6.6');
+  assert.equal(r.body.source, 'ai');
+  assert.equal(r.body.provider, 'gemini');
+  assert.match(seen.url, /generativelanguage\.googleapis\.com\/v1beta\/models\/.+:generateContent$/);
+  assert.equal(seen.headers['x-goog-api-key'], 'g-test');
+  assert.doesNotMatch(seen.url, /g-test/);                         // the key is never put in the address
+  assert.ok(seen.body.systemInstruction.parts[0].text.includes('NEVER diagnose'));
+  assert.ok(!JSON.stringify(seen.body).includes('Fatima'));        // no patient name is sent
+  // a blocked/empty Gemini answer falls back to the template
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({ candidates: [{ finishReason: 'SAFETY' }] }) });
+  const r2 = await call({ band: 'diabetes', value: 8.1, lang: 'en' }, '7.7.7.7');
+  assert.equal(r2.body.source, 'template');
+  delete process.env.JISSR_AI_PROVIDER; delete process.env.GEMINI_API_KEY;
+});
+
 test('no provider configured: still works with the template', async () => {
   delete process.env.ANTHROPIC_API_KEY;
   const r = await call({ band: 'prediabetes', value: 6.0, lang: 'en' }, '5.5.5.5');
