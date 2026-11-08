@@ -42,7 +42,7 @@ export function logo(size = 30) {
     <path d="M2 28h36" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
     <path d="M6 28V19a14 14 0 0 1 28 0v9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
     <path d="M13 28v-8a7 7 0 0 1 14 0v8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-    <rect x="17" y="1.5" width="6" height="6" rx="1" transform="rotate(45 20 4.5)" fill="#d08a2e"/>
+    <rect x="17" y="1.5" width="6" height="6" rx="1" transform="rotate(45 20 4.5)" fill="#f5b544"/>
   </svg>`;
 }
 

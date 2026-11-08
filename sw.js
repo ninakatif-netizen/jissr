@@ -1,15 +1,13 @@
 // Jissr service worker: lets the app open offline and be installed.
 // Strategy: network first (so new versions show immediately), fall back to the saved copy when offline.
 // Bump VERSION on every release so old saved copies are cleared.
-const VERSION = 'jissr-v1';
+const VERSION = 'jissr-v2';
 const SHELL = [
   '/', '/index.html', '/patient.html', '/staff.html', '/metrics.html', '/review.html', '/styles.css', '/manifest.webmanifest',
   '/core/rules.mjs', '/core/cases.mjs', '/core/data.mjs', '/core/store.mjs', '/core/templates.mjs', '/core/ui.mjs', '/core/fhir.mjs', '/core/pwa.mjs',
   '/icons/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png',
-  '/fonts/fraunces-latin-500-normal.woff2', '/fonts/fraunces-latin-600-normal.woff2',
-  '/fonts/ibm-plex-sans-arabic-latin-400-normal.woff2', '/fonts/ibm-plex-sans-arabic-latin-600-normal.woff2',
+  '/fonts/poppins-latin-400-normal.woff2', '/fonts/poppins-latin-500-normal.woff2', '/fonts/poppins-latin-600-normal.woff2', '/fonts/poppins-latin-700-normal.woff2',
   '/fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2', '/fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2',
-  '/fonts/noto-kufi-arabic-arabic-600-normal.woff2', '/fonts/noto-kufi-arabic-arabic-700-normal.woff2',
 ];
 
 self.addEventListener('install', (e) => {

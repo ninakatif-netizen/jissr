@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f4ecdd">
+<meta name="theme-color" content="#f3f6fb">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Jissr">
@@ -14,100 +14,138 @@
 <title>Jissr: your result</title>
 <link rel="stylesheet" href="styles.css">
 <style>
-body{font-size:17px}
-.wrap{max-width:540px}
-.view{animation:in .28s ease}
-@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.back{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--brand);font:inherit;font-weight:600;padding:10px 0;cursor:pointer;min-height:44px}
+body{font-size:16px}
+.wrap{max-width:540px;padding-bottom:120px}
+.view{animation:in .3s ease}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.back{width:42px;height:42px;border-radius:14px;background:var(--card);box-shadow:var(--shadow);border:0;display:inline-flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;flex:none}
 [dir=rtl] .back .ico{transform:scaleX(-1)}
-.hello{font-size:2.15rem;margin:8px 0 2px}
-/* journey tracker */
-.track{display:flex;margin:18px 0 6px}
-.trk{flex:1;text-align:center;position:relative;font-size:12.5px;color:var(--muted)}
-.trk .dot{width:26px;height:26px;border-radius:50%;margin:0 auto 6px;background:var(--card);border:2px solid var(--line);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;position:relative;z-index:1}
-.trk:not(:last-child):after{content:"";position:absolute;top:12px;inset-inline-start:50%;width:100%;height:2px;background:var(--line)}
-.trk.done .dot{background:var(--brand);border-color:var(--brand);color:var(--card)}
+.bar{display:flex;align-items:center;gap:12px;margin:4px 0 12px}
+.bar h1{margin:0;font-size:1.3rem;flex:1}
+.greet{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 6px}
+.greet .hi{color:var(--muted);font-size:14px}
+.greet .nm{font-size:1.55rem;font-weight:600;line-height:1.2}
+.me{width:50px;height:50px;border-radius:50%;background:var(--p-yellow);color:#b47a10;display:flex;align-items:center;justify-content:center;font:inherit;font-weight:700;box-shadow:var(--shadow);flex:none;border:0;cursor:pointer;position:relative}
+.me:after{content:"";position:absolute;bottom:2px;inset-inline-end:2px;width:11px;height:11px;border-radius:50%;background:var(--brand);border:2px solid var(--card)}
+/* journey */
+.journey{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:14px 14px 10px;margin:14px 0}
+.journey .jh{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:12px}
+.journey .jh b{color:var(--ink);font-weight:600}
+.track{display:flex}
+.trk{flex:1;text-align:center;position:relative;font-size:11.5px;color:var(--muted)}
+.trk .dot{width:24px;height:24px;border-radius:50%;margin:0 auto 6px;background:var(--card2);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;position:relative;z-index:1}
+.trk:not(:last-child):after{content:"";position:absolute;top:10.5px;inset-inline-start:50%;width:100%;height:3px;border-radius:2px;background:var(--card2)}
+.trk.done .dot{background:var(--brand);color:#fff}
 .trk.done:not(:last-child):after{background:var(--brand)}
-.trk.now .dot{border-color:var(--accent);background:var(--accent);color:#1b2238;animation:ring 2s ease-in-out infinite}
+.trk.now .dot{background:var(--accent);color:#1e2a44;box-shadow:0 0 0 5px var(--accent-l)}
 .trk.now{color:var(--ink);font-weight:600}
-@keyframes ring{0%,100%{box-shadow:0 0 0 0 rgba(208,138,46,.5)}50%{box-shadow:0 0 0 8px rgba(208,138,46,0)}}
-/* the one thing to do next */
-.next{background:var(--panel);background-image:var(--star);color:var(--on-panel);border-radius:22px;padding:24px 22px;margin:16px 0;overflow:hidden}
-.next.ok{background-color:#24573f}
-.next .badge{width:54px;height:54px;border-radius:50%;border:1.5px solid rgba(255,252,246,.55);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
-.next h2{font-size:1.6rem;margin:0 0 8px;color:var(--on-panel)}
-.next p{margin:0 0 18px;opacity:.93}
-.next .btn{background:var(--accent);border-color:var(--accent);color:#1b2238;width:100%;font-size:1.05rem}
-.next.wait .btn,.next.ok .btn{background:transparent;color:var(--on-panel);border-color:rgba(255,252,246,.7)}
-/* who is looking after me */
-.who{display:flex;gap:14px;align-items:center;margin-top:10px}
-.avatar{width:50px;height:50px;border-radius:50%;background:var(--brand-l);color:var(--brand-d);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:600;font-size:1.1rem;flex:none}
-.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
-.act{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 6px 12px;text-align:center;font:inherit;font-size:13.5px;color:var(--ink);cursor:pointer;min-height:92px;line-height:1.3;transition:border-color .15s}
-.act:hover{border-color:var(--brand)}
-.act .ico{display:block;margin:0 auto 8px;color:var(--brand)}
+/* the blue "next step" card */
+.next{position:relative;overflow:hidden;background:linear-gradient(135deg,#4a7ee0,#2c58b8);color:#fff;border-radius:24px;padding:22px 20px;margin:14px 0;box-shadow:0 14px 30px rgba(44,88,184,.28)}
+.next:before,.next:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.09);pointer-events:none}
+.next:before{width:210px;height:210px;top:-90px;inset-inline-end:-70px}
+.next:after{width:120px;height:120px;bottom:-60px;inset-inline-start:-30px}
+.next>*{position:relative;z-index:1}
+.next.ok{background:linear-gradient(135deg,#2fa774,#1f7f57);box-shadow:0 14px 30px rgba(31,127,87,.25)}
+.next .badge{width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.next h2{font-size:1.3rem;margin:0 0 6px;color:#fff}
+.next p{margin:0 0 16px;opacity:.92;font-size:14.5px}
+.next .btn{background:#fff;color:#244c9e;width:100%;box-shadow:none}
+.next.ok .btn{color:#1f7f57}
+.next .lbl{color:#fff;opacity:.85}
+.appt{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.datebox{background:#fff;color:#244c9e;border-radius:16px;width:64px;padding:8px 0;text-align:center;flex:none}
+.datebox b{display:block;font-size:1.55rem;line-height:1.1}
+.datebox span{font-size:12px;font-weight:600}
+.next.ok .datebox{color:#1f7f57}
+.appt h2{margin:0}
+.appt .sub{opacity:.9;font-size:14px}
+/* quick help tiles */
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:20px 0 12px}
+.sec h3{margin:0}
+.svc{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.svc button{background:none;border:0;font:inherit;font-size:12.5px;color:var(--ink);cursor:pointer;padding:0;display:flex;flex-direction:column;align-items:center;gap:7px}
+.svc .box{width:100%;max-width:68px;aspect-ratio:1;border-radius:20px;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.svc button:active .box{transform:scale(.93)}
+.b-blue{background:var(--p-blue);color:#3b6fd4}.b-yellow{background:var(--p-yellow);color:#c58a10}.b-pink{background:var(--p-pink);color:#d4527a}.b-lilac{background:var(--p-lilac);color:#7a5cd6}.b-mint{background:var(--p-mint);color:#22895e}
+/* care contact */
+.who{display:flex;gap:14px;align-items:center}
+.avatar{width:50px;height:50px;border-radius:16px;background:var(--p-lilac);color:#7a5cd6;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.who .info{flex:1;min-width:0}
+.who .info b{display:block}
+.call{width:46px;height:46px;border-radius:50%;background:var(--brand);color:#fff;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 14px rgba(59,111,212,.3);flex:none}
+.lbl{font-size:13px;color:var(--muted);font-weight:500;margin-bottom:10px}
+/* result screen */
+.report{background:var(--p-blue);border-radius:24px;padding:18px 16px 16px;margin:4px 0 12px}
+.report .lbl{color:#244c9e;font-weight:600}
+.minis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.mini{border-radius:20px;padding:14px}
+.mini small{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:6px}
+.mini b{display:block;font-size:1rem;margin-top:2px;color:var(--ink)}
+.gauge{text-align:center}
+.gauge svg{width:100%;max-width:280px;height:auto}
+.gauge .gv{font-weight:700;font-size:32px;fill:#1e2a44;font-family:"Poppins",sans-serif}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font-size:12px;color:var(--muted);margin-top:2px}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-inline-end:5px}
+/* booking: date strip */
+.dates{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.dates::-webkit-scrollbar{display:none}
+.dt{flex:none;width:78px;scroll-snap-align:start;border:0;background:var(--card2);border-radius:18px;padding:10px 0 12px;font:inherit;color:var(--ink);cursor:pointer;text-align:center;transition:background .15s,color .15s}
+.dt b{display:block;font-size:1.4rem;line-height:1.15}
+.dt span{display:block;font-size:12px;color:var(--muted)}
+.dt em{display:block;font-style:normal;font-size:12.5px;font-weight:600;margin-top:6px;color:var(--brand)}
+.dt[aria-pressed=true]{background:var(--brand);color:#fff;box-shadow:0 8px 18px rgba(59,111,212,.3)}
+.dt[aria-pressed=true] span,.dt[aria-pressed=true] em{color:#fff}
+/* confidence */
 .scale{display:flex;gap:8px}
-.scale button{flex:1;font:inherit;font-weight:600;font-size:1.05rem;padding:12px 0;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer;min-height:52px}
-.scale button[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:var(--card)}
-.tick{width:84px;height:84px;border-radius:50%;background:var(--green);margin:10px auto;display:flex;align-items:center;justify-content:center;color:#fffcf6;animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
-.tick svg{width:44px;height:44px;stroke-width:2.4;stroke-dasharray:30;stroke-dashoffset:30;animation:draw .5s .25s ease forwards}
+.scale button{flex:1;font:inherit;font-weight:600;font-size:1rem;padding:11px 0;border:0;border-radius:14px;background:var(--card2);color:var(--ink);cursor:pointer;min-height:48px}
+.scale button[aria-pressed=true]{background:var(--brand);color:#fff}
+.tick{width:80px;height:80px;border-radius:50%;background:var(--green);margin:14px auto;display:flex;align-items:center;justify-content:center;color:#fff;animation:pop .45s cubic-bezier(.2,1.6,.4,1);box-shadow:0 0 0 10px var(--green-l)}
+.tick svg{width:42px;height:42px;stroke-width:2.4;stroke-dasharray:30;stroke-dashoffset:30;animation:draw .5s .25s ease forwards}
 @keyframes pop{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
 @keyframes draw{to{stroke-dashoffset:0}}
 .center{text-align:center}
-.bigbtn{width:100%;font-size:1.08rem;min-height:56px}
-.slotbtn{padding:14px 8px}
-.bubble{background:var(--green-l);color:var(--ink);border-radius:16px 16px 16px 4px;padding:12px 14px;margin:8px 0;max-width:92%}
-[dir=rtl] .bubble{border-radius:16px 16px 4px 16px}
-.wrap{padding-bottom:120px}
-.tabs{position:fixed;inset-inline:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:20;padding-bottom:env(safe-area-inset-bottom)}
-.tabs div{max-width:540px;margin:0 auto;display:flex}
-.tab{flex:1;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font:inherit;font-size:12px;color:var(--muted);padding:9px 0 8px;min-height:58px;cursor:pointer}
+.bigbtn{width:100%;font-size:1.02rem;min-height:54px}
+.bubble{background:var(--green-l);color:var(--ink);border-radius:18px 18px 18px 4px;padding:12px 14px;margin:8px 0;max-width:92%}
+[dir=rtl] .bubble{border-radius:18px 18px 4px 18px}
+/* tab bar */
+.tabs{position:absolute;inset-inline:0;bottom:0;background:var(--card);box-shadow:0 -6px 24px rgba(30,42,68,.07);z-index:20;padding-bottom:env(safe-area-inset-bottom);border-radius:22px 22px 0 0}
+.tabs div{max-width:540px;margin:0 auto;display:flex;padding:6px 8px}
+.tab{flex:1;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;font-size:11.5px;color:var(--muted);padding:4px 0;min-height:56px;cursor:pointer}
+.tab .ico{padding:5px 16px;border-radius:12px;box-sizing:content-box;transition:background .15s}
 .tab[aria-current=page]{color:var(--brand);font-weight:600}
-.tab[aria-current=page] .ico{color:var(--accent-d)}
-.gauge{text-align:center;margin:4px 0 2px}
-.gauge svg{width:100%;max-width:300px;height:auto}
-.gauge .gv{font-family:var(--display);font-weight:600;font-size:34px;fill:var(--ink)}
-.legend{display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;font-size:12.5px;color:var(--muted);margin-top:2px}
-.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:5px}
-.splash{position:fixed;inset:0;z-index:50;background:var(--panel);background-image:var(--star);color:#fffcf6;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;animation:splash .5s 1.2s ease forwards}
-.splash .name{font-family:var(--display);font-weight:600;font-size:2.4rem;margin-top:14px}
-.splash .name span{font-family:"Kufi",serif;color:#e3a44a;margin-inline-start:10px}
-.splash p{opacity:.9;max-width:22ch;margin-top:10px}
+.tab[aria-current=page] .ico{background:var(--brand-l)}
+/* welcome screen */
+.splash{position:absolute;inset:0;z-index:50;background:linear-gradient(160deg,#4a7ee0,#2c58b8);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;animation:splash .5s 1.2s ease forwards}
+.splash .name{font-weight:700;font-size:2.2rem;margin-top:14px}
+.splash .name span{font-family:"Plex",sans-serif;font-weight:600;opacity:.85;margin-inline-start:10px}
+.splash p{opacity:.9;max-width:22ch;margin-top:8px}
 @keyframes splash{to{opacity:0;visibility:hidden}}
 /* ---------- app shell ---------- */
 html,body{height:100%}
 body{margin:0;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
-button,.tab,.act{-webkit-user-select:none;user-select:none;touch-action:manipulation}
+button,.tab{-webkit-user-select:none;user-select:none;touch-action:manipulation}
 .device{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
 .screen{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-top:env(safe-area-inset-top)}
-.tabs{position:absolute;inset-inline:0;bottom:0;padding-bottom:env(safe-area-inset-bottom)}
-.top{position:sticky;top:0;z-index:6;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.splash{position:absolute}
+.top{position:sticky;top:0;z-index:6;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:14px 0 10px}
 button:active:not([disabled]){transform:scale(.97)}
-#demo-toggle{position:fixed;top:calc(env(safe-area-inset-top) + 8px);inset-inline-end:10px;z-index:70;font:inherit;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 10px;opacity:.85}
 .demo{position:relative;z-index:60}
 @media (max-width:699px){
   .demo{display:none}
   .demo.open{display:flex;position:fixed;top:0;left:0;right:0}
-  .top{padding-inline-end:56px}
 }
 @media (min-width:700px){
-  #demo-toggle{display:none}
-  body{background:radial-gradient(circle at 30% 0%,#efe2c8,#e6d8bb);display:flex;flex-direction:column;align-items:center;min-height:100vh}
+  body{background:radial-gradient(circle at 30% 0%,#eaf1fc,#d9e3f3);display:flex;flex-direction:column;align-items:center;min-height:100vh}
   .demo{width:100%}
-  .device{position:relative;inset:auto;width:392px;height:min(860px,calc(100vh - 96px));margin:20px auto;border-radius:48px;border:11px solid #1b2238;box-shadow:0 34px 70px rgba(27,34,56,.32),0 0 0 2px #38405c}
-  .device:before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:92px;height:24px;border-radius:14px;background:#1b2238;z-index:80}
+  .device{position:relative;inset:auto;width:392px;height:min(860px,calc(100vh - 96px));margin:20px auto;border-radius:50px;border:11px solid #1e2a44;box-shadow:0 34px 70px rgba(30,42,68,.28),0 0 0 2px #3a4664}
+  .device:before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:92px;height:24px;border-radius:14px;background:#1e2a44;z-index:80}
   .screen{padding-top:26px}
   .installcard{display:none!important}
 }
 .installcard{display:flex;gap:12px;align-items:center}
-.installcard .ico{color:var(--accent-d)}
-.lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
-[dir=rtl] .lbl{letter-spacing:0;text-transform:none;font-size:13px}
+.installcard .ico{color:var(--brand)}
 </style>
 </head>
 <body>
-<button id="demo-toggle" aria-expanded="false">Demo</button>
 <div class="demo" id="demo">
   <span>Demo · synthetic data only</span>
   <span class="row">
@@ -133,7 +171,10 @@ import { registerSW, isStandalone, isIOS, onInstallReady, canPrompt, promptInsta
 /* ---------- words on the screen (English / Arabic) ---------- */
 const S = {
   en: {
-    hello: (n) => `Hello ${n}`,
+    hello: (n) => `Hello ${n}`, hi: 'Hello,', journey: 'Your journey', stepOf: (n) => `Step ${n} of 5`, allDone: 'All done',
+    quick: 'Quick help', tListen: 'Listen', tNurse: 'Nurse', tFamily: 'Family', tBook: 'Appointment',
+    upcoming: 'Upcoming appointment', clinic: 'Jissr demo clinic', whatMeans: 'What this means',
+    checkBy: 'See a doctor by', nextLbl: 'Next step', nextBook: 'Book a visit', nextBooked: 'Visit booked',
     steps: ['Result', 'Book', 'Doctor', 'Tests', 'Plan'],
     back: 'Back', cont: 'Continue', home: 'Back to home',
     yourTest: 'Your HbA1c result',
@@ -179,7 +220,10 @@ const S = {
     seeStaff: 'See this case on the staff screen',
   },
   ar: {
-    hello: (n) => `مرحباً ${n}`,
+    hello: (n) => `مرحباً ${n}`, hi: 'مرحباً،', journey: 'رحلتك', stepOf: (n) => `الخطوة ${n} من 5`, allDone: 'اكتمل كل شيء',
+    quick: 'مساعدة سريعة', tListen: 'استمع', tNurse: 'الممرضة', tFamily: 'العائلة', tBook: 'الموعد',
+    upcoming: 'موعدك القادم', clinic: 'عيادة جسر التجريبية', whatMeans: 'ماذا يعني هذا',
+    checkBy: 'راجع الطبيب قبل', nextLbl: 'الخطوة التالية', nextBook: 'احجز زيارة', nextBooked: 'تم حجز الزيارة',
     steps: ['النتيجة', 'الحجز', 'الطبيب', 'الفحوصات', 'الخطة'],
     back: 'رجوع', cont: 'متابعة', home: 'العودة للرئيسية',
     yourTest: 'نتيجة تحليل السكر التراكمي (HbA1c)',
@@ -282,9 +326,14 @@ const tickHtml = () => `<div class="tick" aria-hidden="true">${ic('check', 44)}<
 const initials = (n) => n.replace(/\((.*?)\)/g, '').split(/\s+/).filter((w) => !/^(Nurse|Dr)$/i.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
 const topBar = () => `<div class="top"><div class="brand">${wordmark()}</div>
   <div class="seg" role="group" aria-label="Language">
-    <button data-lang="en" aria-pressed="${lang === 'en'}">English</button>
-    <button data-lang="ar" aria-pressed="${lang === 'ar'}">العربية</button>
+    <button data-lang="en" aria-pressed="${lang === 'en'}">EN</button>
+    <button data-lang="ar" aria-pressed="${lang === 'ar'}">عربي</button>
   </div></div>`;
+const pageBar = (title) => `<div class="bar"><button class="back" data-go="home" aria-label="${T().back}">${ic('back', 20)}</button><h1>${title}</h1></div>`;
+const dparts = (day) => { const d = new Date(day + 'T00:00:00Z'), o = { timeZone: 'UTC' };
+  return { num: d.toLocaleDateString(loc(), { ...o, day: 'numeric' }), wd: d.toLocaleDateString(loc(), { ...o, weekday: 'short' }), mon: d.toLocaleDateString(loc(), { ...o, month: 'short' }), month: d.toLocaleDateString(loc(), { ...o, month: 'long' }) }; };
+const apptHtml = (c) => { const p = dparts(c.slot.day), t = T();
+  return `<div class="appt"><div class="datebox"><b>${p.num}</b><span>${p.wd}</span></div><div><h2>${c.slot.time}</h2><div class="sub">${p.month} · ${t.clinic}</div></div></div>`; };
 
 // where the patient is on the journey (0..4), or 5 when everything is done
 function journeyStep(c) {
@@ -298,23 +347,27 @@ function journeyStep(c) {
   }
 }
 function trackerHtml(c) {
-  const now = journeyStep(c);
-  return `<div class="track" role="list" aria-label="Your journey">${T().steps.map((l, i) => {
+  const now = journeyStep(c), t = T();
+  return `<div class="journey"><div class="jh"><span>${t.journey}</span><b>${now >= 5 ? t.allDone : t.stepOf(now + 1)}</b></div>
+    <div class="track" role="list" aria-label="${t.journey}">${t.steps.map((l, i) => {
     const cls = i < now ? 'done' : i === now ? 'now' : '';
-    return `<div class="trk ${cls}" role="listitem"><div class="dot">${i < now ? ic('check', 14) : i + 1}</div>${l}</div>`;
-  }).join('')}</div>`;
+    return `<div class="trk ${cls}" role="listitem"><div class="dot">${i < now ? ic('check', 13) : i + 1}</div>${l}</div>`;
+  }).join('')}</div></div>`;
 }
 
 // the one big card: what happens next, in one sentence, with one button
 function nextCard(c) {
   const t = T(), n = t.n;
-  const slotTxt = c.slot ? `${fmtDay(c.slot.day)}, ${c.slot.time}` : '';
+  if (c.stage === 'booked' && c.slot) {
+    return `<section class="next ok"><div class="lbl">${t.upcoming}</div>${apptHtml(c)}<p>${esc(n.booked('')[2])}</p>
+      <button class="btn" id="next-go" data-a="ics">${ic('calendar', 18)} ${t.cal}</button></section>`;
+  }
   const r = c.referral;
   let d, action = 'nurse', cls = 'wait';
   switch (c.stage) {
     case 'result': case 'notified': d = n.read; action = 'result'; cls = ''; break;
     case 'understood': d = n.book; action = 'book'; cls = ''; break;
-    case 'booked': d = n.booked(slotTxt || '…'); action = c.slot ? 'ics' : 'none'; cls = 'ok'; break;
+    case 'booked': d = n.booked('…'); action = 'none'; cls = 'ok'; break;
     case 'attended': d = n.attended; break;
     case 'confirmed': d = n.confirmed; break;
     case 'referred': {
@@ -329,8 +382,8 @@ function nextCard(c) {
     case 'care_plan': d = c.plan && c.plan.kind === 'surveillance' ? n.surv : n.treat; break;
     default: d = n.done; action = 'none'; cls = 'ok';
   }
-  const [ico, title, sub, btn] = d;
-  return `<section class="next ${cls}"><div class="badge">${ic(ico, 26)}</div><h2>${esc(title)}</h2><p>${esc(sub)}</p>
+  const [icon, title, sub, btn] = d;
+  return `<section class="next ${cls}"><div class="badge">${ic(icon, 24)}</div><h2>${esc(title)}</h2><p>${esc(sub)}</p>
     ${btn && action !== 'none' ? `<button class="btn" id="next-go" data-a="${action}">${btn}</button>` : ''}</section>`;
 }
 
@@ -338,8 +391,9 @@ function contactCard(c) {
   const t = T(), o = staffOf(c.owner);
   return `<section class="card"><div class="lbl">${t.careBy}</div>
     ${o ? `<div class="who"><div class="avatar" aria-hidden="true">${esc(initials(o.name))}</div>
-      <div><b>${esc(o.name)}</b><br><span class="muted">${t.role[o.role]} · ${esc(o.org)}</span></div></div>`
-      : `<p style="margin-bottom:0">${t.noOwner}</p>`}
+      <div class="info"><b>${esc(o.name)}</b><span class="tiny muted">${t.role[o.role]} · ${esc(o.org)}</span></div>
+      <button class="call" data-go="nurse" aria-label="${t.qNurse}">${ic('phone', 20)}</button></div>`
+      : `<p style="margin:0">${t.noOwner}</p>`}
   </section>`;
 }
 
@@ -348,13 +402,13 @@ function gaugeHtml(c) {
   const t = T(), MIN = 4, MAX = 12, cx = 120, cy = 112, r = 88;
   const pt = (v, rad) => { const a = Math.PI * (1 - (Math.min(MAX, Math.max(MIN, v)) - MIN) / (MAX - MIN)); return [cx + rad * Math.cos(a), cy - rad * Math.sin(a)]; };
   const arc = (a, b) => { const [x1, y1] = pt(a, r), [x2, y2] = pt(b, r); return `M${x1.toFixed(1)} ${y1.toFixed(1)} A${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`; };
-  const zones = [[4, 5.7, '#2d6a4c'], [5.7, 6.5, '#d9a12e'], [6.5, 10, '#d0702e'], [10, 12, '#a33a2a']];
+  const zones = [[4, 5.7, '#22a06b'], [5.7, 6.5, '#f5b544'], [6.5, 10, '#f08a3c'], [10, 12, '#d9473f']];
   const [mx, my] = pt(c.value, r);
   const zi = c.value < 5.7 ? 0 : c.value < 6.5 ? 1 : c.value < 10 ? 2 : 3;
   return `<div class="gauge" role="img" aria-label="HbA1c ${c.value}%: ${t.zones[zi]}">
     <svg viewBox="0 0 240 132" aria-hidden="true">
-      ${zones.map(([a, b, col]) => `<path d="${arc(a + 0.03, b - 0.03)}" fill="none" stroke="${col}" stroke-width="16" stroke-linecap="butt" opacity="${zones.findIndex((z) => z[0] === a) === zi ? 1 : 0.38}"/>`).join('')}
-      <circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="9" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/>
+      ${zones.map(([a, b, col]) => `<path d="${arc(a + 0.03, b - 0.03)}" fill="none" stroke="${col}" stroke-width="18" stroke-linecap="butt" opacity="${zones.findIndex((z) => z[0] === a) === zi ? 1 : 0.28}"/>`).join('')}
+      <circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="9" fill="#fff" stroke="#1e2a44" stroke-width="3.5"/>
       <text class="gv" x="${cx}" y="${cy - 10}" text-anchor="middle">${c.value}%</text>
     </svg>
     <div class="legend">${zones.map(([, , col], i) => `<span><i style="background:${col}"></i>${t.zones[i]}</span>`).join('')}</div>
@@ -373,10 +427,14 @@ function installCard() {
 function homeView(c) {
   const t = T();
   const first = c.patient.name.split(' ')[0];
+  const canBook = stageIdx(c) >= 2;
+  const tiles = [['result', 'speaker', 'b-blue', t.tListen], ['nurse', 'phone', 'b-yellow', t.tNurse], ['family', 'users', 'b-pink', t.tFamily], [canBook ? 'book' : 'result', 'calendar', 'b-lilac', t.tBook]];
   let h = `${topBar()}<div class="view">
-    <h1 class="hello">${esc(t.hello(first))}</h1>
-    ${trackerHtml(c)}
+    <div class="greet"><div><div class="hi">${t.hi}</div><div class="nm">${esc(first)}</div></div><button class="me" id="me-btn" aria-label="Demo: switch patient" title="Demo: switch patient">${esc(initials(c.patient.name))}</button></div>
     ${nextCard(c)}
+    ${trackerHtml(c)}
+    <div class="sec"><h3>${t.quick}</h3></div>
+    <div class="svc">${tiles.map(([g, i, cl, l]) => `<button data-go="${g}"><span class="box ${cl}">${ic(i, 26)}</span>${l}</button>`).join('')}</div>
     ${contactCard(c)}`;
   h += installCard();
   if (stageIdx(c) >= 3 && c.stage !== 'closed') {
@@ -393,11 +451,16 @@ function resultView(c) {
   const ex = explainNow(c);
   const cls = classify(c.value);
   const understood = stageIdx(c) >= 2;
-  return `${topBar()}<div class="view"><button class="back" data-go="home">${ic('back', 18)}${t.back}</button>
-    <section class="card"><div class="lbl">${t.yourTest}</div>
-      ${gaugeHtml(c)}
-      <div class="center"><span class="chip ${cls.urgency}">${t.band[cls.band]}</span></div>
-      <p style="margin-top:12px;font-size:1.05em">${esc(ex.text)}</p>
+  const nextTxt = stageIdx(c) >= 3 ? t.nextBooked : t.nextBook;
+  return `${topBar()}<div class="view">${pageBar(t.tabs[1])}
+    <div class="report"><div class="lbl">${t.yourTest}</div>${gaugeHtml(c)}
+      <div class="center" style="margin-top:10px"><span class="chip ${cls.urgency}">${t.band[cls.band]}</span></div></div>
+    <div class="minis">
+      <div class="mini" style="background:var(--p-pink)"><span style="color:#d4527a">${ic('calendar', 22)}</span><small>${t.checkBy}</small><b>${c.due ? fmtDay(c.due) : '–'}</b></div>
+      <div class="mini" style="background:var(--p-yellow)"><span style="color:#c58a10">${ic('doctor', 22)}</span><small>${t.nextLbl}</small><b>${nextTxt}</b></div>
+    </div>
+    <section class="card"><h3>${t.whatMeans}</h3>
+      <p style="font-size:1.02em">${esc(ex.text)}</p>
       <div class="notdx" role="note">${ic('shield', 22)}<span>${t.notdx}</span></div>
       <div class="row">
         ${'speechSynthesis' in window ? `<button class="btn ghost small" id="listen">${speaking ? ic('stop', 16) + ' ' + t.stop : ic('speaker', 16) + ' ' + t.listen}</button>` : ''}
@@ -416,33 +479,34 @@ function bookView(c) {
   const t = T();
   const booked = stageIdx(c) >= 3;
   if (booked) {
-    return `${topBar()}<div class="view center">${tickHtml()}<h1>${t.booked}</h1>
-      ${c.slot ? `<p style="font-size:1.25rem"><b>${fmtDay(c.slot.day)} · ${c.slot.time}</b></p>` : ''}
-      <p class="muted">${t.where}</p>
-      <label style="display:flex;gap:10px;align-items:center;justify-content:center;font-weight:400"><input type="checkbox" id="rem" style="width:auto" ${c.reminder ? 'checked' : ''}> ${t.remind}</label>
-      ${c.reminder ? `<div class="ok-msg">${t.remindOn}</div>` : ''}
-      ${c.slot ? `<p><button class="btn ghost" id="ics">${ic('calendar', 18)} ${t.cal}</button></p>` : ''}
+    return `${topBar()}<div class="view">${pageBar(t.tBook)}<div class="center">${tickHtml()}<h1>${t.booked}</h1></div>
+      ${c.slot ? `<section class="next ok"><div class="lbl">${t.upcoming}</div>${apptHtml(c)}<p style="margin:0">${t.where}</p></section>` : ''}
+      <section class="card">
+        <label style="display:flex;gap:10px;align-items:center;font-weight:500;margin:0"><input type="checkbox" id="rem" style="width:auto" ${c.reminder ? 'checked' : ''}> ${t.remind}</label>
+        ${c.reminder ? `<div class="ok-msg" style="margin-bottom:0">${t.remindOn}</div>` : ''}
+      </section>
+      ${c.slot ? `<p><button class="btn ghost bigbtn" id="ics">${ic('calendar', 18)} ${t.cal}</button></p>` : ''}
       <p><button class="btn bigbtn" data-go="home">${t.home}</button></p></div>`;
   }
   const bar = barrierNow(c);
   const slots = slotsFor({ band: c.band, barrier: c.barrier }, state.today);
-  return `${topBar()}<div class="view"><button class="back" data-go="home">${ic('back', 18)}${t.back}</button>
-    <section class="card"><h2>${t.barrierQ}</h2><p class="muted">${t.barrierSub}</p>
+  return `${topBar()}<div class="view">${pageBar(t.n.book[1])}
+    <section class="card"><h3>${t.barrierQ}</h3><p class="muted tiny">${t.barrierSub}</p>
       <div class="chips">${BARRIERS.map((b) => `<button class="pick" data-b="${b}" aria-pressed="${c.barrier === b}">${t.barrier[b]}</button>`).join('')}</div>
       ${c.barrier !== 'none' ? `<div class="card soft" style="margin-bottom:0"><p style="margin-top:0">${esc(bar.text)}</p><div class="tag">${bar.source === 'ai' ? t.ai : t.tpl}</div>
         ${['fear', 'cost', 'language', 'dont_understand'].includes(c.barrier) ? `<button class="btn small" data-go="nurse">${ic('phone', 16)} ${t.qNurse}</button>` : ''}</div>` : ''}
     </section>
-    <section class="card"><h2>${t.pick}</h2>
-      <div class="slots">${slots.map((s, i) => `<button class="pick slotbtn" data-slot="${i}" aria-pressed="${msg.slot === i}">${fmtDay(s.day)}<br><b>${s.time}</b></button>`).join('')}</div>
-      <p><button class="btn bigbtn" id="confirm" ${msg.slot == null ? 'disabled' : ''}>${t.confirm}</button></p>
+    <section class="card"><h3>${t.pick}</h3>
+      <div class="dates">${slots.map((sl, i) => { const p = dparts(sl.day); return `<button class="dt" data-slot="${i}" aria-pressed="${msg.slot === i}"><span>${p.mon}</span><b>${p.num}</b><span>${p.wd}</span><em>${sl.time}</em></button>`; }).join('')}</div>
+      <button class="btn bigbtn" id="confirm" ${msg.slot == null ? 'disabled' : ''}>${t.confirm}</button>
     </section></div>`;
 }
 
 function nurseView(c) {
   const t = T();
   const waiting = c.nurseRequest && !c.nurseRequest.done;
-  return `${topBar()}<div class="view"><button class="back" data-go="home">${ic('back', 18)}${t.back}</button>
-    <section class="card"><h2>${ic('phone', 22)} ${t.nurseT}</h2><p class="muted">${t.nurseSub}</p>
+  return `${topBar()}<div class="view">${pageBar(t.nurseT)}
+    <section class="card"><p class="muted" style="margin-top:0">${t.nurseSub}</p>
       ${waiting ? `${tickHtml()}<div class="ok-msg">${t.asked}<br><span class="tiny">${nurseText(lang)}</span></div>`
         : `<label for="nw">${t.when}</label><select id="nw"><option value="morning">${t.morning}</option><option value="afternoon">${t.afternoon}</option><option value="evening">${t.evening}</option></select>
         <label>${t.chanQ}</label><div class="chips">${['app', 'sms', 'whatsapp', 'phone'].map((k) => `<button class="pick" data-ch="${k}" aria-pressed="${c.channel === k}">${t.chan[k]}</button>`).join('')}</div>
@@ -455,8 +519,8 @@ function nurseView(c) {
 
 function familyView(c) {
   const t = T(), fh = c.familyHelper;
-  return `${topBar()}<div class="view"><button class="back" data-go="home">${ic('back', 18)}${t.back}</button>
-    <section class="card"><h2>${ic('users', 22)} ${t.fam}</h2><p class="muted">${t.famSub}</p>
+  return `${topBar()}<div class="view">${pageBar(t.fam)}
+    <section class="card"><p class="muted" style="margin-top:0">${t.famSub}</p>
       ${fh && fh.consent
         ? `<div class="ok-msg">${esc(t.famDone(fh.name))}</div>
            <div class="card soft"><div class="tiny muted">${t.famPreview}</div><p style="margin-bottom:0">${t.famMsg}</p></div>
@@ -488,6 +552,7 @@ function wire(c) {
   const $ = (s) => document.querySelector(s);
   document.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => { lang = b.dataset.lang; try { localStorage.setItem('jissr.lang', lang); } catch { } stopSpeak(); render(); });
   document.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => go(b.dataset.go));
+  $('#me-btn') && ($('#me-btn').onclick = () => window.toggleDemo());
   $('#install-go') && ($('#install-go').onclick = async () => { await promptInstall(); render(); });
   $('#next-go') && ($('#next-go').onclick = () => { const a = $('#next-go').dataset.a; a === 'ics' ? downloadIcs() : go(a); });
   $('#listen') && ($('#listen').onclick = () => { speaking ? stopSpeak() : speak(explainNow(c).text); render(); });
@@ -537,12 +602,13 @@ function downloadIcs() {
 /* ---------- demo bar ---------- */
 const who = document.getElementById('who');
 who.innerHTML = state.cases.map((c) => `<option value="${c.id}">${esc(c.patient.name)} · ${c.value}%</option>`).join('');
-who.onchange = () => { id = who.value; level = 'normal'; msg = {}; view = 'home'; stopSpeak(); ensureNotified(); render(); };
+who.onchange = () => { demoBar.classList.remove('open'); id = who.value; level = 'normal'; msg = {}; view = 'home'; stopSpeak(); ensureNotified(); render(); };
 document.getElementById('reset').onclick = () => { state = resetState(); aiBox = {}; msg = {}; level = 'normal'; view = 'home'; ensureNotified(); render(); };
 if (!state.cases.some((c) => c.id === id)) id = state.cases[0].id;
 who.value = id;
-const demoBar = document.getElementById('demo'), demoBtn = document.getElementById('demo-toggle');
-demoBtn.onclick = () => { const open = demoBar.classList.toggle('open'); demoBtn.setAttribute('aria-expanded', open); demoBtn.textContent = open ? 'Close' : 'Demo'; };
+const demoBar = document.getElementById('demo');
+window.toggleDemo = () => demoBar.classList.toggle('open');
+demoBar.addEventListener('click', (e) => { if (e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return; });
 registerSW();
 onInstallReady(() => { if (view === 'home') render(); });
 ensureNotified();
