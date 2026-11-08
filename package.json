@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Jissr: closing the screening-to-care loop for abnormal HbA1c. Prototype with synthetic data only.",
   "scripts": {
-    "test": "node --test tests/rules.test.mjs tests/api.test.mjs tests/voice.test.mjs",
+    "test": "node --test tests/rules.test.mjs tests/api.test.mjs tests/voice.test.mjs tests/cloe.test.mjs",
     "serve": "python3 -m http.server 8330",
     "test:e2e": "node tests/e2e.cjs"
   },

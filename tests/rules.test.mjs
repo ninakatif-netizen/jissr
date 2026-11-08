@@ -1,9 +1,9 @@
 // Run with:  npm test
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { classify, dueDate, isOverdue, statusOf, slotsFor, safeText, withDisclaimer, addDays, escalationsFor, maxLevel, slaDeadline, STAGES } from '../core/rules.mjs';
+import { classify, dueDate, isOverdue, statusOf, slotsFor, safeText, withDisclaimer, addDays, escalationsFor, maxLevel, slaDeadline, STAGES, classifyMammo } from '../core/rules.mjs';
 import {
-  advance, skipStage, closeCase, newCase, RuleError, setBarrier, requestNurse, assignOwner,
+  advance, skipStage, runSop, closeCase, newCase, RuleError, setBarrier, requestNurse, assignOwner,
   sendReferral, respondReferral, completeReferral, requestConsult, answerConsult, recordConfidence, setChannel, createCase,
 } from '../core/cases.mjs';
 import { buildState, STAFF } from '../core/data.mjs';
@@ -119,6 +119,8 @@ test('"plan agreed" needs a recorded plan first; an informed refusal can close w
   const s = fresh();
   advance(s, 'C-1', 'notified', system);
   assert.throws(() => closeCase(s, 'C-1', doc, { type: 'care_plan_agreed', evidence: 'A long enough evidence note.' }), codeOf('no_care_plan'));
+  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'documented_refusal', evidence: 'Spoke with patient, understands risks, declined follow-up.' }), codeOf('refusal_not_recorded'));
+  runSop(s, 'C-1', doc, 'refusal', { reason: 'Does not want any more tests this year' });
   closeCase(s, 'C-1', doc, { type: 'documented_refusal', evidence: 'Spoke with patient, understands risks, declined follow-up.' });
   assert.equal(s.cases[0].stage, 'closed');
 });
@@ -275,9 +277,10 @@ test('every patient message always says "not a diagnosis" (English and Arabic)',
   assert.equal(withDisclaimer('A note. This is not a diagnosis.', 'en'), 'A note. This is not a diagnosis.'); // not doubled
 });
 
-test('synthetic data: 30 patients, every band, consistent rules, visible exceptions', () => {
+test('synthetic data: 30 HbA1c, 8 FIT and 5 mammogram patients, consistent rules, visible exceptions', () => {
   const st = buildState(TODAY);
-  assert.equal(st.cases.length, 38);
+  assert.equal(st.cases.length, 43);
+  assert.equal(st.cases.filter((c) => c.programme === 'mammo').length, 5);
   const hb = st.cases.filter((c) => c.programme === 'hba1c');
   assert.equal(hb.length, 30);
   assert.equal(st.cases.filter((c) => c.programme === 'fit').length, 8);
@@ -286,7 +289,8 @@ test('synthetic data: 30 patients, every band, consistent rules, visible excepti
   assert.equal(hb.filter((c) => c.stage === 'closed').length, 3);
   for (const c of st.cases) {
     if (c.programme === 'hba1c') { assert.equal(c.band, classify(c.value).band); assert.equal(c.due, dueDate(c.resultDay, c.value)); }
-    else { assert.equal(c.band, 'fit_positive'); assert.equal(c.due, addDays(c.resultDay, 30)); }
+    else if (c.programme === 'fit') { assert.equal(c.band, 'fit_positive'); assert.equal(c.due, addDays(c.resultDay, 30)); }
+    else { assert.equal(c.band, classifyMammo(c.value).band); assert.equal(c.due, addDays(c.resultDay, classifyMammo(c.value).dueDays)); }
     assert.ok(c.events.every((e) => e.at.slice(0, 10) <= TODAY), `no events in the future (${c.id})`);
     // events appear in journey order
     const order = c.events.map((e) => STAGES.indexOf(e.type)).filter((i) => i >= 0);

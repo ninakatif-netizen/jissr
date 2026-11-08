@@ -30,7 +30,12 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await p.click('#next-go'); await p.waitForTimeout(250);
   ok(await p.locator('.hscale').count() === 1 && /not a diagnosis/.test(await text()), 'result shows the scale and "not a diagnosis"');
   await shot(p, '03-result');
-  await p.click('#yes'); await p.click('.tab[data-go=home]'); await p.click('#next-go');
+  await p.click('#yes'); await p.waitForTimeout(100);
+  await p.click('[data-tb=no1]'); await p.waitForTimeout(100);
+  ok(/Not quite/.test(await text()), 'a wrong teach-back answer explains again, gently');
+  await p.click('[data-tb=ok]'); await p.waitForTimeout(150);
+  ok(/Thank you|Thanks/i.test(await p.innerText('#sense')), 'the right teach-back answer records that the patient understood');
+  await p.click('.tab[data-go=home]'); await p.click('#next-go');
   await p.click('[data-b=time_shift]'); await p.waitForTimeout(150);
   const times = await p.locator('.dt em').allInnerTexts();
   ok(times.length > 0 && times.every((t) => ['07:30', '18:30', '19:30'].includes(t)), 'shift workers get early or evening slots');
@@ -57,6 +62,13 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await p.click('.tab[data-go=result]'); await p.waitForTimeout(250);
   ok(/Positive/.test(await text()) && /colonoscopy/i.test(await text()) && /not a diagnosis/.test(await text()), 'a bowel screening patient sees their own result and next step');
   await shot(p, '07b-bowel-patient');
+  // CLOE: a BI-RADS 4 mammogram patient
+  await p.click('.tab[data-go=home]'); await p.waitForTimeout(150); await p.click('#me-btn'); await p.selectOption('#who', 'C-040'); await p.waitForTimeout(250);
+  await p.click('.tab[data-go=result]'); await p.waitForTimeout(250);
+  ok(await p.locator('.reassure').count() === 1 && await p.locator('.rsum').count() === 1 && /biopsy/i.test(await text()) && /not a diagnosis/.test(await text()), 'mammogram: reassurance banner and plain-language summary');
+  await shot(p, '07c-mammo-result');
+  await p.click('.mslot >> nth=0'); await p.waitForTimeout(200);
+  ok(/Your 10-minute call/.test(await text()), 'one tap books a 10-minute call with a nurse navigator');
   await p.goto(BASE + 'patient.html?p=C-001&nosplash=1'); await p.waitForTimeout(200);
 
   // natural voice: when the server says it is set up, Listen asks the server for the audio (Azure is faked here)
@@ -74,6 +86,16 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   const desk = await browser.newContext({ viewport: { width: 1280, height: 900 }, storageState: await phone.storageState() });
   const s = await desk.newPage(); watch(s, 'staff');
   await s.goto(BASE + 'staff.html?as=n1&c=C-001'); await s.waitForTimeout(300);
+  ok(/Navigator command center/.test(await s.innerText('#cmd')) && await s.locator('#tbl .sla').count() > 5 && await s.locator('#tbl .phase').count() > 5, 'command center: phases and live SLA countdowns on every case');
+  await s.goto(BASE + 'staff.html?as=n1'); await s.waitForTimeout(300); await s.click('[data-filter=sop_refusal]'); await s.waitForTimeout(200);
+  ok(/Sana Qureshi/.test(await s.innerText('#tbl')), 'the refusal protocol queue lists the patient who declined');
+  await s.goto(BASE + 'staff.html?as=n2&c=C-043'); await s.waitForTimeout(300);
+  await s.fill('#sopreason', 'Afraid of the needle, does not want a biopsy now'); await s.click('[data-sop=refusal]'); await s.waitForTimeout(200);
+  ok(/recorded/.test(await s.innerText('#drawer')) && /re-contact/i.test(await s.innerText('#drawer')), 'running the refusal protocol records the reason and a 90-day re-contact');
+  await s.goto(BASE + 'staff.html?as=d1&c=C-001'); await s.waitForTimeout(300);
+  await s.click('#close'); await s.waitForTimeout(150);
+  ok(/Not closed/.test(await s.innerText('#drawer')) && await s.locator('.rules li.bad').count() >= 1, 'closing without evidence lists the closure rules that are broken');
+  await shot(s, '08b-command-center');
   ok(/Care journey funnel/.test(await s.innerText('#funnel')) && /synthetic/.test(await s.innerText('#funnel')), 'the care team sees where patients drop out, labelled as demo data');
   ok(/Appointment booked/.test(await s.innerText('#drawer')), 'the care team sees the patient\'s booking');
   await s.goto(BASE + 'staff.html?as=c1&new=1'); await s.waitForTimeout(200);

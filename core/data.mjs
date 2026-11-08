@@ -14,6 +14,7 @@ export const STAFF = [
   { id: 'e1', name: 'Dr Salma Haddad', role: 'clinician', org: 'Hospital endocrinology' },
   { id: 'e2', name: 'Dr Rahul Verma', role: 'clinician', org: 'Diabetes centre' },
   { id: 'e3', name: 'Dr Khalid Rahman', role: 'clinician', org: 'Colorectal clinic' },
+  { id: 'e4', name: 'Dr Noura Al Ketbi', role: 'clinician', org: 'Breast clinic' },
 ];
 
 // Journey stages by index: 0 result, 1 notified, 2 understood, 3 booked, 4 attended,
@@ -66,6 +67,15 @@ const FIT_ROWS = [
   [38, 'Arjun Nair', 46, 'en', 6, 1, 'cost', 'c2', '', 0],
 ];
 
+// Breast screening (mammogram): [n, name, age, language, BI-RADS, days ago, stage index, barrier, owner, drop-out reason, shifts]
+const MAMMO_ROWS = [
+  [39, 'Layla Al Nuaimi', 52, 'ar', 4, 1, 1, 'fear', 'n1', '', 0],
+  [40, 'Priya Raman', 47, 'ml', 4, 3, 1, 'none', 'n2', '', 0],
+  [41, 'Amna Al Shamsi', 61, 'ar', 5, 2, 2, 'none', 'n1', '', 0],
+  [42, 'Grace Mensah', 55, 'en', 0, 6, 3, 'time_shift', 'c2', '', 1],
+  [43, 'Sana Qureshi', 58, 'ur', 4, 9, 1, 'fear', 'n2', 'Says she does not want a biopsy', 0],
+];
+
 // Extra story for a few cases: referrals in different states, a hand-off, a question to a specialist, a waiting nurse call.
 const REFERRALS = {
   19: { to: 'Hospital endocrinology', status: 'sent', ago: 3, reason: 'HbA1c 7.7% with symptoms; specialist review requested.' },
@@ -74,7 +84,9 @@ const REFERRALS = {
   35: { to: 'Colorectal clinic', status: 'accepted', ago: 12, replyAgo: 11, by: 'e3', reason: 'Colonoscopy found a lesion; biopsy needs specialist review.', reply: '' },
 };
 const CONSULTS = { 18: { to: 'Hospital endocrinology', ago: 4, question: '72-year-old, HbA1c 10.8%, no treatment yet. Advice on how soon she should be seen?' } };
-const NURSE_WAITING = { 5: 2 };       // days ago the patient asked for a nurse call (still waiting)
+const NURSE_WAITING = { 5: 2 };
+// 10-minute calls with a nurse navigator already booked by the patient (days from today, time, nurse).
+const MICRO = { 39: [1, '18:00', 'n1'], 9: [1, '12:40', 'n2'] };       // days ago the patient asked for a nurse call (still waiting)
 const PLAN_KIND = { 2: 'treatment', 12: 'surveillance', 26: 'surveillance', 29: 'treatment', 37: 'surveillance' };
 // Some patients were notified or reached late (days of delay), so the measures show real-looking gaps.
 const LATE = { 3: 4, 7: 5, 13: 3, 21: 4, 23: 3, 10: 2, 16: 2, 4: 3, 17: 2 };
@@ -86,7 +98,7 @@ const STEP_OFFSET = { notified: 0, understood: 1, booked: 3, attended: 9, confir
 export function buildState(today) {
   const staff = STAFF.map((s) => ({ ...s }));
   const byId = Object.fromEntries(staff.map((s) => [s.id, s]));
-  const rows = [...ROWS.map((r) => [...r, 'hba1c']), ...FIT_ROWS.map(([n, nm, ag, lg, ...rest]) => [n, nm, ag, lg, null, ...rest, 'fit'])];
+  const rows = [...ROWS.map((r) => [...r, 'hba1c']), ...FIT_ROWS.map(([n, nm, ag, lg, ...rest]) => [n, nm, ag, lg, null, ...rest, 'fit']), ...MAMMO_ROWS.map((r) => [...r, 'mammo'])];
   const cases = rows.map(([n, name, age, language, value, ago, stageIdx, barrier, owner, dropReason, shifts, programme]) => {
     const fit = programme === 'fit';
     const resultDay = addDays(today, -ago);
@@ -152,6 +164,12 @@ export function buildState(today) {
       c.nurseRequest = { at, note: 'Preferred time: evening', done: false };
       c.events.push({ type: 'nurse_requested', at, by: 'Patient (in app)', role: 'patient', note: 'Patient asked to talk to a nurse' });
     }
+    if (n === 43) c.declined = true; // said she does not want a biopsy
+    if (MICRO[n]) {
+      const [d, time, nid] = MICRO[n], nurse = byId[nid];
+      c.microConsult = { day: addDays(today, d), time, nurseId: nid, nurseName: nurse.name, minutes: 10, status: 'booked', at: addDays(today, -1) + 'T19:00:00.000Z' };
+      c.events.push({ type: 'micro_consult_booked', at: c.microConsult.at, by: 'Patient (in app)', role: 'patient', note: `10-minute call with ${nurse.name} on ${c.microConsult.day} at ${time}` });
+    }
     if (stageIdx >= 3) { // patient-reported confidence (1 to 5), synthetic
       c.confidence = { score: ((n * 7) % 3) + 3, at: addDays(resultDay, Math.min(3, ago)) + 'T10:05:00.000Z' };
     }
@@ -170,5 +188,5 @@ export function buildState(today) {
     }
     return c;
   });
-  return { version: 3, today, staff, cases };
+  return { version: 4, today, staff, cases };
 }

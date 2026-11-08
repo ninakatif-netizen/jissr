@@ -2,7 +2,7 @@
 // and how it can be closed. These rules are enforced here in code (not just by greying out buttons).
 // The AI is never an actor: any attempt by it to change a case is refused.
 
-import { STAGES, OPTIONAL_STAGES, classify, classifyFit, dueDate, addDays, isoDay, BARRIERS, CHANNELS, CONSULT_REPLY_DAYS, ownerRoleFor } from './rules.mjs';
+import { STAGES, OPTIONAL_STAGES, classify, classifyFit, classifyMammo, dueDate, addDays, isoDay, BARRIERS, CHANNELS, CONSULT_REPLY_DAYS, ownerRoleFor, SOPS, CHANNEL_LADDER, sopsFor, MICRO_MINUTES } from './rules.mjs';
 import { targetsFor } from './programmes.mjs';
 
 export class RuleError extends Error {
@@ -10,7 +10,7 @@ export class RuleError extends Error {
 }
 
 export const ROLES = ['nurse', 'coordinator', 'clinician'];
-export const ORGS = ['Screening programme', 'Primary care clinic', 'Hospital endocrinology', 'Diabetes centre', 'Colorectal clinic', 'Hospital oncology'];
+export const ORGS = ['Screening programme', 'Primary care clinic', 'Hospital endocrinology', 'Diabetes centre', 'Colorectal clinic', 'Hospital oncology', 'Breast clinic'];
 export const REFERRAL_TARGETS = ['Hospital endocrinology', 'Diabetes centre'];
 export const PLAN_KINDS = { treatment: 'Treatment started', surveillance: 'Surveillance (lifestyle plan and re-testing)' };
 export const CLOSE_TYPES = {
@@ -173,21 +173,101 @@ export function answerConsult(state, id, consultId, actor, answer) {
 }
 
 // Closing: clinician only, with a written evidence note, and a valid reason.
+// CLOSURE RULES (CLOE). A case is only closed when every rule below holds. The same list is shown to staff.
+export const CLOSURE_RULES = [
+  ['ai_not_allowed', 'The AI can never close a case.'],
+  ['already_closed', 'A closed case cannot be closed again.'],
+  ['clinician_only', 'Only a clinician signs off a closure.'],
+  ['bad_type', 'The clinician chooses why the case is closed: plan agreed, informed refusal, or care transferred.'],
+  ['evidence_required', `Written evidence of at least ${MIN_EVIDENCE} characters (what was seen, decided and booked).`],
+  ['no_care_plan', '"Plan agreed" needs a treatment or surveillance plan recorded first.'],
+  ['referral_open', 'While a referral is open, the case can only be closed as "care transferred".'],
+  ['refusal_not_recorded', '"Informed refusal" needs the refusal protocol first: the patient\'s reason and a 90-day re-contact.'],
+];
+// Returns every rule that would be broken (empty list = the case may be closed). Nothing is changed.
+export function validateClosure(c, actor, { type, evidence } = {}) {
+  const fail = (code) => ({ code, message: CLOSURE_RULES.find((r) => r[0] === code)[1] });
+  if (!actor || actor.type === 'ai') return [fail('ai_not_allowed')];
+  const out = [];
+  if (c.stage === 'closed') return [fail('already_closed')];
+  if (!isClinician(actor)) out.push(fail('clinician_only'));
+  if (!CLOSE_TYPES[type]) out.push(fail('bad_type'));
+  if ((evidence || '').trim().length < MIN_EVIDENCE) out.push(fail('evidence_required'));
+  if (type === 'care_plan_agreed' && c.stage !== 'care_plan') out.push(fail('no_care_plan'));
+  if (c.referral && ['sent', 'accepted'].includes(c.referral.status) && type !== 'transferred_care') out.push(fail('referral_open'));
+  if (type === 'documented_refusal' && !c.refusal) out.push(fail('refusal_not_recorded'));
+  return out;
+}
+
 export function closeCase(state, id, actor, { type, evidence } = {}) {
   refuseAI(actor);
   const c = findCase(state, id);
-  if (c.stage === 'closed') throw new RuleError('already_closed', 'This case is already closed.');
-  if (!isClinician(actor)) throw new RuleError('clinician_only', 'Only a clinician can close a case.');
-  if (!CLOSE_TYPES[type]) throw new RuleError('bad_type', 'Choose why the case is being closed.');
-  const ev = (evidence || '').trim();
-  if (ev.length < MIN_EVIDENCE) throw new RuleError('evidence_required', `Write the evidence (at least ${MIN_EVIDENCE} characters).`);
-  if (type === 'care_plan_agreed' && c.stage !== 'care_plan') throw new RuleError('no_care_plan', 'A treatment or surveillance plan must be recorded before closing as "plan agreed".');
-  if (c.referral && ['sent', 'accepted'].includes(c.referral.status) && type !== 'transferred_care') throw new RuleError('referral_open', 'The referral is still open. Wait for the report back, or close as "care transferred".');
+  const broken = validateClosure(c, actor, { type, evidence });
+  if (broken.length) {
+    const b = broken[0];
+    throw new RuleError(b.code, b.code === 'evidence_required' ? `Write the evidence (at least ${MIN_EVIDENCE} characters).` : b.message);
+  }
+  const ev = evidence.trim();
   c.stage = 'closed';
   c.closed = { type, evidence: ev, by: actor.name, at: new Date().toISOString() };
   logEvent(c, 'closed', actor, `${CLOSE_TYPES[type]}: ${ev}`);
   return c;
 }
+
+// ---- CLOE: 10-minute call with a nurse navigator ----
+export function bookMicroConsult(state, id, actor, slot) {
+  refuseAI(actor);
+  const c = findCase(state, id);
+  if (c.stage === 'closed') throw new RuleError('closed', 'This case is closed.');
+  if (STAGES.indexOf(c.stage) >= STAGES.indexOf('booked')) throw new RuleError('too_late', 'The patient is already booked for the next test or visit.');
+  if (!['patient', 'staff'].includes(actor.type)) throw new RuleError('not_allowed', 'Only the patient or staff can book this call.');
+  const nurse = slot && state.staff.find((s) => s.id === slot.nurseId && s.role === 'nurse');
+  if (!nurse || !/^\d{4}-\d{2}-\d{2}$/.test(slot.day || '') || !/^\d{2}:\d{2}$/.test(slot.time || '')) throw new RuleError('bad_slot', 'Choose a time.');
+  const clash = state.cases.some((x) => x.id !== c.id && x.microConsult && x.microConsult.status === 'booked' && x.microConsult.nurseId === nurse.id && x.microConsult.day === slot.day && x.microConsult.time === slot.time);
+  if (clash) throw new RuleError('slot_taken', 'That time has just been taken. Please choose another.');
+  c.microConsult = { day: slot.day, time: slot.time, nurseId: nurse.id, nurseName: nurse.name, minutes: MICRO_MINUTES, status: 'booked', at: new Date().toISOString() };
+  logEvent(c, 'micro_consult_booked', actor, `${MICRO_MINUTES}-minute call with ${nurse.name} on ${slot.day} at ${slot.time}`);
+  return c;
+}
+export function completeMicroConsult(state, id, actor, note) {
+  refuseAI(actor);
+  const c = findCase(state, id);
+  if (!c.microConsult || c.microConsult.status !== 'booked') throw new RuleError('no_call', 'No 10-minute call is booked.');
+  if (!(actor.type === 'staff' && ['nurse', 'clinician'].includes(actor.role))) throw new RuleError('nurse_only', 'Only a nurse or clinician can record the call.');
+  c.microConsult.status = 'done';
+  c.microConsult.doneAt = new Date().toISOString();
+  logEvent(c, 'micro_consult_done', actor, (note || '').trim() || 'Call done');
+  return c;
+}
+
+// ---- CLOE: run a standard operating procedure. Every step taken is written to the audit trail. ----
+export function runSop(state, id, actor, code, { reason, today } = {}) {
+  refuseAI(actor);
+  if (!SOPS[code]) throw new RuleError('bad_sop', 'Unknown protocol.');
+  if (!actor || actor.type !== 'staff') throw new RuleError('staff_only', 'Only staff can run a protocol.');
+  const c = findCase(state, id);
+  if (c.stage === 'closed') throw new RuleError('closed', 'This case is closed.');
+  const day = today || state.today || isoDay(Date.now());
+  if (code === 'unread_outreach') {
+    const i = CHANNEL_LADDER.indexOf(c.channel);
+    const next = CHANNEL_LADDER[Math.min(CHANNEL_LADDER.length - 1, i + 1)];
+    c.channel = next;
+    if (!c.nurseRequest || c.nurseRequest.done) c.nurseRequest = { at: new Date().toISOString(), note: 'Protocol: the patient has not read or understood the result yet', done: false };
+    logEvent(c, 'sop_unread_outreach', actor, `Unread outreach: message resent by ${next}; nurse call task created`);
+  } else if (code === 'stalled_referral') {
+    const r = c.referral;
+    if (!r || !['sent', 'rejected'].includes(r.status)) throw new RuleError('no_stalled_referral', 'There is no waiting or rejected referral on this case.');
+    r.chasedAt = new Date().toISOString();
+    logEvent(c, 'sop_stalled_referral', actor, r.status === 'sent' ? `Referral chased with ${r.to} by phone; clinical lead told` : `Rejected referral flagged to the clinical lead for a new plan`);
+  } else if (code === 'refusal') {
+    const why = needText(reason, 10, 'reason_required', 'Write the patient\'s reason, in their words (at least 10 characters).');
+    c.refusal = { reason: why, at: new Date().toISOString(), by: actor.name, recontact: addDays(day, 90) };
+    c.dropReason = c.dropReason || why;
+    logEvent(c, 'sop_refusal', actor, `Refusal recorded: "${why}". Clinician to explain the risks. Re-contact booked for ${c.refusal.recontact}.`);
+  }
+  return c;
+}
+export { sopsFor };
 
 export function setBarrier(state, id, barrier, actor) {
   refuseAI(actor);
@@ -267,7 +347,7 @@ export const LANGUAGES = ['ar', 'en', 'ur', 'hi', 'tl', 'bn', 'ml'];
 // A NEW RESULT ARRIVES (from the lab, or typed in by staff). The rules decide everything:
 // urgency and due date from the HbA1c, and the owner (urgent -> the least busy nurse, otherwise the least busy coordinator).
 // Results below 5.7% are not actionable, so no case is opened.
-export function createCase(state, actor, { name, age, language, value, today, programme = 'hba1c', result } = {}) {
+export function createCase(state, actor, { name, age, language, value, today, programme = 'hba1c', result, birads } = {}) {
   refuseAI(actor);
   if (!actor || !['staff', 'system'].includes(actor.type)) throw new RuleError('not_allowed', 'Only staff or the lab system can add a result.');
   const nm = (name || '').trim();
@@ -275,10 +355,11 @@ export function createCase(state, actor, { name, age, language, value, today, pr
   const ag = Number(age);
   if (!Number.isInteger(ag) || ag < 18 || ag > 110) throw new RuleError('bad_age', 'Enter an age between 18 and 110.');
   if (!LANGUAGES.includes(language)) throw new RuleError('bad_language', 'Choose a language.');
-  if (!['hba1c', 'fit'].includes(programme)) throw new RuleError('bad_programme', 'Unknown screening programme.');
-  const k = programme === 'fit' ? classifyFit(result) : classify(value);
-  if (k.band === 'invalid') throw new RuleError('bad_value', programme === 'fit' ? 'Choose positive or negative.' : 'Enter an HbA1c between 3 and 20%.');
-  if (!k.inProgramme) throw new RuleError('not_actionable', programme === 'fit' ? 'A negative FIT is not an actionable result, so no case is opened.' : 'Below 5.7%: not an actionable result, so no case is opened.');
+  if (!['hba1c', 'fit', 'mammo'].includes(programme)) throw new RuleError('bad_programme', 'Unknown screening programme.');
+  const k = programme === 'fit' ? classifyFit(result) : programme === 'mammo' ? classifyMammo(birads) : classify(value);
+  if (k.band === 'invalid') throw new RuleError('bad_value', programme === 'fit' ? 'Choose positive or negative.' : programme === 'mammo' ? 'Choose a BI-RADS category (0 to 5).' : 'Enter an HbA1c between 3 and 20%.');
+  if (k.unsupported) throw new RuleError('not_supported', 'BI-RADS 3 (re-check in about 6 months) is not handled by this prototype yet. Follow your usual pathway.');
+  if (!k.inProgramme) throw new RuleError('not_actionable', programme === 'fit' ? 'A negative FIT is not an actionable result, so no case is opened.' : programme === 'mammo' ? 'BI-RADS 1 or 2 is normal or benign, so no case is opened.' : 'Below 5.7%: not an actionable result, so no case is opened.');
   const day = today || isoDay(Date.now());
   const n = state.cases.reduce((m, c) => Math.max(m, parseInt(c.id.slice(2), 10) || 0), 0) + 1;
   const role = ownerRoleFor(k.band);
@@ -297,14 +378,14 @@ export function createCase(state, actor, { name, age, language, value, today, pr
 }
 
 export function newCase({ id, patient, value, resultDay, owner, programme = 'hba1c' }) {
-  const fit = programme === 'fit';
-  const k = fit ? classifyFit('positive') : classify(value);
+  const fit = programme === 'fit', mammo = programme === 'mammo';
+  const k = fit ? classifyFit('positive') : mammo ? classifyMammo(value) : classify(value);
   return {
     id, programme, patient, value: fit ? null : k.value, band: k.band, urgency: k.urgency,
-    resultDay, due: fit ? addDays(resultDay, k.dueDays) : dueDate(resultDay, value), owner,
+    resultDay, due: fit || mammo ? addDays(resultDay, k.dueDays) : dueDate(resultDay, value), owner,
     stage: 'result', barrier: 'none', dropReason: null, nurseRequest: null, aiText: null, closed: null, familyHelper: null,
     referral: null, consults: [], plan: null, channel: 'app', confidence: null,
-    events: [{ type: 'result', at: resultDay + 'T08:00:00.000Z', by: 'Lab system', role: 'system', note: fit ? 'FIT positive (hidden blood found)' : `HbA1c ${k.value}%` }],
+    events: [{ type: 'result', at: resultDay + 'T08:00:00.000Z', by: 'Lab system', role: 'system', note: fit ? 'FIT positive (hidden blood found)' : mammo ? `Mammogram: ${k.label}` : `HbA1c ${k.value}%` }],
   };
 }
 

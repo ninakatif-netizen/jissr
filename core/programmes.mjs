@@ -13,8 +13,13 @@ export const PROGRAMMES = {
     referralTargets: ['Colorectal clinic', 'Hospital oncology'],
     stageLabel: { booked: 'Colonoscopy booked', attended: 'Colonoscopy done', confirmed: 'Biopsy results reviewed', referred: 'Referral to specialist team' },
   },
+  mammo: {
+    id: 'mammo', name: 'Breast screening (mammogram)', short: 'Breast', test: 'Mammogram',
+    referralTargets: ['Breast clinic', 'Hospital oncology'],
+    stageLabel: { booked: 'Biopsy or extra imaging booked', attended: 'Biopsy or imaging done', confirmed: 'Pathology reviewed', referred: 'Referral to the breast team' },
+  },
 };
 export const progOf = (c) => PROGRAMMES[(c && c.programme) || 'hba1c'];
 export const stageLabel = (c, s) => progOf(c).stageLabel[s] || STAGE_LABEL[s];
-export const resultText = (c) => (c.programme === 'fit' ? 'FIT +' : `${c.value}%`);
+export const resultText = (c) => (c.programme === 'fit' ? 'FIT +' : c.programme === 'mammo' ? `BI-RADS ${c.value}` : `${c.value}%`);
 export const targetsFor = (c) => progOf(c).referralTargets;

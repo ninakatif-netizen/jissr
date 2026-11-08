@@ -1,3 +1,4 @@
+import { slaText, CLOE_LABEL } from './rules.mjs';
 // Shared look: line icons (instead of emoji) and the Jissr bridge mark.
 // Icons are simple 24px strokes drawn for this project; they inherit the text colour.
 
@@ -49,3 +50,12 @@ export function logo(size = 30) {
 }
 
 export const wordmark = () => `${logo(30)}<span>Jissr</span><span class="ar">جسر</span>`;
+
+// CLOE badges, shared by the staff screens.
+// SLA countdown: green on track, amber warning, red breached. The tier is also written in words (not colour only).
+const TIER_WORD = { ON_TRACK: 'On track', WARNING: 'Warning', BREACHED: 'Breached' };
+export function slaBadge(clock) {
+  if (!clock) return '<span class="sla none">No clock running</span>';
+  return `<span class="sla ${clock.tier.toLowerCase()}" title="${TIER_WORD[clock.tier]}: ${clock.stepText}">${ic('clock', 13)}<span>${slaText(clock)}</span></span>`;
+}
+export const phaseChip = (phase) => `<span class="phase ph-${phase.toLowerCase()}">${CLOE_LABEL[phase]}</span>`;

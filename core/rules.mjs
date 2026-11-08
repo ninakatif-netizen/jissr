@@ -24,7 +24,24 @@ export const BANDS = {
   diabetes:    { label: 'Diabetes range',        urgency: 'priority', dueDays: 14 },
   urgent:      { label: 'Urgent range',          urgency: 'urgent',   dueDays: 2 },
   fit_positive: { label: 'Positive FIT',         urgency: 'priority', dueDays: 30 },
+  birads0: { label: 'BI-RADS 0: more imaging needed',        urgency: 'routine',  dueDays: 14 },
+  birads4: { label: 'BI-RADS 4: suspicious, biopsy advised',  urgency: 'priority', dueDays: 14 },
+  birads5: { label: 'BI-RADS 5: highly suspicious, biopsy',   urgency: 'urgent',   dueDays: 7 },
 };
+
+// BREAST SCREENING (mammogram). The radiologist reports a BI-RADS category (ACR BI-RADS Atlas, 5th edition).
+// 0 = more pictures needed; 4 and 5 = a biopsy is advised. 1 and 2 are normal or benign: no case is opened.
+// 3 (probably benign, re-check in about 6 months) is not handled by this prototype yet, so it is refused rather than guessed.
+// Deadlines are proposals for a clinician to confirm.
+export function classifyMammo(birads) {
+  const b = Number(birads);
+  if (b === 0) return { band: 'birads0', value: 0, inProgramme: true, ...BANDS.birads0 };
+  if (b === 4) return { band: 'birads4', value: 4, inProgramme: true, ...BANDS.birads4 };
+  if (b === 5) return { band: 'birads5', value: 5, inProgramme: true, ...BANDS.birads5 };
+  if (b === 1 || b === 2) return { band: 'birads_normal', value: b, inProgramme: false };
+  if (b === 3) return { band: 'birads3', value: 3, inProgramme: false, unsupported: true };
+  return { band: 'invalid', inProgramme: false };
+}
 
 // BOWEL CANCER SCREENING (FIT stool test). The lab reports positive or negative.
 // A positive result needs a colonoscopy. Deadlines are proposals for a clinician to confirm.
@@ -115,8 +132,8 @@ export function slotsFor({ band, barrier }, today) {
   return out;
 }
 
-// Who should own a new case, by rule: urgent -> a nurse, everyone else -> a coordinator.
-export const ownerRoleFor = (band) => (band === 'urgent' ? 'nurse' : 'coordinator');
+// Who should own a new case, by rule: urgent results and suspicious mammograms -> a nurse navigator, everyone else -> a coordinator.
+export const ownerRoleFor = (band) => (['urgent', 'birads4', 'birads5'].includes(band) ? 'nurse' : 'coordinator');
 
 // ---- AI safety filter. AI text is only used if it passes; otherwise a pre-written template is used. ----
 export const DISCLAIMER = {
@@ -129,6 +146,7 @@ const FORBIDDEN = [
   /\bdiagnos(ed|is of)\b(?!.*not a diagnosis)/i,
   /\b(take|start|stop|increase|reduce) (your )?(metformin|insulin|medication|medicine|tablets?)\b/i,
   /\bguarantee/i,
+  /(?<!not mean )\byou (have|\'ve got) (breast |bowel |colon )?cancer/i, /لديك سرطان/, /أنت مصابة? بالسرطان/,
   /أنت مصاب/, /أنت مريض/, /تعاني من (مرض )?السكري/, /ابدأ.*(دواء|الأنسولين)/, /أوقف.*(دواء|الأنسولين)/,
 ];
 export function safeText(text, lang) {
@@ -159,9 +177,14 @@ export const CONSULT_REPLY_DAYS = 2;    // a clinician-to-clinician question sho
 export const NURSE_CALLBACK_DAYS = 1;   // a requested nurse call should happen within 1 day
 
 // Programmes with their own service levels (days after the result). FIT: proposal, colonoscopy within 30 days.
-export const PROGRAMME_SLA = { fit: { notified: 2, understood: 7, booked: 14, attended: 30 } };
+export const PROGRAMME_SLA = {
+  fit: { notified: 2, understood: 7, booked: 14, attended: 30 },
+  // Mammogram: tighter for suspicious results (proposal: told within 1 day, biopsy within 7 or 14 days).
+  mammo: { notified: 1, understood: 2, booked: 5, attended: 14 },
+};
+const MAMMO_SLA_BY_BAND = { birads5: { notified: 1, understood: 1, booked: 3, attended: 7 } };
 export function slaDeadline(c, step) {
-  const row = PROGRAMME_SLA[c.programme] || SLA[c.urgency];
+  const row = (c.programme === 'mammo' && MAMMO_SLA_BY_BAND[c.band]) || PROGRAMME_SLA[c.programme] || SLA[c.urgency];
   return row && step in row ? addDays(c.resultDay, row[step]) : null;
 }
 
@@ -185,6 +208,8 @@ export function escalationsFor(c, today) {
   if (r && r.status === 'sent' && daysBetween(r.sentAt.slice(0, 10), today) >= REFERRAL_REPLY_DAYS) add('referral_unanswered', 2, `No reply from ${r.to} to the referral`);
   const n = c.nurseRequest;
   if (n && !n.done && daysBetween(n.at.slice(0, 10), today) >= NURSE_CALLBACK_DAYS) add('nurse_callback_late', 2, 'Patient asked for a nurse call and is still waiting');
+  const m = c.microConsult;
+  if (m && m.status === 'booked' && m.day < today) add('micro_consult_missed', 2, `10-minute call on ${m.day} not marked as done`);
   for (const q of c.consults || []) {
     if (!q.answer && today > q.due) add('consult_late', 2, `No answer yet from ${q.to} to the clinical question`);
   }
@@ -194,3 +219,111 @@ export const maxLevel = (list) => list.reduce((m, e) => Math.max(m, e.level), 0)
 
 export const CHANNELS = ['app', 'sms', 'whatsapp', 'phone'];
 export const CHANNEL_LABEL = { app: 'This app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'Phone call' };
+
+
+// =====================================================================================================
+// CLOE: CARE LOOP ORCHESTRATION ENGINE (a view over the detailed journey above, not a second state machine)
+// The five CLOE phases are what a navigator needs at a glance. Each one maps to the detailed stages, so the
+// rules, the audit trail and the patient app keep working exactly as before.
+// =====================================================================================================
+export const CLOE_PHASES = ['ISSUED', 'NOTIFIED', 'MICRO_CONSULT_BOOKED', 'REFERRED', 'CLOSED'];
+export const CLOE_LABEL = {
+  ISSUED: 'Result issued',
+  NOTIFIED: 'Patient notified',
+  MICRO_CONSULT_BOOKED: '10-min call booked',
+  REFERRED: 'In diagnostic or specialist care',
+  CLOSED: 'Closed with evidence',
+};
+export function cloePhase(c) {
+  if (c.stage === 'closed') return 'CLOSED';
+  if (STAGES.indexOf(c.stage) >= STAGES.indexOf('booked')) return 'REFERRED';
+  if (c.microConsult && c.microConsult.status === 'booked') return 'MICRO_CONSULT_BOOKED';
+  if (c.stage === 'result') return 'ISSUED';
+  return 'NOTIFIED';
+}
+
+// SLA CLOCK in hours, with three tiers. The clock runs on the first service-level step not yet done
+// (or on the specialist's reply while a referral is waiting). A step's deadline is the end of its due day (UTC).
+export const SLA_TIER = { ON_TRACK: 'ON_TRACK', WARNING: 'WARNING', BREACHED: 'BREACHED' };
+export const SLA_WARNING_HOURS = 24;     // WARNING when less than a day is left...
+export const SLA_WARNING_SHARE = 0.25;   // ...or less than a quarter of the step's time window
+const H = 3600000;
+const endOfDay = (day) => Date.parse(addDays(day, 1) + 'T00:00:00Z');
+const STEP_TEXT = { notified: 'Tell the patient', understood: 'Patient understands', booked: 'Book the next test or visit', attended: 'Test or visit done', referral_reply: 'Specialist replies to the referral' };
+
+export function slaClock(c, now = Date.now()) {
+  if (!c || c.stage === 'closed') return null;
+  const t = typeof now === 'number' ? now : Date.parse(now);
+  let step, start, deadline;
+  const r = c.referral;
+  if (r && r.status === 'sent') {
+    step = 'referral_reply'; start = Date.parse(r.sentAt); deadline = endOfDay(addDays(r.sentAt.slice(0, 10), REFERRAL_REPLY_DAYS));
+  } else {
+    const idx = STAGES.indexOf(c.stage);
+    step = SLA_STEPS.find((s) => STAGES.indexOf(s) > idx);
+    if (!step) return null; // every timed step is done: the clinician now owns the plan
+    const day = slaDeadline(c, step);
+    if (!day) return null;
+    start = Date.parse(c.resultDay + 'T00:00:00Z'); deadline = endOfDay(day);
+  }
+  const left = deadline - t, window = Math.max(deadline - start, H);
+  const tier = left < 0 ? SLA_TIER.BREACHED : left < SLA_WARNING_HOURS * H || left < window * SLA_WARNING_SHARE ? SLA_TIER.WARNING : SLA_TIER.ON_TRACK;
+  return { step, stepText: STEP_TEXT[step], deadline: new Date(deadline).toISOString(), hoursLeft: Math.round(left / H), tier };
+}
+// "14 h left", "2 d 3 h left", "Breached 5 h ago"
+export function slaText(clock) {
+  if (!clock) return '';
+  const h = Math.abs(clock.hoursLeft);
+  const span = h >= 48 ? `${Math.floor(h / 24)} d` : `${h} h`;
+  return clock.tier === SLA_TIER.BREACHED ? `Breached ${span} ago` : `${span} left`;
+}
+
+// 10-MINUTE MICRO-CONSULTATIONS with a nurse navigator: a short call before the patient has to decide anything.
+export const MICRO_MINUTES = 10;
+const MICRO_TIMES = ['08:30', '10:10', '12:40', '16:20', '18:00', '19:30'];
+// Free slots for the next `days` days. Nurses are shared round-robin; slots already taken by any case are removed.
+export function microConsultSlots(staff, cases, today, days = 2) {
+  const nurses = staff.filter((s) => s.role === 'nurse' && s.org === 'Screening programme');
+  if (!nurses.length) return [];
+  const taken = new Set(cases.filter((c) => c.microConsult && c.microConsult.status === 'booked').map((c) => `${c.microConsult.day} ${c.microConsult.time} ${c.microConsult.nurseId}`));
+  const out = [];
+  for (let d = 1; d <= days; d++) {
+    const day = addDays(today, d);
+    MICRO_TIMES.forEach((time, i) => {
+      const n = nurses[(i + d) % nurses.length];
+      if (!taken.has(`${day} ${time} ${n.id}`)) out.push({ day, time, nurseId: n.id, nurseName: n.name, minutes: MICRO_MINUTES });
+    });
+  }
+  return out;
+}
+
+// STANDARD OPERATING PROCEDURES (SOPs) a navigator can run. Each one is a fixed list of steps; the code
+// records what was done in the audit trail. Rules decide when an SOP applies; people decide to run it.
+export const SOPS = {
+  unread_outreach: {
+    label: 'Unread outreach',
+    when: 'The patient has not confirmed they understood, and the service level is at risk or missed.',
+    steps: ['Resend the message on the next channel (app → SMS → WhatsApp → phone call)', 'Create a nurse call task', 'Log it in the audit trail'],
+  },
+  stalled_referral: {
+    label: 'Stalled referral',
+    when: 'A referral has no reply within the agreed time, or was rejected.',
+    steps: ['Phone the receiving team and log the call', 'Tell the clinical lead', 'If rejected: a clinician re-sends or chooses another team'],
+  },
+  refusal: {
+    label: 'Refusal management',
+    when: 'The patient says they do not want follow-up (staff mark it, or the patient tells the nurse).',
+    steps: ['Record the patient\'s reason in their words', 'A clinician explains the risks (informed refusal)', 'Book a re-contact in 90 days as a safety net', 'Only then can a clinician close the case as "informed refusal"'],
+  },
+};
+export const CHANNEL_LADDER = ['app', 'sms', 'whatsapp', 'phone'];
+export function sopsFor(c, now = Date.now()) {
+  if (!c || c.stage === 'closed') return [];
+  const out = [];
+  const clock = slaClock(c, now);
+  if (STAGES.indexOf(c.stage) < STAGES.indexOf('understood') && clock && clock.tier !== SLA_TIER.ON_TRACK) out.push('unread_outreach');
+  const r = c.referral;
+  if (r && (r.status === 'rejected' || (r.status === 'sent' && clock && clock.step === 'referral_reply' && clock.tier !== SLA_TIER.ON_TRACK))) out.push('stalled_referral');
+  if (c.refusal || c.declined) out.push('refusal');
+  return out;
+}

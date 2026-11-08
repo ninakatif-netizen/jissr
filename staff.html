@@ -37,6 +37,19 @@ body{font-size:15px}
 .alerts h2{color:#fff}.alerts .n{background:rgba(255,255,255,.15)!important;color:#fff!important}
 .alerts .task:hover{background:rgba(255,255,255,.08)}.alerts .task .t span{color:rgba(255,255,255,.75)}
 .alerts .task .ic{background:rgba(255,255,255,.14);color:#f5b544}
+.cmd{margin:12px 0 4px}
+.cmd .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cmd h3{font-size:13px;color:var(--muted);font-weight:500;margin:0 0 8px;font-family:var(--text)}
+.qbtn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:1px solid var(--line);background:var(--bg);border-radius:14px;padding:10px 12px;margin-bottom:8px;font:inherit;color:var(--ink);cursor:pointer;text-align:start}
+.qbtn[aria-pressed=true]{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.qbtn b{font-size:18px}.qbtn small{display:block;color:var(--muted);font-size:12px}
+.qbtn .sla{font-size:13px}
+.sopbox{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--bg)}
+.sopbox.on{border-color:#b8894d;background:#fbf3e6}
+.sopbox ol{margin:6px 0 8px;padding-inline-start:18px;font-size:13px}
+.rules{font-size:12.5px;margin:10px 0 0;padding-inline-start:18px;color:var(--muted)}
+.rules li.bad{color:#a3311f;font-weight:500}
+@media (max-width:800px){.cmd .grid{grid-template-columns:1fr}}
 .funnel{margin:12px 0 4px}
 .funnel h2 small{font-family:var(--text);font-weight:400;font-size:12.5px;color:var(--muted);margin-inline-start:auto}
 .frow{display:grid;grid-template-columns:190px 1fr 160px;gap:12px;align-items:center;padding:5px 0;font-size:14px}
@@ -106,6 +119,7 @@ body{font-size:15px}
     <section class="panel alerts" id="alerts"></section>
   </div>
   <div class="stats" id="stats"></div>
+  <section class="panel cmd" id="cmd"></section>
   <section class="panel funnel" id="funnel"></section>
   <div class="listhead"><h2 id="listtitle">All open cases</h2>
     <div class="chips" id="progs" style="margin-bottom:8px"></div><div class="row"><div class="chips" id="filters"></div><input id="q" type="search" placeholder="Search name or case…" style="width:220px" aria-label="Search"></div></div>
@@ -119,17 +133,18 @@ body{font-size:15px}
 
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
-import { wordmark, ic } from './core/ui.mjs';
+import { wordmark, ic, slaBadge, phaseChip } from './core/ui.mjs';
 import { skyline } from './core/art.mjs';
 import { startTour } from './core/tour.mjs';
 import { loadState, saveState, resetState } from './core/store.mjs';
 import { caseToFhirBundle } from './core/fhir.mjs';
 import { PROGRAMMES, progOf, stageLabel, resultText, targetsFor } from './core/programmes.mjs';
-import { STAGES, STAGE_LABEL, BARRIER_LABEL, barrierPlan, isOverdue, daysBetween, escalationsFor, maxLevel, SLA_STEPS, slaDeadline, CHANNEL_LABEL, REFERRAL_REPLY_DAYS, addDays, classify, classifyFit } from './core/rules.mjs';
+import { STAGES, STAGE_LABEL, BARRIER_LABEL, barrierPlan, isOverdue, daysBetween, escalationsFor, maxLevel, SLA_STEPS, slaDeadline, CHANNEL_LABEL, REFERRAL_REPLY_DAYS, addDays, classify, classifyFit, classifyMammo, cloePhase, slaClock, sopsFor, SOPS, SLA_TIER, CLOE_PHASES, CLOE_LABEL } from './core/rules.mjs';
 import {
   advance, skipStage, closeCase, assignOwner, setDropReason, logContact, canRecord, nextStageOf,
   sendReferral, respondReferral, completeReferral, requestConsult, answerConsult, createCase,
   LANGUAGES, CLOSE_TYPES, PLAN_KINDS, REFERRAL_TARGETS, MIN_EVIDENCE, RuleError,
+  runSop, completeMicroConsult, CLOSURE_RULES, validateClosure,
 } from './core/cases.mjs';
 registerSW();
 
@@ -153,6 +168,10 @@ const URG = { urgent: 3, priority: 2, routine: 1 };
 const URG_LABEL = { urgent: 'Urgent', priority: 'Priority', routine: 'Routine' };
 const REF_CHIP = { sent: ['warn', 'Sent, waiting for reply'], accepted: ['ok', 'Accepted'], rejected: ['bad', 'Rejected'], completed: ['ok', 'Report back received'], cancelled: ['grey', 'Cancelled'] };
 const escOf = (c) => escalationsFor(c, state.today);
+// The demo's "now": today's demo date at the real time of day, so the SLA countdowns move live.
+const nowMs = () => Date.parse(state.today + 'T' + new Date().toISOString().slice(11));
+const clockOf = (c) => slaClock(c, nowMs());
+const sopOf = (c) => sopsFor(c, nowMs());
 const open = () => state.cases.filter((c) => c.stage !== 'closed');
 function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => el.classList.remove('show'), 3600); }
 
@@ -161,6 +180,7 @@ function nextAction(c) {
   const r = c.referral;
   if (c.nurseRequest && !c.nurseRequest.done) return ['phone', 'Call the patient back', 'b-yellow'];
   if (!c.owner) return ['users', 'Assign an owner', 'b-pink'];
+  if (c.microConsult && c.microConsult.status === 'booked') return ['phone', `10-min call ${fmt(c.microConsult.day)} ${c.microConsult.time}`, 'b-yellow'];
   switch (c.stage) {
     case 'result': return ['send', 'Notify the patient', 'b-blue'];
     case 'notified': return ['phone', 'Check the patient understood', 'b-blue'];
@@ -190,7 +210,7 @@ function renderTop() {
   const m = me(), s = staffOf(m.id);
   const h = new Date().getHours();
   $('#greet').textContent = `${h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'}, ${s.name.replace(/^(Nurse|Dr)\s+/, '').split(' ')[0]}`;
-  $('#today').textContent = new Date(state.today + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }) + ' · Screening follow-up · 2 programmes';
+  $('#today').textContent = new Date(state.today + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }) + ` · Screening follow-up · ${Object.keys(PROGRAMMES).length} programmes`;
   $('#rolechip').innerHTML = `<span class="av">${esc(initials(s.name))}</span><span><b>${esc(s.name)}</b><small>${s.role} · ${esc(s.org)}</small></span>`;
 
   const mine = open().filter((c) => c.owner === m.id).sort((a, b) => maxLevel(escOf(b)) - maxLevel(escOf(a)) || (a.due || '').localeCompare(b.due || ''));
@@ -215,6 +235,18 @@ function renderTop() {
   ];
   $('#stats').innerHTML = S.map(([f, i, cl, n, l]) => `<button class="stat" data-filter="${f}" aria-pressed="${filter === f}"><span class="ic ${cl}">${ic(i, 20)}</span><span><b>${n}</b><span>${l}</span></span></button>`).join('');
 
+  // NAVIGATOR COMMAND CENTER: live SLA tiers and the protocols that need running.
+  const tiers = { BREACHED: 0, WARNING: 0, ON_TRACK: 0 };
+  o.forEach((c) => { const k = clockOf(c); if (k) tiers[k.tier]++; });
+  const sopN = (code) => o.filter((c) => sopOf(c).includes(code)).length;
+  const qb = (f, inner) => `<button class="qbtn" data-filter="${f}" aria-pressed="${filter === f}">${inner}</button>`;
+  $('#cmd').innerHTML = `<h2>${ic('clock', 18)} Navigator command center <small style="font-family:var(--text);font-weight:400;font-size:12.5px;color:var(--muted);margin-inline-start:auto">Countdowns update every minute</small></h2><div class="grid">
+    <div><h3>Service-level clock (open cases)</h3>
+      ${qb('sla_breached', `<span><span class="sla breached">Breached</span><small>Deadline passed: act now</small></span><b>${tiers.BREACHED}</b>`)}
+      ${qb('sla_warning', `<span><span class="sla warning">Warning</span><small>Less than a day, or under a quarter of the time, left</small></span><b>${tiers.WARNING}</b>`)}
+      ${qb('sla_on_track', `<span><span class="sla on_track">On track</span><small>Within the service level</small></span><b>${tiers.ON_TRACK}</b>`)}</div>
+    <div><h3>Protocols to run (SOPs)</h3>
+      ${Object.entries(SOPS).map(([code, sp]) => qb('sop_' + code, `<span><b style="font-size:14.5px">${sp.label}</b><small>${sp.when}</small></span><b>${sopN(code)}</b>`)).join('')}</div></div>`;
   // Where patients drop out: how many reached each step (stage index, so later steps count too).
   const pool = state.cases.filter((c) => prog === 'all' || progOf(c) === prog);
   const at = (st) => pool.filter((c) => STAGES.indexOf(c.stage) >= STAGES.indexOf(st)).length;
@@ -227,6 +259,7 @@ function renderTop() {
 }
 
 /* ---------- the case list ---------- */
+const MORE_FILTERS = [['sla_breached', 'SLA breached'], ['sla_warning', 'SLA warning'], ['sla_on_track', 'SLA on track'], ...Object.entries(SOPS).map(([k, v]) => ['sop_' + k, 'Protocol: ' + v.label])];
 const FILTERS = [['open', 'All open'], ['attention', 'Needs attention'], ['overdue', 'Overdue'], ['unassigned', 'Unassigned'], ['urgent', 'Urgent'], ['referral', 'Referrals'], ['risk', 'Drop-out risk'], ['mine', 'Mine'], ['closed', 'Closed']];
 function visible() {
   const t = state.today, mine = me().id;
@@ -240,6 +273,8 @@ function visible() {
     if (filter === 'risk') return !!c.dropReason;
     if (filter === 'referral') return !!c.referral && ['sent', 'rejected', 'accepted'].includes(c.referral.status);
     if (filter === 'mine') return c.owner === mine;
+    if (filter.startsWith('sla_')) { const k = clockOf(c); return !!k && k.tier === filter.slice(4).toUpperCase(); }
+    if (filter.startsWith('sop_')) return sopOf(c).includes(filter.slice(4));
     return true;
   });
   if (prog !== 'all') list = list.filter((c) => (c.programme || 'hba1c') === prog);
@@ -248,20 +283,21 @@ function visible() {
   return list.sort((a, b) => maxLevel(escOf(b)) - maxLevel(escOf(a)) || URG[b.urgency] - URG[a.urgency] || (a.due || '').localeCompare(b.due || ''));
 }
 function renderList() {
-  $('#listtitle').textContent = (FILTERS.find((f) => f[0] === filter) || FILTERS[0])[1];
+  $('#listtitle').textContent = ([...FILTERS, ...MORE_FILTERS].find((f) => f[0] === filter) || FILTERS[0])[1];
   $('#progs').innerHTML = [['all', 'All programmes'], ...Object.values(PROGRAMMES).map((p) => [p.id, p.name])].map(([id, l]) => `<button class="pick" data-prog="${id}" aria-pressed="${prog === id}">${l}</button>`).join('');
   $('#filters').innerHTML = FILTERS.map(([id, l]) => `<button class="pick" data-filter="${id}" aria-pressed="${filter === id}">${l}</button>`).join('');
   const list = visible();
-  $('#tbl').innerHTML = `<thead><tr><th>Patient</th><th>Result</th><th>Stage</th><th>Next action</th><th>Owner</th><th>Due</th><th>Drop-out reason</th></tr></thead><tbody>` +
+  $('#tbl').innerHTML = `<thead><tr><th>Patient</th><th>Result</th><th>Phase</th><th>SLA</th><th>Next action</th><th>Owner</th><th>Due</th><th>Drop-out reason</th></tr></thead><tbody>` +
     (list.map((c) => { const [i, txt] = nextAction(c); const e = escOf(c); return `<tr class="click ${c.id === sel ? 'sel' : ''}" data-open="${c.id}" tabindex="0">
       <td data-l="Patient"><div class="pname"><span class="pav u-${c.urgency}">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><br><span class="muted tiny"><span class="chip grey" style="padding:0 7px">${progOf(c).test}</span> ${c.id} · age ${c.patient.age} · speaks ${esc(c.patient.language)}</span></span></div></td>
       <td data-l="Result"><b>${resultText(c)}</b><br><span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span></td>
-      <td data-l="Stage">${stageLabel(c, c.stage)}${c.referral && c.stage === 'referred' ? `<br><span class="tiny muted">${esc(c.referral.to)}: ${REF_CHIP[c.referral.status][1]}</span>` : ''}</td>
+      <td data-l="Phase">${phaseChip(cloePhase(c))}<br><span class="tiny muted">${stageLabel(c, c.stage)}</span>${c.referral && c.stage === 'referred' ? `<br><span class="tiny muted">${esc(c.referral.to)}: ${REF_CHIP[c.referral.status][1]}</span>` : ''}</td>
+      <td data-l="SLA">${(() => { const k = clockOf(c); return slaBadge(k) + (k ? `<br><span class="tiny muted">${k.stepText}</span>` : ''); })()}</td>
       <td data-l="Next action">${txt}${e.length ? `<br><span class="chip ${maxLevel(e) >= 3 ? 'bad' : 'warn'}">${maxLevel(e) >= 3 ? 'Lead now' : 'Attention'}${e.length > 1 ? ' · ' + e.length : ''}</span>` : ''}</td>
       <td data-l="Owner">${ownerHtml(c.owner)}</td>
-      <td data-l="Due">${fmt(c.due)}<br>${dueChip(c)}</td>
+      <td data-l="Due" style="white-space:nowrap">${fmt(c.due)}</td>
       <td data-l="Drop-out reason">${c.dropReason ? esc(c.dropReason) : '<span class="muted">–</span>'}</td></tr>`; }).join('') ||
-      `<tr><td colspan="7" class="muted">No cases here.</td></tr>`) + `</tbody>`;
+      `<tr><td colspan="8" class="muted">No cases here.</td></tr>`) + `</tbody>`;
 }
 
 /* ---------- one case, in a side panel ---------- */
@@ -337,14 +373,23 @@ function renderDrawer() {
     <div class="dsec">
       <div class="bigv"><b>${resultText(c)}</b><span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span><span class="tiny muted">urgency set by rules</span></div>
       <p class="tiny muted" style="margin:6px 0 0">${progOf(c).name}</p>
+      <p class="tiny" style="margin:8px 0 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center">${phaseChip(cloePhase(c))} ${slaBadge(clockOf(c))} ${clockOf(c) ? `<span class="muted">${clockOf(c).stepText}, by ${fmtTs(clockOf(c).deadline)}</span>` : ''}</p>
       <p class="tiny" style="margin:10px 0 0">Owner: <b>${ownerHtml(c.owner)}</b>${c.owner ? ` <span class="muted">(${esc(staffOf(c.owner)?.org || '')})</span>` : ''} · Due <b>${fmt(c.due)}</b> ${dueChip(c)}</p>
       <div class="row" style="margin-top:12px"><a class="btn ghost small" href="patient.html?p=${c.id}&nosplash=1" target="_blank" rel="noopener">${ic('phone', 16)} Open as this patient</a><button class="btn ghost small" id="fhir">${ic('file', 16)} FHIR export</button></div>
     </div>
     ${e.length ? `<div class="err-msg"><b>Needs attention</b><ul style="margin:4px 0 0;padding-inline-start:18px">${e.map((x) => `<li>${x.level >= 3 ? '<b>Clinical lead now:</b> ' : ''}${esc(x.text)}</li>`).join('')}</ul></div>` : ''}
     ${c.nurseRequest && !c.nurseRequest.done ? `<div class="err-msg" style="background:var(--p-yellow);color:#8a5a00">Patient asked for a nurse call (${fmtTs(c.nurseRequest.at)}). ${esc(c.nurseRequest.note)}</div>` : ''}
     ${flash ? `<div class="${flash.err ? 'err-msg' : 'ok-msg'}">${esc(flash.text)}</div>` : ''}
+    ${c.microConsult ? `<div class="rulebox" style="margin:0 0 10px">${ic('phone', 16)} <b>10-minute call with ${esc(c.microConsult.nurseName)}</b> · ${fmt(c.microConsult.day)} at ${c.microConsult.time} · <span class="chip ${c.microConsult.status === 'done' ? 'ok' : 'warn'}">${c.microConsult.status === 'done' ? 'done' : 'booked'}</span>
+      ${c.microConsult.status === 'booked' ? `<div class="row" style="margin-top:8px"><input id="mcnote" placeholder="What was discussed (optional)" style="flex:1;min-width:140px"><button class="btn small" id="mcdone" ${['nurse', 'clinician'].includes(actor.role) ? '' : 'disabled'}>Mark call done</button></div>` : ''}</div>` : ''}
     ${c.stage !== 'closed' ? `<div class="dsec"><h3>Next step</h3>${stepControls(c, actor) || '<p class="tiny muted" style="margin:0">Nothing to record.</p>'}
       <div class="rulebox"><b>Suggested by the rules:</b> ${esc(plan.staffTask)}${c.barrier !== 'none' ? `<br><span class="tiny">Patient's barrier: <b>${BARRIER_LABEL[c.barrier]}</b></span>` : ''}${c.dropReason ? `<br><span class="tiny">Drop-out reason: <b>${esc(c.dropReason)}</b></span>` : ''}${c.confidence ? `<br><span class="tiny">Patient confidence: <b>${c.confidence.score}/5</b></span>` : ''}</div></div>` : ''}
+    ${c.stage !== 'closed' ? `<div class="dsec"><h3>${ic('list', 18)} Protocols (SOPs)</h3>
+      ${Object.entries(SOPS).filter(([code]) => code === 'refusal' || sopOf(c).includes(code)).map(([code, sp]) => `<div class="sopbox ${sopOf(c).includes(code) ? 'on' : ''}"><b>${sp.label}</b>${sopOf(c).includes(code) ? ' <span class="chip warn">applies now</span>' : ''}
+        <div class="tiny muted">${sp.when}</div><ol>${sp.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>
+        ${code === 'refusal' ? (c.refusal ? `<div class="tiny"><span class="chip ok">recorded</span> "${esc(c.refusal.reason)}" · re-contact ${fmt(c.refusal.recontact)}</div>` : `<textarea id="sopreason" placeholder="The patient's reason, in their words"></textarea><button class="btn ghost small" data-sop="refusal" style="margin-top:6px">Record refusal and book re-contact</button>`)
+          : `<button class="btn small" data-sop="${code}">Run protocol</button>`}</div>`).join('')}
+      ${sopOf(c).length ? '' : '<p class="tiny muted" style="margin:0">No protocol is due on this case right now.</p>'}</div>` : ''}
     <div class="dsec"><h3>Journey</h3><ol class="timeline">${tl}</ol></div>
     <div class="dsec"><h3>Service levels</h3>${slaHtml(c)}</div>
     <div class="dsec"><h3>What the patient was told</h3>${ai ? `<div class="tiny muted">${ai.source === 'ai' ? 'AI-assisted draft, safety-checked' : 'Pre-written message'}</div><p class="tiny" style="white-space:pre-wrap;margin-bottom:0">${esc(ai.text)}</p>` : '<p class="tiny muted" style="margin:0">The patient has not opened the message yet.</p>'}</div>
@@ -359,7 +404,8 @@ function renderDrawer() {
         <p class="tiny muted" style="margin-top:0">${isDoc ? 'Give a reason and write the evidence. The AI can never close a case.' : 'Only a clinician can close a case, with written evidence. The AI can never close a case. Switch to a clinician at the top to try it.'}</p>
         <select id="ctype" ${isDoc ? '' : 'disabled'}>${Object.entries(CLOSE_TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
         <textarea id="cev" ${isDoc ? '' : 'disabled'} placeholder="Evidence (min ${MIN_EVIDENCE} characters), e.g. Seen 12 Nov, repeat HbA1c 7.2%, plan agreed, review in 3 months" style="margin-top:8px"></textarea>
-        <p style="margin-bottom:0"><button class="btn danger" id="close" ${isDoc ? '' : 'disabled'}>Close case</button></p></div>`}
+        <p style="margin-bottom:0"><button class="btn danger" id="close" ${isDoc ? '' : 'disabled'}>Close case</button></p>
+        <details style="margin-top:10px" ${flash && flash.broken ? 'open' : ''}><summary class="tiny"><b>Closure rules (${CLOSURE_RULES.length})</b>: all must hold</summary><ol class="rules">${CLOSURE_RULES.map(([code, txt]) => `<li class="${(flash && flash.broken || []).includes(code) ? 'bad' : ''}">${esc(txt)}</li>`).join('')}</ol></details></div>`}
     ${extra.length ? `<div class="dsec"><h3>Recent activity</h3><ul class="tiny" style="padding-inline-start:18px;margin:0">${extra.map((x) => `<li>${fmtTs(x.at)} · ${esc(x.by)}: ${esc(x.type.replace(/_/g, ' '))}${x.note ? ' · ' + esc(x.note) : ''}</li>`).join('')}</ul></div>` : ''}`;
 
   const run = (fn, ok) => { try { fn(); save(); flash = { text: ok }; } catch (er) { flash = { text: er instanceof RuleError ? er.message : 'Something went wrong.', err: true }; } render(); };
@@ -378,7 +424,13 @@ function renderDrawer() {
   $('#assign') && ($('#assign').onclick = () => run(() => assignOwner(state, c.id, v('#owner'), actor), 'Owner updated'));
   $('#log') && ($('#log').onclick = () => run(() => logContact(state, c.id, actor, v('#contact').trim()), 'Contact logged'));
   $('#dropbtn') && ($('#dropbtn').onclick = () => run(() => setDropReason(state, c.id, v('#drop'), actor), 'Drop-out reason saved'));
-  $('#close') && ($('#close').onclick = () => run(() => closeCase(state, c.id, actor, { type: v('#ctype'), evidence: v('#cev') }), 'Case closed'));
+  $('#close') && ($('#close').onclick = () => {
+    const broken = validateClosure(c, actor, { type: v('#ctype'), evidence: v('#cev') });
+    if (broken.length) { flash = { text: 'Not closed. ' + broken.map((b) => b.message).join(' '), err: true, broken: broken.map((b) => b.code) }; render(); return; }
+    run(() => closeCase(state, c.id, actor, { type: v('#ctype'), evidence: v('#cev') }), 'Case closed');
+  });
+  $('#mcdone') && ($('#mcdone').onclick = () => run(() => completeMicroConsult(state, c.id, actor, v('#mcnote')), '10-minute call recorded'));
+  document.querySelectorAll('[data-sop]').forEach((b) => b.onclick = () => run(() => runSop(state, c.id, actor, b.dataset.sop, { reason: v('#sopreason'), today: state.today }), `Protocol done: ${SOPS[b.dataset.sop].label}. Written to the audit trail.`));
 }
 function openCase(id) { sel = id; flash = null; render(); }
 function closeDrawer() { sel = null; flash = null; render(); }
@@ -395,6 +447,7 @@ function openIntake() {
     <label for="i-prog">Screening programme</label><select id="i-prog">${Object.values(PROGRAMMES).map((p) => `<option value="${p.id}">${p.name}</option>`).join('')}</select>
     <div id="i-hbw"><label for="i-val">HbA1c (%)</label><input id="i-val" type="number" step="0.1" min="3" max="20" placeholder="e.g. 10.6"></div>
     <div id="i-fitw" class="hide"><label for="i-fit">FIT result</label><select id="i-fit"><option value="positive">Positive (hidden blood found)</option><option value="negative">Negative</option></select></div>
+    <div id="i-mamw" class="hide"><label for="i-bir">Mammogram: BI-RADS category</label><select id="i-bir"><option value="4">4: suspicious, biopsy advised</option><option value="5">5: highly suspicious, biopsy</option><option value="0">0: more imaging needed</option><option value="3">3: probably benign</option><option value="2">2: benign</option><option value="1">1: normal</option></select></div>
     <div class="rulebox" id="i-preview">Type a value to see what the rules will do.</div>
     <div id="i-err"></div>
     <p style="margin-bottom:0"><button class="btn" id="i-go" style="width:100%">${ic('send', 18)} Add result</button></p>
@@ -402,18 +455,20 @@ function openIntake() {
   $('#modal').classList.add('open');
   setTimeout(() => $('#i-name').focus(), 50);
   const preview = () => {
-    const fit = $('#i-prog').value === 'fit';
-    $('#i-hbw').classList.toggle('hide', fit); $('#i-fitw').classList.toggle('hide', !fit);
-    const k = fit ? classifyFit($('#i-fit').value) : classify($('#i-val').value);
+    const pg = $('#i-prog').value, fit = pg === 'fit', mam = pg === 'mammo';
+    $('#i-hbw').classList.toggle('hide', fit || mam); $('#i-fitw').classList.toggle('hide', !fit); $('#i-mamw').classList.toggle('hide', !mam);
+    const k = fit ? classifyFit($('#i-fit').value) : mam ? classifyMammo($('#i-bir').value) : classify($('#i-val').value);
+    const nurseOwner = ['urgent', 'birads4', 'birads5'].includes(k.band);
     $('#i-preview').innerHTML = k.band === 'invalid' ? 'Type a value between 3 and 20 to see what the rules will do.'
-      : !k.inProgramme ? (fit ? '<b>Negative FIT:</b> not an actionable result. No case will be opened.' : '<b>Below 5.7%:</b> not an actionable result. No case will be opened.')
-      : `<b>${URG_LABEL[k.urgency]}</b> (${k.label}) · due within <b>${k.dueDays} day${k.dueDays === 1 ? '' : 's'}</b> · owner: the least busy <b>${k.band === 'urgent' ? 'nurse' : 'coordinator'}</b>. Set by fixed rules, not AI.`;
+      : k.unsupported ? '<b>BI-RADS 3:</b> a re-check in about 6 months. Not handled by this prototype yet, so it is refused rather than guessed.'
+      : !k.inProgramme ? (fit ? '<b>Negative FIT:</b> not an actionable result. No case will be opened.' : mam ? '<b>BI-RADS 1 or 2:</b> normal or benign. No case will be opened.' : '<b>Below 5.7%:</b> not an actionable result. No case will be opened.')
+      : `<b>${URG_LABEL[k.urgency]}</b> (${k.label}) · due within <b>${k.dueDays} day${k.dueDays === 1 ? '' : 's'}</b> · owner: the least busy <b>${nurseOwner ? 'nurse navigator' : 'coordinator'}</b>. Set by fixed rules, not AI.`;
   };
-  $('#i-val').oninput = preview; $('#i-prog').onchange = preview; $('#i-fit').onchange = preview;
+  $('#i-val').oninput = preview; $('#i-prog').onchange = preview; $('#i-fit').onchange = preview; $('#i-bir').onchange = preview;
   $('#mx').onclick = closeIntake;
   $('#i-go').onclick = () => {
     try {
-      const c = createCase(state, me(), { name: $('#i-name').value, age: +$('#i-age').value, language: $('#i-lang').value, value: $('#i-val').value, programme: $('#i-prog').value, result: $('#i-fit').value, today: state.today });
+      const c = createCase(state, me(), { name: $('#i-name').value, age: +$('#i-age').value, language: $('#i-lang').value, value: $('#i-val').value, programme: $('#i-prog').value, result: $('#i-fit').value, birads: $('#i-bir').value, today: state.today });
       save(); closeIntake(); filter = 'open';
       toast(`${c.id} added · ${URG_LABEL[c.urgency]} · owner ${staffOf(c.owner)?.name || 'unassigned'} · due ${fmt(c.due)}`);
       flash = { text: 'New case created by the rules. Open it as the patient to see what they receive.' };
@@ -447,6 +502,7 @@ meSel.onchange = () => { flash = null; render(); };
 $('#reset').onclick = () => { state = resetState(); flash = null; sel = null; render(); toast('Demo data reset'); };
 $('#q').oninput = (e) => { query = e.target.value; renderList(); };
 addEventListener('storage', () => { state = loadState(); render(); });
+setInterval(() => { if (!document.hidden && !document.activeElement?.matches('input,textarea,select')) { renderTop(); renderList(); } }, 60000); // live SLA countdowns
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { state = loadState(); render(); } });
 render();
 if (params.has('new')) openIntake();

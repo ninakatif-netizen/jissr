@@ -147,3 +147,12 @@ textarea{min-height:84px}
 
 /* pastel tiles, shared by every page */
 .b-blue{background:var(--p-blue);color:#1d3a6b}.b-sand{background:#f1e6d2;color:#9a6a1c}.b-yellow{background:var(--p-yellow);color:#c58a10}.b-pink{background:var(--p-pink);color:#d4527a}.b-lilac{background:var(--p-lilac);color:#7a5cd6}.b-mint{background:var(--p-mint);color:#22895e}
+
+/* CLOE badges */
+.sla{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap}
+.sla.on_track{background:#e3efe6;color:#1f6b45}
+.sla.warning{background:#fbecd2;color:#8a5a0e}
+.sla.breached{background:#fbe1dc;color:#a3311f}
+.sla.none{background:var(--card2);color:var(--muted);font-weight:500}
+.phase{display:inline-block;border-radius:8px;padding:2px 8px;font-size:12px;font-weight:600;background:var(--card2);color:var(--ink)}
+.ph-issued{background:#fbe1dc;color:#a3311f}.ph-notified{background:#e2e7f0;color:#14284b}.ph-micro_consult_booked{background:#f4e7d2;color:#86602c}.ph-referred{background:#e2e7f0;color:#14284b}.ph-closed{background:#e3efe6;color:#1f6b45}
