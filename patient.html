@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f3f6fb">
+<meta name="theme-color" content="#f6f1e8">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Jissr">
@@ -40,7 +40,7 @@ body{font-size:16px}
 .trk.now .dot{background:var(--accent);color:#1e2a44;box-shadow:0 0 0 5px var(--accent-l)}
 .trk.now{color:var(--ink);font-weight:600}
 /* the blue "next step" card */
-.next{position:relative;overflow:hidden;background:linear-gradient(135deg,#4a7ee0,#2c58b8);color:#fff;border-radius:24px;padding:22px 20px;margin:14px 0;box-shadow:0 14px 30px rgba(44,88,184,.28)}
+.next{position:relative;overflow:hidden;background:linear-gradient(135deg,#2c5294,#1a3463);color:#fff;border-radius:24px;padding:22px 20px;margin:14px 0;box-shadow:0 14px 30px rgba(26,52,99,.28)}
 .next:before,.next:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.09);pointer-events:none}
 .next:before{width:210px;height:210px;top:-90px;inset-inline-end:-70px}
 .next:after{width:120px;height:120px;bottom:-60px;inset-inline-start:-30px}
@@ -49,11 +49,11 @@ body{font-size:16px}
 .next .badge{width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
 .next h2{font-size:1.3rem;margin:0 0 6px;color:#fff}
 .next p{margin:0 0 16px;opacity:.92;font-size:14.5px}
-.next .btn{background:#fff;color:#244c9e;width:100%;box-shadow:none}
+.next .btn{background:#fff;color:#1d3a6b;width:100%;box-shadow:none}
 .next.ok .btn{color:#1f7f57}
 .next .lbl{color:#fff;opacity:.85}
 .appt{display:flex;gap:14px;align-items:center;margin-bottom:14px}
-.datebox{background:#fff;color:#244c9e;border-radius:16px;width:64px;padding:8px 0;text-align:center;flex:none}
+.datebox{background:#fff;color:#1d3a6b;border-radius:16px;width:64px;padding:8px 0;text-align:center;flex:none}
 .datebox b{display:block;font-size:1.55rem;line-height:1.1}
 .datebox span{font-size:12px;font-weight:600}
 .next.ok .datebox{color:#1f7f57}
@@ -66,17 +66,17 @@ body{font-size:16px}
 .svc button{background:none;border:0;font:inherit;font-size:12.5px;color:var(--ink);cursor:pointer;padding:0;display:flex;flex-direction:column;align-items:center;gap:7px}
 .svc .box{width:100%;max-width:68px;aspect-ratio:1;border-radius:20px;display:flex;align-items:center;justify-content:center;transition:transform .15s}
 .svc button:active .box{transform:scale(.93)}
-.b-blue{background:var(--p-blue);color:#3b6fd4}.b-yellow{background:var(--p-yellow);color:#c58a10}.b-pink{background:var(--p-pink);color:#d4527a}.b-lilac{background:var(--p-lilac);color:#7a5cd6}.b-mint{background:var(--p-mint);color:#22895e}
+.b-blue{background:var(--p-blue);color:#1d3a6b}.b-sand{background:#f1e6d2;color:#9a6a1c}.b-yellow{background:var(--p-yellow);color:#c58a10}.b-pink{background:var(--p-pink);color:#d4527a}.b-lilac{background:var(--p-lilac);color:#7a5cd6}.b-mint{background:var(--p-mint);color:#22895e}
 /* care contact */
 .who{display:flex;gap:14px;align-items:center}
 .avatar{width:50px;height:50px;border-radius:16px;background:var(--p-lilac);color:#7a5cd6;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
 .who .info{flex:1;min-width:0}
 .who .info b{display:block}
-.call{width:46px;height:46px;border-radius:50%;background:var(--brand);color:#fff;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 14px rgba(59,111,212,.3);flex:none}
+.call{width:46px;height:46px;border-radius:50%;background:var(--brand);color:#fff;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 14px rgba(29,58,107,.3);flex:none}
 .lbl{font-size:13px;color:var(--muted);font-weight:500;margin-bottom:10px}
 /* result screen */
 .report{background:var(--p-blue);border-radius:24px;padding:18px 16px 16px;margin:4px 0 12px}
-.report .lbl{color:#244c9e;font-weight:600}
+.report .lbl{color:#1d3a6b;font-weight:600}
 .minis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .mini{border-radius:20px;padding:14px}
 .mini small{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:6px}
@@ -93,7 +93,7 @@ body{font-size:16px}
 .dt b{display:block;font-size:1.4rem;line-height:1.15}
 .dt span{display:block;font-size:12px;color:var(--muted)}
 .dt em{display:block;font-style:normal;font-size:12.5px;font-weight:600;margin-top:6px;color:var(--brand)}
-.dt[aria-pressed=true]{background:var(--brand);color:#fff;box-shadow:0 8px 18px rgba(59,111,212,.3)}
+.dt[aria-pressed=true]{background:var(--brand);color:#fff;box-shadow:0 8px 18px rgba(29,58,107,.3)}
 .dt[aria-pressed=true] span,.dt[aria-pressed=true] em{color:#fff}
 /* confidence */
 .scale{display:flex;gap:8px}
@@ -115,7 +115,7 @@ body{font-size:16px}
 .tab[aria-current=page]{color:var(--brand);font-weight:600}
 .tab[aria-current=page] .ico{background:var(--brand-l)}
 /* welcome screen */
-.splash{position:absolute;inset:0;z-index:50;background:linear-gradient(160deg,#4a7ee0,#2c58b8);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;animation:splash .5s 1.2s ease forwards}
+.splash{position:absolute;inset:0;z-index:50;background:linear-gradient(160deg,#2c5294,#1a3463);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;animation:splash .5s 1.2s ease forwards}
 .splash .name{font-weight:700;font-size:2.2rem;margin-top:14px}
 .splash .name span{font-family:"Plex",sans-serif;font-weight:600;opacity:.85;margin-inline-start:10px}
 .splash p{opacity:.9;max-width:22ch;margin-top:8px}
@@ -134,7 +134,7 @@ button:active:not([disabled]){transform:scale(.97)}
   .demo.open{display:flex;position:fixed;top:0;left:0;right:0}
 }
 @media (min-width:700px){
-  body{background:radial-gradient(circle at 30% 0%,#eaf1fc,#d9e3f3);display:flex;flex-direction:column;align-items:center;min-height:100vh}
+  body{background:radial-gradient(circle at 30% 0%,#f3ebdd,#e5d9c4);display:flex;flex-direction:column;align-items:center;min-height:100vh}
   .demo{width:100%}
   .device{position:relative;inset:auto;width:392px;height:min(860px,calc(100vh - 96px));margin:20px auto;border-radius:50px;border:11px solid #1e2a44;box-shadow:0 34px 70px rgba(30,42,68,.28),0 0 0 2px #3a4664}
   .device:before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:92px;height:24px;border-radius:14px;background:#1e2a44;z-index:80}
@@ -428,7 +428,7 @@ function homeView(c) {
   const t = T();
   const first = c.patient.name.split(' ')[0];
   const canBook = stageIdx(c) >= 2;
-  const tiles = [['result', 'speaker', 'b-blue', t.tListen], ['nurse', 'phone', 'b-yellow', t.tNurse], ['family', 'users', 'b-pink', t.tFamily], [canBook ? 'book' : 'result', 'calendar', 'b-lilac', t.tBook]];
+  const tiles = [['result', 'speaker', 'b-blue', t.tListen], ['nurse', 'phone', 'b-sand', t.tNurse], ['family', 'users', 'b-pink', t.tFamily], [canBook ? 'book' : 'result', 'calendar', 'b-lilac', t.tBook]];
   let h = `${topBar()}<div class="view">
     <div class="greet"><div><div class="hi">${t.hi}</div><div class="nm">${esc(first)}</div></div><button class="me" id="me-btn" aria-label="Demo: switch patient" title="Demo: switch patient">${esc(initials(c.patient.name))}</button></div>
     ${nextCard(c)}
