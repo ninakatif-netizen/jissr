@@ -7,43 +7,51 @@
 <link rel="stylesheet" href="styles.css">
 <style>
 body{font-size:17px}
-.wrap{max-width:560px}
-.view{animation:in .25s ease}
+.wrap{max-width:540px}
+.view{animation:in .28s ease}
 @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.back{background:none;border:0;color:var(--teal);font:inherit;font-weight:600;padding:10px 0;cursor:pointer;min-height:44px}
+.back{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--brand);font:inherit;font-weight:600;padding:10px 0;cursor:pointer;min-height:44px}
+[dir=rtl] .back .ico{transform:scaleX(-1)}
+.hello{font-size:2.15rem;margin:8px 0 2px}
 /* journey tracker */
-.track{display:flex;align-items:flex-start;margin:6px 0 4px}
+.track{display:flex;margin:18px 0 6px}
 .trk{flex:1;text-align:center;position:relative;font-size:12.5px;color:var(--muted)}
-.trk .dot{width:28px;height:28px;border-radius:50%;margin:0 auto 4px;background:var(--line);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;position:relative;z-index:1}
-.trk:not(:last-child):after{content:"";position:absolute;top:13px;inset-inline-start:50%;width:100%;height:3px;background:var(--line)}
-.trk.done .dot{background:var(--teal)} .trk.done:not(:last-child):after{background:var(--teal)}
-.trk.now .dot{background:var(--card);border:3px solid var(--teal);color:var(--teal);animation:ring 1.8s ease-in-out infinite}
-.trk.now{color:var(--ink);font-weight:700}
-@keyframes ring{0%,100%{box-shadow:0 0 0 0 rgba(31,122,116,.35)}50%{box-shadow:0 0 0 7px rgba(31,122,116,0)}}
-/* next step */
-.next{background:var(--teal);color:#fff;border-radius:20px;padding:20px;margin:14px 0}
-.next h2{margin:0 0 6px;font-size:1.35rem}
-.next p{margin:0 0 14px;opacity:.95}
-.next .ico{font-size:2rem;margin-bottom:4px}
-.next .btn{background:#fff;color:var(--teal-d);border-color:#fff;width:100%;font-size:1.05rem}
-.next .btn.line{background:transparent;color:#fff;border-color:rgba(255,255,255,.7);margin-top:8px}
-.next.wait{background:var(--teal-l);color:var(--ink)} .next.wait .btn{background:var(--teal);color:#fff;border-color:var(--teal)}
-.next.ok{background:var(--green-l);color:var(--green)} .next.ok .btn{background:var(--green);color:#fff;border-color:var(--green)}
-.who{display:flex;gap:14px;align-items:center}
-.avatar{width:52px;height:52px;border-radius:50%;background:var(--teal-l);color:var(--teal-d);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex:none}
+.trk .dot{width:26px;height:26px;border-radius:50%;margin:0 auto 6px;background:var(--card);border:2px solid var(--line);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;position:relative;z-index:1}
+.trk:not(:last-child):after{content:"";position:absolute;top:12px;inset-inline-start:50%;width:100%;height:2px;background:var(--line)}
+.trk.done .dot{background:var(--brand);border-color:var(--brand);color:var(--card)}
+.trk.done:not(:last-child):after{background:var(--brand)}
+.trk.now .dot{border-color:var(--accent);background:var(--accent);color:#1b2238;animation:ring 2s ease-in-out infinite}
+.trk.now{color:var(--ink);font-weight:600}
+@keyframes ring{0%,100%{box-shadow:0 0 0 0 rgba(208,138,46,.5)}50%{box-shadow:0 0 0 8px rgba(208,138,46,0)}}
+/* the one thing to do next */
+.next{background:var(--panel);background-image:var(--star);color:var(--on-panel);border-radius:22px;padding:24px 22px;margin:16px 0;overflow:hidden}
+.next.ok{background-color:#24573f}
+.next .badge{width:54px;height:54px;border-radius:50%;border:1.5px solid rgba(255,252,246,.55);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.next h2{font-size:1.6rem;margin:0 0 8px;color:var(--on-panel)}
+.next p{margin:0 0 18px;opacity:.93}
+.next .btn{background:var(--accent);border-color:var(--accent);color:#1b2238;width:100%;font-size:1.05rem}
+.next.wait .btn,.next.ok .btn{background:transparent;color:var(--on-panel);border-color:rgba(255,252,246,.7)}
+/* who is looking after me */
+.who{display:flex;gap:14px;align-items:center;margin-top:10px}
+.avatar{width:50px;height:50px;border-radius:50%;background:var(--brand-l);color:var(--brand-d);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:600;font-size:1.1rem;flex:none}
 .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
-.act{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 6px;text-align:center;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;min-height:84px}
-.act span{display:block;font-size:1.6rem}
-.faces{display:flex;gap:8px;justify-content:space-between}
-.face{flex:1;font-size:1.8rem;padding:10px 0;border:1.5px solid var(--line);border-radius:14px;background:var(--card);cursor:pointer;min-height:56px}
-.face[aria-pressed=true]{border-color:var(--teal);background:var(--teal-l)}
-.tick{width:84px;height:84px;border-radius:50%;background:var(--green);margin:10px auto;display:flex;align-items:center;justify-content:center;color:#fff;font-size:3rem;animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+.act{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 6px 12px;text-align:center;font:inherit;font-size:13.5px;color:var(--ink);cursor:pointer;min-height:92px;line-height:1.3;transition:border-color .15s}
+.act:hover{border-color:var(--brand)}
+.act .ico{display:block;margin:0 auto 8px;color:var(--brand)}
+.scale{display:flex;gap:8px}
+.scale button{flex:1;font:inherit;font-weight:600;font-size:1.05rem;padding:12px 0;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer;min-height:52px}
+.scale button[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:var(--card)}
+.tick{width:84px;height:84px;border-radius:50%;background:var(--green);margin:10px auto;display:flex;align-items:center;justify-content:center;color:#fffcf6;animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+.tick svg{width:44px;height:44px;stroke-width:2.4;stroke-dasharray:30;stroke-dashoffset:30;animation:draw .5s .25s ease forwards}
 @keyframes pop{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
+@keyframes draw{to{stroke-dashoffset:0}}
 .center{text-align:center}
-.bigbtn{width:100%;font-size:1.1rem;min-height:56px}
+.bigbtn{width:100%;font-size:1.08rem;min-height:56px}
 .slotbtn{padding:14px 8px}
 .bubble{background:var(--green-l);color:var(--ink);border-radius:16px 16px 16px 4px;padding:12px 14px;margin:8px 0;max-width:92%}
 [dir=rtl] .bubble{border-radius:16px 16px 4px 16px}
+.lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+[dir=rtl] .lbl{letter-spacing:0;text-transform:none;font-size:13px}
 </style>
 </head>
 <body>
@@ -63,13 +71,14 @@ import { loadState, saveState, resetState, aiText } from './core/store.mjs';
 import { classify, slotsFor, BARRIERS } from './core/rules.mjs';
 import { advance, setBarrier, requestNurse, recordAiText, setChannel, recordConfidence } from './core/cases.mjs';
 import { explanation, barrierText, nurseText } from './core/templates.mjs';
+import { ic, wordmark } from './core/ui.mjs';
 
 /* ---------- words on the screen (English / Arabic) ---------- */
 const S = {
   en: {
     hello: (n) => `Hello ${n}`,
     steps: ['Result', 'Book', 'Doctor', 'Tests', 'Plan'],
-    back: '← Back', cont: 'Continue', home: 'Back to home',
+    back: 'Back', cont: 'Continue', home: 'Back to home',
     yourTest: 'Your HbA1c result',
     band: { prediabetes: 'A little higher than usual', diabetes: 'Higher than usual', urgent: 'Much higher than usual' },
     notdx: 'This is not a diagnosis. Only a doctor can tell you what your result means.',
@@ -83,18 +92,18 @@ const S = {
     pick: 'Pick a time', confirm: 'Book this time', booked: 'Your visit is booked!', where: 'Jissr demo clinic · 20 minutes · bring your Emirates ID or insurance card',
     remind: 'Remind me the day before', remindOn: 'Reminder is on. (Demo: no real message is sent.)', cal: 'Add to my calendar',
     n: {
-      read: ['👋', 'Read your result', 'It takes one minute. We explain it in plain words.', 'Read my result'],
-      book: ['📅', 'Book your visit', 'Pick a time that suits you.', 'Choose a time'],
-      booked: (d) => ['✅', `Your visit: ${d}`, 'We will remind you the day before. Bring your Emirates ID or insurance card.', 'Add to my calendar'],
-      attended: ['🩺', 'Your visit is done', 'The doctor may ask for a repeat blood test to check the first result. Your care team will tell you what is needed.', 'Ask a nurse a question'],
-      confirmed: ['🧭', 'Your doctor is planning your care', 'They are deciding if a specialist should also see you. We will tell you as soon as there is news.', 'Ask a nurse a question'],
-      sent: (o) => ['📨', 'Waiting for the specialist', `Your doctor asked ${o} to see you. We are waiting for their reply and will tell you. You do not need to do anything.`, 'Ask a nurse a question'],
-      accepted: (o, d) => ['🤝', `${o} will see you`, `${d} is now looking after you. They will contact you about your appointment.`, 'Ask a nurse a question'],
-      rejected: ['🔄', 'Your doctor is arranging another way', 'The first clinic could not take you yet. Your doctor is choosing the next step. You do not need to do anything.', 'Ask a nurse a question'],
-      completed: ['📄', 'The specialist has sent their report', 'Your doctor is now writing your plan with you.', 'Ask a nurse a question'],
-      treat: ['💊', 'Your treatment plan has started', 'Your doctor will keep in touch and check how you are doing.', 'Ask a nurse a question'],
-      surv: ['🌱', 'Your plan: healthy habits and a re-test', 'Your doctor has agreed a plan with you. We will remind you when it is time for your next test.', 'Ask a nurse a question'],
-      done: ['🎉', 'All done. Your care is up to date.', 'Thank you for taking care of your health.', ''],
+      read: ['result', 'Read your result', 'It takes one minute. We explain it in plain words.', 'Read my result'],
+      book: ['calendar', 'Book your visit', 'Pick a time that suits you.', 'Choose a time'],
+      booked: (d) => ['check', `Your visit: ${d}`, 'We will remind you the day before. Bring your Emirates ID or insurance card.', 'Add to my calendar'],
+      attended: ['doctor', 'Your visit is done', 'The doctor may ask for a repeat blood test to check the first result. Your care team will tell you what is needed.', 'Ask a nurse a question'],
+      confirmed: ['plan', 'Your doctor is planning your care', 'They are deciding if a specialist should also see you. We will tell you as soon as there is news.', 'Ask a nurse a question'],
+      sent: (o) => ['send', 'Waiting for the specialist', `Your doctor asked ${o} to see you. We are waiting for their reply and will tell you. You do not need to do anything.`, 'Ask a nurse a question'],
+      accepted: (o, d) => ['handshake', `${o} will see you`, `${d} is now looking after you. They will contact you about your appointment.`, 'Ask a nurse a question'],
+      rejected: ['refresh', 'Your doctor is arranging another way', 'The first clinic could not take you yet. Your doctor is choosing the next step. You do not need to do anything.', 'Ask a nurse a question'],
+      completed: ['file', 'The specialist has sent their report', 'Your doctor is now writing your plan with you.', 'Ask a nurse a question'],
+      treat: ['pill', 'Your treatment plan has started', 'Your doctor will keep in touch and check how you are doing.', 'Ask a nurse a question'],
+      surv: ['leaf', 'Your plan: healthy habits and a re-test', 'Your doctor has agreed a plan with you. We will remind you when it is time for your next test.', 'Ask a nurse a question'],
+      done: ['star', 'All done. Your care is up to date.', 'Thank you for taking care of your health.', ''],
     },
     careBy: 'Looking after you', noOwner: 'A team member will be assigned to you very soon.', role: { nurse: 'Nurse', coordinator: 'Care coordinator', clinician: 'Doctor' },
     qListen: 'Listen to my result', qNurse: 'Talk to a nurse', qFamily: 'Family helper',
@@ -106,13 +115,14 @@ const S = {
     fam: 'Family helper', famSub: 'Let one family member see your appointment and reminders, so they can help you. They never see your result number. You can stop at any time.',
     famName: 'Their name', famRel: 'Who are they? (daughter, son, friend…)', famOn: 'Share my appointment status', famDone: (n) => `${n} will see only your appointment status and reminders.`, famOff: 'Stop sharing',
     famPreview: 'What they would receive:', famMsg: 'Mama\'s result has been explained and her appointment is booked.',
+    confLow: 'Not sure', confHigh: 'Very sure',
     confQ: 'How sure do you feel about what happens next?', confThanks: 'Thank you. This helps us improve.',
     seeStaff: 'See this case on the staff screen',
   },
   ar: {
     hello: (n) => `مرحباً ${n}`,
     steps: ['النتيجة', 'الحجز', 'الطبيب', 'الفحوصات', 'الخطة'],
-    back: 'رجوع →', cont: 'متابعة', home: 'العودة للرئيسية',
+    back: 'رجوع', cont: 'متابعة', home: 'العودة للرئيسية',
     yourTest: 'نتيجة تحليل السكر التراكمي (HbA1c)',
     band: { prediabetes: 'أعلى قليلاً من المعتاد', diabetes: 'أعلى من المعتاد', urgent: 'أعلى بكثير من المعتاد' },
     notdx: 'هذا ليس تشخيصاً. الطبيب وحده يستطيع أن يخبرك بمعنى نتيجتك.',
@@ -126,18 +136,18 @@ const S = {
     pick: 'اختر وقتاً', confirm: 'احجز هذا الوقت', booked: 'تم حجز زيارتك!', where: 'عيادة جسر التجريبية · 20 دقيقة · أحضر هويتك الإماراتية أو بطاقة التأمين',
     remind: 'ذكّرني قبل يوم', remindOn: 'تم تشغيل التذكير. (تجريبي: لا تُرسل رسالة حقيقية.)', cal: 'أضف إلى تقويمي',
     n: {
-      read: ['👋', 'اقرأ نتيجتك', 'يستغرق الأمر دقيقة. نشرحها لك بكلمات بسيطة.', 'اقرأ نتيجتي'],
-      book: ['📅', 'احجز زيارتك', 'اختر وقتاً يناسبك.', 'اختر وقتاً'],
-      booked: (d) => ['✅', `زيارتك: ${d}`, 'سنذكّرك قبل يوم. أحضر هويتك الإماراتية أو بطاقة التأمين.', 'أضف إلى تقويمي'],
-      attended: ['🩺', 'تمت زيارتك', 'قد يطلب الطبيب إعادة تحليل الدم للتأكد من النتيجة الأولى. سيخبرك فريق رعايتك بما يلزم.', 'اسأل ممرضة'],
-      confirmed: ['🧭', 'طبيبك يخطط لرعايتك', 'يقرر الطبيب إن كان يلزم أن يراك أخصائي أيضاً. سنخبرك فور وجود أي جديد.', 'اسأل ممرضة'],
-      sent: (o) => ['📨', 'بانتظار الأخصائي', `طلب طبيبك من ${o} أن يراك. ننتظر ردهم وسنخبرك. لا يلزمك فعل أي شيء.`, 'اسأل ممرضة'],
-      accepted: (o, d) => ['🤝', `${o} سيراك`, `${d} يتولى رعايتك الآن. سيتواصل معك بشأن موعدك.`, 'اسأل ممرضة'],
-      rejected: ['🔄', 'طبيبك يرتب طريقة أخرى', 'لم تتمكن العيادة الأولى من استقبالك الآن. يختار طبيبك الخطوة التالية. لا يلزمك فعل أي شيء.', 'اسأل ممرضة'],
-      completed: ['📄', 'أرسل الأخصائي تقريره', 'يكتب طبيبك الآن خطتك معك.', 'اسأل ممرضة'],
-      treat: ['💊', 'بدأت خطة علاجك', 'سيبقى طبيبك على تواصل معك ويتابع حالتك.', 'اسأل ممرضة'],
-      surv: ['🌱', 'خطتك: عادات صحية وإعادة الفحص', 'اتفق معك طبيبك على خطة. سنذكّرك عند حلول موعد فحصك القادم.', 'اسأل ممرضة'],
-      done: ['🎉', 'اكتمل كل شيء. رعايتك محدّثة.', 'شكراً لاهتمامك بصحتك.', ''],
+      read: ['result', 'اقرأ نتيجتك', 'يستغرق الأمر دقيقة. نشرحها لك بكلمات بسيطة.', 'اقرأ نتيجتي'],
+      book: ['calendar', 'احجز زيارتك', 'اختر وقتاً يناسبك.', 'اختر وقتاً'],
+      booked: (d) => ['check', `زيارتك: ${d}`, 'سنذكّرك قبل يوم. أحضر هويتك الإماراتية أو بطاقة التأمين.', 'أضف إلى تقويمي'],
+      attended: ['doctor', 'تمت زيارتك', 'قد يطلب الطبيب إعادة تحليل الدم للتأكد من النتيجة الأولى. سيخبرك فريق رعايتك بما يلزم.', 'اسأل ممرضة'],
+      confirmed: ['plan', 'طبيبك يخطط لرعايتك', 'يقرر الطبيب إن كان يلزم أن يراك أخصائي أيضاً. سنخبرك فور وجود أي جديد.', 'اسأل ممرضة'],
+      sent: (o) => ['send', 'بانتظار الأخصائي', `طلب طبيبك من ${o} أن يراك. ننتظر ردهم وسنخبرك. لا يلزمك فعل أي شيء.`, 'اسأل ممرضة'],
+      accepted: (o, d) => ['handshake', `${o} سيراك`, `${d} يتولى رعايتك الآن. سيتواصل معك بشأن موعدك.`, 'اسأل ممرضة'],
+      rejected: ['refresh', 'طبيبك يرتب طريقة أخرى', 'لم تتمكن العيادة الأولى من استقبالك الآن. يختار طبيبك الخطوة التالية. لا يلزمك فعل أي شيء.', 'اسأل ممرضة'],
+      completed: ['file', 'أرسل الأخصائي تقريره', 'يكتب طبيبك الآن خطتك معك.', 'اسأل ممرضة'],
+      treat: ['pill', 'بدأت خطة علاجك', 'سيبقى طبيبك على تواصل معك ويتابع حالتك.', 'اسأل ممرضة'],
+      surv: ['leaf', 'خطتك: عادات صحية وإعادة الفحص', 'اتفق معك طبيبك على خطة. سنذكّرك عند حلول موعد فحصك القادم.', 'اسأل ممرضة'],
+      done: ['star', 'اكتمل كل شيء. رعايتك محدّثة.', 'شكراً لاهتمامك بصحتك.', ''],
     },
     careBy: 'من يعتني بك', noOwner: 'سيُخصَّص لك أحد أعضاء الفريق قريباً جداً.', role: { nurse: 'ممرضة', coordinator: 'منسق الرعاية', clinician: 'طبيب' },
     qListen: 'استمع إلى نتيجتي', qNurse: 'تحدث مع ممرضة', qFamily: 'مساعد من العائلة',
@@ -149,6 +159,7 @@ const S = {
     fam: 'مساعد من العائلة', famSub: 'اسمح لفرد واحد من عائلتك برؤية موعدك والتذكيرات ليساعدك. لن يرى رقم نتيجتك أبداً. ويمكنك التوقف في أي وقت.',
     famName: 'اسمه', famRel: 'من هو؟ (ابنتي، ابني، صديق…)', famOn: 'شارك حالة موعدي', famDone: (n) => `سيرى ${n} حالة موعدك والتذكيرات فقط.`, famOff: 'إيقاف المشاركة',
     famPreview: 'ما سيصله:', famMsg: 'تم شرح نتيجة والدتك وحجز موعدها.',
+    confLow: 'لست متأكداً', confHigh: 'متأكد جداً',
     confQ: 'ما مدى ثقتك بما سيحدث بعد ذلك؟', confThanks: 'شكراً لك. هذا يساعدنا على التحسين.',
     seeStaff: 'شاهد هذه الحالة في شاشة الفريق',
   },
@@ -205,7 +216,9 @@ function barrierNow(c) {
 }
 
 /* ---------- pieces ---------- */
-const topBar = () => `<div class="top"><div class="brand">Jissr · جسر</div>
+const tickHtml = () => `<div class="tick" aria-hidden="true">${ic('check', 44)}</div>`;
+const initials = (n) => n.replace(/\((.*?)\)/g, '').split(/\s+/).filter((w) => !/^(Nurse|Dr)$/i.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+const topBar = () => `<div class="top"><div class="brand">${wordmark()}</div>
   <div class="seg" role="group" aria-label="Language">
     <button data-lang="en" aria-pressed="${lang === 'en'}">English</button>
     <button data-lang="ar" aria-pressed="${lang === 'ar'}">العربية</button>
@@ -226,7 +239,7 @@ function trackerHtml(c) {
   const now = journeyStep(c);
   return `<div class="track" role="list" aria-label="Your journey">${T().steps.map((l, i) => {
     const cls = i < now ? 'done' : i === now ? 'now' : '';
-    return `<div class="trk ${cls}" role="listitem"><div class="dot">${i < now ? '✓' : i + 1}</div>${l}</div>`;
+    return `<div class="trk ${cls}" role="listitem"><div class="dot">${i < now ? ic('check', 14) : i + 1}</div>${l}</div>`;
   }).join('')}</div>`;
 }
 
@@ -255,14 +268,14 @@ function nextCard(c) {
     default: d = n.done; action = 'none'; cls = 'ok';
   }
   const [ico, title, sub, btn] = d;
-  return `<section class="next ${cls}"><div class="ico" aria-hidden="true">${ico}</div><h2>${esc(title)}</h2><p>${esc(sub)}</p>
+  return `<section class="next ${cls}"><div class="badge">${ic(ico, 26)}</div><h2>${esc(title)}</h2><p>${esc(sub)}</p>
     ${btn && action !== 'none' ? `<button class="btn" id="next-go" data-a="${action}">${btn}</button>` : ''}</section>`;
 }
 
 function contactCard(c) {
   const t = T(), o = staffOf(c.owner);
-  return `<section class="card"><div class="tiny muted">${t.careBy}</div>
-    ${o ? `<div class="who" style="margin-top:8px"><div class="avatar" aria-hidden="true">${o.role === 'clinician' ? '🩺' : o.role === 'nurse' ? '👩‍⚕️' : '🗂️'}</div>
+  return `<section class="card"><div class="lbl">${t.careBy}</div>
+    ${o ? `<div class="who"><div class="avatar" aria-hidden="true">${esc(initials(o.name))}</div>
       <div><b>${esc(o.name)}</b><br><span class="muted">${t.role[o.role]} · ${esc(o.org)}</span></div></div>`
       : `<p style="margin-bottom:0">${t.noOwner}</p>`}
   </section>`;
@@ -273,17 +286,18 @@ function homeView(c) {
   const t = T();
   const first = c.patient.name.split(' ')[0];
   let h = `${topBar()}<div class="view">
-    <h1 style="margin:6px 0 2px">${esc(t.hello(first))}</h1>
+    <h1 class="hello">${esc(t.hello(first))}</h1>
     ${trackerHtml(c)}
     ${nextCard(c)}
     ${contactCard(c)}
     <div class="actions">
-      <button class="act" data-go="result"><span>🔊</span>${t.qListen}</button>
-      <button class="act" data-go="nurse"><span>📞</span>${t.qNurse}</button>
-      <button class="act" data-go="family"><span>👪</span>${t.qFamily}</button>
+      <button class="act" data-go="result">${ic('speaker', 24)}${t.qListen}</button>
+      <button class="act" data-go="nurse">${ic('phone', 24)}${t.qNurse}</button>
+      <button class="act" data-go="family">${ic('users', 24)}${t.qFamily}</button>
     </div>`;
   if (stageIdx(c) >= 3 && c.stage !== 'closed') {
-    h += `<section class="card"><h3>${t.confQ}</h3><div class="faces">${['😟', '🙁', '😐', '🙂', '😄'].map((f, i) => `<button class="face" data-conf="${i + 1}" aria-label="${i + 1}" aria-pressed="${c.confidence && c.confidence.score === i + 1}">${f}</button>`).join('')}</div>
+    h += `<section class="card"><h3>${t.confQ}</h3><div class="scale">${[1, 2, 3, 4, 5].map((n) => `<button data-conf="${n}" aria-label="${n}" aria-pressed="${!!c.confidence && c.confidence.score === n}">${n}</button>`).join('')}</div>
+      <div class="row tiny muted" style="justify-content:space-between;margin-top:6px"><span>${t.confLow}</span><span>${t.confHigh}</span></div>
       ${msg.confDone ? `<div class="ok-msg" style="margin-bottom:0">${t.confThanks}</div>` : ''}</section>`;
   }
   h += `<p class="foot"><a href="staff.html?c=${esc(c.id)}">${t.seeStaff}</a><br>Synthetic demo · not medical advice</p></div>`;
@@ -295,20 +309,20 @@ function resultView(c) {
   const ex = explainNow(c);
   const cls = classify(c.value);
   const understood = stageIdx(c) >= 2;
-  return `${topBar()}<div class="view"><button class="back" data-go="home">${t.back}</button>
-    <section class="card"><div class="tiny muted">${t.yourTest}</div>
+  return `${topBar()}<div class="view"><button class="back" data-go="home">${ic('back', 18)}${t.back}</button>
+    <section class="card"><div class="lbl">${t.yourTest}</div>
       <div class="big">${cls.value}<span style="font-size:1.4rem"> %</span></div>
       <span class="chip ${cls.urgency}">${t.band[cls.band]}</span>
       <p style="margin-top:12px;font-size:1.05em">${esc(ex.text)}</p>
-      <div class="notdx" role="note">${t.notdx}</div>
+      <div class="notdx" role="note">${ic('shield', 22)}<span>${t.notdx}</span></div>
       <div class="row">
-        ${'speechSynthesis' in window ? `<button class="btn ghost small" id="listen">${speaking ? '⏹ ' + t.stop : '🔊 ' + t.listen}</button>` : ''}
+        ${'speechSynthesis' in window ? `<button class="btn ghost small" id="listen">${speaking ? ic('stop', 16) + ' ' + t.stop : ic('speaker', 16) + ' ' + t.listen}</button>` : ''}
         ${level === 'normal' ? `<button class="btn ghost small" id="simpler">${t.simpler}</button>` : ''}
       </div>
       <div class="tag">${ex.source === 'ai' ? t.ai : t.tpl}</div>
     </section>
     <section class="card center"><h2>${t.sense}</h2>
-      ${understood ? `<div class="tick" aria-hidden="true">✓</div><p class="ok-msg">${t.thanks}</p><button class="btn bigbtn" data-go="home">${t.cont}</button>`
+      ${understood ? `${tickHtml()}<p class="ok-msg">${t.thanks}</p><button class="btn bigbtn" data-go="home">${t.cont}</button>`
         : msg.no ? `<p class="muted">${t.noHelp}</p><div class="row" style="justify-content:center"><button class="btn" id="yes">${t.yes}</button><button class="btn ghost" data-go="nurse">${t.qNurse}</button></div>`
         : `<div class="row" style="justify-content:center"><button class="btn bigbtn" id="yes">${t.yes}</button><button class="btn ghost bigbtn" id="no">${t.no}</button></div>`}
     </section></div>`;
@@ -318,21 +332,21 @@ function bookView(c) {
   const t = T();
   const booked = stageIdx(c) >= 3;
   if (booked) {
-    return `${topBar()}<div class="view center"><div class="tick" aria-hidden="true">✓</div><h1>${t.booked}</h1>
+    return `${topBar()}<div class="view center">${tickHtml()}<h1>${t.booked}</h1>
       ${c.slot ? `<p style="font-size:1.25rem"><b>${fmtDay(c.slot.day)} · ${c.slot.time}</b></p>` : ''}
       <p class="muted">${t.where}</p>
       <label style="display:flex;gap:10px;align-items:center;justify-content:center;font-weight:400"><input type="checkbox" id="rem" style="width:auto" ${c.reminder ? 'checked' : ''}> ${t.remind}</label>
       ${c.reminder ? `<div class="ok-msg">${t.remindOn}</div>` : ''}
-      ${c.slot ? `<p><button class="btn ghost" id="ics">📅 ${t.cal}</button></p>` : ''}
+      ${c.slot ? `<p><button class="btn ghost" id="ics">${ic('calendar', 18)} ${t.cal}</button></p>` : ''}
       <p><button class="btn bigbtn" data-go="home">${t.home}</button></p></div>`;
   }
   const bar = barrierNow(c);
   const slots = slotsFor({ band: c.band, barrier: c.barrier }, state.today);
-  return `${topBar()}<div class="view"><button class="back" data-go="home">${t.back}</button>
+  return `${topBar()}<div class="view"><button class="back" data-go="home">${ic('back', 18)}${t.back}</button>
     <section class="card"><h2>${t.barrierQ}</h2><p class="muted">${t.barrierSub}</p>
       <div class="chips">${BARRIERS.map((b) => `<button class="pick" data-b="${b}" aria-pressed="${c.barrier === b}">${t.barrier[b]}</button>`).join('')}</div>
       ${c.barrier !== 'none' ? `<div class="card soft" style="margin-bottom:0"><p style="margin-top:0">${esc(bar.text)}</p><div class="tag">${bar.source === 'ai' ? t.ai : t.tpl}</div>
-        ${['fear', 'cost', 'language', 'dont_understand'].includes(c.barrier) ? `<button class="btn small" data-go="nurse">📞 ${t.qNurse}</button>` : ''}</div>` : ''}
+        ${['fear', 'cost', 'language', 'dont_understand'].includes(c.barrier) ? `<button class="btn small" data-go="nurse">${ic('phone', 16)} ${t.qNurse}</button>` : ''}</div>` : ''}
     </section>
     <section class="card"><h2>${t.pick}</h2>
       <div class="slots">${slots.map((s, i) => `<button class="pick slotbtn" data-slot="${i}" aria-pressed="${msg.slot === i}">${fmtDay(s.day)}<br><b>${s.time}</b></button>`).join('')}</div>
@@ -343,22 +357,22 @@ function bookView(c) {
 function nurseView(c) {
   const t = T();
   const waiting = c.nurseRequest && !c.nurseRequest.done;
-  return `${topBar()}<div class="view"><button class="back" data-go="home">${t.back}</button>
-    <section class="card"><h2>📞 ${t.nurseT}</h2><p class="muted">${t.nurseSub}</p>
-      ${waiting ? `<div class="tick" aria-hidden="true">✓</div><div class="ok-msg">${t.asked}<br><span class="tiny">${nurseText(lang)}</span></div>`
+  return `${topBar()}<div class="view"><button class="back" data-go="home">${ic('back', 18)}${t.back}</button>
+    <section class="card"><h2>${ic('phone', 22)} ${t.nurseT}</h2><p class="muted">${t.nurseSub}</p>
+      ${waiting ? `${tickHtml()}<div class="ok-msg">${t.asked}<br><span class="tiny">${nurseText(lang)}</span></div>`
         : `<label for="nw">${t.when}</label><select id="nw"><option value="morning">${t.morning}</option><option value="afternoon">${t.afternoon}</option><option value="evening">${t.evening}</option></select>
         <label>${t.chanQ}</label><div class="chips">${['app', 'sms', 'whatsapp', 'phone'].map((k) => `<button class="pick" data-ch="${k}" aria-pressed="${c.channel === k}">${t.chan[k]}</button>`).join('')}</div>
         ${['sms', 'whatsapp'].includes(c.channel) ? `<div class="tiny muted" style="margin-top:8px">${t.preview}</div><div class="bubble">${t.previewMsg}</div>` : ''}
         <label for="nn">${t.note}</label><textarea id="nn" maxlength="300">${esc(msg.nn || '')}</textarea>
         <p><button class="btn bigbtn" id="nurse-go">${t.ask}</button></p>`}
-      <div class="sos" role="note">${t.sos}</div>
+      <div class="sos" role="note">${ic('phone', 20)}<span>${t.sos}</span></div>
     </section></div>`;
 }
 
 function familyView(c) {
   const t = T(), fh = c.familyHelper;
-  return `${topBar()}<div class="view"><button class="back" data-go="home">${t.back}</button>
-    <section class="card"><h2>👪 ${t.fam}</h2><p class="muted">${t.famSub}</p>
+  return `${topBar()}<div class="view"><button class="back" data-go="home">${ic('back', 18)}${t.back}</button>
+    <section class="card"><h2>${ic('users', 22)} ${t.fam}</h2><p class="muted">${t.famSub}</p>
       ${fh && fh.consent
         ? `<div class="ok-msg">${esc(t.famDone(fh.name))}</div>
            <div class="card soft"><div class="tiny muted">${t.famPreview}</div><p style="margin-bottom:0">${t.famMsg}</p></div>

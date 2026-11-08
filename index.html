@@ -6,65 +6,99 @@
 <title>Jissr: closing the screening-to-care loop</title>
 <meta name="description" content="Prototype: helping people with an abnormal HbA1c understand it, book care, and not get lost. Synthetic data only.">
 <link rel="stylesheet" href="styles.css">
+<style>
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-d);font-weight:600;margin-bottom:10px}
+.cta{margin-top:18px}
+.flow{display:flex;flex-wrap:wrap;gap:6px 4px;align-items:center;margin-top:12px}
+.flow span{font-size:14px;font-weight:600;padding:6px 12px;border:1px solid rgba(255,252,246,.45);border-radius:999px}
+.flow i{font-style:normal;opacity:.6}
+.flow span:last-child{background:var(--accent);border-color:var(--accent);color:#1b2238}
+[dir=rtl] .flow i{display:inline-block;transform:scaleX(-1)}
+ul.clean{padding-inline-start:20px}
+ul.clean li{margin:6px 0}
+ol.num{padding-inline-start:22px} ol.num li{margin:10px 0}
+ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-d)}
+</style>
 </head>
 <body>
-<div class="demo"><span>Prototype · synthetic data only · not medical advice</span><span>Future Health Challenge 2026</span></div>
+<div class="demo"><span>Prototype · synthetic data only · not medical advice</span><span>Future Health Challenge 2026 · Challenge 05</span></div>
 <div class="wrap">
+  <div class="top"><div class="brand" id="brand"></div></div>
+
   <div class="hero">
-    <div class="brand">Jissr · جسر</div>
+    <div class="kicker">Closing the screening-to-care loop</div>
     <h1>No abnormal result left behind.</h1>
-    <p class="muted" style="font-size:1.1em">One programme: abnormal HbA1c from screening. Jissr helps the patient understand the result in plain English or Arabic, get past what is stopping them, and book care. It gives the care team a list where every case has an owner, a due date and an honest status, and where a case can only be closed by a clinician with evidence.</p>
+    <p class="lead">One programme: abnormal HbA1c from screening. Jissr helps the patient understand the result in plain English or Arabic, get past what is stopping them, and reach care. It gives the care team a list where every case has an owner, a due date and an honest status, and where a case can only be closed by a clinician with evidence.</p>
+    <div class="row cta">
+      <a class="btn" href="animation/index.html" id="b1"></a>
+      <a class="btn ghost" href="patient.html" id="b2"></a>
+    </div>
+  </div>
+
+  <div class="arch-band" aria-label="The journey of every case">
+    <h3 style="margin:0 0 4px">Every case follows one journey</h3>
+    <div class="flow" id="flow"></div>
   </div>
 
   <div class="tiles">
-    <a class="tile" href="animation/index.html"><div class="card"><h3>▶ Watch the story</h3><p class="muted">50 seconds: Fatima and the lab result nobody had time to explain.</p></div></a>
-    <a class="tile" href="patient.html"><div class="card"><h3>📱 Patient app</h3><p class="muted">Result in plain words (English / العربية), why-might-you-not-follow-up check-in, booking, reminders, talk to a nurse.</p></div></a>
-    <a class="tile" href="staff.html"><div class="card"><h3>🩺 Care team</h3><p class="muted">Every case from result to documented closure: owners, service levels, escalation, confirmation, referrals and hand-offs, clinician-to-clinician advice, clinician-only closing.</p></div></a>
-    <a class="tile" href="metrics.html"><div class="card"><h3>📊 Measures</h3><p class="muted">Is the loop closing? Time to each step, where cases get stuck, referral outcomes, why patients drop off, patient confidence.</p></div></a>
+    <a class="tile" href="animation/index.html"><div class="card"><span data-ic="wave" data-s="26"></span><h3>The story</h3><p class="muted">50 seconds: Fatima and the lab result nobody had time to explain.</p></div></a>
+    <a class="tile" href="patient.html"><div class="card"><span data-ic="phone" data-s="26"></span><h3>Patient app</h3><p class="muted">Result in plain words (English / العربية), a guided path, booking, reminders, talk to a nurse.</p></div></a>
+    <a class="tile" href="staff.html"><div class="card"><span data-ic="doctor" data-s="26"></span><h3>Care team</h3><p class="muted">Every case from result to documented closure: owners, service levels, escalation, referrals, clinician-only closing.</p></div></a>
+    <a class="tile" href="metrics.html"><div class="card"><span data-ic="chart" data-s="26"></span><h3>Measures</h3><p class="muted">Is the loop closing? Time to each step, where cases get stuck, referral outcomes, patient confidence.</p></div></a>
   </div>
 
   <section class="card">
     <h2>How Jissr answers the challenge</h2>
-    <ol>
+    <ol class="num">
       <li><b>End-to-end visibility.</b> One journey per case: result, notified, understood, appointment, attended, confirmatory test, referral, treatment or surveillance plan, closed with evidence.</li>
       <li><b>Ownership and service levels.</b> Every case has a named owner. Deadlines depend on urgency. Overdue, rejected and unassigned cases go to a "needs attention" queue, set by fixed escalation rules.</li>
       <li><b>Patient-centred communication.</b> Plain English and Arabic, read-aloud, "not a diagnosis" every time, a check that the patient understood, a barrier check-in that changes the next step, a chosen channel, and a family helper with the patient's consent.</li>
-      <li><b>Cross-provider coordination.</b> Referral with accept or reject, ownership handed to the receiving clinician and back with a report, plus clinician-to-clinician questions with a reply deadline.</li>
+      <li><b>Cross-provider coordination.</b> Referral with accept or reject, ownership handed to the receiving clinician and back with a report, plus clinician-to-clinician questions with a reply deadline. Cases export in the standard FHIR format.</li>
       <li><b>Human-governed escalation and closure.</b> Urgent and exceptional cases are flagged to clinical leads. Only a clinician can close, with written evidence. The AI can do none of this, and tests prove it.</li>
-      <li><b>Measures.</b> A live <a href="metrics.html">measures page</a>: time to each step, referral and appointment completion, unresolved results, reasons for delay, patient confidence. It comes with a pilot plan for proving real improvement.</li>
+      <li><b>Measures.</b> A live <a href="metrics.html">measures page</a>: time to each step, referral and appointment completion, unresolved results, reasons for delay, patient confidence, with a pilot plan for proving real improvement.</li>
     </ol>
   </section>
 
   <section class="card">
     <h2>Who decides what</h2>
-    <table class="tbl" style="margin-top:8px">
+    <div class="scroll" style="max-height:none"><table class="tbl" style="margin-top:8px">
       <thead><tr><th></th><th>Rules (fixed logic)</th><th>AI (language model)</th></tr></thead>
       <tbody>
         <tr><td><b>Does</b></td><td>Sets urgency from the HbA1c, sets deadlines, decides what to escalate, picks the next step for each barrier, offers slots</td><td>Writes the plain-language explanation and rewords the next step, in English or Arabic</td></tr>
         <tr><td><b>Never</b></td><td>Replaces a clinician</td><td>Diagnoses, sets urgency, advises on medicine, assigns, refers, escalates or closes a case</td></tr>
         <tr><td><b>If it fails</b></td><td>–</td><td>A pre-written message is used, so nothing breaks</td></tr>
       </tbody>
-    </table>
-    <ul>
+    </table></div>
+    <ul class="clean">
       <li>Every patient message ends with “This is not a diagnosis.” The code adds it, so it cannot be left out.</li>
       <li>AI text passes a safety filter first (no “you have diabetes”, no medicine advice, right language). If it fails, the pre-written text is shown.</li>
       <li>The AI is sent only a band, a number and a barrier. It never receives a name or any patient detail.</li>
       <li>A case closes only when a clinician gives a reason and written evidence. The rule is enforced in code, not just by a greyed-out button, and it is tested.</li>
-      <li>The AI provider sits behind one adapter, so moving to Azure OpenAI is a settings change.</li>
+      <li>The AI provider sits behind one adapter (Gemini, Anthropic or Azure OpenAI), so moving to Azure OpenAI is a settings change.</li>
     </ul>
   </section>
 
   <section class="card">
     <h2>What this prototype is not (yet)</h2>
-    <ul>
+    <ul class="clean">
       <li>All 30 patients are invented. Nothing real is stored; data stays in your browser.</li>
       <li>The staff role switch is a demo. A real system would use proper sign-in (for example Microsoft Entra ID).</li>
-      <li>Reminders and calls are simulated. A real service would need UAE health-data compliance (DoH policy, ADHICS), Malaffi integration and patient consent management.</li>
-      <li>Follow-up windows (30 days / 14 days / 48 hours) are proposals for a clinician to confirm.</li>
+      <li>Reminders, messages and calls are simulated. A real service would need UAE health-data compliance (DoH policy, ADHICS), Malaffi integration and patient consent management.</li>
+      <li>Follow-up windows and service levels are proposals for a clinician to confirm. The FHIR export has not been checked with the official validator.</li>
       <li>Arabic text still needs review by a native-speaking clinician.</li>
     </ul>
   </section>
-  <p class="foot">Jissr is a placeholder name.</p>
+  <p class="foot">Jissr (جسر) means "bridge".</p>
 </div>
+
+<script type="module">
+import { ic, wordmark } from './core/ui.mjs';
+document.getElementById('brand').innerHTML = wordmark();
+document.querySelectorAll('[data-ic]').forEach((el) => { el.innerHTML = ic(el.dataset.ic, +el.dataset.s || 22); el.style.cssText = 'display:block;color:var(--accent-d);margin-bottom:8px'; });
+document.getElementById('b1').innerHTML = ic('wave', 18) + ' Watch the story';
+document.getElementById('b2').innerHTML = ic('phone', 18) + ' Open the patient app';
+const steps = ['Result', 'Notified', 'Understood', 'Booked', 'Seen', 'Confirmed', 'Referred', 'Plan', 'Closed with evidence'];
+document.getElementById('flow').innerHTML = steps.map((s) => `<span>${s}</span>`).join('<i aria-hidden="true">›</i>');
+</script>
 </body>
 </html>

@@ -24,7 +24,7 @@
   <span class="row"><a href="staff.html">Care team</a><a href="index.html">Home</a></span>
 </div>
 <div class="wrap wide">
-  <div class="top"><div class="brand">Jissr · Measures</div><div class="muted tiny" id="today"></div></div>
+  <div class="top"><div class="brand" id="brand"></div><div class="muted tiny" id="today"></div></div>
   <h1>Is the loop closing?</h1>
   <p class="muted">Everything below is calculated live from the cases on the care-team screen. Do an action there (or as a patient), come back, and the numbers move.</p>
   <div class="note"><b>Read this first.</b> These figures come from 30 invented patients. They show <i>what Jissr measures</i>, not what it has achieved. Real improvement needs a baseline from today's process and a pilot (see the plan at the bottom).</div>
@@ -58,6 +58,7 @@
 </div>
 
 <script type="module">
+import { wordmark } from './core/ui.mjs';
 import { loadState } from './core/store.mjs';
 import { STAGES, STAGE_LABEL, daysBetween, isOverdue, escalationsFor, slaDeadline } from './core/rules.mjs';
 
@@ -65,6 +66,7 @@ const state = loadState();
 const cases = state.cases;
 const T = state.today;
 const $ = (s) => document.querySelector(s);
+$('#brand').innerHTML = wordmark() + '<span class="sub">Measures</span>';
 $('#today').textContent = 'Today: ' + new Date(T + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 

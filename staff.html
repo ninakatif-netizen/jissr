@@ -18,7 +18,7 @@
   </span>
 </div>
 <div class="wrap wide">
-  <div class="top"><div class="brand">Jissr · Care team</div><div class="muted tiny" id="today"></div></div>
+  <div class="top"><div class="brand" id="brand"></div><div class="muted tiny" id="today"></div></div>
   <p class="muted" style="margin-top:-6px">Abnormal HbA1c follow-up across providers. Urgency, deadlines and escalation are set by fixed rules. The AI only helps word patient messages. It never diagnoses, assigns, refers or closes a case.</p>
   <div class="kpis" id="kpis"></div>
   <div class="row" style="margin:8px 0">
@@ -33,6 +33,7 @@
 </div>
 
 <script type="module">
+import { wordmark, ic } from './core/ui.mjs';
 import { loadState, saveState, resetState } from './core/store.mjs';
 import { caseToFhirBundle } from './core/fhir.mjs';
 import { STAGES, STAGE_LABEL, BARRIER_LABEL, barrierPlan, isOverdue, daysBetween, escalationsFor, maxLevel, SLA_STEPS, slaDeadline, CHANNEL_LABEL, REFERRAL_REPLY_DAYS, addDays } from './core/rules.mjs';
@@ -50,6 +51,7 @@ let query = '';
 let flash = null;
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = (s) => document.querySelector(s);
+$('#brand').innerHTML = wordmark() + '<span class="sub">Care team</span>';
 const staffOf = (id) => state.staff.find((s) => s.id === id);
 const me = () => { const s = staffOf(meSel.value) || state.staff[0]; return { type: 'staff', id: s.id, role: s.role, name: s.name, org: s.org }; };
 const ownerHtml = (id) => id ? esc(staffOf(id)?.name || id) : '<span class="chip bad">UNASSIGNED</span>';
@@ -233,14 +235,14 @@ function renderDetail() {
   const closeHtml = c.stage === 'closed'
     ? `<div class="ok-msg">Closed by ${esc(c.closed?.by || '')} · ${esc(CLOSE_TYPES[c.closed?.type] || '')}<br><span class="tiny">Evidence: ${esc(c.closed?.evidence || '')}</span></div>`
     : `<div class="close-box ${isDoc ? '' : 'locked'}"><h3>Close this case</h3>
-        <p class="tiny muted">${isDoc ? 'A clinician must give a reason and write the evidence. The AI can never close a case.' : '🔒 Only a clinician can close a case, with written evidence. The AI can never close a case. Switch to a clinician at the top to try it.'}</p>
+        <p class="tiny muted">${isDoc ? 'A clinician must give a reason and write the evidence. The AI can never close a case.' : 'Only a clinician can close a case, with written evidence. The AI can never close a case. Switch to a clinician at the top to try it.'}</p>
         <label for="ctype">Reason</label><select id="ctype" ${isDoc ? '' : 'disabled'}>${Object.entries(CLOSE_TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
         <label for="cev">Evidence (min ${MIN_EVIDENCE} characters)</label><textarea id="cev" ${isDoc ? '' : 'disabled'} placeholder="e.g. Seen 12 Nov, repeat HbA1c 7.2%, plan agreed, review in 3 months"></textarea>
         <p><button class="btn danger" id="close" ${isDoc ? '' : 'disabled'}>Close case</button></p></div>`;
 
   const ai = c.aiText;
   box.innerHTML = `<div class="card" style="margin-top:0">
-    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(p.name)}</h2><span class="row"><button class="btn ghost small" id="fhir" title="Standard hospital-system format (demo)">FHIR export</button><button class="btn ghost small" id="x" aria-label="Close panel">✕</button></span></div>
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(p.name)}</h2><span class="row"><button class="btn ghost small" id="fhir" title="Standard hospital-system format (demo)">FHIR export</button><button class="btn ghost small" id="x" aria-label="Close panel">${ic('close', 16)}</button></span></div>
     <p class="muted tiny">${c.id} · ${p.age}${p.sex} · ${esc(p.nationality)} · speaks ${esc(p.language)}${p.shifts ? ' · works shifts' : ''} · contact by ${esc(CHANNEL_LABEL[c.channel] || 'app')}</p>
     <p><b style="font-size:1.4rem">${c.value}%</b> <span class="chip ${c.urgency}">${URG_LABEL[c.urgency]}</span> <span class="tiny muted">urgency set by rules</span></p>
     <p class="tiny">Owner: <b>${ownerHtml(c.owner)}</b>${c.owner ? ` <span class="muted">(${esc(staffOf(c.owner)?.org || '')})</span>` : ''} · Due: <b>${fmt(c.due)}</b> · ${flagHtml(c)}</p>
