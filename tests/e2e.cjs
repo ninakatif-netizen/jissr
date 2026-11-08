@@ -34,11 +34,18 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await p.click('[data-b=time_shift]'); await p.waitForTimeout(150);
   const times = await p.locator('.dt em').allInnerTexts();
   ok(times.length > 0 && times.every((t) => ['07:30', '18:30', '19:30'].includes(t)), 'shift workers get early or evening slots');
+  await p.click('[data-mode=video]'); await p.waitForTimeout(100);
+  ok(/blood test/.test(await text()), 'video visit can be chosen, with an honest note about blood tests');
   await p.click('.dt >> nth=0'); await shot(p, '04-book'); await p.click('#confirm'); await p.waitForTimeout(250);
+  ok(/Video call/.test(await text()), 'the booked visit shows it is a video call');
   ok(/Your visit is booked/.test(await text()), 'booking is confirmed');
   await p.click('.tab[data-go=home]'); await p.waitForTimeout(200);
   ok(/Upcoming appointment/.test(await text()), 'home shows the appointment card');
   await shot(p, '05-home-booked');
+  await p.click('.tab[data-go=plan]'); await p.waitForTimeout(200);
+  ok(await p.locator('.ring .rnum').count() === 1 && /2\/5/.test(await p.innerText('.rnum')) && /Visit booked/.test(await text()), 'care plan shows the progress ring and the steps');
+  await shot(p, '05b-plan');
+  await p.click('.tab[data-go=home]'); await p.waitForTimeout(150);
   await p.click('#aa'); ok(await p.evaluate(() => document.documentElement.classList.contains('big')), 'bigger text can be switched on');
   await p.click('#aa');
   await p.click('[data-lang=ar]'); await p.waitForTimeout(150);
@@ -67,6 +74,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   const desk = await browser.newContext({ viewport: { width: 1280, height: 900 }, storageState: await phone.storageState() });
   const s = await desk.newPage(); watch(s, 'staff');
   await s.goto(BASE + 'staff.html?as=n1&c=C-001'); await s.waitForTimeout(300);
+  ok(/Care journey funnel/.test(await s.innerText('#funnel')) && /synthetic/.test(await s.innerText('#funnel')), 'the care team sees where patients drop out, labelled as demo data');
   ok(/Appointment booked/.test(await s.innerText('#drawer')), 'the care team sees the patient\'s booking');
   await s.goto(BASE + 'staff.html?as=c1&new=1'); await s.waitForTimeout(200);
   await s.fill('#i-name', 'Test Patient'); await s.fill('#i-val', '5.2'); await s.click('#i-go');

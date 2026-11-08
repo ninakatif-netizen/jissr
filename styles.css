@@ -1,6 +1,6 @@
-/* JISSR DESIGN SYSTEM (v2: "bridge")
-   Light blue-grey background, white cards with soft shadows, one confident blue, pastel tiles.
-   Readex Pro for both Arabic and Latin (one family designed for both scripts). Bundled in /fonts (SIL Open Font License). */
+/* JISSR DESIGN SYSTEM (v3: "bridge, ivory and gold")
+   Warm ivory background, cream cards with soft shadows, night-blue ink and buttons, champagne-gold accents.
+   Headings: Playfair Display (Latin). Text and all Arabic: Readex Pro. Both bundled in /fonts (SIL Open Font License). */
 
 @font-face{font-family:"Readex";font-weight:400;font-display:swap;src:url(fonts/readex-pro-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Readex";font-weight:400;font-display:swap;src:url(fonts/readex-pro-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
@@ -9,18 +9,20 @@
 @font-face{font-family:"Readex";font-weight:600;font-display:swap;src:url(fonts/readex-pro-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Readex";font-weight:600;font-display:swap;src:url(fonts/readex-pro-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
 
+@font-face{font-family:"Playfair";font-weight:500;font-display:swap;src:url(fonts/playfair-display-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Playfair";font-weight:600;font-display:swap;src:url(fonts/playfair-display-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 
 :root{
-  --bg:#efe6d6; --card:#fbf7f0; --card2:#f3ead9; --ink:#14284b; --muted:#665e50; --line:#e3d7c1;
+  --bg:#f5eee3; --card:#fffbf5; --card2:#f6eddf; --ink:#14284b; --muted:#665e50; --line:#eadfcb;
   --brand:#14284b; --brand-d:#0c1a33; --brand-l:#e2e7f0;
   --panel:#14284b; --on-panel:#ffffff;
-  --accent:#e9a23b; --accent-d:#8a5a0e; --accent-l:#fbebcb;
+  --accent:#c49a5e; --accent-d:#86602c; --accent-l:#f4e7d2;
   --p-blue:#e2e7f0; --p-yellow:#fff3d9; --p-pink:#fde8ef; --p-lilac:#efe9fd; --p-mint:#e2f6ee;
   --amber:#9a6a0c; --amber-l:#fff3d9; --red:#c2413a; --red-l:#fde8e7; --green:#22895e; --green-l:#e2f6ee; --blue:#14284b; --blue-l:#e2e7f0;
   --teal:var(--brand); --teal-d:var(--brand-d); --teal-l:var(--brand-l);
   --r:20px;
-  --shadow:0 10px 30px rgba(30,42,68,.06),0 1px 3px rgba(30,42,68,.05);
-  --display:"Readex",system-ui,sans-serif;
+  --shadow:0 12px 32px rgba(120,90,40,.08),0 1px 3px rgba(60,45,20,.05);
+  --display:"Playfair","Readex",Georgia,serif;
   --text:"Readex",system-ui,sans-serif;
   --star:none;
 }
@@ -37,9 +39,10 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.6 var(--text)}
 [dir=rtl] body{font-size:16.5px}
 a{color:var(--brand)}
-h1,h2,h3{font-family:var(--display);font-weight:500;line-height:1.25;margin:0 0 .4em;letter-spacing:-.015em}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.25;margin:0 0 .4em;letter-spacing:-.015em}
 [dir=rtl] h1,[dir=rtl] h2,[dir=rtl] h3{letter-spacing:0}
-h1{font-size:1.75rem} h2{font-size:1.2rem} h3{font-size:1.02rem}
+h1{font-size:1.85rem} h2{font-size:1.25rem} h3{font-size:1.02rem;font-family:var(--text);font-weight:500;letter-spacing:0}
+[dir=rtl] h1,[dir=rtl] h2{font-family:var(--text);font-weight:500}
 p{margin:.4em 0}
 .wrap{max-width:720px;margin:0 auto;padding:0 18px 80px}
 .wrap.wide{max-width:1180px}

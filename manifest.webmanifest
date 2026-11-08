@@ -7,7 +7,7 @@
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#14284b",
-  "theme_color": "#efe6d6",
+  "theme_color": "#f5eee3",
   "categories": ["health", "medical"],
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

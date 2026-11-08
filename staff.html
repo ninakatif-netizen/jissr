@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#efe6d6">
+<meta name="theme-color" content="#f5eee3">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -37,6 +37,16 @@ body{font-size:15px}
 .alerts h2{color:#fff}.alerts .n{background:rgba(255,255,255,.15)!important;color:#fff!important}
 .alerts .task:hover{background:rgba(255,255,255,.08)}.alerts .task .t span{color:rgba(255,255,255,.75)}
 .alerts .task .ic{background:rgba(255,255,255,.14);color:#f5b544}
+.funnel{margin:12px 0 4px}
+.funnel h2 small{font-family:var(--text);font-weight:400;font-size:12.5px;color:var(--muted);margin-inline-start:auto}
+.frow{display:grid;grid-template-columns:190px 1fr 160px;gap:12px;align-items:center;padding:5px 0;font-size:14px}
+.fbar{height:22px;background:var(--card2);border-radius:8px;overflow:hidden}
+.fbar i{display:block;height:100%;background:linear-gradient(90deg,#d8bb8c,#c49a5e);border-radius:8px}
+.frow.last .fbar i{background:#2f8a5b}
+.frow b{font-weight:600}.frow em{font-style:normal;color:var(--muted);font-size:12.5px;margin-inline-start:6px}
+.frow.drop em{color:#b4462b;font-weight:600}
+.fnote{font-size:13px;color:var(--muted);margin:10px 0 0;display:flex;gap:8px;align-items:flex-start}
+@media (max-width:700px){.frow{grid-template-columns:1fr 90px}.frow .fbar{grid-column:1/-1;order:3}}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:18px 0 6px}
 .stat{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:14px 16px;display:flex;gap:12px;align-items:center;cursor:pointer;border:2px solid transparent;font:inherit;color:inherit;text-align:start;transition:border-color .15s,transform .15s}
 .stat:hover{transform:translateY(-2px)}
@@ -96,6 +106,7 @@ body{font-size:15px}
     <section class="panel alerts" id="alerts"></section>
   </div>
   <div class="stats" id="stats"></div>
+  <section class="panel funnel" id="funnel"></section>
   <div class="listhead"><h2 id="listtitle">All open cases</h2>
     <div class="chips" id="progs" style="margin-bottom:8px"></div><div class="row"><div class="chips" id="filters"></div><input id="q" type="search" placeholder="Search name or case…" style="width:220px" aria-label="Search"></div></div>
   <div class="scroll"><table class="tbl stack" id="tbl"></table></div>
@@ -203,6 +214,16 @@ function renderTop() {
     ['closed', 'check', 'b-mint', state.cases.length - o.length, 'Closed with evidence'],
   ];
   $('#stats').innerHTML = S.map(([f, i, cl, n, l]) => `<button class="stat" data-filter="${f}" aria-pressed="${filter === f}"><span class="ic ${cl}">${ic(i, 20)}</span><span><b>${n}</b><span>${l}</span></span></button>`).join('');
+
+  // Where patients drop out: how many reached each step (stage index, so later steps count too).
+  const pool = state.cases.filter((c) => prog === 'all' || progOf(c) === prog);
+  const at = (st) => pool.filter((c) => STAGES.indexOf(c.stage) >= STAGES.indexOf(st)).length;
+  const F = [['Abnormal result', pool.length], ['Patient told', at('notified')], ['Understood the result', at('understood')], ['Visit booked', at('booked')], ['Seen by a doctor', at('attended')], ['Care plan agreed', at('care_plan')], ['Closed with evidence', at('closed')]];
+  let worst = 1;
+  F.forEach(([, n], i) => { if (i > 0 && F[i - 1][1] && (F[i - 1][1] - n) > (F[worst - 1][1] - F[worst][1])) worst = i; });
+  $('#funnel').innerHTML = `<h2>${ic('chart', 18)} Care journey funnel <small>Demo data: ${pool.length} synthetic patients, not real results</small></h2>` +
+    F.map(([l, n], i) => `<div class="frow ${i === F.length - 1 ? 'last' : ''} ${i === worst ? 'drop' : ''}"><span>${l}</span><span class="fbar"><i style="width:${pool.length ? (n / pool.length) * 100 : 0}%"></i></span><span><b>${n}</b>${i > 0 && F[i - 1][1] ? `<em>${Math.round((n / F[i - 1][1]) * 100)}% of previous</em>` : ''}</span></div>`).join('') +
+    `<p class="fnote">${ic('shield', 16)}<span>Biggest drop: <b>${F[worst - 1][0]} → ${F[worst][0]}</b>. Cases still in progress count here too, so this shows where people are now, not a final rate. In a pilot these numbers come from real cases.</span></p>`;
 }
 
 /* ---------- the case list ---------- */
