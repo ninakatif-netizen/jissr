@@ -166,7 +166,7 @@ button:active:not([disabled]){transform:scale(.97)}
 /* ---------- v2: the bridge ---------- */
 .langs{display:flex;gap:2px}
 .langs button{border:0;background:transparent;font:inherit;font-size:14px;color:var(--muted);padding:10px 8px;min-height:44px;cursor:pointer}
-.langs button[aria-pressed=true]{color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-color:#c49a5e;text-decoration-thickness:2px;text-underline-offset:6px}
+.langs button[aria-pressed=true]{color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-color:#b8894d;text-decoration-thickness:2px;text-underline-offset:6px}
 .aa{background:transparent;box-shadow:none;font-size:15px;color:var(--ink)}
 .aa[aria-pressed=true]{background:var(--ink);color:#fff}
 .greet{align-items:flex-start;margin:4px 0 2px}
@@ -174,7 +174,7 @@ button:active:not([disabled]){transform:scale(.97)}
 html.big .hello{font-size:36px}
 .gsub{margin:4px 0 0;color:var(--muted);font-size:15px}
 .me{background:var(--card2);box-shadow:none;color:var(--ink);font-size:14px}
-.me:after{background:#c49a5e}
+.me:after{background:#b8894d}
 .bridge{margin:12px 0 4px}
 .bridge svg{width:100%;height:auto;display:block}
 [dir=rtl] .bridge svg{transform:scaleX(-1)}
@@ -185,11 +185,11 @@ html.big .hello{font-size:36px}
 .next{background:#14284b!important;box-shadow:none;border-radius:22px;padding:22px 20px 20px}
 .next.ok{background:#1f6f4f!important}
 .next:before,.next:after{display:none}
-.nlbl{display:block;font-size:13px;color:#c49a5e;font-weight:500;margin-bottom:6px}
+.nlbl{display:block;font-size:13px;color:#b8894d;font-weight:500;margin-bottom:6px}
 .next.ok .nlbl{color:#f6d79b}
 .next h2{font-size:23px;font-weight:500;line-height:1.2}
 .next p{color:#d3d9e6;opacity:1}
-.next .btn{background:#c49a5e;color:#14284b}
+.next .btn{background:#b8894d;color:#14284b}
 .next.wait .btn{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6)}
 .next.ok .btn{background:#fff;color:#1f6f4f}
 .hlist{background:var(--card);border-radius:20px;display:flex;flex-direction:column;margin:14px 0}
@@ -219,7 +219,7 @@ html.big .hello{font-size:36px}
 .rnext h2{font-size:17px;font-weight:500;margin:10px 0 10px}
 .rstep{display:flex;gap:12px;align-items:flex-start;margin:0 0 10px;font-size:15px;color:#3e3830}
 .rstep i{width:12px;height:12px;border-radius:50%;border:2px solid #a8977a;flex:none;margin-top:5px}
-.rstep.on{color:var(--ink);font-weight:500}.rstep.on i{background:#c49a5e;border-color:var(--ink)}
+.rstep.on{color:var(--ink);font-weight:500}.rstep.on i{background:#b8894d;border-color:var(--ink)}
 .rnotdx{display:flex;gap:10px;font-size:13.5px;line-height:1.5;border-top:1px solid var(--line);padding-top:14px;margin:6px 0 12px;color:#3e3830}
 .rnotdx .ico{color:var(--ink);flex:none}
 .rmore{background:var(--card);border-radius:18px;padding:12px 14px;margin:12px 0}
@@ -228,7 +228,7 @@ html.big .hello{font-size:36px}
 .tab .ico{padding:0;background:transparent!important}
 .tab[aria-current=page]{color:var(--ink)}
 .tab:after{content:"";width:18px;height:3px;border-radius:2px;margin-top:2px;background:transparent}
-.tab[aria-current=page]:after{background:#c49a5e}
+.tab[aria-current=page]:after{background:#b8894d}
 .splash{background:#14284b}
 @media (min-width:700px){body{background:radial-gradient(circle at 30% 0%,#f1e7d4,#e2d4bb)}.device{border-color:#14284b}.device:before{background:#14284b}}
 
@@ -237,16 +237,17 @@ html.big .hello{font-size:36px}
 [dir=rtl] .hello,[dir=rtl] .rhero,[dir=rtl] .next h2,[dir=rtl] .bar h1{font-family:var(--text);font-weight:500;letter-spacing:0}
 .bar h1{font-family:var(--display);font-weight:600}
 .gtile{width:46px;height:46px;border-radius:14px;background:#f4e7d2;color:#86602c;display:flex;align-items:center;justify-content:center;flex:none}
-.next,.next.ok{background:var(--card)!important;color:var(--ink);border:1px solid var(--line);box-shadow:0 12px 32px rgba(120,90,40,.09)!important}
 .nhead{display:flex;gap:14px;align-items:center;margin-bottom:8px}
 .nhead .nlbl{margin-bottom:2px}
-.nlbl{color:#86602c}.next.ok .nlbl{color:#1f6f4f}
-.next h2{color:var(--ink);font-size:22px;margin:0}
-.next p{color:var(--muted)}
-.next .btn,.next.ok .btn{background:#14284b;color:#fff}
-.next.wait .btn{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
-.next .datebox,.next.ok .datebox{background:#f4e7d2;color:#14284b}
-.next .appt .sub{color:var(--muted);opacity:1;display:flex;align-items:center;gap:4px}
+.next .gtile{background:rgba(255,255,255,.1);color:#e3c38f}
+.nlbl{color:#e3c38f}.next.ok .nlbl{color:#bfe3cc}
+.next h2{color:#fff;font-size:22px;margin:0}
+.next p{color:#d3d9e6}
+.next .btn{background:#e3c38f;color:#14284b}
+.next.ok .btn{background:#fff;color:#1f6f4f}
+.next.wait .btn{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6)}
+.next .datebox{background:#fff;color:#14284b}
+.next .appt .sub{color:#d3d9e6;opacity:1;display:flex;align-items:center;gap:4px}
 .hlist,.rmore{box-shadow:0 8px 24px rgba(120,90,40,.06);border:1px solid var(--line)}
 .lrow>.ico:first-child{color:#86602c}
 .ring{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;margin:0 0 14px;box-shadow:0 12px 32px rgba(120,90,40,.08)}
@@ -258,7 +259,7 @@ html.big .hello{font-size:36px}
 .chk li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;line-height:1.3}
 .chk li i{width:18px;height:18px;border-radius:50%;border:2px solid #c9b99c;flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px}
 .chk li.done i{background:#2f8a5b;border-color:#2f8a5b;color:#fff}
-.chk li.now i{border-color:#c49a5e;box-shadow:0 0 0 3px #f4e7d2}
+.chk li.now i{border-color:#b8894d;box-shadow:0 0 0 3px #f4e7d2}
 .chk li.todo{color:var(--muted)}
 .chk b{font-weight:500;display:block}.chk small{color:var(--muted);font-size:12px}
 .plist{display:flex;flex-direction:column;gap:10px;margin:0 0 14px}
@@ -560,18 +561,18 @@ function trackerHtml(c) {
   const prog = now >= 5 ? 346 : X[now];
   const nodes = X.map((x, i) => i < now
     ? `<circle cx="${x}" cy="118" r="7.5" fill="#14284b"/><path d="M${x - 3.5} 118.5l2.4 2.4 4.6-4.8" stroke="#f5eee3" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`
-    : i === now ? `<circle cx="${x}" cy="118" r="16" fill="#c49a5e" opacity=".25"/><circle cx="${x}" cy="118" r="8.5" fill="#c49a5e" stroke="#14284b" stroke-width="2.5"/>`
+    : i === now ? `<circle cx="${x}" cy="118" r="16" fill="#b8894d" opacity=".25"/><circle cx="${x}" cy="118" r="8.5" fill="#b8894d" stroke="#14284b" stroke-width="2.5"/>`
     : `<circle cx="${x}" cy="118" r="6" fill="#f5eee3" stroke="#14284b" stroke-width="2"/>`).join('');
   const steps = c.programme === 'fit' ? t.fit.steps : t.steps;
   const where = now >= 5 ? t.allDone : t.stepOf(now + 1);
   return `<div class="bridge"><svg viewBox="0 0 350 138" role="img" aria-label="${t.journey}: ${where}">
-    <ellipse cx="200" cy="112" rx="95" ry="26" fill="#c49a5e" opacity=".12"/>
+    <ellipse cx="200" cy="112" rx="95" ry="26" fill="#b8894d" opacity=".12"/>
     <path d="M2 132C40 128 70 136 110 131S190 127 230 132 310 136 348 130" fill="none" stroke="#c9b99c" stroke-width="1.4"/>
     <path d="M18 118C48 82 104 82 132 118M120 118C158 28 242 28 280 118M268 118C290 88 326 86 342 108" fill="none" stroke="#a8977a" stroke-width="1.6"/>
     <path d="M8 118C40 68 110 68 140 118M110 118C150 10 250 10 290 118M260 118C285 72 330 72 346 102" fill="none" stroke="#14284b" stroke-width="3.2" stroke-linecap="round"/>
     <path d="M150 118V66M175 118V48M200 118V40M225 118V48M250 118V66" stroke="#c9b99c" stroke-width="1"/>
     <path d="M4 118H346" stroke="#14284b" stroke-width="4" stroke-linecap="round"/>
-    <path d="M4 118H${prog}" stroke="#c49a5e" stroke-width="4" stroke-linecap="round"/>
+    <path d="M4 118H${prog}" stroke="#b8894d" stroke-width="4" stroke-linecap="round"/>
     ${nodes}</svg>
     <div class="blabels">${steps.map((l, i) => `<span class="${i === now ? 'on' : ''}">${l}</span>`).join('')}</div>
     <div class="bmeta"><b>${where}</b><i>${t.inspired}</i></div></div>`;
@@ -734,7 +735,7 @@ function resultView(c) {
 function ringHtml(n, total = 5) {
   const R = 46, C = 2 * Math.PI * R, f = Math.min(n, total) / total;
   return `<svg viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="${R}" fill="none" stroke="#eadfcb" stroke-width="9"/>
-    <circle cx="56" cy="56" r="${R}" fill="none" stroke="#c49a5e" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(C * f).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 56 56)"/></svg>`;
+    <circle cx="56" cy="56" r="${R}" fill="none" stroke="#b8894d" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(C * f).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 56 56)"/></svg>`;
 }
 const STEP_EVENTS = [['understood'], ['booked'], ['attended'], ['confirmed', 'referred', 'consult', 'skip'], ['care_plan', 'closed']];
 function stepDate(c, i) {
