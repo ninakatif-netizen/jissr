@@ -19,16 +19,29 @@
   <div class="tiles">
     <a class="tile" href="animation/index.html"><div class="card"><h3>▶ Watch the story</h3><p class="muted">50 seconds: Fatima and the lab result nobody had time to explain.</p></div></a>
     <a class="tile" href="patient.html"><div class="card"><h3>📱 Patient app</h3><p class="muted">Result in plain words (English / العربية), why-might-you-not-follow-up check-in, booking, reminders, talk to a nurse.</p></div></a>
-    <a class="tile" href="staff.html"><div class="card"><h3>🩺 Care team</h3><p class="muted">All open cases, owners, due dates, overdue flags, drop-out reasons, case timeline, clinician-only closing.</p></div></a>
+    <a class="tile" href="staff.html"><div class="card"><h3>🩺 Care team</h3><p class="muted">Every case from result to documented closure: owners, service levels, escalation, confirmation, referrals and hand-offs, clinician-to-clinician advice, clinician-only closing.</p></div></a>
+    <a class="tile" href="metrics.html"><div class="card"><h3>📊 Measures</h3><p class="muted">Is the loop closing? Time to each step, where cases get stuck, referral outcomes, why patients drop off, patient confidence.</p></div></a>
   </div>
+
+  <section class="card">
+    <h2>How Jissr answers the challenge</h2>
+    <ol>
+      <li><b>End-to-end visibility.</b> One journey per case: result, notified, understood, appointment, attended, confirmatory test, referral, treatment or surveillance plan, closed with evidence.</li>
+      <li><b>Ownership and service levels.</b> Every case has a named owner. Deadlines depend on urgency. Overdue, rejected and unassigned cases go to a "needs attention" queue, set by fixed escalation rules.</li>
+      <li><b>Patient-centred communication.</b> Plain English and Arabic, read-aloud, "not a diagnosis" every time, a check that the patient understood, a barrier check-in that changes the next step, a chosen channel, and a family helper with the patient's consent.</li>
+      <li><b>Cross-provider coordination.</b> Referral with accept or reject, ownership handed to the receiving clinician and back with a report, plus clinician-to-clinician questions with a reply deadline.</li>
+      <li><b>Human-governed escalation and closure.</b> Urgent and exceptional cases are flagged to clinical leads. Only a clinician can close, with written evidence. The AI can do none of this, and tests prove it.</li>
+      <li><b>Measures.</b> A live <a href="metrics.html">measures page</a>: time to each step, referral and appointment completion, unresolved results, reasons for delay, patient confidence. It comes with a pilot plan for proving real improvement.</li>
+    </ol>
+  </section>
 
   <section class="card">
     <h2>Who decides what</h2>
     <table class="tbl" style="margin-top:8px">
       <thead><tr><th></th><th>Rules (fixed logic)</th><th>AI (language model)</th></tr></thead>
       <tbody>
-        <tr><td><b>Does</b></td><td>Sets urgency from the HbA1c, sets the due date, picks the next step for each barrier, offers slots</td><td>Writes the plain-language explanation and rewords the next step, in English or Arabic</td></tr>
-        <tr><td><b>Never</b></td><td>Replaces a clinician</td><td>Diagnoses, sets urgency, advises on medicine, assigns or closes a case</td></tr>
+        <tr><td><b>Does</b></td><td>Sets urgency from the HbA1c, sets deadlines, decides what to escalate, picks the next step for each barrier, offers slots</td><td>Writes the plain-language explanation and rewords the next step, in English or Arabic</td></tr>
+        <tr><td><b>Never</b></td><td>Replaces a clinician</td><td>Diagnoses, sets urgency, advises on medicine, assigns, refers, escalates or closes a case</td></tr>
         <tr><td><b>If it fails</b></td><td>–</td><td>A pre-written message is used, so nothing breaks</td></tr>
       </tbody>
     </table>

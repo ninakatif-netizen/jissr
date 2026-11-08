@@ -1,17 +1,24 @@
 // Run with:  npm test
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { classify, dueDate, isOverdue, statusOf, slotsFor, safeText, withDisclaimer, addDays } from '../core/rules.mjs';
-import { advance, closeCase, newCase, RuleError, setBarrier, requestNurse, assignOwner } from '../core/cases.mjs';
+import { classify, dueDate, isOverdue, statusOf, slotsFor, safeText, withDisclaimer, addDays, escalationsFor, maxLevel, slaDeadline, STAGES } from '../core/rules.mjs';
+import {
+  advance, skipStage, closeCase, newCase, RuleError, setBarrier, requestNurse, assignOwner,
+  sendReferral, respondReferral, completeReferral, requestConsult, answerConsult, recordConfidence, setChannel,
+} from '../core/cases.mjs';
 import { buildState, STAFF } from '../core/data.mjs';
 import { explanation } from '../core/templates.mjs';
 
 const TODAY = '2026-11-10';
-const nurse = { type: 'staff', role: 'nurse', name: 'Nurse N' };
-const coord = { type: 'staff', role: 'coordinator', name: 'Coord C' };
-const doc = { type: 'staff', role: 'clinician', name: 'Dr D' };
+const nurse = { type: 'staff', role: 'nurse', name: 'Nurse N', id: 'n1', org: 'Screening programme' };
+const coord = { type: 'staff', role: 'coordinator', name: 'Coord C', id: 'c1', org: 'Screening programme' };
+const doc = { type: 'staff', role: 'clinician', name: 'Dr D', id: 'd1', org: 'Primary care clinic' };
+const endo = { type: 'staff', role: 'clinician', name: 'Dr E', id: 'e1', org: 'Hospital endocrinology' };
+const other = { type: 'staff', role: 'clinician', name: 'Dr X', id: 'e2', org: 'Diabetes centre' };
 const patient = { type: 'patient', name: 'Patient' };
 const ai = { type: 'ai', name: 'AI' };
+const system = { type: 'system', name: 'system' };
+const codeOf = (code) => (e) => e instanceof RuleError && e.code === code;
 
 test('HbA1c bands and boundaries', () => {
   assert.equal(classify(5.6).band, 'normal');
@@ -51,74 +58,198 @@ test('urgent slots are only in the next two days; shift workers get early/evenin
   assert.ok(shift.every((s) => ['07:30', '18:30', '19:30'].includes(s.time)));
 });
 
-function fresh(value = 8.1) {
-  const state = { staff: STAFF, cases: [newCase({ id: 'C-1', patient: { id: 'P' }, value, resultDay: TODAY, owner: 'n1' })] };
-  return state;
-}
+const fresh = (value = 8.1, day = TODAY) => ({ staff: STAFF, cases: [newCase({ id: 'C-1', patient: { id: 'P' }, value, resultDay: day, owner: 'n1' })] });
+const toAttended = (s) => {
+  advance(s, 'C-1', 'notified', system);
+  advance(s, 'C-1', 'understood', patient);
+  advance(s, 'C-1', 'booked', patient);
+  advance(s, 'C-1', 'attended', nurse);
+  return s;
+};
+const toConfirmed = (s) => { toAttended(s); advance(s, 'C-1', 'confirmed', doc, 'Repeat HbA1c confirms'); return s; };
+const toCarePlan = (s) => { toConfirmed(s); skipStage(s, 'C-1', 'referred', doc, 'Managed in primary care'); advance(s, 'C-1', 'care_plan', doc, 'Plan agreed', undefined, { planKind: 'treatment' }); return s; };
 
 test('steps cannot be skipped or done by the wrong person', () => {
   const s = fresh();
-  assert.throws(() => advance(s, 'C-1', 'booked', patient), (e) => e.code === 'out_of_order');
-  advance(s, 'C-1', 'notified', { type: 'system', name: 'system' });
+  assert.throws(() => advance(s, 'C-1', 'booked', patient), codeOf('out_of_order'));
+  advance(s, 'C-1', 'notified', system);
   advance(s, 'C-1', 'understood', patient);
   advance(s, 'C-1', 'booked', patient);
-  assert.throws(() => advance(s, 'C-1', 'attended', patient), (e) => e.code === 'not_allowed');
+  assert.throws(() => advance(s, 'C-1', 'attended', patient), codeOf('not_allowed'));
   advance(s, 'C-1', 'attended', nurse);
-  assert.throws(() => advance(s, 'C-1', 'care_plan', nurse), (e) => e.code === 'not_allowed'); // clinician only
-  advance(s, 'C-1', 'care_plan', doc, 'Plan agreed');
-  assert.equal(s.cases[0].stage, 'care_plan');
+  assert.throws(() => advance(s, 'C-1', 'care_plan', doc), codeOf('out_of_order')); // confirmation comes first
+  assert.throws(() => advance(s, 'C-1', 'confirmed', coord), codeOf('not_allowed'));
+  advance(s, 'C-1', 'confirmed', nurse);
+  assert.equal(s.cases[0].stage, 'confirmed');
 });
 
-test('advance cannot close a case', () => {
-  const s = fresh();
-  assert.throws(() => advance(s, 'C-1', 'closed', doc), (e) => e.code === 'use_close');
+test('advance cannot close or refer', () => {
+  const s = toConfirmed(fresh());
+  assert.throws(() => advance(s, 'C-1', 'closed', doc), codeOf('use_close'));
+  assert.throws(() => advance(s, 'C-1', 'referred', doc), codeOf('use_referral'));
 });
 
-function atCarePlan() {
-  const s = fresh();
-  advance(s, 'C-1', 'notified', { type: 'system', name: 'system' });
-  advance(s, 'C-1', 'understood', patient);
-  advance(s, 'C-1', 'booked', patient);
-  advance(s, 'C-1', 'attended', nurse);
-  advance(s, 'C-1', 'care_plan', doc);
-  return s;
-}
+test('optional steps can be marked "not required" only by a clinician, with a reason', () => {
+  const s = toAttended(fresh());
+  assert.throws(() => skipStage(s, 'C-1', 'confirmed', nurse, 'Not needed here at all'), codeOf('clinician_only'));
+  assert.throws(() => skipStage(s, 'C-1', 'confirmed', doc, 'no'), codeOf('reason_required'));
+  assert.throws(() => skipStage(s, 'C-1', 'care_plan', doc, 'Trying to skip the plan'), codeOf('not_optional'));
+  skipStage(s, 'C-1', 'confirmed', doc, 'Urgent and symptomatic, treated directly');
+  assert.equal(s.cases[0].stage, 'confirmed');
+  assert.equal(s.cases[0].events.at(-1).skipped, true);
+});
 
 test('only a clinician can close, and only with evidence', () => {
-  const s = atCarePlan();
+  const s = toCarePlan(fresh());
   const ev = 'Seen in clinic, plan agreed, review in 3 months.';
-  assert.throws(() => closeCase(s, 'C-1', nurse, { type: 'care_plan_agreed', evidence: ev }), (e) => e.code === 'clinician_only');
-  assert.throws(() => closeCase(s, 'C-1', coord, { type: 'care_plan_agreed', evidence: ev }), (e) => e.code === 'clinician_only');
-  assert.throws(() => closeCase(s, 'C-1', patient, { type: 'care_plan_agreed', evidence: ev }), (e) => e.code === 'clinician_only');
-  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'care_plan_agreed', evidence: '' }), (e) => e.code === 'evidence_required');
-  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'care_plan_agreed', evidence: 'ok' }), (e) => e.code === 'evidence_required');
-  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'nonsense', evidence: ev }), (e) => e.code === 'bad_type');
+  for (const a of [nurse, coord, patient]) assert.throws(() => closeCase(s, 'C-1', a, { type: 'care_plan_agreed', evidence: ev }), codeOf('clinician_only'));
+  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'care_plan_agreed', evidence: '' }), codeOf('evidence_required'));
+  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'care_plan_agreed', evidence: 'ok' }), codeOf('evidence_required'));
+  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'nonsense', evidence: ev }), codeOf('bad_type'));
   assert.equal(s.cases[0].stage, 'care_plan'); // nothing changed by the failed attempts
   closeCase(s, 'C-1', doc, { type: 'care_plan_agreed', evidence: ev });
   assert.equal(s.cases[0].stage, 'closed');
   assert.equal(s.cases[0].closed.evidence, ev);
-  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'care_plan_agreed', evidence: ev }), (e) => e.code === 'already_closed');
+  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'care_plan_agreed', evidence: ev }), codeOf('already_closed'));
 });
 
-test('"care plan agreed" needs a recorded care plan first', () => {
+test('"plan agreed" needs a recorded plan first; an informed refusal can close with evidence', () => {
   const s = fresh();
-  advance(s, 'C-1', 'notified', { type: 'system', name: 'system' });
-  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'care_plan_agreed', evidence: 'A long enough evidence note.' }), (e) => e.code === 'no_care_plan');
-  // an informed refusal can be closed by a clinician with evidence
+  advance(s, 'C-1', 'notified', system);
+  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'care_plan_agreed', evidence: 'A long enough evidence note.' }), codeOf('no_care_plan'));
   closeCase(s, 'C-1', doc, { type: 'documented_refusal', evidence: 'Spoke with patient, understands risks, declined follow-up.' });
   assert.equal(s.cases[0].stage, 'closed');
 });
 
+test('treatment or surveillance must be chosen', () => {
+  const s = toConfirmed(fresh());
+  skipStage(s, 'C-1', 'referred', doc, 'Managed in primary care');
+  assert.throws(() => advance(s, 'C-1', 'care_plan', doc, 'x', undefined, { planKind: 'magic' }), codeOf('bad_plan'));
+  advance(s, 'C-1', 'care_plan', doc, 'Lifestyle plan', undefined, { planKind: 'surveillance' });
+  assert.equal(s.cases[0].plan.kind, 'surveillance');
+});
+
+// ---------- referral, hand-off, consultation ----------
+const referred = () => { const s = toConfirmed(fresh()); sendReferral(s, 'C-1', doc, { to: 'Hospital endocrinology', reason: 'Needs specialist review of treatment.' }); return s; };
+
+test('referral: only a clinician sends it, to a valid place, with a reason, in order', () => {
+  const s = toConfirmed(fresh());
+  assert.throws(() => sendReferral(s, 'C-1', nurse, { to: 'Hospital endocrinology', reason: 'Needs specialist review.' }), codeOf('clinician_only'));
+  assert.throws(() => sendReferral(s, 'C-1', doc, { to: 'Nowhere', reason: 'Needs specialist review.' }), codeOf('bad_target'));
+  assert.throws(() => sendReferral(s, 'C-1', doc, { to: 'Diabetes centre', reason: 'x' }), codeOf('reason_required'));
+  const early = toAttended(fresh());
+  assert.throws(() => sendReferral(early, 'C-1', doc, { to: 'Diabetes centre', reason: 'Too early to refer.' }), codeOf('out_of_order'));
+  sendReferral(s, 'C-1', doc, { to: 'Diabetes centre', reason: 'Needs diabetes education programme.' });
+  assert.equal(s.cases[0].stage, 'referred');
+  assert.equal(s.cases[0].referral.status, 'sent');
+});
+
+test('referral hand-off: acceptance moves ownership, report back returns it, and care plan waits for the report', () => {
+  const s = referred();
+  const c = s.cases[0];
+  assert.throws(() => respondReferral(s, 'C-1', other, { accept: true }), codeOf('wrong_org'));      // wrong provider
+  assert.throws(() => respondReferral(s, 'C-1', nurse, { accept: true }), codeOf('wrong_org'));
+  assert.throws(() => advance(s, 'C-1', 'care_plan', doc), codeOf('referral_open'));
+  assert.throws(() => closeCase(s, 'C-1', doc, { type: 'documented_refusal', evidence: 'Long enough evidence note here.' }), codeOf('referral_open'));
+  respondReferral(s, 'C-1', endo, { accept: true, note: 'Seen next Tuesday' });
+  assert.equal(c.owner, 'e1');                       // owned by the receiving clinician
+  assert.throws(() => completeReferral(s, 'C-1', doc, 'Patient seen, plan agreed with specialist.'), codeOf('wrong_org'));
+  assert.throws(() => completeReferral(s, 'C-1', endo, 'short'), codeOf('evidence_required'));
+  completeReferral(s, 'C-1', endo, 'Patient seen, started treatment, review in 3 months.');
+  assert.equal(c.owner, 'n1');                       // handed back to the referring owner
+  advance(s, 'C-1', 'care_plan', doc, 'Continue plan', undefined, { planKind: 'treatment' });
+  assert.equal(c.stage, 'care_plan');
+});
+
+test('a rejected referral stays visible, needs a reason, and can be re-sent elsewhere', () => {
+  const s = referred();
+  const c = s.cases[0];
+  assert.throws(() => respondReferral(s, 'C-1', endo, { accept: false, note: '' }), codeOf('reason_required'));
+  respondReferral(s, 'C-1', endo, { accept: false, note: 'Please repeat HbA1c and kidney profile first.' });
+  assert.equal(c.referral.status, 'rejected');
+  assert.equal(c.owner, 'n1');                        // never left without an owner
+  assert.ok(escalationsFor(c, TODAY).some((e) => e.code === 'referral_rejected' && e.level === 3));
+  sendReferral(s, 'C-1', doc, { to: 'Diabetes centre', reason: 'Resubmitting with repeat tests completed.' });
+  assert.equal(c.referral.to, 'Diabetes centre');
+  assert.equal(c.referral.history[0].status, 'rejected');
+});
+
+test('clinician-to-clinician questions: only clinicians ask, only the right provider answers', () => {
+  const s = toAttended(fresh());
+  assert.throws(() => requestConsult(s, 'C-1', nurse, { to: 'Hospital endocrinology', question: 'Is this urgent enough?' }), codeOf('clinician_only'));
+  requestConsult(s, 'C-1', doc, { to: 'Hospital endocrinology', question: 'Should this patient be seen this week?' });
+  const q = s.cases[0].consults[0];
+  assert.throws(() => answerConsult(s, 'C-1', q.id, other, 'Yes, see within the week please.'), codeOf('wrong_org'));
+  answerConsult(s, 'C-1', q.id, endo, 'Yes, please send within the week.');
+  assert.equal(q.answer.by, 'Dr E');
+  assert.throws(() => answerConsult(s, 'C-1', q.id, endo, 'Answering twice should fail.'), codeOf('already_answered'));
+});
+
 test('the AI can never change or close a case', () => {
-  const s = atCarePlan();
+  const s = referred();
   for (const fn of [
     () => closeCase(s, 'C-1', ai, { type: 'care_plan_agreed', evidence: 'long enough evidence here' }),
     () => advance(s, 'C-1', 'closed', ai),
+    () => skipStage(s, 'C-1', 'confirmed', ai, 'Not needed at all here'),
+    () => sendReferral(s, 'C-1', ai, { to: 'Diabetes centre', reason: 'Because the AI said so.' }),
+    () => respondReferral(s, 'C-1', ai, { accept: true }),
+    () => completeReferral(s, 'C-1', ai, 'The AI says all is complete.'),
+    () => requestConsult(s, 'C-1', ai, { to: 'Diabetes centre', question: 'Question from the AI here' }),
     () => setBarrier(s, 'C-1', 'fear', ai),
+    () => setChannel(s, 'C-1', 'sms', ai),
+    () => recordConfidence(s, 'C-1', 5, ai),
     () => requestNurse(s, 'C-1', ai),
     () => assignOwner(s, 'C-1', 'n2', ai),
-  ]) assert.throws(fn, (e) => e instanceof RuleError && e.code === 'ai_not_allowed');
-  assert.equal(s.cases[0].stage, 'care_plan');
+  ]) assert.throws(fn, codeOf('ai_not_allowed'));
+  assert.equal(s.cases[0].stage, 'referred');
+});
+
+test('patient-only answers and valid channels', () => {
+  const s = fresh();
+  assert.throws(() => recordConfidence(s, 'C-1', 4, nurse), codeOf('not_allowed'));
+  assert.throws(() => recordConfidence(s, 'C-1', 9, patient), codeOf('bad_score'));
+  recordConfidence(s, 'C-1', 4, patient);
+  assert.equal(s.cases[0].confidence.score, 4);
+  assert.throws(() => setChannel(s, 'C-1', 'pigeon', patient), codeOf('bad_channel'));
+  setChannel(s, 'C-1', 'whatsapp', patient);
+  assert.equal(s.cases[0].channel, 'whatsapp');
+});
+
+// ---------- service levels and escalation ----------
+test('service levels follow urgency', () => {
+  const u = newCase({ id: 'U', patient: {}, value: 11, resultDay: '2026-11-01', owner: 'n1' });
+  const r = newCase({ id: 'R', patient: {}, value: 6.0, resultDay: '2026-11-01', owner: 'c1' });
+  assert.equal(slaDeadline(u, 'notified'), '2026-11-01');
+  assert.equal(slaDeadline(u, 'attended'), '2026-11-03');
+  assert.equal(slaDeadline(r, 'notified'), '2026-11-04');
+  assert.equal(slaDeadline(r, 'attended'), '2026-12-01');
+});
+
+test('escalation rules: unassigned, overdue, urgent not notified, late nurse call, late referral', () => {
+  const urgent = newCase({ id: 'U', patient: {}, value: 11, resultDay: '2026-11-08', owner: null });
+  const codes = (c, day) => escalationsFor(c, day).map((e) => e.code);
+  assert.ok(codes(urgent, '2026-11-08').includes('unassigned'));
+  assert.ok(!codes(urgent, '2026-11-08').includes('urgent_not_notified'));    // same day: not yet
+  assert.ok(codes(urgent, '2026-11-09').includes('urgent_not_notified'));
+  assert.equal(maxLevel(escalationsFor(urgent, '2026-11-09')), 3);
+
+  const c = newCase({ id: 'C', patient: {}, value: 8, resultDay: '2026-11-01', owner: 'n1' });  // due 2026-11-15
+  assert.deepEqual(codes(c, '2026-11-15').filter((x) => x.startsWith('overdue')), []);
+  assert.ok(codes(c, '2026-11-18').includes('overdue_3d'));
+  assert.ok(codes(c, '2026-11-22').includes('overdue_7d') && !codes(c, '2026-11-22').includes('overdue_3d'));
+
+  c.nurseRequest = { at: '2026-11-09T10:00:00.000Z', done: false };
+  assert.ok(codes(c, '2026-11-10').includes('nurse_callback_late'));
+  c.nurseRequest.done = true;
+  assert.ok(!codes(c, '2026-11-10').includes('nurse_callback_late'));
+
+  c.referral = { to: 'Diabetes centre', status: 'sent', sentAt: '2026-11-07T10:00:00.000Z' };
+  assert.ok(codes(c, '2026-11-09').includes('referral_unanswered'));
+  c.consults = [{ id: 'Q1', to: 'Diabetes centre', due: '2026-11-08', answer: null }];
+  assert.ok(codes(c, '2026-11-10').includes('consult_late'));
+
+  c.stage = 'closed';
+  assert.deepEqual(escalationsFor(c, '2026-12-30'), []); // closed cases never escalate
 });
 
 test('AI output safety filter', () => {
@@ -142,19 +273,29 @@ test('every patient message always says "not a diagnosis" (English and Arabic)',
   assert.equal(withDisclaimer('A note. This is not a diagnosis.', 'en'), 'A note. This is not a diagnosis.'); // not doubled
 });
 
-test('synthetic data: 30 patients, every band, some overdue, some closed, all rules consistent', () => {
+test('synthetic data: 30 patients, every band, consistent rules, visible exceptions', () => {
   const st = buildState(TODAY);
   assert.equal(st.cases.length, 30);
-  const bands = new Set(st.cases.map((c) => c.band));
-  assert.deepEqual([...bands].sort(), ['diabetes', 'prediabetes', 'urgent']);
+  assert.deepEqual([...new Set(st.cases.map((c) => c.band))].sort(), ['diabetes', 'prediabetes', 'urgent']);
   assert.ok(st.cases.filter((c) => isOverdue(c, TODAY)).length >= 5);
   assert.equal(st.cases.filter((c) => c.stage === 'closed').length, 3);
   for (const c of st.cases) {
     assert.equal(c.band, classify(c.value).band);
     assert.equal(c.due, dueDate(c.resultDay, c.value));
-    assert.ok(st.staff.some((s) => s.id === c.owner), 'every case has a named owner');
-    assert.ok(c.events.every((e) => e.at.slice(0, 10) <= TODAY), 'no events in the future');
-    if (c.stage === 'closed') assert.ok(c.closed.evidence.length >= 15);
-    if (c.band === 'urgent') assert.equal(st.staff.find((s) => s.id === c.owner).role, 'nurse');
+    assert.ok(c.events.every((e) => e.at.slice(0, 10) <= TODAY), `no events in the future (${c.id})`);
+    // events appear in journey order
+    const order = c.events.map((e) => STAGES.indexOf(e.type)).filter((i) => i >= 0);
+    assert.deepEqual(order, [...order].sort((a, b) => a - b), `journey order (${c.id})`);
+    if (c.owner) assert.ok(st.staff.some((s) => s.id === c.owner), 'owner exists');
+    if (c.stage === 'closed') { assert.ok(c.closed.evidence.length >= 15); assert.ok(c.plan); }
+    if (c.referral && c.referral.status === 'accepted') assert.notEqual(c.owner, c.referral.fromOwner); // hand-off happened
   }
+  // exceptions are present AND flagged by the rules
+  const flagged = (code) => st.cases.filter((c) => escalationsFor(c, TODAY).some((e) => e.code === code)).length;
+  assert.equal(st.cases.filter((c) => !c.owner).length, 2);
+  assert.equal(flagged('unassigned'), 2);
+  assert.ok(flagged('referral_rejected') >= 1 && flagged('referral_unanswered') >= 1 && flagged('consult_late') >= 1 && flagged('nurse_callback_late') >= 1);
+  assert.ok(st.cases.some((c) => c.referral && c.referral.status === 'accepted'));
+  // at least one clinician-ready case, at the care plan stage
+  assert.ok(st.cases.some((c) => c.stage === 'care_plan'));
 });

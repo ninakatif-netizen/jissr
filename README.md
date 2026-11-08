@@ -6,12 +6,14 @@ One programme: abnormal HbA1c from screening. **All data is synthetic. Not medic
 ## Pages
 - `index.html`: home, and a short "who decides what" (rules vs AI)
 - `patient.html`: patient app (English / Arabic): plain-language result, barrier check-in, booking, reminders, nurse, family helper
-- `staff.html`: care-team dashboard: cases, owners, due dates, overdue flags, drop-out reasons, timeline, clinician-only closing
+- `staff.html`: care-team dashboard: full journey per case, owners, service levels, escalation queue, confirmation, referrals and hand-offs, clinician-to-clinician advice, clinician-only closing
+- `metrics.html`: live measures (time to each step, referral completion, unresolved results, reasons for delay, patient confidence)
 - `animation/index.html`: 50-second opening story
 
 ## How it is built
 - `core/rules.mjs`: HbA1c bands, due dates, barrier plans, AI safety filter (plain logic, no AI)
-- `core/cases.mjs`: case rules. Only a clinician with written evidence can close a case; the AI is refused every action
+- `core/cases.mjs`: case rules: confirmation, referral accept/reject and report back, ownership hand-offs, clinician questions. Only a clinician with written evidence can close a case; the AI is refused every action
+- escalation and service levels are in `core/rules.mjs` (fixed rules, no AI)
 - `core/templates.mjs`: pre-written English/Arabic messages (fallback when AI is off)
 - `core/data.mjs`: 30 invented patients
 - `api/_jissr-ai.js`: the one place that talks to an AI provider (Anthropic or Azure OpenAI)
@@ -19,7 +21,7 @@ One programme: abnormal HbA1c from screening. **All data is synthetic. Not medic
 
 ## Run and test
 ```
-npm test                      # 18 tests, no install needed
+npm test                      # 27 tests, no install needed
 npm run serve                 # then open http://localhost:8330/
 ```
 Without an AI key everything still works using the pre-written messages.

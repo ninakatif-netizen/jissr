@@ -1,7 +1,9 @@
 // THE RULES. Plain if/then logic, no AI. These decide urgency and deadlines.
 // A clinician should confirm the numbers below before they are presented as final.
 
-export const STAGES = ['result', 'notified', 'understood', 'booked', 'attended', 'care_plan', 'closed'];
+// The full journey. "confirmed" and "referred" are optional: a clinician can record "not required" with a reason.
+export const STAGES = ['result', 'notified', 'understood', 'booked', 'attended', 'confirmed', 'referred', 'care_plan', 'closed'];
+export const OPTIONAL_STAGES = ['confirmed', 'referred'];
 
 export const STAGE_LABEL = {
   result: 'Result received',
@@ -9,7 +11,9 @@ export const STAGE_LABEL = {
   understood: 'Patient understood',
   booked: 'Appointment booked',
   attended: 'Appointment attended',
-  care_plan: 'Care plan agreed',
+  confirmed: 'Confirmatory test done',
+  referred: 'Referral to specialist',
+  care_plan: 'Treatment or surveillance plan',
   closed: 'Case closed',
 };
 
@@ -132,3 +136,50 @@ export function withDisclaimer(text, lang) {
   const d = DISCLAIMER[lang] || DISCLAIMER.en;
   return text.includes(d) ? text : `${text} ${d}`;
 }
+
+
+// ---- SERVICE LEVELS (days after the result). Proposals for a clinician to confirm. ----
+export const SLA = {
+  urgent:   { notified: 0, understood: 1, booked: 1,  attended: 2 },
+  priority: { notified: 1, understood: 3, booked: 7,  attended: 14 },
+  routine:  { notified: 3, understood: 7, booked: 14, attended: 30 },
+};
+export const SLA_STEPS = ['notified', 'understood', 'booked', 'attended'];
+export const REFERRAL_REPLY_DAYS = 2;   // a referral should be accepted or rejected within 2 days
+export const CONSULT_REPLY_DAYS = 2;    // a clinician-to-clinician question should be answered within 2 days
+export const NURSE_CALLBACK_DAYS = 1;   // a requested nurse call should happen within 1 day
+
+export function slaDeadline(c, step) {
+  const row = SLA[c.urgency];
+  return row && step in row ? addDays(c.resultDay, row[step]) : null;
+}
+
+// ---- ESCALATION: fixed rules decide what needs a human's attention (the AI plays no part). ----
+// level 2 = coordinator or clinical lead should act; level 3 = clinical lead now.
+export function escalationsFor(c, today) {
+  const out = [];
+  if (c.stage === 'closed') return out;
+  const add = (code, level, text) => out.push({ code, level, text });
+  const late = c.due && today > c.due ? daysBetween(c.due, today) : 0;
+  if (!c.owner) add('unassigned', 2, 'No owner assigned');
+  if (late >= 7) add('overdue_7d', 3, `Overdue by ${late} days: clinical lead to review`);
+  else if (late >= 3) add('overdue_3d', 2, `Overdue by ${late} days`);
+  if (c.stage === 'result') {
+    const age = daysBetween(c.resultDay, today);
+    if (c.urgency === 'urgent' && age >= 1) add('urgent_not_notified', 3, `Urgent result not yet communicated (${age} day${age === 1 ? '' : 's'})`);
+    else if (today > slaDeadline(c, 'notified')) add('notify_late', 2, 'Patient not notified within the service level');
+  }
+  const r = c.referral;
+  if (r && r.status === 'rejected') add('referral_rejected', 3, `Referral rejected by ${r.to}: needs a new plan`);
+  if (r && r.status === 'sent' && daysBetween(r.sentAt.slice(0, 10), today) >= REFERRAL_REPLY_DAYS) add('referral_unanswered', 2, `No reply from ${r.to} to the referral`);
+  const n = c.nurseRequest;
+  if (n && !n.done && daysBetween(n.at.slice(0, 10), today) >= NURSE_CALLBACK_DAYS) add('nurse_callback_late', 2, 'Patient asked for a nurse call and is still waiting');
+  for (const q of c.consults || []) {
+    if (!q.answer && today > q.due) add('consult_late', 2, `No answer yet from ${q.to} to the clinical question`);
+  }
+  return out;
+}
+export const maxLevel = (list) => list.reduce((m, e) => Math.max(m, e.level), 0);
+
+export const CHANNELS = ['app', 'sms', 'whatsapp', 'phone'];
+export const CHANNEL_LABEL = { app: 'This app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'Phone call' };

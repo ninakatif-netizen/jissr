@@ -21,7 +21,7 @@
 <script type="module">
 import { loadState, saveState, resetState, aiText } from './core/store.mjs';
 import { classify, slotsFor, barrierPlan, BARRIERS, addDays } from './core/rules.mjs';
-import { advance, setBarrier, requestNurse, recordAiText } from './core/cases.mjs';
+import { advance, setBarrier, requestNurse, recordAiText, setChannel, recordConfidence } from './core/cases.mjs';
 import { explanation, barrierText, nurseText } from './core/templates.mjs';
 
 /* ---------- words on the screen (English / Arabic) ---------- */
@@ -47,6 +47,8 @@ const S = {
     famName: 'Their name', famRel: 'Who are they (daughter, son, friend...)', famOn: 'Share my appointment status with them', famDone: (n) => `${n} will see only your appointment status and reminders.`, famOff: 'Stop sharing',
     famPreview: 'What they would receive:', famMsg: 'Mama\'s result has been explained and her appointment is booked.',
     done: 'Your care is up to date. Thank you.', reset: 'Reset demo', seeStaff: 'See this case on the staff screen',
+    pref: 'How would you like us to contact you?', chan: { app: 'This app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'Phone call' },
+    confQ: 'How confident do you feel about what to do next?', confLow: 'Not at all', confHigh: 'Very confident', confThanks: 'Thank you. This helps us improve.',
     cost: 'We can check your insurance before you decide.', stepOf: ['Result', 'Understand', 'Plan', 'Book'], nurseReq: 'Nurse call requested',
   },
   ar: {
@@ -70,6 +72,8 @@ const S = {
     famName: 'اسمه', famRel: 'من هو (ابنتي، ابني، صديق...)', famOn: 'شارك معه حالة موعدي', famDone: (n) => `سيرى ${n} حالة موعدك والتذكيرات فقط.`, famOff: 'إيقاف المشاركة',
     famPreview: 'ما سيصله:', famMsg: 'تم شرح نتيجة والدتك وحجز موعدها.',
     done: 'رعايتك مكتملة. شكراً لك.', reset: 'إعادة ضبط العرض', seeStaff: 'شاهد هذه الحالة في شاشة الفريق',
+    pref: 'كيف تفضل أن نتواصل معك؟', chan: { app: 'هذا التطبيق', sms: 'رسالة نصية', whatsapp: 'واتساب', phone: 'اتصال هاتفي' },
+    confQ: 'ما مدى ثقتك بما ستفعله بعد ذلك؟', confLow: 'لست واثقاً', confHigh: 'واثق جداً', confThanks: 'شكراً لك. هذا يساعدنا على التحسين.',
     cost: 'يمكننا التحقق من تأمينك قبل أن تقرر.', stepOf: ['النتيجة', 'الفهم', 'الخطة', 'الحجز'], nurseReq: 'تم طلب اتصال من ممرضة',
   },
 };
@@ -123,7 +127,7 @@ function barrierNow(c) {
 }
 
 /* ---------- screens ---------- */
-const stageIdx = (c) => ['result', 'notified', 'understood', 'booked', 'attended', 'care_plan', 'closed'].indexOf(c.stage);
+const stageIdx = (c) => ['result', 'notified', 'understood', 'booked', 'attended', 'confirmed', 'referred', 'care_plan', 'closed'].indexOf(c.stage);
 function stepsHtml(c) {
   const i = stageIdx(c);
   const n = i >= 3 ? 4 : i >= 2 ? 3 : c.barrier !== 'none' ? 2 : 1;
@@ -211,6 +215,17 @@ function render() {
     h += `</section>`;
   }
 
+  // preferences: contact channel, and how confident the patient feels (feeds the measures page)
+  h += `<section class="card"><h2>${t.pref}</h2>
+    <div class="chips">${['app', 'sms', 'whatsapp', 'phone'].map((k) => `<button class="pick" data-ch="${k}" aria-pressed="${c.channel === k}">${t.chan[k]}</button>`).join('')}</div>`;
+  if (understood) {
+    h += `<h3 style="margin-top:16px">${t.confQ}</h3>`;
+    if (c.confidence && msg.confDone) h += `<div class="ok-msg">${t.confThanks}</div>`;
+    h += `<div class="chips">${[1, 2, 3, 4, 5].map((n) => `<button class="pick" data-conf="${n}" aria-pressed="${c.confidence && c.confidence.score === n}" aria-label="${n}">${n}</button>`).join('')}</div>
+      <div class="row tiny muted" style="justify-content:space-between;margin-top:4px"><span>${t.confLow}</span><span>${t.confHigh}</span></div>`;
+  }
+  h += `</section>`;
+
   // 5. nurse (always available)
   h += `<section class="card" id="nurse"><h2>${t.nurse}</h2><p class="muted">${t.nurseSub}</p>`;
   if (c.nurseRequest && !c.nurseRequest.done) h += `<div class="ok-msg">${t.asked}<br><span class="tiny">${nurseText(lang)}</span></div>`;
@@ -264,6 +279,8 @@ function wire() {
   });
   $('#rem') && ($('#rem').onchange = (e) => act(() => { c.reminder = e.target.checked ? { when: '1 day before', at: new Date().toISOString() } : null; }));
   $('#ics') && ($('#ics').onclick = downloadIcs);
+  document.querySelectorAll('[data-ch]').forEach((b) => b.onclick = () => act(() => setChannel(state, c.id, b.dataset.ch, patientActor())));
+  document.querySelectorAll('[data-conf]').forEach((b) => b.onclick = () => { msg.confDone = true; act(() => recordConfidence(state, c.id, +b.dataset.conf, patientActor())); });
   $('#nurse-go') && ($('#nurse-go').onclick = () => act(() => requestNurse(state, c.id, patientActor(), `Preferred time: ${$('#nw').value}. ${$('#nn').value.trim()}`.trim())));
   $('#fam-on') && ($('#fam-on').onclick = () => {
     const n = $('#fn').value.trim();
