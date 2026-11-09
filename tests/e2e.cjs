@@ -103,7 +103,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await q.goto(BASE + 'app.html'); await q.waitForTimeout(250);
   ok(/I am a patient/.test(await q.innerText('body')) && /I work in care/.test(await q.innerText('body')), 'the app opens on "who are you?": patient or care team');
   await q.click('#care'); await q.click('[data-role=specialist]'); await q.waitForTimeout(500);
-  ok(/Referral inbox/i.test(await q.innerText('#app')) && await q.locator('.tab').count() === 4, 'the care team app has its own tabs and the specialist sees the referral inbox');
+  ok(/Handshakes for you/i.test(await q.innerText('#app')) && await q.locator('.tab').count() === 4, 'the care team app has its own tabs and the specialist sees the handshakes offered to them');
   await q.click('.citem >> nth=0'); await q.waitForTimeout(250);
   await q.fill('#rnote', 'Accepted, clinic slot this week'); await q.click('#racc'); await q.waitForTimeout(250);
   ok(/You now own this case/.test(await q.innerText('#app')), 'on the phone, a specialist accepts a referral and becomes the owner');

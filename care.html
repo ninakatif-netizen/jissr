@@ -48,6 +48,11 @@
 .phead .big b{font-size:30px;line-height:1}
 .phead .row2{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .phead .own{font-size:13px;color:var(--on-hero-2);margin-top:10px}
+.hs-strip{display:flex;align-items:center;gap:6px;margin:10px 0 4px;font-size:12.5px}
+.hs-strip span{flex:1;border-radius:12px;padding:8px 10px;background:var(--card2);color:var(--muted);display:flex;flex-direction:column;line-height:1.3}
+.hs-strip span.on{background:var(--brand-l);color:var(--ink);box-shadow:inset 0 0 0 2px var(--brand)}
+.hs-strip b{font-weight:600}
+.hs-clock{margin:6px 0 0;font-size:13px;font-weight:600;color:var(--accent-d)}
 .act-card h3{font-size:15px;margin:0 0 8px;font-family:var(--text);font-weight:600}
 .act-card .btn{width:100%;justify-content:center;margin-top:8px}
 .act-card textarea,.act-card input,.act-card select{width:100%;margin-top:6px}
@@ -135,7 +140,7 @@ function nextText(c) {
   if (m && m.status === 'booked') return `10-minute call ${fmt(m.day)} at ${m.time}`;
   if (c.nurseRequest && !c.nurseRequest.done) return 'Call the patient back';
   if (!c.owner) return 'Assign an owner';
-  if (r && r.status === 'sent') return `Waiting for ${r.to}`;
+  if (r && r.status === 'sent') return me().org === r.to ? 'Handshake: take this case or send it back' : `Handshake offered to ${r.to}`;
   if (r && r.status === 'accepted') return 'Specialist to report back';
   if (r && r.status === 'rejected') return 'Referral rejected: new plan needed';
   const n = nextStageOf(c);
@@ -170,7 +175,7 @@ function todayView() {
   const t = { BREACHED: 0, WARNING: 0 };
   list.forEach((c) => { const k = clockOf(c); if (k && t[k.tier] !== undefined) t[k.tier]++; });
   const first = a.name.replace(/^(Nurse|Dr)\s+/, '').split(' ')[0];
-  const title = { nurse: 'My patients', gp: 'Decisions waiting for you', specialist: 'Referral inbox', lead: 'Cases that need you' }[roleId];
+  const title = { nurse: 'My patients', gp: 'Decisions waiting for you', specialist: 'Handshakes for you', lead: 'Cases that need you' }[roleId];
   return `${topBar()}<div class="view">
     <h1 class="hi">Hello ${esc(first)}</h1><p class="sub2">${RV.part}</p>
     <div class="stats3">
@@ -228,8 +233,13 @@ function actionsHtml(c) {
     ${['nurse', 'clinician'].includes(a.role) ? `<input id="mcnote" placeholder="What was discussed (optional)"><button class="btn" id="mcdone">Mark call done</button>` : ''}</div>`);
   if (c.stage === 'referred' && r && ['sent', 'accepted', 'rejected'].includes(r.status)) {
     const recv = isDoc && a.org === r.to;
-    let h = `<div class="card2 act-card"><h3>${ic('send', 16)} Referral to ${esc(r.to)}</h3><div class="tiny muted">${esc(r.reason)}</div>`;
-    if (r.status === 'sent') h += recv ? `<textarea id="rnote" placeholder="Note to the referring doctor (needed to reject)"></textarea><div class="two"><button class="btn" id="racc">Accept</button><button class="btn ghost" id="rrej">Reject</button></div><p class="note2">Accepting makes you the owner of this case.</p>` : `<p class="note2">Waiting for a clinician at ${esc(r.to)} to accept or reject.</p>`;
+    const from = staffOf(r.fromOwner), fromOrg = from ? from.org : 'The referring team', k = clockOf(c);
+    const holder = r.status === 'accepted' ? 'to' : 'from';
+    const strip = `<div class="hs-strip" role="img" aria-label="${holder === 'to' ? esc(r.to) + ' owns the case now' : esc(fromOrg) + ' still owns the case until ' + esc(r.to) + ' accepts'}">
+      <span class="${holder === 'from' ? 'on' : ''}">${esc(fromOrg)}<b>${holder === 'from' ? 'holds it' : 'released'}</b></span>${ic('next', 16)}
+      <span class="${holder === 'to' ? 'on' : ''}">${esc(r.to)}<b>${r.status === 'sent' ? 'offered' : r.status === 'accepted' ? 'owner now' : 'declined'}</b></span></div>`;
+    let h = `<div class="card2 act-card hs"><h3>${ic('send', 16)} Handshake: ${esc(fromOrg)} → ${esc(r.to)}</h3><div class="tiny muted">${esc(r.reason)}</div>${strip}`;
+    if (r.status === 'sent') h += `<p class="hs-clock">${k && k.step === 'referral_reply' ? 'Answer ' + dueWords(k).toLowerCase().replace('due in', 'within') : 'Waiting for an answer'}</p>` + (recv ? `<textarea id="rnote" placeholder="Note to the referring team (needed if not for you)"></textarea><button class="btn" id="racc">Take this case</button><button class="btn ghost" id="rrej">Not for us: send it back</button><p class="note2">Until you answer, ${esc(fromOrg)} stays responsible. No answer in time: the clinical lead is alerted. A case is never between two owners.</p>` : `<p class="note2">Offered to ${esc(r.to)}. ${esc(fromOrg)} stays responsible until a clinician there takes it.</p>`);
     else if (r.status === 'accepted') h += recv ? `<textarea id="rrep" placeholder="Report back (at least ${MIN_EVIDENCE} characters)"></textarea><button class="btn" id="rdone">Complete and report back</button>` : `<p class="note2">The specialist team owns the case until they report back.</p>`;
     else h += isDoc ? `<p class="note2">Rejected: ${esc(r.note || '')}</p><select id="rto">${targetsFor(c).map((o) => `<option>${o}</option>`).join('')}</select><textarea id="rwhy" placeholder="Reason for the new referral"></textarea><button class="btn" id="rsend">Re-send referral</button>` : `<p class="note2">Rejected. A clinician must decide the next step.</p>`;
     out.push(h + '</div>');
@@ -301,8 +311,8 @@ function wire() {
   $('#step') && ($('#step').onclick = () => run(() => advance(state, c.id, next, a, v('#stepnote').trim() || undefined, undefined, { planKind: v('#kind') || undefined }), 'Recorded: ' + stageLabel(c, next)));
   $('#skip') && ($('#skip').onclick = () => run(() => skipStage(state, c.id, $('#skip').dataset.stage, a, v('#stepnote') || v('#rwhy')), 'Marked not required'));
   $('#rsend') && ($('#rsend').onclick = () => run(() => sendReferral(state, c.id, a, { to: v('#rto'), reason: v('#rwhy') }), 'Referral sent. A reply is due in 2 days.'));
-  $('#racc') && ($('#racc').onclick = () => run(() => respondReferral(state, c.id, a, { accept: true, note: v('#rnote') }), 'Accepted. You now own this case.'));
-  $('#rrej') && ($('#rrej').onclick = () => run(() => respondReferral(state, c.id, a, { accept: false, note: v('#rnote') }), 'Rejected. The referring doctor has been told.'));
+  $('#racc') && ($('#racc').onclick = () => run(() => respondReferral(state, c.id, a, { accept: true, note: v('#rnote') }), 'Handshake done. You now own this case.'));
+  $('#rrej') && ($('#rrej').onclick = () => run(() => respondReferral(state, c.id, a, { accept: false, note: v('#rnote') }), 'Sent back. The referring team still owns the case and has been told.'));
   $('#rdone') && ($('#rdone').onclick = () => run(() => completeReferral(state, c.id, a, v('#rrep')), 'Report sent back. The case returns to the referring team.'));
   $('#mcdone') && ($('#mcdone').onclick = () => run(() => completeMicroConsult(state, c.id, a, v('#mcnote')), '10-minute call recorded.'));
   $('#log') && ($('#log').onclick = () => run(() => logContact(state, c.id, a, v('#contact').trim()), 'Contact logged.'));
