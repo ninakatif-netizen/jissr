@@ -1,15 +1,19 @@
-/* JISSR THEME v6 "Premium clinical" (direction from the ui-ux-pro-max skill: healthcare app, Soft UI Evolution, clinical blue + health green).
-   Soft layered depth instead of hard borders, one deep clinical-blue card for the next step, green for done, amber only for "now".
-   Figtree for Latin and IBM Plex Sans Arabic for Arabic, both SIL OFL and bundled in /fonts.
+/* FALAJ THEME v7 "Signature": one line of water through every screen.
+   Where the water flows, care is moving; where it stops, a named person acts.
+   Colour has one job each: water blue = action, palm green = done, amber = now, red = late only, sand = the dry channel ahead.
+   Bricolage Grotesque for numbers and headlines, Inter for every sentence, IBM Plex Sans Arabic for Arabic (all SIL OFL, in /fonts).
    Every phone screen and desktop page reads the tokens below; change a value here and the whole app follows. */
-@font-face{font-family:"Falaj";font-weight:400;font-display:swap;src:url(fonts/figtree-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Falaj";font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"Falaj";font-weight:500;font-display:swap;src:url(fonts/figtree-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Falaj";font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"Falaj";font-weight:600;font-display:swap;src:url(fonts/figtree-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Falaj";font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"Falaj";font-weight:700;font-display:swap;src:url(fonts/figtree-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Falaj";font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"FalajText";font-weight:400;font-display:swap;src:url(fonts/inter-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"FalajText";font-weight:500;font-display:swap;src:url(fonts/inter-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"FalajText";font-weight:600;font-display:swap;src:url(fonts/inter-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"FalajText";font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"FalajText";font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"FalajText";font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"FalajText";font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"FalajDisplay";font-weight:600;font-display:swap;src:url(fonts/bricolage-grotesque-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"FalajDisplay";font-weight:700;font-display:swap;src:url(fonts/bricolage-grotesque-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"FalajDisplay";font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"FalajDisplay";font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
 /* ---------- structure: every surface reads the theme tokens ---------- */
 body,.device{color:var(--ink);font-family:var(--text)}
 .device{background:var(--device-bg)}
@@ -95,32 +99,6 @@ body{font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
 .phd b,.lbl,.rlabel,.sec{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted)}
 .rlabel{color:var(--brand)}
 
-/* care path: the falaj fills like a segmented loading bar (20 segments, 4 per step); the palm greens at the end */
-.path{padding:16px 16px 14px}
-.gwrap{margin:6px 0 10px}
-.gpct{display:block;font-size:40px;font-weight:700;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:0 0 4px;color:var(--ink)}
-.gauge-b{display:block;width:100%;height:auto}
-[dir=rtl] .gauge-b{transform:scaleX(-1)}
-.gauge-b .gbed{stroke:var(--sand)}
-.gauge-b .gseg{stroke:var(--sand-l)}
-.gauge-b .gpalm{stroke:var(--ring)}.gauge-b.all .gpalm{stroke:var(--palm)}
-.gauge-b .gseg.on{stroke:var(--brand);animation:gseg .22s calc(var(--i) * 55ms + .25s) both}
-.gauge-b.all .gseg.on{stroke:var(--brand)}
-.gauge-b .grib{stroke:var(--logo-acc);opacity:.75}
-.gauge-b .gdeck{stroke:var(--ink)}
-.gwrap.seen .gseg.on{animation:none}
-.splashing .gauge-b .gseg.on{animation-delay:calc(var(--i) * 55ms + 1.6s)}
-@keyframes gseg{from{stroke:var(--sand-l)}}
-.p5w,.p5w:before,.p5w .pl{display:none}
-.p5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;list-style:none;margin:0;padding:0}
-.p5 li{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;padding:0}
-.p5 li:after,.p5 li:before{display:none!important}
-.pd{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:var(--card2);color:var(--muted);border:0;box-shadow:none}
-.p5 li.done .pd{background:var(--brand);color:#fff}
-.path:has(.all) .p5 li.done .pd{background:var(--ok)}
-.p5 li.now .pd{background:var(--accent-l);color:var(--accent-d);box-shadow:0 0 0 2px var(--accent)}
-.p5 small{font-size:12px;line-height:1.25;color:var(--muted)}
-.p5 li.done small,.p5 li.now small{color:var(--ink);font-weight:600}
 /* the small bridge in list rows */
 .mini .m-bed{stroke:var(--sand)}.mini .m-off{stroke:var(--sand-l)}.mini .m-on{stroke:var(--brand)}.mini .m-palm{stroke:var(--ring)}.mini .m-palm.on{stroke:var(--palm)}
 .navy .mini .m-bed{stroke:rgba(255,255,255,.18)}.navy .mini .m-off{stroke:rgba(255,255,255,.12)}.navy .mini .m-on{stroke:#fff}.navy .mini .m-palm{stroke:var(--on-hero-2)}
@@ -172,3 +150,86 @@ body{font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
 @media (prefers-reduced-motion:reduce){.gauge-b .gseg.on{animation:none}.view>section{animation:none}.btn,.lrow,.tab .ico{transition:none}}
 .gauge-b .gcab{stroke:var(--ring);opacity:.8}
 .view:has(>.greet)>.proofsec{order:1}
+
+/* ===================== v7 SIGNATURE layer (overrides everything above) ===================== */
+:root{
+  --display:"FalajDisplay","FalajText",system-ui,sans-serif;--text:"FalajText",system-ui,sans-serif;--hello-w:700;--display-ls:-.035em;
+  --bg:#f7f9fa;--card:#ffffff;--card2:#f1f4f6;--ink:#0a1f2e;--ink-2:#3c5160;--muted:#5b6e7b;--line:#e4eaee;
+  --brand:#0b6fa8;--brand-d:#08588a;--brand-l:#e3f4fc;--hero:#0a1f2e;--on-hero-2:#c8d6df;--hero-acc:#9fdaf4;--aqua:#36b5e8;
+  --accent:#f0a43a;--accent-d:#8a5208;--accent-l:#fff1dc;
+  --ok:#1a7f52;--ok-l:#e2f3ea;--ok-ink:#135c3b;--ok-line:#bfe3cf;--ok-on-hero:#b6ecd0;
+  --bad:#a52a17;--bad-l:#fde7e3;--red:#a52a17;--red-l:#fde7e3;--green:#1a7f52;--green-l:#e2f3ea;--amber:#8a5208;--amber-l:#fff1dc;
+  --blue:#0b6fa8;--blue-l:#e3f4fc;--teal:#0b6fa8;--teal-l:#e3f4fc;--panel:#0a1f2e;--p-blue:#e3f4fc;--p-mint:#e2f3ea;--p-yellow:#fff1dc;
+  --sand:#e7dfcf;--sand-l:#f4efe4;--palm:#1a7f52;--chev:#8696a2;--ring:#c3ced6;
+  --r:26px;--btn-r:16px;--card-b:0;--card-sh:0 1px 2px rgba(10,31,46,.04),0 16px 36px -18px rgba(10,31,46,.16);--shadow:var(--card-sh);
+  --device-bg:var(--bg);--top-bg:rgba(247,249,250,.9);--tabs-bg:#0a1f2e;
+  --hero-bg:#0a1f2e;--hero-sh:0 18px 36px -14px rgba(10,31,46,.45);--ok-bg:#1a7f52;--hero-btn:#ffffff;--hero-btn-ink:#0a1f2e;
+  --logo-water:#0b6fa8;--logo-palm:#1a7f52;--desk-1:#fbfcfd;--desk-2:#dfe8ee;--frame:#0a1f2e;
+}
+body{font-feature-settings:"cv11","ss01"}
+.top{box-shadow:none}
+/* headlines: big and tight; the patient's name sits on a line of water */
+.hello{font-size:38px;line-height:1.04;letter-spacing:-.035em}
+html.bigtext .hello{font-size:42px}
+.wave{text-decoration:underline wavy var(--aqua);text-decoration-thickness:2.5px;text-underline-offset:9px;text-decoration-skip-ink:none}
+.bar h1,.bar2 h1{font-size:22px;letter-spacing:-.02em}
+[dir=rtl] .hello,[dir=rtl] .rhero,[dir=rtl] .next h2{letter-spacing:0}
+/* the next step: a white card, an amber "now" chip, one water-blue pill */
+.next{background:var(--card)!important;color:var(--ink);box-shadow:var(--card-sh);border-radius:30px;padding:20px}
+.next h2{color:var(--ink);font-size:25px;line-height:1.12;letter-spacing:-.02em}
+.next p,.next .appt .sub{color:var(--ink-2)}
+.nlbl,.next .nlbl{display:inline-flex;align-self:flex-start;color:var(--accent-d);background:var(--accent-l);border-radius:999px;padding:2px 10px;font-size:12.5px;font-weight:600}
+.next.ok .nlbl{color:var(--ok-ink);background:var(--ok-l)}
+.next .gtile{background:var(--brand-l);color:var(--brand);box-shadow:none}
+.next.ok .gtile{background:var(--ok-l);color:var(--ok)}
+.next .btn,.next.ok .btn{background:var(--brand);color:#fff;border-radius:999px;min-height:52px;box-shadow:0 10px 20px -10px rgba(11,111,168,.7)}
+.next.wait .btn{background:transparent;color:var(--brand);border:1.5px solid var(--brand);box-shadow:none}
+.next .datebox{background:var(--brand-l);color:var(--brand)}
+.next.ok{background:var(--card)!important}
+.btn{border-radius:999px}
+.btn.small{border-radius:999px}
+/* dark surfaces: ink, never a gradient */
+.micro.navy,.navy,.pick.navy,.splash{background:#0a1f2e!important}
+.micro.navy .pick[aria-pressed=true],.micro.navy .mslot:active{background:#fff;color:#0a1f2e}
+/* the care path: one vertical line of water; done = water flowing, now = amber gate, ahead = dry sand, a palm at the end */
+.path{padding:18px 18px 12px}
+.gwrap,.gpct{display:none}
+.chan .p5{display:flex;flex-direction:column;gap:0;margin:8px 0 0}
+.chan .p5 li{position:relative;flex-direction:row;align-items:center;gap:14px;min-height:58px;text-align:start;padding:0}
+.chan .p5 li:after{content:"";display:block!important;position:absolute;inset-inline-start:14px;top:45px;bottom:-13px;width:5px;border-radius:3px;background:repeating-linear-gradient(to bottom,var(--sand) 0 3px,transparent 3px 10px)}
+.chan .p5 li:last-child:after{bottom:-24px}
+.chan .p5 li.done:after{background-color:var(--brand);background-image:repeating-linear-gradient(to bottom,rgba(255,255,255,.55) 0 4px,transparent 4px 12px);background-size:100% 24px;animation:chanflow 1.6s linear infinite}
+@keyframes chanflow{to{background-position:0 24px}}
+.chan .pd{width:33px;height:33px;font-size:13px;flex:none;position:relative;z-index:1;background:#fff;border:2.5px solid var(--ring);color:var(--muted);box-shadow:none}
+.chan .p5 li.done .pd{background:var(--brand);border-color:var(--brand);color:#fff}
+.chan .p5 li.now .pd{background:var(--accent-l);border:3px solid var(--accent);color:var(--accent-d);animation:gatepulse 2.2s ease-out infinite}
+@keyframes gatepulse{0%{box-shadow:0 0 0 0 rgba(240,164,58,.55)}100%{box-shadow:0 0 0 14px rgba(240,164,58,0)}}
+.chan .p5 small{font-size:15.5px;line-height:1.3;color:var(--ink);font-weight:600}
+.chan .p5 li.todo small{color:var(--ink-2);font-weight:500}
+.chan .p5 li.now small{font-family:var(--display);font-size:19px;letter-spacing:-.01em}
+.chan .p5 li.now small:after{content:attr(data-now);display:inline-block;margin-inline-start:8px;vertical-align:2px;font-family:var(--text);font-size:12px;font-weight:600;letter-spacing:0;color:var(--accent-d);background:var(--accent-l);border-radius:999px;padding:1px 9px}
+.ppalm{display:flex;align-items:center;gap:14px;padding:16px 0 4px;font-size:13.5px;color:var(--muted)}
+.ppalm svg{flex:none;width:33px;height:33px;stroke:var(--ring)}
+.ppalm.all svg{stroke:var(--palm)}.ppalm.all{color:var(--ok-ink);font-weight:600}
+@media (prefers-reduced-motion:reduce){.chan .p5 li.done:after,.chan .p5 li.now .pd{animation:none}}
+/* the tab bar: a floating ink capsule */
+.tabs{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));inset-inline:12px;border-radius:32px;background:#0a1f2e;border:0;padding:6px;box-shadow:0 18px 36px -12px rgba(10,31,46,.45);-webkit-backdrop-filter:none;backdrop-filter:none}
+.tabs div{padding:0;gap:2px}
+.tab{color:#c8d6df;border-radius:26px;min-height:54px;font-size:11px;transition:background .2s,color .2s}
+.tab .ico{padding:0!important;background:transparent!important}
+.tab[aria-current=page]{background:#fff;color:#0a1f2e}
+.tab[aria-current=page] .ico{background:transparent!important}
+.tab .dot{border:2px solid #0a1f2e}
+.actbar{bottom:calc(92px + env(safe-area-inset-bottom))}
+/* the number: very large */
+.rvalue b{font-family:var(--display);font-size:84px;line-height:.9;letter-spacing:-.05em}
+.rvalue.words b{font-size:34px;letter-spacing:-.02em}
+.rhero,.rcard .rhero{font-size:24px;line-height:1.2;letter-spacing:-.02em}
+.rlabel{color:var(--brand)}
+/* lists and cards */
+.lrow>.ico:first-child{background:var(--brand-l);color:var(--brand)}
+.call2{background:var(--brand-l);color:var(--brand)}
+.avatar2{background:#0a1f2e}
+.stat3 b{font-family:var(--display);font-size:30px;letter-spacing:-.03em}
+.hero h1{font-size:44px;letter-spacing:-.04em}
+.hello+.gsub{margin-top:14px}

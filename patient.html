@@ -392,7 +392,7 @@ import { loadState, saveState, resetState, aiText } from './core/store.mjs';
 import { classify, slotsFor, BARRIERS, microConsultSlots } from './core/rules.mjs';
 import { advance, setBarrier, requestNurse, recordAiText, setChannel, recordConfidence, bookMicroConsult } from './core/cases.mjs';
 import { explanation, barrierText, nurseText } from './core/templates.mjs';
-import { ic, wordmark, logo, bridgeGauge } from './core/ui.mjs';
+import { ic, wordmark, logo } from './core/ui.mjs';
 import { registerSW, isStandalone, isIOS, onInstallReady, canPrompt, promptInstall } from './core/pwa.mjs';
 import { startTour } from './core/tour.mjs';
 import { resultText, progOf } from './core/programmes.mjs';
@@ -714,13 +714,14 @@ function trackerHtml(c) {
   const now = journeyStep(c), t = T();
   const steps = PS(c) ? PS(c).steps : t.steps;
   const where = now >= 5 ? t.allDone : t.stepOf(now + 1);
-  const html = `<section class="path" aria-label="${t.journey}: ${where}">
+  const nowWord = lang === 'ar' ? 'الآن' : 'Now', palmWord = now >= 5 ? (lang === 'ar' ? 'الرعاية في مكانها' : 'Care in place') : (lang === 'ar' ? 'حتى تصل الرعاية' : 'Until care is in place');
+  const html = `<section class="path chan" aria-label="${t.journey}: ${where}">
     <div class="phd"><b>${t.journey}</b><span>${where}</span></div>
-    <div class="gwrap ${litOnce ? 'seen' : ''}"><span class="gpct" aria-hidden="true">${Math.round(Math.min(now, 5) / 5 * 100)}%</span>${bridgeGauge(now, where)}</div>
     <ol class="p5">${steps.map((l, i) => {
       const st = i < now || now >= 5 ? 'done' : i === now ? 'now' : 'todo';
-      return `<li class="${st}"><span class="pd">${st === 'done' ? ic('check', 14) : i + 1}</span><small>${l}</small></li>`;
-    }).join('')}</ol></section>`;
+      return `<li class="${st}"><span class="pd">${st === 'done' ? ic('check', 15) : i + 1}</span><small ${st === 'now' ? `data-now="${nowWord}"` : ''}>${l}</small></li>`;
+    }).join('')}</ol>
+    <div class="ppalm ${now >= 5 ? 'all' : ''}"><svg viewBox="0 0 30 30" fill="none" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M15 28V12M15 13C11 8.5 6 9 4 13M15 13C19 8.5 24 9 26 13M15 13C12.5 7 14 3 18 2"/></svg><span>${palmWord}</span></div></section>`;
   litOnce = true;
   return html;
 }
@@ -822,7 +823,7 @@ function homeView(c) {
   const t = T();
   const first = c.patient.name.split(' ')[0];
   let h = `${topBar()}<div class="view">
-    <div class="greet"><div><h1 class="hello">${esc(t.hello(first))}</h1><p class="gsub">${T3n().greetSubs[Math.min(journeyStep(c), 5)]}</p></div>
+    <div class="greet"><div><h1 class="hello">${esc(t.hello(first)).replace(esc(first), `<span class="wave">${esc(first)}</span>`)}</h1><p class="gsub">${T3n().greetSubs[Math.min(journeyStep(c), 5)]}</p></div>
       <button class="me demo-pill" id="me-btn" aria-label="Demo: switch patient" title="Demo: switch patient">Demo</button></div>
     ${trackerHtml(c)}
     ${nextCard(c)}

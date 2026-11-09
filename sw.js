@@ -1,14 +1,14 @@
 // Falaj service worker: lets the app open offline and be installed.
 // Strategy: network first (so new versions show immediately), fall back to the saved copy when offline.
 // Bump VERSION on every release so old saved copies are cleared.
-const VERSION = 'jissr-v35';
+const VERSION = 'jissr-v36';
 const SHELL = [
   '/', '/index.html', '/patient.html', '/staff.html', '/metrics.html', '/review.html', '/trust.html', '/impact.html', '/pilot.html', '/roles.html', '/app.html', '/care.html', '/app-shell.css', '/styles.css', '/theme.css', '/manifest.webmanifest',
   '/core/rules.mjs', '/core/cases.mjs', '/core/data.mjs', '/core/store.mjs', '/core/templates.mjs', '/core/ui.mjs', '/core/fhir.mjs', '/core/programmes.mjs', '/core/pwa.mjs', '/core/art.mjs', '/core/tour.mjs', '/core/roles.mjs',
   '/icons/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png',
   '/fonts/readex-pro-latin-400-normal.woff2', '/fonts/readex-pro-latin-500-normal.woff2', '/fonts/readex-pro-latin-600-normal.woff2',
   '/fonts/readex-pro-arabic-400-normal.woff2', '/fonts/readex-pro-arabic-500-normal.woff2', '/fonts/readex-pro-arabic-600-normal.woff2',
-  '/fonts/figtree-latin-400-normal.woff2', '/fonts/figtree-latin-500-normal.woff2', '/fonts/figtree-latin-600-normal.woff2', '/fonts/figtree-latin-700-normal.woff2', '/fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2', '/fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2', '/fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2', '/fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2',
+  '/fonts/inter-latin-400-normal.woff2', '/fonts/inter-latin-500-normal.woff2', '/fonts/inter-latin-600-normal.woff2', '/fonts/bricolage-grotesque-latin-600-normal.woff2', '/fonts/bricolage-grotesque-latin-700-normal.woff2', '/fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2', '/fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2', '/fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2', '/fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2',
 ];
 
 self.addEventListener('install', (e) => {

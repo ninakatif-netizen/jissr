@@ -42,14 +42,13 @@ export function ic(name, size = 20, extra = '') {
 
 // The Falaj mark: a falaj (the water channel of the oases of Al Ain, UNESCO World Heritage) carrying water to a
 // palm tree. Every abnormal screening result is water that must reach care. An original drawing.
-const CH = 'M4 32C14 32 16 15 28 15C38 15 40 26 50 26';
-const PALM = 'M55 27C55.6 20 55.2 13 54 8M54 8C50 4.5 45 5 43 8.5M54 8C58 4.5 63 5 65 8.5M54 8C51.5 3.5 52.5 1 56 0M54 8C57 5 61 6 62.5 10';
+const CH = 'M2 21C9 21 9 8 16 8C21 8 22 16 27 16';
+const PALM = 'M29 17V6M29 7C26.5 4.5 24 5 23 7M29 7C31.5 4.5 34 5 34 7M29 7C27.5 3.5 28.5 1.5 30.5 1';
 export function logo(size = 30) {
-  const h = Math.round(size), w = Math.round(h * 66 / 40);
-  return `<svg class="jmark" width="${w}" height="${h}" viewBox="0 0 66 40" fill="none" aria-hidden="true" focusable="false">
-    <path d="${CH}" style="stroke:var(--logo-sand,#e2d7c1)" stroke-width="9" stroke-linecap="round"/>
-    <path d="${CH}" style="stroke:var(--logo-water,var(--brand,#0a5c8a))" stroke-width="3.6" stroke-linecap="round"/>
-    <path d="${PALM}" style="stroke:var(--logo-palm,#1e7a4c)" stroke-width="2.6" stroke-linecap="round"/>
+  const h = Math.round(size * 0.8), w = Math.round(h * 34 / 26);
+  return `<svg class="jmark" width="${w}" height="${h}" viewBox="0 0 34 26" fill="none" aria-hidden="true" focusable="false">
+    <path d="${CH}" style="stroke:var(--logo-water,#0b6fa8)" stroke-width="${size < 40 ? 3 : 2.4}" stroke-linecap="round"/>
+    <path d="${PALM}" style="stroke:var(--logo-palm,#1a7f52)" stroke-width="${size < 40 ? 1.8 : 1.4}" stroke-linecap="round"/>
   </svg>`;
 }
 

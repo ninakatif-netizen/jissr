@@ -24,7 +24,8 @@ No organiser data, no real patient data, no scraped data, and no third-party dat
 
 | What | Source | Rights / licence |
 |---|---|---|
-| Font: Figtree (Latin text) | Erik Kennedy, The Figtree Project Authors. Obtained through the Fontsource package and bundled in `/fonts`. | SIL Open Font License 1.1 (licence file included in `/fonts`). |
+| Font: Inter (Latin text) | The Inter Project Authors. Obtained through the Fontsource package and bundled in `/fonts`. | SIL Open Font License 1.1 (licence file included in `/fonts`). |
+| Font: Bricolage Grotesque (numbers and headlines) | The Bricolage Grotesque Project Authors. Obtained through the Fontsource package and bundled in `/fonts`. | SIL Open Font License 1.1 (licence file included in `/fonts`). |
 | Font: IBM Plex Sans Arabic (Arabic text) | IBM Corp. (Bold Monday). Obtained through the Fontsource package and bundled in `/fonts`. | SIL Open Font License 1.1 (licence file included in `/fonts`). |
 | Font: Readex Pro (Arabic and Latin), used by the desktop pages | Thomas Jockin and Nadine Chahine. Obtained through the Fontsource package and bundled in `/fonts`. | SIL Open Font License 1.1 (licence files included in `/fonts`). |
 | Logo, icons, Abu Dhabi skyline illustration, animation, video (`media/jissr-story.mp4`) | **Drawn by the team in code.** The bridge drawing is an original illustration *inspired by* the Sheikh Zayed Bridge (architect: Zaha Hadid); no photo, plan or image of the bridge is used. | Our own work. |
