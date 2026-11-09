@@ -381,7 +381,7 @@ import { loadState, saveState, resetState, aiText } from './core/store.mjs';
 import { classify, slotsFor, BARRIERS, microConsultSlots } from './core/rules.mjs';
 import { advance, setBarrier, requestNurse, recordAiText, setChannel, recordConfidence, bookMicroConsult } from './core/cases.mjs';
 import { explanation, barrierText, nurseText } from './core/templates.mjs';
-import { ic, wordmark, logo } from './core/ui.mjs';
+import { ic, wordmark, logo, bridgeGauge } from './core/ui.mjs';
 import { registerSW, isStandalone, isIOS, onInstallReady, canPrompt, promptInstall } from './core/pwa.mjs';
 import { startTour } from './core/tour.mjs';
 import { resultText, progOf } from './core/programmes.mjs';
@@ -697,20 +697,19 @@ function journeyStep(c) {
 }
 // The journey drawn as a bridge whose arches are inspired by the Sheikh Zayed Bridge (Zaha Hadid).
 // THE CARE PATH: five steps a patient recognises, each with its icon, on one progress line.
-// Clear and clinical on purpose; the bridge lives in the logo, not in the medical information.
+// The care path is the bridge from the logo, loading segment by segment; the steps are always written in words too.
 let litOnce = false; // the progress line fills once, the first time the home screen opens
 function trackerHtml(c) {
   const now = journeyStep(c), t = T();
   const steps = PS(c) ? PS(c).steps : t.steps;
-  const icons = c.programme === 'hba1c' || !c.programme ? ['result', 'calendar', 'doctor', 'flask', 'plan'] : ['result', 'calendar', 'flask', 'file', 'plan'];
   const where = now >= 5 ? t.allDone : t.stepOf(now + 1);
-  const pct = Math.min(now, 4) / 4 * 80; // the line runs from the first dot (10%) to the last (90%)
   const html = `<section class="path" aria-label="${t.journey}: ${where}">
     <div class="phd"><b>${t.journey}</b><span>${where}</span></div>
-    <div class="p5w" style="--p:${pct}%"><i class="pl ${litOnce ? '' : 'lit'}" aria-hidden="true"></i><ol class="p5">${steps.map((l, i) => {
+    <div class="gwrap ${litOnce ? 'seen' : ''}"><span class="gpct" aria-hidden="true">${Math.round(Math.min(now, 5) / 5 * 100)}%</span>${bridgeGauge(now, where)}</div>
+    <ol class="p5">${steps.map((l, i) => {
       const st = i < now || now >= 5 ? 'done' : i === now ? 'now' : 'todo';
-      return `<li class="${st}"><span class="pd">${ic(st === 'done' ? 'check' : icons[i], 18)}</span><small>${l}</small></li>`;
-    }).join('')}</ol></div></section>`;
+      return `<li class="${st}"><span class="pd">${st === 'done' ? ic('check', 14) : i + 1}</span><small>${l}</small></li>`;
+    }).join('')}</ol></section>`;
   litOnce = true;
   return html;
 }

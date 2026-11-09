@@ -39,14 +39,48 @@ export function ic(name, size = 20, extra = '') {
   return `<svg class="ico" ${extra} width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${P[name] || ''}</svg>`;
 }
 
-// The Jissr mark, inspired by the Sheikh Zayed Bridge in Abu Dhabi (Zaha Hadid): three arches rising from one deck,
-// the tall middle arch drawn as a twisting ribbon (a second, gold line inside it). An original drawing, no photo or plan.
+// The Jissr mark, inspired by the Sheikh Zayed Bridge in Abu Dhabi (Zaha Hadid): one continuous ribbon rises over the
+// deck and dives below it like a desert dune, with a second, gold rib beside it (the real arches are double).
+// An original drawing, no photo or plan. The same ribbon is the care-path gauge (bridgeGauge / miniSteps).
+export const RIBBON = 'M4 62C16 62 24 18 42 18C60 18 64 70 82 70C100 70 104 6 124 6C144 6 150 70 168 70C186 70 190 28 206 28C220 28 228 52 236 52';
+// Vertical cables between the ribbon and the deck, where the ribbon is above the deck: they make it read as a bridge.
+function cablesFor(d, deck = 46) {
+  const n = d.match(/-?[\d.]+/g).map(Number), pts = [];
+  let x0 = n[0], y0 = n[1];
+  for (let k = 2; k + 5 < n.length; k += 6) {
+    const [a, b, c, e, f, g] = n.slice(k, k + 6);
+    for (let t = 0; t <= 1; t += 0.02) { const u = 1 - t; pts.push([u*u*u*x0 + 3*u*u*t*a + 3*u*t*t*c + t*t*t*f, u*u*u*y0 + 3*u*u*t*b + 3*u*t*t*e + t*t*t*g]); }
+    x0 = f; y0 = g;
+  }
+  let out = '';
+  for (let x = 10; x < 232; x += 7) {
+    const y = pts.reduce((m, p) => Math.abs(p[0] - x) < Math.abs(m[0] - x) ? p : m)[1];
+    if (y < deck - 6) out += `M${x} ${(y + 3).toFixed(1)}V${deck - 2}`;
+  }
+  return out;
+}
+const RIB2 = 'M4 70C18 70 26 28 42 28C58 28 64 78 82 78C100 78 106 16 124 16C142 16 150 78 168 78C186 78 192 38 206 38C218 38 228 60 236 60';
+export const CABLES = cablesFor(RIBBON);
 export function logo(size = 30) {
-  return `<svg width="${size * 1.5}" height="${size}" viewBox="0 0 48 32" fill="none" aria-hidden="true" focusable="false">
-    <path d="M2 27h44" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M4 27C6.5 18.5 13 18.5 16.5 27M12 27C15.5 -1 32.5 -1 36 27M31.5 27C35 18.5 41.5 18.5 44 27" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
-    <path d="M16.6 27C19.6 7.5 28.4 7.5 31.4 27" style="stroke:var(--logo-acc,#d6a85a)" stroke-width="1.6" stroke-linecap="round"/>
+  const h = Math.round(size * 0.9), w = Math.round(h * 240 / 84);
+  return `<svg class="jmark" width="${w}" height="${h}" viewBox="0 0 240 84" fill="none" aria-hidden="true" focusable="false">
+    <path d="${RIBBON}" style="stroke:var(--logo-rib,var(--brand,#0e5a80))" stroke-width="${size < 40 ? 7 : 6}" stroke-linecap="round"/>
+    ${size < 24 ? '' : `<path d="${RIB2}" style="stroke:var(--logo-acc,#d6a85a)" stroke-width="${size < 40 ? 6 : 4}" stroke-linecap="round"/>`}
+    <path d="${CABLES}" stroke="currentColor" stroke-width="${size < 40 ? 3 : 2}" opacity=".55"/>
+    <path d="M2 46H238" stroke="currentColor" stroke-width="${size < 40 ? 10 : 6}" stroke-linecap="round"/>
   </svg>`;
+}
+
+// The care path as a bridge that loads like a segmented progress bar: 20 segments along the ribbon, 4 per step.
+// Filled segments appear one after another (CSS delay per segment); the deck and the gold rib stay as the drawing.
+export function bridgeGauge(done, label = '') {
+  const filled = Math.min(5, done) * 4;
+  const segs = Array.from({ length: 20 }, (_, i) => `<path class="gseg${i < filled ? ' on' : ''}" d="${RIBBON}" pathLength="100" stroke-dasharray="4 96" stroke-dashoffset="${-5 * i}" style="--i:${i}"/>`).join('');
+  return `<svg class="gauge-b${done >= 5 ? ' all' : ''}" viewBox="0 0 240 84" fill="none" role="img" aria-label="${label}">
+    <path class="gcab" d="${CABLES}" stroke-width="1.2"/>
+    <path class="grib" d="${RIB2}" stroke-width="2" stroke-linecap="round"/>
+    <g stroke-width="9">${segs}</g>
+    <path class="gdeck" d="M2 46H238" stroke-width="3.5" stroke-linecap="round"/></svg>`;
 }
 
 export const wordmark = () => `${logo(30)}<span>Jissr</span><span class="ar">جسر</span>`;
@@ -60,14 +94,9 @@ export function slaBadge(clock) {
 }
 export const phaseChip = (phase) => `<span class="phase ph-${phase.toLowerCase()}">${CLOE_LABEL[phase]}</span>`;
 
-// Mini care path: the patient's five steps as dots on a line, small enough for a list row.
-// Done steps filled, the current one in gold with a ring, the rest hollow.
+// Mini care path for list rows: the same bridge, 5 segments (one per step).
 export function miniSteps(now, label = '') {
-  const X = [6, 34, 62, 90, 118], end = now >= 5 ? 118 : X[now];
-  const dots = X.map((x, i) => i < now || now >= 5 ? `<circle cx="${x}" cy="13" r="4" style="fill:var(--hero)"/>`
-    : i === now ? `<circle cx="${x}" cy="13" r="5.2" style="fill:var(--accent);stroke:var(--hero)" stroke-width="1.6"/>`
-    : `<circle cx="${x}" cy="13" r="3.6" style="fill:var(--card);stroke:var(--chev)" stroke-width="1.4"/>`).join('');
-  return `<svg class="mini" viewBox="0 0 124 26" width="124" height="26" role="img" aria-label="${label || 'Step ' + Math.min(now + 1, 5) + ' of 5'}">
-    <path d="M6 13H118" style="stroke:var(--line)" stroke-width="2" stroke-linecap="round"/>
-    ${end > 6 ? `<path d="M6 13H${end}" style="stroke:var(--hero)" stroke-width="2.4" stroke-linecap="round"/>` : ''}${dots}</svg>`;
+  const segs = [0, 1, 2, 3, 4].map((i) => `<path d="${RIBBON}" pathLength="100" stroke-dasharray="19 81" stroke-dashoffset="${-20 * i}" class="${i < now || now >= 5 ? 'm-on' : 'm-off'}"/>`).join('');
+  return `<svg class="mini" viewBox="0 0 240 84" width="72" height="26" role="img" aria-label="${label || 'Step ' + Math.min(now + 1, 5) + ' of 5'}">
+    <g fill="none" stroke-width="16">${segs}</g><path d="M2 46H238" class="m-deck" stroke-width="8" stroke-linecap="round" fill="none"/></svg>`;
 }

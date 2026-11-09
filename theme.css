@@ -94,21 +94,37 @@ body{font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
 .phd b,.lbl,.rlabel,.sec{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted)}
 .rlabel{color:var(--brand)}
 
-/* care path: a vertical timeline, every step named */
-.path{padding:16px 18px 12px}
-.p5w:before,.p5w .pl{display:none}
-.p5{grid-template-columns:1fr}
-.p5 li{flex-direction:row;gap:14px;text-align:start;padding:6px 0}
-.p5 li:not(:last-child):after{content:"";position:absolute;inset-inline-start:17px;top:42px;bottom:-6px;width:2px;border-radius:1px;background:var(--line)}
-.p5 li.done:not(:last-child):after{background:var(--ok)}
-.pd{width:36px;height:36px;flex:none;background:var(--card2);border:0;color:var(--muted)}
-.p5 li.done .pd{background:var(--ok);color:#fff}
-.p5 li.now .pd{background:var(--brand);color:#fff;box-shadow:0 0 0 5px var(--brand-l)}
-.p5 small{font-size:15px;color:var(--muted)}
-.p5 li.done small{color:var(--ink)}
-.p5 li.now small{color:var(--ink);font-weight:600}
-.p5 li.now:before{content:"";position:absolute;inset-inline-end:0;top:50%;margin-top:-11px;height:22px;padding:0 9px;border-radius:999px;background:var(--accent-l);color:var(--accent-d);font-size:12px;font-weight:600;line-height:22px;content:"Now"}
-[lang=ar] .p5 li.now:before{content:"الآن"}
+/* care path: the bridge loads like a segmented progress bar (20 segments, 4 per step) */
+.path{padding:16px 16px 14px}
+.gwrap{margin:6px 0 10px}
+.gpct{display:block;font-size:40px;font-weight:700;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:0 0 4px;color:var(--ink)}
+.gauge-b{display:block;width:100%;height:auto}
+[dir=rtl] .gauge-b{transform:scaleX(-1)}
+.gauge-b .gseg{stroke:var(--line)}
+.gauge-b .gseg.on{stroke:var(--brand);animation:gseg .22s calc(var(--i) * 55ms + .25s) both}
+.gauge-b.all .gseg.on{stroke:var(--ok)}
+.gauge-b .grib{stroke:var(--logo-acc);opacity:.75}
+.gauge-b .gdeck{stroke:var(--ink)}
+.gwrap.seen .gseg.on{animation:none}
+.splashing .gauge-b .gseg.on{animation-delay:calc(var(--i) * 55ms + 1.6s)}
+@keyframes gseg{from{stroke:var(--line)}}
+.p5w,.p5w:before,.p5w .pl{display:none}
+.p5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;list-style:none;margin:0;padding:0}
+.p5 li{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;padding:0}
+.p5 li:after,.p5 li:before{display:none!important}
+.pd{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:var(--card2);color:var(--muted);border:0;box-shadow:none}
+.p5 li.done .pd{background:var(--brand);color:#fff}
+.path:has(.all) .p5 li.done .pd{background:var(--ok)}
+.p5 li.now .pd{background:var(--accent-l);color:var(--accent-d);box-shadow:0 0 0 2px var(--accent)}
+.p5 small{font-size:12px;line-height:1.25;color:var(--muted)}
+.p5 li.done small,.p5 li.now small{color:var(--ink);font-weight:600}
+/* the small bridge in list rows */
+.mini .m-off{stroke:var(--line)}.mini .m-on{stroke:var(--brand)}.mini .m-deck{stroke:var(--ink)}
+.navy .mini .m-off{stroke:rgba(255,255,255,.28)}.navy .mini .m-on{stroke:#fff}.navy .mini .m-deck{stroke:var(--on-hero-2)}
+[dir=rtl] .mini{transform:scaleX(-1)}
+/* the logo: blue ribbon, gold rib, ink deck */
+.jmark{color:var(--ink)}
+.brand{color:var(--ink)}.brand .ar{color:var(--accent-d);opacity:1}
 
 /* rows and tiles */
 .hlist{overflow:hidden}
@@ -150,4 +166,6 @@ body{font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
 .view>section{animation:rise .28s var(--ease) both}
 .view>section:nth-of-type(2){animation-delay:.04s}.view>section:nth-of-type(3){animation-delay:.08s}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.view>section{animation:none}.btn,.lrow,.tab .ico{transition:none}}
+@media (prefers-reduced-motion:reduce){.gauge-b .gseg.on{animation:none}.view>section{animation:none}.btn,.lrow,.tab .ico{transition:none}}
+.gauge-b .gcab{stroke:var(--ring);opacity:.8}
+.mini .m-off{stroke:var(--ring)}
