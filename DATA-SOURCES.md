@@ -24,6 +24,8 @@ No organiser data, no real patient data, no scraped data, and no third-party dat
 
 | What | Source | Rights / licence |
 |---|---|---|
+| Falaj history (home page, "Why the name Falaj") | Summarised from a background article supplied by the team; the Al Ain Oasis aflaj are part of the UNESCO World Heritage "Cultural Sites of Al Ain". General history, no data. | Our own wording. |
+| Living map (`map.html`) | Computed from the synthetic demo cases. Emirates are assigned to demo cases by a fixed rule weighted roughly by population; positions are a schematic, not a geographic map. | Our own work. |
 | Font: Inter (Latin text) | The Inter Project Authors. Obtained through the Fontsource package and bundled in `/fonts`. | SIL Open Font License 1.1 (licence file included in `/fonts`). |
 | Font: Bricolage Grotesque (numbers and headlines) | The Bricolage Grotesque Project Authors. Obtained through the Fontsource package and bundled in `/fonts`. | SIL Open Font License 1.1 (licence file included in `/fonts`). |
 | Font: IBM Plex Sans Arabic (Arabic text) | IBM Corp. (Bold Monday). Obtained through the Fontsource package and bundled in `/fonts`. | SIL Open Font License 1.1 (licence file included in `/fonts`). |

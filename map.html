@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Falaj: living map</title>
+<meta name="description" content="Where in the Emirates do screening results stop before reaching care? Live from the demo cases. Synthetic data only.">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+<style>
+.mapwrap{max-width:1392px;margin:0 auto;padding:18px 24px 40px;display:flex;flex-direction:column;gap:18px}
+.mhead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.mhead h1{margin:0;font-size:clamp(32px,5vw,52px);line-height:1;letter-spacing:-.04em}
+.mhead p{margin:6px 0 0;color:var(--muted);max-width:70ch}
+.chips2{display:flex;flex-wrap:wrap;gap:6px}
+.chips2 button{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;cursor:pointer}
+.chips2 button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600}
+.mrow{display:flex;flex-wrap:wrap;gap:18px;align-items:stretch}
+.mpanel{flex:999 1 620px;min-width:0;background:#0a1f2e;border-radius:32px;padding:18px;position:relative;overflow:hidden}
+.mpanel svg{display:block;width:100%;height:auto}
+.mside{flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.kp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.kp div{background:var(--card);border-radius:22px;padding:16px;box-shadow:var(--card-sh)}
+.kp span{font-size:13.5px;color:var(--muted)}
+.kp b{display:block;font-family:var(--display);font-size:42px;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.kp .bad{color:var(--bad)}.kp .ok{color:var(--ok)}
+.mcard{background:var(--card);border-radius:22px;box-shadow:var(--card-sh);overflow:hidden}
+.mcard h2{margin:0;padding:14px 18px 6px;font-size:16px;font-family:var(--text);font-weight:600;letter-spacing:0}
+.leak{padding:10px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:14.5px}
+.leak b{color:var(--bad);white-space:nowrap}
+.eq{padding:4px 18px 14px;display:flex;flex-direction:column;gap:8px}
+.eq div{display:grid;grid-template-columns:84px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:14px}
+.eq i{display:block;height:10px;border-radius:5px;background:var(--card2);overflow:hidden}
+.eq i span{display:block;height:100%;border-radius:5px;background:var(--brand)}
+.eq i span.hi{background:var(--accent)}
+.eq b{text-align:end;font-weight:600;font-variant-numeric:tabular-nums}
+.mnote{font-size:13px;color:var(--muted);padding:0 18px 14px;margin:0}
+.live{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px}
+.live i{width:8px;height:8px;border-radius:4px;background:var(--ok)}
+.mtools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.mtools button{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.ntext{font:600 14px var(--text);fill:#fff}.nsub{font:12.5px var(--text);fill:#9fb3c1}
+@media (prefers-reduced-motion:reduce){.drops{display:none}}
+</style>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<div class="demo"><span>Prototype · synthetic data · emirates are assigned to demo cases by a fixed rule</span><span class="row"><a href="staff.html?view=programme&amp;as=p1">Programme dashboard</a><a href="metrics.html">Measures</a><a href="index.html">Home</a></span></div>
+<main class="mapwrap" id="main">
+  <div class="mhead">
+    <div><div class="brand" id="brand"></div></div>
+    <div class="mtools"><span class="live"><i></i>Live from the demo cases</span><button id="motion" aria-pressed="true">Pause motion</button></div>
+  </div>
+  <div class="mhead">
+    <div><h1>Where does the water stop?</h1><p>Every abnormal screening result is water that must reach care. Like the arif al falaj, who gave every plot its fair turn, this map shows each place&#39;s open cases, how many are past their deadline, and who is left without water.</p></div>
+    <div class="chips2" role="group" aria-label="Emirate" id="ems"></div>
+  </div>
+  <div class="mrow">
+    <section class="mpanel" aria-label="Map"><svg id="map" viewBox="0 0 900 540" role="img"></svg></section>
+    <aside class="mside">
+      <div class="kp" id="kp"></div>
+      <section class="mcard"><h2>Where cases are stuck now</h2><div id="leaks"></div></section>
+      <section class="mcard"><h2>Who drops out early, by language</h2><div class="eq" id="eq"></div>
+        <p class="mnote">Cases past their deadline before a visit is booked. A gap here points to a language or access problem, not a patient problem. Small numbers: read with care.</p></section>
+    </aside>
+  </div>
+</main>
+<script type="module">
+import { registerSW } from './core/pwa.mjs';
+import { wordmark } from './core/ui.mjs';
+import { loadState } from './core/store.mjs';
+import { EMIRATES, CHANNELS, mapSummary } from './core/geo.mjs';
+registerSW();
+document.getElementById('brand').innerHTML = wordmark() + '<span class="sub">Living map</span>';
+const state = loadState();
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let only = new URLSearchParams(location.search).get('em') || 'all', moving = !calm;
+const LBL = { ad: [0, 1], ain: [0, 1], dxb: [-86, 0], shj: [84, -1], ajm: [-90, 0], uaq: [-70, -1], rak: [0, -1], fuj: [0, 1] };
+const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+
+function render() {
+  const m = mapSummary(state, Date.now(), only);
+  const byId = Object.fromEntries(m.nodes.map((n) => [n.id, n]));
+  const inSel = (id) => only === 'all' || id === only || (only === 'ad' && id === 'ain');
+  document.getElementById('ems').innerHTML = [['all', 'All 7 emirates'], ...EMIRATES.filter((e) => e.id !== 'ain').map((e) => [e.id, e.name])]
+    .map(([id, name]) => `<button data-em="${id}" aria-pressed="${id === only}">${name}</button>`).join('');
+  const leak = m.leakNode;
+  const leakCh = leak ? CHANNELS.findIndex(([a, b]) => a === leak.id || b === leak.id) : -1;
+  const chan = CHANNELS.map(([, , d], i) => {
+    const bad = i === leakCh;
+    return `<path d="${d}" stroke="#1f4b66" stroke-width="10" fill="none" stroke-linecap="round"/><path d="${d}" stroke="${bad ? '#e8573f' : '#36b5e8'}" stroke-width="${bad ? 3 : 2.5}" ${bad ? 'stroke-dasharray="5 6"' : 'opacity=".55"'} fill="none" stroke-linecap="round"/>`;
+  }).join('');
+  const drops = moving ? `<g class="drops" fill="#9fdaf4">${CHANNELS.map(([, , d], i) => `<circle r="4.5"><animateMotion dur="${5 + (i % 3)}s" begin="${(i * 0.7).toFixed(1)}s" repeatCount="indefinite" path="${d}"/></circle>`).join('')}</g>` : '';
+  const nodes = m.nodes.map((n) => {
+    const r = Math.max(9, Math.round(Math.sqrt(n.open + n.closed) * 6));
+    const isLeak = leak && n.id === leak.id;
+    const [dx, side] = LBL[n.id];
+    const ty = side > 0 ? n.y + r + 18 : side < 0 ? n.y - r - 26 : n.y - 3;
+    const on = inSel(n.id);
+    return `<g opacity="${on ? 1 : 0.35}"><circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${isLeak ? 'rgba(232,87,63,.18)' : 'rgba(54,181,232,.16)'}" stroke="${isLeak ? '#e8573f' : '#36b5e8'}" stroke-width="${on ? 3 : 1.5}"/>
+      ${isLeak && moving ? `<circle class="drops" cx="${n.x}" cy="${n.y}" r="${r}" fill="none" stroke="#e8573f" stroke-width="2"><animate attributeName="r" values="${r};${r + 16};${r}" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0;.8" dur="2.4s" repeatCount="indefinite"/></circle>` : ''}
+      <text class="ntext" x="${n.x + dx}" y="${ty}" text-anchor="middle">${esc(n.name)}</text><text class="nsub" x="${n.x + dx}" y="${ty + 16}" text-anchor="middle">${n.open} open · ${n.stuck} stuck</text></g>`;
+  }).join('');
+  const call = leak ? `<g><rect x="290" y="300" width="230" height="52" rx="12" fill="#fff"/><text x="306" y="322" font-size="14" font-weight="700" fill="#a52a17">${esc(leak.name)} · ${leak.stuck} of ${leak.open} stuck</text><text x="306" y="341" font-size="12.5" fill="#3c5160">the biggest leak right now</text></g>` : '';
+  const svg = document.getElementById('map');
+  svg.setAttribute('aria-label', `Schematic of the seven emirates. ${m.nodes.map((n) => `${n.name}: ${n.open} open, ${n.stuck} past deadline`).join('; ')}.${leak ? ` Biggest leak: ${leak.name}.` : ''}`);
+  svg.innerHTML = `<path d="M40 440C120 420 190 392 250 372C330 346 400 318 470 296C510 282 540 262 562 246C590 228 612 206 634 186C660 160 690 128 728 96C744 82 756 68 768 52" stroke="rgba(255,255,255,.14)" stroke-width="2" stroke-dasharray="2 7" fill="none"/>
+    <path d="M812 120C806 170 800 210 796 250C792 290 786 320 780 350" stroke="rgba(255,255,255,.14)" stroke-width="2" stroke-dasharray="2 7" fill="none"/>
+    <text x="96" y="470" fill="rgba(255,255,255,.4)" font-size="13" font-style="italic">Arabian Gulf</text>
+    ${chan}${drops}${nodes}${call}
+    <g font-size="12.5" fill="#c8d6df"><circle cx="40" cy="516" r="5" fill="#9fdaf4"/><text x="52" y="520">a case moving</text><circle cx="170" cy="516" r="5" fill="#e8573f"/><text x="182" y="520">the biggest leak</text><text x="320" y="520">circle size = number of cases</text></g>`;
+  document.getElementById('kp').innerHTML = `<div><span>Loop closed with proof</span><b class="ok">${m.closure}%</b></div><div><span>Past their deadline</span><b class="bad">${m.stuck}</b></div><div><span>Open cases</span><b>${m.open}</b></div><div><span>Closed</span><b>${m.closed}</b></div>`;
+  document.getElementById('leaks').innerHTML = m.leaks.length ? m.leaks.map((l) => `<div class="leak"><span>${esc(l.where)}</span><b>${l.n} stuck</b></div>`).join('') : '<div class="leak"><span>No case is past its deadline here.</span></div>';
+  const max = Math.max(1, ...m.equity.map((q) => q.pct));
+  document.getElementById('eq').innerHTML = m.equity.map((q) => `<div><span>${esc(q.lang)}</span><i><span class="${q.pct >= 40 ? 'hi' : ''}" style="width:${Math.round(q.pct / max * 100)}%"></span></i><b>${q.lost} of ${q.total}</b></div>`).join('');
+  const mb = document.getElementById('motion'); mb.textContent = moving ? 'Pause motion' : 'Play motion'; mb.setAttribute('aria-pressed', String(moving));
+  document.querySelectorAll('[data-em]').forEach((b) => b.onclick = () => { only = b.dataset.em; render(); });
+}
+document.getElementById('motion').onclick = () => { moving = !moving; render(); };
+render();
+</script>
+</body>
+</html>

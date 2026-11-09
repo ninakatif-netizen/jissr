@@ -112,6 +112,12 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   ok(/Only a clinician can close/.test(await q.innerText('#app')), 'in the care app a nurse cannot close a case');
   await ph.close();
   // one case, many organisations: a page per role
+  // the living map: computed from the same demo cases; a filter keeps the other places visible
+  await s.goto(BASE + 'map.html'); await s.waitForSelector('#map text');
+  ok(await s.locator('#ems button').count() === 8 && /past their deadline/i.test(await s.innerText('#kp')), 'the living map shows every emirate and the late cases');
+  await s.click('[data-em=dxb]'); await s.waitForTimeout(200);
+  ok(await s.getAttribute('[data-em=dxb]', 'aria-pressed') === 'true' && /Dubai/.test(await s.getAttribute('#map', 'aria-label')), 'the map can be filtered by emirate');
+  await shot(s, '08d-map');
   await s.goto(BASE + 'roles.html'); await s.waitForTimeout(250);
   ok(await s.locator('.role').count() === 7, 'the "who are you?" page offers patient, lab, nurse, family doctor, specialist, clinical lead and programme manager');
   await shot(s, '08c-roles');
