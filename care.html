@@ -86,7 +86,7 @@
 <body>
 <div class="demo" style="justify-content:space-between;padding:8px 16px;font-size:13px"><span>Demo with synthetic data. Choosing a role is not a login.</span><span><a href="staff.html">Desktop dashboard</a>&nbsp;&nbsp;<a href="index.html">About</a></span></div>
 <div class="device">
-  <div class="screen" id="screen"><div class="wrap" id="app" aria-live="polite"></div></div>
+  <div class="screen" id="screen"><main class="wrap" id="app"></main></div>
   <nav class="tabs" id="tabs" aria-label="Main"></nav>
 </div>
 <script type="module">
@@ -280,7 +280,7 @@ function render() {
   $('#tabs').innerHTML = '<div>' + T.map(([id, icon, l]) => `<button class="tab" data-tab="${id}" ${!caseId && tab === id ? 'aria-current="page"' : ''}>${ic(icon, 22)}${l}${id === 'alerts' && nAl ? `<span class="dot">${nAl}</span>` : ''}</button>`).join('') + '</div>';
   wire();
 }
-const go = (fn) => { fn(); render(); $('#screen').scrollTo({ top: 0 }); };
+const go = (fn) => { fn(); render(); $('#screen').scrollTo({ top: 0 }); window.__focusHeading && window.__focusHeading(); };
 function wire() {
   const v = (s) => ($(s) ? $(s).value : '');
   document.querySelectorAll('[data-tab]').forEach((b) => b.onclick = () => go(() => { tab = b.dataset.tab; caseId = null; flash = null; sopFilter = null; if (b.dataset.f) cfilter = b.dataset.f; }));
@@ -312,6 +312,21 @@ function wire() {
 render();
 setInterval(() => { if (!document.hidden && !document.activeElement?.matches('input,textarea,select')) render(); }, 60000); // live countdowns
 addEventListener('storage', () => { state = loadState(); render(); });
+</script>
+<div id="sr-status" role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></div>
+<script>
+// Accessibility helpers: announce new status/error messages once, and move focus to the heading after a screen change.
+(() => {
+  const app = document.getElementById('app'), live = document.getElementById('sr-status');
+  let last = '';
+  new MutationObserver(() => {
+    const m = app.querySelector('.err-msg, .ok-msg, .flash');
+    const txt = m ? m.innerText.trim() : '';
+    if (txt && txt !== last) { live.textContent = ''; setTimeout(() => { live.textContent = txt; }, 50); }
+    last = txt;
+  }).observe(app, { childList: true, subtree: true });
+  window.__focusHeading = () => { const h = app.querySelector('.bar h1, .bar2 h1, h1'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); } };
+})();
 </script>
 </body>
 </html>

@@ -15,7 +15,7 @@
   --bg:#ebe4d6; --card:#f6f2ea; --card2:#e2d9c9; --ink:#14284b; --muted:#665e50; --line:#d9cfbd;
   --brand:#14284b; --brand-d:#0c1a33; --brand-l:#ddd3c1;
   --panel:#14284b; --on-panel:#ffffff;
-  --accent:#c4954a; --accent-d:#86602c; --accent-l:#efe1c6;
+  --accent:#c4954a; --accent-d:#7a5626; --accent-l:#efe1c6;
   --p-blue:#e2e7f0; --p-yellow:#fff3d9; --p-pink:#fde8ef; --p-lilac:#efe9fd; --p-mint:#e2f6ee;
   --amber:#9a6a0c; --amber-l:#fff3d9; --red:#c2413a; --red-l:#fde8e7; --green:#22895e; --green-l:#e2f6ee; --blue:#14284b; --blue-l:#e2e7f0;
   --teal:var(--brand); --teal-d:var(--brand-d); --teal-l:var(--brand-l);
@@ -92,7 +92,8 @@ p{margin:.4em 0}
 .tag{font-size:12px;color:var(--muted);margin-top:6px}
 label{display:block;font-weight:600;margin:12px 0 6px;font-size:14px}
 input,select,textarea{font:inherit;width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--card2);color:var(--ink)}
-input:focus,select:focus,textarea:focus{border-color:var(--brand);outline:none;background:var(--card)}
+input:focus,select:focus,textarea:focus{border-color:var(--brand);background:var(--card)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 textarea{min-height:84px}
 .ok-msg{background:var(--green-l);color:var(--green);border-radius:14px;padding:10px 14px;font-weight:600;margin:10px 0}
 .err-msg{background:var(--red-l);color:var(--red);border-radius:14px;padding:10px 14px;font-weight:600;margin:10px 0}
@@ -153,4 +154,4 @@ textarea{min-height:84px}
 .sla.breached{background:#fbe1dc;color:#a3311f}
 .sla.none{background:var(--card2);color:var(--muted);font-weight:500}
 .phase{display:inline-block;border-radius:8px;padding:2px 8px;font-size:12px;font-weight:600;background:var(--card2);color:var(--ink)}
-.ph-issued{background:#fbe1dc;color:#a3311f}.ph-notified{background:#e2e7f0;color:#14284b}.ph-micro_consult_booked{background:#efe1c6;color:#86602c}.ph-referred{background:#e2e7f0;color:#14284b}.ph-closed{background:#e3efe6;color:#1f6b45}
+.ph-issued{background:#fbe1dc;color:#a3311f}.ph-notified{background:#e2e7f0;color:#14284b}.ph-micro_consult_booked{background:#efe1c6;color:#7a5626}.ph-referred{background:#e2e7f0;color:#14284b}.ph-closed{background:#e3efe6;color:#1f6b45}

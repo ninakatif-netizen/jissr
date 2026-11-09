@@ -228,7 +228,7 @@ html.bigtext .hello{font-size:36px}
 .hello,.rhero,.next h2,.ring .rnum b{font-family:var(--display);font-weight:600;letter-spacing:-.01em}
 [dir=rtl] .hello,[dir=rtl] .rhero,[dir=rtl] .next h2,[dir=rtl] .bar h1{font-family:var(--text);font-weight:500;letter-spacing:0}
 .bar h1{font-family:var(--display);font-weight:600}
-.gtile{width:46px;height:46px;border-radius:14px;background:#efe1c6;color:#86602c;display:flex;align-items:center;justify-content:center;flex:none}
+.gtile{width:46px;height:46px;border-radius:14px;background:#efe1c6;color:#7a5626;display:flex;align-items:center;justify-content:center;flex:none}
 .nhead{display:flex;gap:14px;align-items:center;margin-bottom:8px}
 .nhead .nlbl{margin-bottom:2px}
 .next .gtile{background:rgba(255,255,255,.1);color:#e3c38f}
@@ -241,7 +241,7 @@ html.bigtext .hello{font-size:36px}
 .next .datebox{background:#fff;color:#14284b}
 .next .appt .sub{color:#d3d9e6;opacity:1;display:flex;align-items:center;gap:4px}
 .hlist,.rmore{box-shadow:0 8px 24px rgba(120,90,40,.06);border:1px solid var(--line)}
-.lrow>.ico:first-child{color:#86602c}
+.lrow>.ico:first-child{color:#7a5626}
 .ring{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;margin:0 0 14px;box-shadow:0 12px 32px rgba(120,90,40,.08)}
 .rwrap{position:relative;width:112px;height:112px;flex:none}
 .rwrap svg{width:112px;height:112px}
@@ -282,12 +282,12 @@ html.bigtext .hello{font-size:36px}
 .rsum h2{font-size:16px;margin:0 0 8px}
 .rsum div{display:flex;flex-direction:column;padding:8px 0;border-top:1px solid var(--line)}
 .rsum div:first-of-type{border-top:0;padding-top:0}
-.rsum b{font-size:13.5px;color:#86602c;font-weight:600}
+.rsum b{font-size:13.5px;color:#7a5626;font-weight:600}
 [dir=rtl] .rsum b{text-transform:none;letter-spacing:0}
 .rsum span{font-size:15px}
 .micro{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:12px 0}
 .micro h2{font-size:16px;margin:0 0 2px;display:flex;align-items:center;gap:8px}
-.micro h2 .ico{color:#86602c}
+.micro h2 .ico{color:#7a5626}
 .mdays{display:flex;gap:8px;margin:10px 0}
 .mgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .mslot{border:1.5px solid var(--line);background:var(--bg);border-radius:14px;padding:9px 4px;font:inherit;color:var(--ink);display:flex;flex-direction:column;align-items:center;cursor:pointer;min-height:56px}
@@ -300,7 +300,7 @@ html.bigtext .hello{font-size:36px}
 
 /* cancer-screening result: result card + navy next-step card */
 .rcard{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;margin:2px 0 14px;box-shadow:0 12px 32px rgba(120,90,40,.08)}
-.rlabel{display:block;font-size:12.5px;font-weight:600;color:#86602c;margin-bottom:6px}
+.rlabel{display:block;font-size:12.5px;font-weight:600;color:#7a5626;margin-bottom:6px}
 .rcard .rhero{font-size:22px;margin:0 0 12px}
 .rmeans{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:12px}
 .rmeans b{display:flex;align-items:center;gap:6px;font-weight:600;font-size:14.5px}
@@ -320,7 +320,7 @@ html.bigtext .hello{font-size:36px}
 .micro.navy .pick{background:rgba(255,255,255,.1);color:#fff}.micro.navy .pick[aria-pressed=true]{background:#e3c38f;color:#14284b}
 .micro.navy.booked{background:#1f6f4f;color:#fff}
 .installcard{background:transparent!important;border:0!important;border-top:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important;padding:14px 2px!important;margin-top:4px}
-.installcard .ico{color:#86602c}
+.installcard .ico{color:#7a5626}
 /* a quoted reply, not a box inside a box */
 .card .card.soft{background:transparent;border:0;border-inline-start:3px solid #c4954a;border-radius:0;padding:4px 0 4px 14px;box-shadow:none;margin:12px 0 0}
 [dir=rtl] .card .card.soft{padding:4px 14px 4px 0}
@@ -332,19 +332,26 @@ html.bigtext .hello{font-size:36px}
 .path{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px 12px 12px;margin:14px 0}
 .phd{display:flex;justify-content:space-between;align-items:baseline;padding:0 4px 12px;font-size:13.5px}
 .phd b{font-weight:600}.phd span{color:var(--muted)}
+.p5w{position:relative}
 .p5{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:relative}
-.p5:before{content:"";position:absolute;top:19px;inset-inline-start:10%;width:80%;height:3px;border-radius:2px;background:var(--line)}
-.p5 .pl{position:absolute;top:19px;inset-inline-start:10%;width:var(--p);height:3px;border-radius:2px;background:#1f6b45}
-.p5 .pl.lit{animation:pfill 1s .3s ease-out both}
+.p5w:before{content:"";position:absolute;top:19px;inset-inline-start:10%;width:80%;height:3px;border-radius:2px;background:var(--line)}
+.p5w .pl{position:absolute;top:19px;inset-inline-start:10%;width:var(--p);height:3px;border-radius:2px;background:#1f6b45}
+.p5w .pl.lit{animation:pfill 1s .3s ease-out both}
 @keyframes pfill{from{width:0}}
-.splashing .p5 .pl.lit{animation-delay:1.6s}
-@media (prefers-reduced-motion:reduce){.p5 .pl.lit{animation:none}}
+.splashing .p5w .pl.lit{animation-delay:1.6s}
+@media (prefers-reduced-motion:reduce){.p5w .pl.lit{animation:none}}
 .p5 li{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;z-index:1;text-align:center}
 .pd{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);border:1.5px solid var(--line);color:var(--muted)}
 .p5 li.done .pd{background:#1f6b45;border-color:#1f6b45;color:#fff}
 .p5 li.now .pd{background:#14284b;border-color:#14284b;color:#fff;box-shadow:0 0 0 4px #efe1c6}
 .p5 small{font-size:11.5px;color:var(--muted);line-height:1.2}
 .p5 li.now small{color:var(--ink);font-weight:600}
+h2.h3s{font-size:1.02rem}
+/* accessibility: 44px targets for older hands */
+.aa{min-width:44px;height:44px}.langs button{min-width:44px}.back{width:44px;height:44px}
+.btn.small{min-height:44px}
+.foot a{display:inline-block;padding:12px 0}
+h1:focus,h2:focus{outline:none}
 </style>
 </head>
 <body>
@@ -358,7 +365,7 @@ html.bigtext .hello{font-size:36px}
   </span>
 </div>
 <div class="device" id="device">
-  <div class="screen" id="screen"><div class="wrap" id="app" aria-live="polite"></div></div>
+  <div class="screen" id="screen"><main class="wrap" id="app"></main></div>
   <nav id="tabs" class="tabs" aria-label="Main"></nav>
 </div>
 
@@ -685,10 +692,10 @@ function trackerHtml(c) {
   const pct = Math.min(now, 4) / 4 * 80; // the line runs from the first dot (10%) to the last (90%)
   const html = `<section class="path" aria-label="${t.journey}: ${where}">
     <div class="phd"><b>${t.journey}</b><span>${where}</span></div>
-    <ol class="p5" style="--p:${pct}%">${steps.map((l, i) => {
+    <div class="p5w" style="--p:${pct}%"><i class="pl ${litOnce ? '' : 'lit'}" aria-hidden="true"></i><ol class="p5">${steps.map((l, i) => {
       const st = i < now || now >= 5 ? 'done' : i === now ? 'now' : 'todo';
       return `<li class="${st}"><span class="pd">${ic(st === 'done' ? 'check' : icons[i], 18)}</span><small>${l}</small></li>`;
-    }).join('')}<i class="pl ${litOnce ? '' : 'lit'}"></i></ol></section>`;
+    }).join('')}</ol></div></section>`;
   litOnce = true;
   return html;
 }
@@ -758,7 +765,7 @@ function gateView(c) {
   const t = T();
   return `${topBar()}<div class="view gate"><div class="gico">${ic('shield', 34)}</div>
     <h1>${t.gateT}</h1><p class="muted">${t.gateSub}</p>
-    <div class="otp ${msg.gateErr ? 'shake' : ''}" dir="ltr">${[0, 1, 2, 3].map((i) => `<input class="d" data-i="${i}" inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Digit ${i + 1}">`).join('')}</div>
+    <div class="otp ${msg.gateErr ? 'shake' : ''}" dir="ltr">${[0, 1, 2, 3].map((i) => `<input class="d" data-i="${i}" inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="${lang === 'ar' ? 'الرقم ' : 'Digit '}${i + 1}">`).join('')}</div>
     ${msg.gateErr ? `<div class="err-msg">${t.gateErr}</div>` : ''}
     <button class="btn bigbtn" id="gate-go">${t.gateBtn}</button>
     <p class="tiny muted" style="margin-top:14px"><span class="chip grey">${t.gateHint}</span></p>
@@ -947,16 +954,16 @@ function bookView(c) {
   const bar = barrierNow(c);
   const slots = slotsFor({ band: c.band, barrier: c.barrier }, state.today);
   return `${topBar()}<div class="view">${pageBar(t.n.book[1])}
-    <section class="card"><h3>${t.barrierQ}</h3><p class="muted tiny">${t.barrierSub}</p>
+    <section class="card"><h2 class="h3s">${t.barrierQ}</h2><p class="muted tiny">${t.barrierSub}</p>
       <div class="chips">${BARRIERS.map((b) => `<button class="pick" data-b="${b}" aria-pressed="${c.barrier === b}">${t.barrier[b]}</button>`).join('')}</div>
       ${c.barrier !== 'none' ? `<div class="card soft" style="margin-bottom:0"><p style="margin-top:0">${esc(bar.text)}</p><div class="tag">${bar.source === 'ai' ? t.ai : t.tpl}</div>
         ${['fear', 'cost', 'language', 'dont_understand'].includes(c.barrier) ? `<button class="btn small" data-go="nurse">${ic('phone', 16)} ${t.qNurse}</button>` : ''}</div>` : ''}
     </section>
-    ${(c.programme || 'hba1c') !== 'hba1c' ? '' : `<section class="card"><h3>${T3n().modeQ}</h3><div class="modes">
+    ${(c.programme || 'hba1c') !== 'hba1c' ? '' : `<section class="card"><h2 class="h3s">${T3n().modeQ}</h2><div class="modes">
       <button data-mode="in_person" aria-pressed="${(msg.mode || 'in_person') === 'in_person'}">${ic('pin', 22)}<b>${T3n().inPerson}</b><small>${T3n().inPersonSub}</small></button>
       <button data-mode="video" aria-pressed="${msg.mode === 'video'}">${ic('video', 22)}<b>${T3n().video}</b><small>${T3n().videoSub}</small></button></div>
       ${msg.mode === 'video' ? `<p class="tiny muted" style="margin:10px 0 0">${T3n().videoNote}</p>` : ''}</section>`}
-    <section class="card"><h3>${t.pick}</h3>
+    <section class="card"><h2 class="h3s">${t.pick}</h2>
       <div class="dates">${slots.map((sl, i) => { const p = dparts(sl.day); return `<button class="dt" data-slot="${i}" aria-pressed="${msg.slot === i}"><span>${p.mon}</span><b>${p.num}</b><span>${p.wd}</span><em>${sl.time}</em></button>`; }).join('')}</div>
       <button class="btn bigbtn" id="confirm" ${msg.slot == null ? 'disabled' : ''}>${t.confirm}</button>
     </section></div>`;
@@ -1012,7 +1019,7 @@ function render() {
 }
 
 function act(fn) { try { fn(); save(); } catch (e) { alert(e.message); } render(); }
-const go = (v) => { view = v; msg = { ...msg, no: false }; stopSpeak(); render(); document.getElementById('screen').scrollTo({ top: 0 }); };
+const go = (v) => { view = v; msg = { ...msg, no: false }; stopSpeak(); render(); document.getElementById('screen').scrollTo({ top: 0 }); window.__focusHeading && window.__focusHeading(); };
 
 function wireGate(c) {
   const ds = [...document.querySelectorAll('.otp .d')];
@@ -1156,6 +1163,21 @@ try {
     setTimeout(() => sp.remove(), 2000);
   }
 } catch { /* the app works without the welcome screen */ }
+</script>
+<div id="sr-status" role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></div>
+<script>
+// Accessibility helpers: announce new status/error messages once, and move focus to the heading after a screen change.
+(() => {
+  const app = document.getElementById('app'), live = document.getElementById('sr-status');
+  let last = '';
+  new MutationObserver(() => {
+    const m = app.querySelector('.err-msg, .ok-msg, .flash');
+    const txt = m ? m.innerText.trim() : '';
+    if (txt && txt !== last) { live.textContent = ''; setTimeout(() => { live.textContent = txt; }, 50); }
+    last = txt;
+  }).observe(app, { childList: true, subtree: true });
+  window.__focusHeading = () => { const h = app.querySelector('.bar h1, .bar2 h1, h1'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); } };
+})();
 </script>
 </body>
 </html>

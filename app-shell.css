@@ -20,12 +20,12 @@ h1.hi{font-size:30px;margin:16px 0 2px}
 .tab:after{content:"";width:18px;height:3px;border-radius:2px;margin-top:2px;background:transparent}
 .tab[aria-current=page]:after{background:#c4954a}
 .tab .dot{position:absolute;top:2px;inset-inline-start:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:#a3311f;color:#fff;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px}
-.gtile{width:44px;height:44px;border-radius:14px;background:#efe1c6;color:#86602c;display:flex;align-items:center;justify-content:center;flex:none}
+.gtile{width:44px;height:44px;border-radius:14px;background:#efe1c6;color:#7a5626;display:flex;align-items:center;justify-content:center;flex:none}
 .card2{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin:0 0 12px;box-shadow:0 8px 24px rgba(120,90,40,.06)}
 .navy{background:#14284b;color:#fff;border:0}
 .navy .muted,.navy .tiny{color:#d3d9e6}
 .navy .gtile{background:rgba(255,255,255,.1);color:#e3c38f}
-.sec{font-size:13px;font-weight:600;color:#86602c;margin:18px 2px 8px;letter-spacing:.02em}
+.sec{font-size:13px;font-weight:600;color:#7a5626;margin:18px 2px 8px;letter-spacing:.02em}
 .backbtn{width:44px;height:44px;border-radius:14px;border:0;background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);flex:none}
 .bar2{display:flex;align-items:center;gap:12px;margin:14px 0 12px}
 .bar2 h1{font-size:22px;margin:0;font-family:var(--text);font-weight:600;letter-spacing:0}
