@@ -358,6 +358,17 @@ h1:focus,h2:focus{outline:none}
 .actbar{transition:opacity .2s}.actbar.gone{opacity:0;pointer-events:none}
 .me.demo-pill{width:auto;height:44px;padding:0 12px;border-radius:999px;font-size:12px;font-weight:600;color:var(--muted);background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
 .me.demo-pill:after{display:none}
+
+/* proof of care */
+.proof{background:var(--card);border-radius:var(--r);box-shadow:var(--card-sh);overflow:hidden;margin:4px 0 14px}
+.proof-h{background:var(--ink);color:#fff;padding:16px 18px;display:flex;flex-direction:column;gap:2px}
+.proof-h span{font-size:13px;font-weight:600;color:var(--hero-acc)}.proof-h b{font-size:20px}.proof-h small{font-size:13.5px;color:#d6e2ea}
+.proof-l{list-style:none;margin:0;padding:12px 18px;display:flex;flex-direction:column;gap:12px}
+.proof-l li{display:flex;gap:10px;align-items:flex-start}.proof-l li>.ico{color:var(--ok);flex:none;margin-top:2px}
+.proof-l b{display:block;font-weight:600;font-size:15px}.proof-l small{color:var(--muted);font-size:13px}
+.proof-c{border-top:1px dashed var(--ring);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
+.proof-c b{display:block;font-family:ui-monospace,Menlo,monospace;font-size:16px;color:var(--ink);letter-spacing:.04em}
+.proof-c .ico{color:var(--brand)}
 </style>
 <link rel="stylesheet" href="theme.css">
 </head>
@@ -527,7 +538,7 @@ const params = new URLSearchParams(location.search);
 let id = params.get('p') || 'C-001';
 const phoneLang = (navigator.language || 'en').toLowerCase().startsWith('ar') ? 'ar' : 'en';
 let lang = params.get('lang') || (() => { try { return localStorage.getItem('jissr.lang') || phoneLang; } catch { return phoneLang; } })();
-let view = ['home', 'result', 'plan', 'book', 'nurse', 'family'].includes(params.get('view')) ? params.get('view') : 'home';
+let view = ['home', 'result', 'plan', 'book', 'nurse', 'family', 'proof'].includes(params.get('view')) ? params.get('view') : 'home';
 const DEMO_CODE = '2026';   // demo only: a real service would send a one-time code by SMS
 let verified = (() => { try { return JSON.parse(sessionStorage.getItem('jissr.ok') || '{}'); } catch { return {}; } })();
 if (params.has('fresh')) { state = resetState(); verified = {}; try { sessionStorage.removeItem('jissr.ok'); } catch { } }
@@ -815,6 +826,7 @@ function homeView(c) {
       <button class="me demo-pill" id="me-btn" aria-label="Demo: switch patient" title="Demo: switch patient">Demo</button></div>
     ${trackerHtml(c)}
     ${nextCard(c)}
+    ${c.stage === 'closed' ? `<section class="hlist proofsec">${proofLink()}</section>` : ''}
     ${helpList(c)}`;
   h += installCard();
   if (stageIdx(c) >= 3 && c.stage !== 'closed') {
@@ -926,6 +938,33 @@ function stepDate(c, i) {
   const e = [...c.events].reverse().find((x) => STEP_EVENTS[i].includes(x.type));
   return e ? fmtDay(e.at.slice(0, 10)) : '';
 }
+
+/* ---------- proof of care: a dated receipt the patient can share; it shows the steps, never the result ---------- */
+const PROOF = {
+  en: { t: 'Proof of care', btn: 'See my proof of care', head: 'Case closed with evidence', opened: 'Opened', closed: 'Closed',
+    steps: { notified: 'You were told your result', understood: 'You said you understood', booked: 'Your visit was booked', attended: 'You were seen', confirmed: 'Confirmatory test done', referred: 'Specialist referral decided', care_plan: 'Care plan agreed', closed: 'Case closed by a clinician' },
+    code: 'Verification code', share: 'Anyone you choose can check this receipt: a new doctor, your insurer or the Department of Health. It shows the steps, never your result.', shareBtn: 'Share with my new doctor', demo: 'Demo: the code is an illustration.' },
+  ar: { t: 'إثبات الرعاية', btn: 'عرض إثبات الرعاية', head: 'أُغلقت الحالة مع الدليل', opened: 'فُتحت', closed: 'أُغلقت',
+    steps: { notified: 'تم إبلاغك بالنتيجة', understood: 'تم تأكيد فهمك للنتيجة', booked: 'تم حجز موعدك', attended: 'تمت الزيارة', confirmed: 'تم إجراء الفحص التأكيدي', referred: 'تم البتّ في التحويل إلى الأخصائي', care_plan: 'تم الاتفاق على خطة الرعاية', closed: 'أغلق الطبيب الحالة' },
+    code: 'رمز التحقق', share: 'يمكن لأي شخص تختاره التحقق من هذا الإيصال: طبيب جديد أو شركة التأمين أو دائرة الصحة. يُظهر الخطوات فقط، ولا يُظهر نتيجتك أبداً.', shareBtn: 'مشاركته مع طبيبي الجديد', demo: 'عرض تجريبي: الرمز للتوضيح فقط.' },
+};
+const proofCode = (c) => { let h = 7; for (const ch of c.id + (c.events.find((e) => e.type === 'closed') || {}).at) h = (h * 31 + ch.charCodeAt(0)) >>> 0; const b = h.toString(36).toUpperCase().padStart(8, '0'); return `FLJ-${b.slice(0, 4)}-${b.slice(4, 8)}`; };
+const proofLink = () => `<button class="lrow proof-link" data-go="proof">${ic('shield', 22)}<span>${PROOF[lang].btn}</span>${ic('next', 18)}</button>`;
+function proofView(c) {
+  const P = PROOF[lang], order = ['notified', 'understood', 'booked', 'attended', 'confirmed', 'referred', 'care_plan', 'closed'];
+  const rows = order.map((k) => [k, [...c.events].reverse().find((e) => e.type === k)]).filter(([, e]) => e);
+  const open = c.events[0], close = c.events.find((e) => e.type === 'closed');
+  return `${topBar()}<div class="view">${pageBar(P.t)}
+    <section class="proof">
+      <div class="proof-h"><span>${P.head}</span><b>${esc(progOf(c).name || '')}</b><small>${esc(c.patient.name)} · ${P.opened} ${fmtDay(open.at.slice(0, 10))}${close ? ` · ${P.closed} ${fmtDay(close.at.slice(0, 10))}` : ''}</small></div>
+      <ol class="proof-l">${rows.map(([k, e]) => `<li>${ic('check', 18)}<span><b>${P.steps[k]}</b><small>${fmtDay(e.at.slice(0, 10))} · ${esc(e.by)}</small></span></li>`).join('')}</ol>
+      <div class="proof-c"><span>${P.code}<b dir="ltr">${proofCode(c)}</b></span>${ic('shield', 30)}</div>
+    </section>
+    <p class="gsub">${P.share}</p>
+    <button class="btn bigbtn" id="proof-share">${P.shareBtn}</button>
+    <p class="tiny muted center">${P.demo}</p>
+  </div>`;
+}
 function planView(c) {
   const t = T(), u = T3n(), fit = c.programme === 'fit', mammo = c.programme === 'mammo';
   const now = journeyStep(c), o = staffOf(c.owner);
@@ -942,6 +981,7 @@ function planView(c) {
   return `${topBar()}<div class="view">${pageBar(u.planT)}
     <p class="gsub" style="margin:0 0 14px">${u.planSub}</p>
     ${trackerHtml(c)}
+    ${c.stage === 'closed' ? `<section class="hlist proofsec">${proofLink()}</section>` : ''}
     <section class="card"><h2 class="h3s">${u.progT}</h2><ol class="chk" aria-label="${u.progT}">${checklist}</ol></section>
     <section class="plist">
       ${item(now < 2 ? (now === 1 ? 'book' : 'result') : '', fit || mammo ? 'flask' : 'doctor', fit ? u.fitDoc : mammo ? u.mammo.doc : u.pDoc, docSub, now >= 3 ? 'done' : '')}
@@ -1024,11 +1064,11 @@ function render() {
     wireGate(c);
     return;
   }
-  const v = { home: homeView, result: resultView, plan: planView, book: bookView, nurse: nurseView, family: familyView }[view] || homeView;
+  const v = { home: homeView, result: resultView, plan: planView, book: bookView, nurse: nurseView, family: familyView, proof: proofView }[view] || homeView;
   document.getElementById('app').innerHTML = v(c);
   // bottom tab bar (always visible, like a real phone app)
   const tabsDef = [['home', 'home'], ['result', 'result'], ['plan', 'plan'], ['nurse', 'phone'], ['family', 'users']];
-  const activeTab = view === 'book' ? 'home' : view;
+  const activeTab = view === 'book' ? 'home' : view === 'proof' ? 'plan' : view;
   const nav = document.getElementById('tabs');
   nav.innerHTML = '<div>' + tabsDef.map(([v2, icon], i) => `<button class="tab" data-go="${v2}" ${activeTab === v2 ? 'aria-current="page"' : ''}>${ic(icon, 22)}${T().tabs[i]}</button>`).join('') + '</div>';
   wire(c);
@@ -1059,6 +1099,10 @@ function wire(c) {
   const $ = (s) => document.querySelector(s);
   document.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => { lang = b.dataset.lang; try { localStorage.setItem('jissr.lang', lang); } catch { } stopSpeak(); render(); });
   document.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => go(b.dataset.go));
+  $('#proof-share') && ($('#proof-share').onclick = async () => {
+    const text = `${PROOF[lang].t}: ${proofCode(c)}`;
+    try { if (navigator.share) await navigator.share({ title: 'Falaj', text }); else { await navigator.clipboard.writeText(text); alert(lang === 'ar' ? 'تم نسخ الرمز.' : 'Code copied.'); } } catch { }
+  });
   $('#aa') && ($('#aa').onclick = toggleBig);
   $('#me-btn') && ($('#me-btn').onclick = () => window.toggleDemo());
   $('#install-go') && ($('#install-go').onclick = async () => { await promptInstall(); render(); });

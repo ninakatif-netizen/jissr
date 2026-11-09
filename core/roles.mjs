@@ -37,10 +37,11 @@ export const ROLE_VIEWS = [
 export const roleView = (id) => ROLE_VIEWS.find((v) => v.id === id) || null;
 
 // Extra list filters used by the role views.
-// gp: decisions a family doctor has to take. inbox: referrals sent to the signed-in specialist's organisation.
+// gp: decisions a family doctor has to take. inbox: handshakes (referrals) and 2-minute consults sent to the specialist's organisation.
 export function roleFilter(filter, c, actor) {
   if (filter === 'gp') return ['attended', 'confirmed', 'care_plan'].includes(c.stage) || (!!c.referral && c.referral.status === 'rejected');
-  if (filter === 'inbox') return !!c.referral && c.referral.to === actor.org && ['sent', 'accepted'].includes(c.referral.status);
+  if (filter === 'inbox') return (!!c.referral && c.referral.to === actor.org && ['sent', 'accepted'].includes(c.referral.status))
+    || (c.consults || []).some((q) => q.to === actor.org && !q.answer); // 2-minute consults waiting for this team
   return null; // not a role filter
 }
 

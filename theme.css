@@ -171,3 +171,4 @@ body{font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.gauge-b .gseg.on{animation:none}.view>section{animation:none}.btn,.lrow,.tab .ico{transition:none}}
 .gauge-b .gcab{stroke:var(--ring);opacity:.8}
+.view:has(>.greet)>.proofsec{order:1}
