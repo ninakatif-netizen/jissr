@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Falaj: living map</title>
-<meta name="description" content="Where in the Emirates do screening results stop before reaching care? Live from the demo cases. Synthetic data only.">
+<title>Falaj: the living falaj</title>
+<meta name="description" content="The screening-to-care loop drawn as a falaj: mother well, tunnel, access shafts, open channel, palm garden. Live from the demo cases. Synthetic data only.">
 <meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
@@ -13,24 +13,42 @@
 <style>
 .mapwrap{max-width:1392px;margin:0 auto;padding:18px 24px 40px;display:flex;flex-direction:column;gap:18px}
 .mhead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
-.mhead h1{margin:0;font-size:clamp(32px,5vw,52px);line-height:1;letter-spacing:-.04em}
-.mhead p{margin:6px 0 0;color:var(--muted);max-width:70ch}
+.mhead h1{margin:0;font-size:clamp(32px,5vw,54px);line-height:1;letter-spacing:-.04em}
+.mhead p{margin:8px 0 0;color:var(--muted);max-width:72ch}
 .chips2{display:flex;flex-wrap:wrap;gap:6px}
-.chips2 button{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;cursor:pointer}
+.chips2 button,.seg button{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;cursor:pointer}
 .chips2 button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600}
-.mrow{display:flex;flex-wrap:wrap;gap:18px;align-items:stretch}
-.mpanel{flex:999 1 620px;min-width:0;background:#0a1f2e;border-radius:32px;padding:18px;position:relative;overflow:hidden}
+.seg{display:inline-flex;background:var(--card2);border-radius:24px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;min-height:40px;color:var(--ink)}
+.seg button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:var(--card-sh);font-weight:600}
+.mrow{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}
+.mleft{flex:999 1 680px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.mpanel{background:#0a1f2e;border-radius:32px;padding:16px;position:relative;overflow:hidden}
 .mpanel svg{display:block;width:100%;height:auto}
 .mside{flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:14px}
 .kp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.kp div{background:var(--card);border-radius:22px;padding:16px;box-shadow:var(--card-sh)}
+.kp div{background:var(--card);border-radius:22px;padding:14px 16px;box-shadow:var(--card-sh)}
 .kp span{font-size:13.5px;color:var(--muted)}
-.kp b{display:block;font-family:var(--display);font-size:42px;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.kp b{display:block;font-family:var(--display);font-size:40px;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .kp .bad{color:var(--bad)}.kp .ok{color:var(--ok)}
 .mcard{background:var(--card);border-radius:22px;box-shadow:var(--card-sh);overflow:hidden}
-.mcard h2{margin:0;padding:14px 18px 6px;font-size:16px;font-family:var(--text);font-weight:600;letter-spacing:0}
-.leak{padding:10px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:14.5px}
-.leak b{color:var(--bad);white-space:nowrap}
+.mcard h2{margin:0;padding:14px 18px 4px;font-size:16px;font-family:var(--text);font-weight:600;letter-spacing:0}
+.mcard .lead2{margin:0;padding:0 18px 10px;font-size:13.5px;color:var(--muted)}
+.cprow{padding:10px 18px;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;font-size:14.5px}
+.cprow small{color:var(--muted);font-size:13px}
+.cprow .late{color:var(--bad);font-weight:600;white-space:nowrap}.cprow .due{color:var(--muted);white-space:nowrap}
+.cprow a{font-weight:600;display:inline-block;padding:6px 0}
+.cphead{display:flex;gap:10px;align-items:baseline;padding:14px 18px 2px}
+.cphead b{font-family:var(--display);font-size:22px;letter-spacing:-.02em}
+.cpcount{display:flex;gap:8px;padding:6px 18px 12px;flex-wrap:wrap}
+.cpcount span{font-size:13px;font-weight:600;border-radius:999px;padding:3px 10px;background:var(--brand-l);color:var(--brand-d)}
+.cpcount span.bad{background:var(--bad-l);color:var(--bad)}
+.ar{padding:2px 18px 14px;display:flex;flex-direction:column;gap:8px}
+.ar div{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 78px;gap:10px;align-items:center;font-size:14px}
+.ar i{display:flex;height:10px;border-radius:5px;background:var(--card2);overflow:hidden}
+.ar i span{display:block;height:100%;background:var(--brand)}.ar i span.st{background:var(--bad)}
+.ar b{text-align:end;font-weight:600;font-variant-numeric:tabular-nums;font-size:13px}
+.none{color:var(--bad);font-weight:600}
 .eq{padding:4px 18px 14px;display:flex;flex-direction:column;gap:8px}
 .eq div{display:grid;grid-template-columns:84px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:14px}
 .eq i{display:block;height:10px;border-radius:5px;background:var(--card2);overflow:hidden}
@@ -41,9 +59,16 @@
 .live{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px}
 .live i{width:8px;height:8px;border-radius:4px;background:var(--ok)}
 .mtools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.mtools button{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
-.ntext{font:600 14px var(--text);fill:#fff}.nsub{font:12.5px var(--text);fill:#9fb3c1}
-@media (prefers-reduced-motion:reduce){.drops{display:none}}
+.mtools>button{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.story{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.story div{background:var(--card);border-radius:18px;padding:12px 14px;box-shadow:var(--card-sh);font-size:13.5px;color:var(--ink-2)}
+.story b{display:block;color:var(--ink);font-size:14.5px}
+svg .lbl{font:600 16px var(--text);fill:#fff}svg .sub{font:13.5px var(--text);fill:#a9bccb}svg .tiny{font:italic 13.5px var(--text);fill:rgba(255,255,255,.55)}
+svg .cp{cursor:pointer;outline:none}
+svg .cp:focus-visible .cap,svg .cp.sel .cap{stroke:#fff;stroke-width:4}
+.flowline{animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-24}}
+@media (prefers-reduced-motion:reduce){.flowline{animation:none}.drops{display:none}}
 </style>
 <link rel="stylesheet" href="theme.css">
 </head>
@@ -51,73 +76,171 @@
 <div class="demo"><span>Prototype · synthetic data · emirates are assigned to demo cases by a fixed rule</span><span class="row"><a href="staff.html?view=programme&amp;as=p1">Programme dashboard</a><a href="metrics.html">Measures</a><a href="index.html">Home</a></span></div>
 <main class="mapwrap" id="main">
   <div class="mhead">
-    <div><div class="brand" id="brand"></div></div>
+    <div class="brand" id="brand"></div>
     <div class="mtools"><span class="live"><i></i>Live from the demo cases</span><button id="motion" aria-pressed="true">Pause motion</button></div>
   </div>
   <div class="mhead">
-    <div><h1>Where does the water stop?</h1><p>Every abnormal screening result is water that must reach care. Like the arif al falaj, who gave every plot its fair turn, this map shows each place&#39;s open cases, how many are past their deadline, and who is left without water.</p></div>
-    <div class="chips2" role="group" aria-label="Emirate" id="ems"></div>
+    <div><h1 id="h1">The living falaj</h1><p id="intro"></p></div>
+    <div class="seg" role="group" aria-label="View"><button data-view="falaj">The falaj</button><button data-view="emirates">The emirates</button></div>
   </div>
+  <div class="chips2" role="group" aria-label="Emirate" id="ems"></div>
   <div class="mrow">
-    <section class="mpanel" aria-label="Map"><svg id="map" viewBox="0 0 900 540" role="img"></svg></section>
-    <aside class="mside">
-      <div class="kp" id="kp"></div>
-      <section class="mcard"><h2>Where cases are stuck now</h2><div id="leaks"></div></section>
-      <section class="mcard"><h2>Who drops out early, by language</h2><div class="eq" id="eq"></div>
-        <p class="mnote">Cases past their deadline before a visit is booked. A gap here points to a language or access problem, not a patient problem. Small numbers: read with care.</p></section>
-    </aside>
+    <div class="mleft"><section class="mpanel" aria-label="Map"><svg id="map" viewBox="0 0 1200 560" role="img"></svg></section>
+    <div class="story" id="story"></div></div>
+    <aside class="mside" id="side"></aside>
   </div>
 </main>
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
 import { wordmark } from './core/ui.mjs';
 import { loadState } from './core/store.mjs';
-import { EMIRATES, CHANNELS, mapSummary } from './core/geo.mjs';
+import { EMIRATES, CHANNELS, mapSummary, falajSummary } from './core/geo.mjs';
 registerSW();
 document.getElementById('brand').innerHTML = wordmark() + '<span class="sub">Living map</span>';
 const state = loadState();
 const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let only = new URLSearchParams(location.search).get('em') || 'all', moving = !calm;
-const LBL = { ad: [0, 1], ain: [0, 1], dxb: [-86, 0], shj: [84, -1], ajm: [-90, 0], uaq: [-70, -1], rak: [0, -1], fuj: [0, 1] };
+const qs = new URLSearchParams(location.search);
+let only = qs.get('em') || 'all', moving = !calm, view = qs.get('view') === 'emirates' ? 'emirates' : 'falaj', sel = null;
 const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+const hrs = (h) => { const a = Math.abs(h); return a >= 48 ? `${Math.floor(a / 24)} days` : `${a} h`; };
 
-function render() {
-  const m = mapSummary(state, Date.now(), only);
-  const byId = Object.fromEntries(m.nodes.map((n) => [n.id, n]));
-  const inSel = (id) => only === 'all' || id === only || (only === 'ad' && id === 'ain');
-  document.getElementById('ems').innerHTML = [['all', 'All 7 emirates'], ...EMIRATES.filter((e) => e.id !== 'ain').map((e) => [e.id, e.name])]
-    .map(([id, name]) => `<button data-em="${id}" aria-pressed="${id === only}">${name}</button>`).join('');
-  const leak = m.leakNode;
-  const leakCh = leak ? CHANNELS.findIndex(([a, b]) => a === leak.id || b === leak.id) : -1;
-  const chan = CHANNELS.map(([, , d], i) => {
-    const bad = i === leakCh;
-    return `<path d="${d}" stroke="#1f4b66" stroke-width="10" fill="none" stroke-linecap="round"/><path d="${d}" stroke="${bad ? '#e8573f' : '#36b5e8'}" stroke-width="${bad ? 3 : 2.5}" ${bad ? 'stroke-dasharray="5 6"' : 'opacity=".55"'} fill="none" stroke-linecap="round"/>`;
+// ---------- geometry of the falaj (a cross-section, west to east) ----------
+const ys = (x) => 150 + (x - 180) * 0.16;            // the ground surface
+const yt = (x) => 465 - (x - 110) * 0.3269;          // the tunnel, sloping gently up to daylight at x = 780
+const POS = { notified: 260, understood: 420, booked: 580, attended: 880, referral_reply: 985, plan: 1080 };
+const SHORT = { notified: 'Told', understood: 'Understood', booked: 'Booked', attended: 'Seen', referral_reply: 'Hospital', plan: 'Care plan' };
+const WHY = {
+  notified: 'Thuqb 1, an access shaft over the tunnel. The patient cannot see this part: the programme must tell them the result.',
+  understood: 'Thuqb 2. The patient was told, but nobody has checked they understood. The team looks in here and clears it with a call.',
+  booked: 'Thuqb 3. Understood, but no visit booked yet. Barriers such as cost, work or language usually sit here.',
+  attended: 'The first sluice gate of the open channel: the visit with the family doctor.',
+  referral_reply: 'The gate to the hospital branch: a handshake the hospital must answer before it owns the case.',
+  plan: 'The last stretch before the palm garden: a care plan written down, then the case is closed with proof.',
+};
+
+function falajSvg(f) {
+  const tunnel = `M110 465L780 ${yt(780).toFixed(1)}`;
+  const channel = `M780 ${(ys(780) + 2).toFixed(1)}L1190 ${(ys(1190) + 2).toFixed(1)}`;
+  const b0 = ys(985);
+  const branch = `M985 ${b0 + 3}C995 ${b0 + 40} 1015 ${b0 + 64} 1047 ${b0 + 72}`;
+  const shafts = ['notified', 'understood', 'booked'].map((s) => { const x = POS[s]; return `<path d="M${x - 7} ${ys(x)}V${(yt(x) - 8).toFixed(1)}M${x + 7} ${ys(x)}V${(yt(x) - 8).toFixed(1)}" stroke="#2c4a5e" stroke-width="2"/>`; }).join('');
+  const rocks = f.points.filter((p) => p.stuck > 0).map((p) => {
+    const x = POS[p.step], y = p.kind === 'shaft' ? yt(x) : ys(x) + 2;
+    const n = Math.min(6, 1 + Math.ceil(p.stuck / 2));
+    return Array.from({ length: n }, (_, i) => `<circle cx="${(x - 12 + (i % 3) * 12).toFixed(1)}" cy="${(y - 2 - Math.floor(i / 3) * 9).toFixed(1)}" r="${5 + (i % 2)}" fill="#c4583f" stroke="#0a1f2e" stroke-width="1.5"/>`).join('');
   }).join('');
+  const caps = f.points.map((p) => {
+    const x = POS[p.step], top = (p.kind === 'shaft' ? ys(x) - 34 : ys(x) - 44), late = p.stuck > 0, isSel = sel === p.step;
+    const stem = p.kind === 'gate' ? `<rect x="${x - 3}" y="${(ys(x) - 22).toFixed(1)}" width="6" height="30" rx="2" fill="#9fb3c1"/>` : '';
+    return `<g class="cp${isSel ? ' sel' : ''}" tabindex="0" role="button" data-cp="${p.step}" aria-pressed="${isSel}" aria-label="${esc(p.title)}: ${p.waiting} waiting, ${p.stuck} past their deadline">
+      <rect x="${x - 48}" y="${(top - 64).toFixed(1)}" width="96" height="88" rx="14" fill="#000" fill-opacity="0" pointer-events="all"/>
+      ${stem}
+      <circle class="cap" cx="${x}" cy="${top.toFixed(1)}" r="19" fill="${late ? '#e8573f' : '#0b6fa8'}" stroke="${late ? '#ffb3a5' : '#36b5e8'}" stroke-width="2"/>
+      <text x="${x}" y="${(top + 5).toFixed(1)}" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">${p.waiting}</text>
+      <text class="lbl" x="${x}" y="${(top - 46).toFixed(1)}" text-anchor="middle">${SHORT[p.step]}</text>
+      <text class="sub" x="${x}" y="${(top - 28).toFixed(1)}" text-anchor="middle">${late ? p.stuck + ' stuck' : 'flowing'}</text></g>`;
+  }).join('');
+  const pulses = moving ? f.points.filter((p) => p.stuck > 0).map((p) => { const x = POS[p.step], top = p.kind === 'shaft' ? ys(x) - 34 : ys(x) - 44;
+    return `<circle class="drops" cx="${x}" cy="${top.toFixed(1)}" r="18" fill="none" stroke="#e8573f" stroke-width="2" pointer-events="none"><animate attributeName="r" values="19;33;19" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0;.8" dur="2.4s" repeatCount="indefinite"/></circle>`; }).join('') : '';
+  const palms = Array.from({ length: Math.min(f.closed, 10) }, (_, i) => {
+    const x = 1112 + (i % 5) * 16, base = ys(x) + (i < 5 ? 0 : 24) - 2;
+    return `<path d="M${x} ${base}V${base - 22}M${x} ${base - 21}C${x - 5} ${base - 27} ${x - 11} ${base - 26} ${x - 13} ${base - 21}M${x} ${base - 21}C${x + 5} ${base - 27} ${x + 11} ${base - 26} ${x + 13} ${base - 21}M${x} ${base - 21}C${x - 2} ${base - 29} ${x + 1} ${base - 32} ${x + 5} ${base - 33}" stroke="#4cc285" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+  }).join('');
+  const drops = moving ? `<g class="drops" fill="#9fdaf4">${[0, 1.4, 2.8, 4.2].map((b) => `<circle r="4"><animateMotion dur="7s" begin="${b}s" repeatCount="indefinite" path="M110 465L780 ${yt(780).toFixed(1)}L1060 ${(ys(1060) + 2).toFixed(1)}"/></circle>`).join('')}</g>` : '';
+  return `
+    <path d="M0 560L0 205L50 128L95 158L150 92L210 150L1200 ${ys(1200)}L1200 560Z" fill="#102a3b"/>
+    <path d="M0 205L50 128L95 158L150 92L210 150" stroke="#2c4a5e" stroke-width="2" fill="none"/>
+    <path d="M0 470C120 452 230 492 360 474C420 466 470 480 520 476L520 560L0 560Z" fill="#0d3a57"/>
+    <text class="tiny" x="300" y="520">the aquifer</text>
+    <path d="M180 150L1200 ${ys(1200)}" stroke="#4a6578" stroke-width="2"/>
+    <rect x="100" y="140" width="20" height="330" fill="#0a1f2e" stroke="#2c4a5e" stroke-width="2"/>
+    <rect x="102" y="400" width="16" height="68" fill="#1676b8"/>
+    <text class="lbl" x="110" y="64" text-anchor="middle">Umm al falaj</text>
+    <text class="sub" x="110" y="80" text-anchor="middle">mother well · ${f.total} results</text>
+    <path d="M110 86V128" stroke="#9fb3c1" stroke-width="1.5" stroke-dasharray="3 4"/>
+    ${shafts}
+    <path d="${tunnel}" stroke="#2c4a5e" stroke-width="20" stroke-linecap="round"/>
+    <path d="${tunnel}" stroke="#1676b8" stroke-width="9" stroke-linecap="round"/>
+    <path class="flowline" d="${tunnel}" stroke="#9fdaf4" stroke-width="2.5" stroke-dasharray="5 7" stroke-linecap="round"/>
+    <path d="${channel}" stroke="#3a5466" stroke-width="16" stroke-linecap="round"/>
+    <path d="${channel}" stroke="#1676b8" stroke-width="8" stroke-linecap="round"/>
+    <path class="flowline" d="${channel}" stroke="#9fdaf4" stroke-width="2.5" stroke-dasharray="5 7"/>
+    <path d="${branch}" stroke="#3a5466" stroke-width="12" fill="none" stroke-linecap="round"/><path d="${branch}" stroke="#1676b8" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <text class="sub" x="1036" y="${(b0 + 84).toFixed(1)}" text-anchor="end">to the hospital</text>
+    <text class="tiny" x="430" y="${(yt(430) + 36).toFixed(1)}" text-anchor="middle">the tunnel · the patient does not see this part</text>
+    <text class="tiny" x="930" y="${(ys(930) + 46).toFixed(1)}" text-anchor="middle">the open channel · primary care</text>
+    ${rocks}${drops}${palms}
+    <text class="lbl" x="1192" y="${(ys(1150) + 50).toFixed(1)}" text-anchor="end">${f.closed} palms</text>
+    <text class="sub" x="1192" y="${(ys(1150) + 66).toFixed(1)}" text-anchor="end">closed with proof</text>
+    ${pulses}${caps}`;
+}
+
+function emiratesSvg(m) {
+  const inSel = (id) => only === 'all' || id === only || (only === 'ad' && id === 'ain');
+  const LBL = { ad: [0, 1], ain: [0, 1], dxb: [-86, 0], shj: [84, -1], ajm: [-90, 0], uaq: [-70, -1], rak: [0, -1], fuj: [0, 1] };
+  const leak = m.leakNode, leakCh = leak ? CHANNELS.findIndex(([a, b]) => a === leak.id || b === leak.id) : -1;
+  const chan = CHANNELS.map(([, , d], i) => `<path d="${d}" stroke="#1f4b66" stroke-width="10" fill="none" stroke-linecap="round"/><path d="${d}" stroke="${i === leakCh ? '#e8573f' : '#36b5e8'}" stroke-width="${i === leakCh ? 3 : 2.5}" ${i === leakCh ? 'stroke-dasharray="5 6"' : 'opacity=".55"'} fill="none" stroke-linecap="round"/>`).join('');
   const drops = moving ? `<g class="drops" fill="#9fdaf4">${CHANNELS.map(([, , d], i) => `<circle r="4.5"><animateMotion dur="${5 + (i % 3)}s" begin="${(i * 0.7).toFixed(1)}s" repeatCount="indefinite" path="${d}"/></circle>`).join('')}</g>` : '';
   const nodes = m.nodes.map((n) => {
-    const r = Math.max(9, Math.round(Math.sqrt(n.open + n.closed) * 6));
-    const isLeak = leak && n.id === leak.id;
-    const [dx, side] = LBL[n.id];
+    const r = Math.max(9, Math.round(Math.sqrt(n.open + n.closed) * 6)), isLeak = leak && n.id === leak.id, [dx, side] = LBL[n.id], on = inSel(n.id);
     const ty = side > 0 ? n.y + r + 18 : side < 0 ? n.y - r - 26 : n.y - 3;
-    const on = inSel(n.id);
     return `<g opacity="${on ? 1 : 0.35}"><circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${isLeak ? 'rgba(232,87,63,.18)' : 'rgba(54,181,232,.16)'}" stroke="${isLeak ? '#e8573f' : '#36b5e8'}" stroke-width="${on ? 3 : 1.5}"/>
-      ${isLeak && moving ? `<circle class="drops" cx="${n.x}" cy="${n.y}" r="${r}" fill="none" stroke="#e8573f" stroke-width="2"><animate attributeName="r" values="${r};${r + 16};${r}" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0;.8" dur="2.4s" repeatCount="indefinite"/></circle>` : ''}
-      <text class="ntext" x="${n.x + dx}" y="${ty}" text-anchor="middle">${esc(n.name)}</text><text class="nsub" x="${n.x + dx}" y="${ty + 16}" text-anchor="middle">${n.open} open · ${n.stuck} stuck</text></g>`;
+      <text class="lbl" x="${n.x + dx}" y="${ty}" text-anchor="middle">${esc(n.name)}</text><text class="sub" x="${n.x + dx}" y="${ty + 16}" text-anchor="middle">${n.open} open · ${n.stuck} stuck</text></g>`;
   }).join('');
-  const call = leak ? `<g><rect x="290" y="300" width="230" height="52" rx="12" fill="#fff"/><text x="306" y="322" font-size="14" font-weight="700" fill="#a52a17">${esc(leak.name)} · ${leak.stuck} of ${leak.open} stuck</text><text x="306" y="341" font-size="12.5" fill="#3c5160">the biggest leak right now</text></g>` : '';
+  return `<g transform="translate(150 10)"><path d="M40 440C120 420 190 392 250 372C330 346 400 318 470 296C510 282 540 262 562 246C590 228 612 206 634 186C660 160 690 128 728 96C744 82 756 68 768 52" stroke="rgba(255,255,255,.14)" stroke-width="2" stroke-dasharray="2 7" fill="none"/>
+    <text class="tiny" x="96" y="470">Arabian Gulf</text>${chan}${drops}${nodes}
+    ${leak ? `<g><rect x="290" y="300" width="230" height="52" rx="12" fill="#fff"/><text x="306" y="322" font-size="14" font-weight="700" fill="#a52a17">${esc(leak.name)} · ${leak.stuck} of ${leak.open} stuck</text><text x="306" y="341" font-size="12.5" fill="#3c5160">the biggest leak right now</text></g>` : ''}</g>`;
+}
+
+function render() {
+  const m = mapSummary(state, Date.now(), only), f = falajSummary(state, Date.now(), only);
+  if (!sel || !f.points.some((p) => p.step === sel)) sel = (f.worst || f.points[0]).step;
+  document.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
+  document.getElementById('h1').textContent = view === 'falaj' ? 'The living falaj' : 'Where does the water stop?';
+  document.getElementById('intro').textContent = view === 'falaj'
+    ? 'Every abnormal screening result is water from the mother well. It flows unseen through the tunnel, past the access shafts where blockages are cleared, into the open channel, until it reaches the palm garden: care in place. Tap a shaft or a gate.'
+    : 'Like the arif al falaj, who gave every plot its fair turn, this map shows each place’s open cases, how many are past their deadline, and who is left without water.';
+  document.getElementById('ems').innerHTML = [['all', 'All 7 emirates'], ...EMIRATES.filter((e) => e.id !== 'ain').map((e) => [e.id, e.name])]
+    .map(([id, name]) => `<button data-em="${id}" aria-pressed="${id === only}">${name}</button>`).join('');
   const svg = document.getElementById('map');
-  svg.setAttribute('aria-label', `Schematic of the seven emirates. ${m.nodes.map((n) => `${n.name}: ${n.open} open, ${n.stuck} past deadline`).join('; ')}.${leak ? ` Biggest leak: ${leak.name}.` : ''}`);
-  svg.innerHTML = `<path d="M40 440C120 420 190 392 250 372C330 346 400 318 470 296C510 282 540 262 562 246C590 228 612 206 634 186C660 160 690 128 728 96C744 82 756 68 768 52" stroke="rgba(255,255,255,.14)" stroke-width="2" stroke-dasharray="2 7" fill="none"/>
-    <path d="M812 120C806 170 800 210 796 250C792 290 786 320 780 350" stroke="rgba(255,255,255,.14)" stroke-width="2" stroke-dasharray="2 7" fill="none"/>
-    <text x="96" y="470" fill="rgba(255,255,255,.4)" font-size="13" font-style="italic">Arabian Gulf</text>
-    ${chan}${drops}${nodes}${call}
-    <g font-size="12.5" fill="#c8d6df"><circle cx="40" cy="516" r="5" fill="#9fdaf4"/><text x="52" y="520">a case moving</text><circle cx="170" cy="516" r="5" fill="#e8573f"/><text x="182" y="520">the biggest leak</text><text x="320" y="520">circle size = number of cases</text></g>`;
-  document.getElementById('kp').innerHTML = `<div><span>Loop closed with proof</span><b class="ok">${m.closure}%</b></div><div><span>Past their deadline</span><b class="bad">${m.stuck}</b></div><div><span>Open cases</span><b>${m.open}</b></div><div><span>Closed</span><b>${m.closed}</b></div>`;
-  document.getElementById('leaks').innerHTML = m.leaks.length ? m.leaks.map((l) => `<div class="leak"><span>${esc(l.where)}</span><b>${l.n} stuck</b></div>`).join('') : '<div class="leak"><span>No case is past its deadline here.</span></div>';
-  const max = Math.max(1, ...m.equity.map((q) => q.pct));
-  document.getElementById('eq').innerHTML = m.equity.map((q) => `<div><span>${esc(q.lang)}</span><i><span class="${q.pct >= 40 ? 'hi' : ''}" style="width:${Math.round(q.pct / max * 100)}%"></span></i><b>${q.lost} of ${q.total}</b></div>`).join('');
+  if (view === 'falaj') {
+    svg.innerHTML = falajSvg(f);
+    svg.setAttribute('role', 'group');
+    svg.setAttribute('aria-label', `The care path as a falaj. ${f.points.map((p) => `${p.title}: ${p.waiting} waiting, ${p.stuck} past deadline`).join('; ')}. ${f.closed} closed with proof.`);
+  } else {
+    svg.innerHTML = emiratesSvg(m);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', `Schematic of the seven emirates. ${m.nodes.map((n) => `${n.name}: ${n.open} open, ${n.stuck} past deadline`).join('; ')}.`);
+  }
+  const p = f.points.find((x) => x.step === sel);
+  const maxOpen = Math.max(1, ...f.owners.map((o) => o.open));
+  const maxEq = Math.max(1, ...m.equity.map((q) => q.pct));
+  document.getElementById('side').innerHTML = `
+    <div class="kp" id="kp"><div><span>Closed with proof</span><b class="ok">${m.closure}%</b></div><div><span>Past their deadline</span><b class="bad">${m.stuck}</b></div><div><span>Open cases</span><b>${m.open}</b></div><div><span>Cases with no arif</span><b class="${f.noOwner ? 'bad' : ''}">${f.noOwner}</b></div></div>
+    ${view === 'falaj' ? `<section class="mcard" aria-live="polite"><div class="cphead"><b>${esc(p.title)}</b></div><p class="lead2">${WHY[p.step]}</p>
+      <div class="cpcount"><span>${p.waiting} waiting here</span>${p.stuck ? `<span class="bad">${p.stuck} past their deadline</span>` : ''}<span>arif: ${esc(p.arif)}</span></div>
+      ${p.cases.slice(0, 6).map((c) => `<div class="cprow"><span>${esc(c.name)}<br><small>${c.owner ? esc(c.owner) : '<span class="none">No arif</span>'}</small></span><span>${c.hoursLeft == null ? '' : c.late ? `<span class="late">late ${hrs(c.hoursLeft)}</span>` : `<span class="due">due in ${hrs(c.hoursLeft)}</span>`}<br><a href="staff.html?c=${encodeURIComponent(c.id)}" aria-label="Open the case of ${esc(c.name)}">Open</a></span></div>`).join('') || '<p class="mnote">Nothing waiting here. The water flows.</p>'}
+      ${p.cases.length > 6 ? `<p class="mnote">and ${p.cases.length - 6} more</p>` : ''}</section>` : ''}
+    <section class="mcard"><h2>The arif: who holds the water</h2><p class="lead2">Each open case has one named owner who gives it its turn. Red is the share past its deadline.</p>
+      <div class="ar">${f.owners.slice(0, 7).map((o) => `<div><span class="${o.name === 'No arif' ? 'none' : ''}">${esc(o.name)}</span><i><span style="width:${Math.round((o.open - o.stuck) / maxOpen * 100)}%"></span><span class="st" style="width:${Math.round(o.stuck / maxOpen * 100)}%"></span></i><b>${o.open} · ${o.stuck} late</b></div>`).join('')}</div></section>
+    <section class="mcard"><h2>A fair share for every plot</h2><p class="lead2">Cases past their deadline before a visit is booked, by the patient's language. Small numbers: read with care.</p>
+      <div class="eq">${m.equity.map((q) => `<div><span>${esc(q.lang)}</span><i><span class="${q.pct >= 40 ? 'hi' : ''}" style="width:${Math.round(q.pct / maxEq * 100)}%"></span></i><b>${q.lost} of ${q.total}</b></div>`).join('')}</div></section>`;
+  document.getElementById('story').innerHTML = [
+    ['Umm al falaj', 'The mother well: the laboratory result. Where the water starts.'],
+    ['The tunnel', 'Told, understood, booked: the part the patient cannot see, so the team must.'],
+    ['Thuqboor', 'Access shafts over the tunnel: deadlines where blockages are seen and cleared.'],
+    ['The open channel', 'Primary care and the hospital handshake, each behind a sluice gate.'],
+    ['The arif', 'One named owner per case, who gives each patient a fair turn.'],
+    ['The palm garden', 'Care in place, closed with a proof the patient keeps.'],
+  ].map(([t, d]) => `<div><b>${t}</b>${d}</div>`).join('');
   const mb = document.getElementById('motion'); mb.textContent = moving ? 'Pause motion' : 'Play motion'; mb.setAttribute('aria-pressed', String(moving));
   document.querySelectorAll('[data-em]').forEach((b) => b.onclick = () => { only = b.dataset.em; render(); });
+  document.querySelectorAll('[data-view]').forEach((b) => b.onclick = () => { view = b.dataset.view; render(); });
+  document.querySelectorAll('[data-cp]').forEach((g) => {
+    const pick = () => { sel = g.dataset.cp; render(); const again = document.querySelector(`[data-cp="${sel}"]`); if (again) again.focus(); };
+    g.addEventListener('click', pick);
+    g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+  });
 }
 document.getElementById('motion').onclick = () => { moving = !moving; render(); };
 render();

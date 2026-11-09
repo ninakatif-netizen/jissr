@@ -75,3 +75,43 @@ export function mapSummary(state, now = Date.now(), only = 'all') {
   const equity = Object.entries(langs).map(([code, v]) => ({ code, lang: LANG_NAME[code] || code, total: v.total, lost: v.lost, pct: v.total ? Math.round(v.lost / v.total * 100) : 0 })).sort((a, b) => b.total - a.total);
   return { nodes: list, open, stuck, closed, closure: total ? Math.round(closed / total * 100) : 0, leakNode, leaks, equity };
 }
+
+// ---- THE LIVING FALAJ: the care path drawn as a falaj in cross-section ----
+// Underground (the patient does not see it): told, understood, booked, checked at the thuqboor (access shafts).
+// Above ground, the open channel: seen in primary care, the hospital handshake, then the palm garden (closed).
+export const CHECKPOINTS = [
+  { step: 'notified', kind: 'shaft', title: 'Result told to the patient', arif: 'Screening programme' },
+  { step: 'understood', kind: 'shaft', title: 'Patient understood', arif: 'Nurse navigator' },
+  { step: 'booked', kind: 'shaft', title: 'Visit booked', arif: 'Nurse navigator' },
+  { step: 'attended', kind: 'gate', title: 'Seen in primary care', arif: 'Family doctor' },
+  { step: 'referral_reply', kind: 'gate', title: 'Hospital handshake answered', arif: 'Hospital specialist' },
+  { step: 'plan', kind: 'garden', title: 'Care plan recorded', arif: 'Family doctor' },
+];
+const inPlace = (only, em) => only === 'all' || em === only || (only === 'ad' && em === 'ain');
+
+export function falajSummary(state, now = Date.now(), only = 'all') {
+  const at = Object.fromEntries(CHECKPOINTS.map((c) => [c.step, { ...c, waiting: 0, stuck: 0, cases: [] }]));
+  const owners = {};
+  let closed = 0, total = 0, noOwner = 0;
+  const staff = Object.fromEntries((state.staff || []).map((s) => [s.id, s]));
+  for (const c of state.cases) {
+    if (!inPlace(only, emirateOf(c))) continue;
+    total++;
+    if (c.stage === 'closed') { closed++; continue; }
+    const k = slaClock(c, now);
+    const step = k && at[k.step] ? k.step : 'plan';
+    const late = !!k && k.tier === SLA_TIER.BREACHED;
+    const o = staff[c.owner];
+    const cp = at[step];
+    cp.waiting++; if (late) cp.stuck++;
+    cp.cases.push({ id: c.id, name: c.patient.name, owner: o ? o.name : null, late, hoursLeft: k ? k.hoursLeft : null });
+    if (!o) noOwner++;
+    const key = o ? o.name : '—';
+    owners[key] = owners[key] || { name: o ? o.name : 'No arif', role: o ? o.role : '', open: 0, stuck: 0 };
+    owners[key].open++; if (late) owners[key].stuck++;
+  }
+  for (const cp of Object.values(at)) cp.cases.sort((a, b) => (b.late - a.late) || ((a.hoursLeft ?? 1e9) - (b.hoursLeft ?? 1e9)));
+  const points = CHECKPOINTS.map((c) => at[c.step]);
+  const worst = [...points].filter((p) => p.stuck > 0).sort((a, b) => b.stuck - a.stuck)[0] || null;
+  return { points, closed, total, open: total - closed, noOwner, worst, owners: Object.values(owners).sort((a, b) => b.open - a.open) };
+}

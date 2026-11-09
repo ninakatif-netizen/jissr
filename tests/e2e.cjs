@@ -115,7 +115,9 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   // the living map: computed from the same demo cases; a filter keeps the other places visible
   await s.goto(BASE + 'map.html'); await s.waitForSelector('#map text');
   ok(await s.locator('#ems button').count() === 8 && /past their deadline/i.test(await s.innerText('#kp')), 'the living map shows every emirate and the late cases');
-  await s.click('[data-em=dxb]'); await s.waitForTimeout(200);
+  await s.click('[data-cp=understood]'); await s.waitForTimeout(150);
+  ok(/Patient understood/.test(await s.innerText('#side')) && /The living falaj/.test(await s.innerText('#h1')), 'the living falaj: tapping a shaft shows who is waiting there');
+  await s.click('[data-view=emirates]'); await s.click('[data-em=dxb]'); await s.waitForTimeout(200);
   ok(await s.getAttribute('[data-em=dxb]', 'aria-pressed') === 'true' && /Dubai/.test(await s.getAttribute('#map', 'aria-label')), 'the map can be filtered by emirate');
   await shot(s, '08d-map');
   await s.goto(BASE + 'roles.html'); await s.waitForTimeout(250);
