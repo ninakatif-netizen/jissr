@@ -5,16 +5,16 @@ import { STAGES, addDays } from './rules.mjs';
 import { newCase } from './cases.mjs';
 
 export const STAFF = [
-  { id: 'n1', name: 'Nurse Huda Al Ali', role: 'nurse', org: 'Screening programme' },
-  { id: 'n2', name: 'Nurse Peter Dsouza', role: 'nurse', org: 'Screening programme' },
-  { id: 'c1', name: 'Sara Khan (coordinator)', role: 'coordinator', org: 'Screening programme' },
-  { id: 'c2', name: 'Omar Said (coordinator)', role: 'coordinator', org: 'Screening programme' },
-  { id: 'd1', name: 'Dr Mariam Al Hosani', role: 'clinician', org: 'Primary care clinic' },
-  { id: 'd2', name: 'Dr Arjun Menon', role: 'clinician', org: 'Primary care clinic' },
-  { id: 'e1', name: 'Dr Salma Haddad', role: 'clinician', org: 'Hospital endocrinology' },
-  { id: 'e2', name: 'Dr Rahul Verma', role: 'clinician', org: 'Diabetes centre' },
-  { id: 'e3', name: 'Dr Khalid Rahman', role: 'clinician', org: 'Colorectal clinic' },
-  { id: 'e4', name: 'Dr Noura Al Ketbi', role: 'clinician', org: 'Breast clinic' },
+  { id: 'n1', name: 'Nurse Huda Al Ali', nameAr: 'الممرضة هدى العلي', role: 'nurse', org: 'Screening programme' },
+  { id: 'n2', name: 'Nurse Peter Dsouza', nameAr: 'الممرض بيتر دسوزا', role: 'nurse', org: 'Screening programme' },
+  { id: 'c1', name: 'Sara Khan (coordinator)', nameAr: 'سارة خان (منسّقة)', role: 'coordinator', org: 'Screening programme' },
+  { id: 'c2', name: 'Omar Said (coordinator)', nameAr: 'عمر سعيد (منسّق)', role: 'coordinator', org: 'Screening programme' },
+  { id: 'd1', name: 'Dr Mariam Al Hosani', nameAr: 'د. مريم الحوسني', role: 'clinician', org: 'Primary care clinic' },
+  { id: 'd2', name: 'Dr Arjun Menon', nameAr: 'د. أرجون مينون', role: 'clinician', org: 'Primary care clinic' },
+  { id: 'e1', name: 'Dr Salma Haddad', nameAr: 'د. سلمى حداد', role: 'clinician', org: 'Hospital endocrinology' },
+  { id: 'e2', name: 'Dr Rahul Verma', nameAr: 'د. راهول فيرما', role: 'clinician', org: 'Diabetes centre' },
+  { id: 'e3', name: 'Dr Khalid Rahman', nameAr: 'د. خالد رحمن', role: 'clinician', org: 'Colorectal clinic' },
+  { id: 'e4', name: 'Dr Noura Al Ketbi', nameAr: 'د. نورة الكتبي', role: 'clinician', org: 'Breast clinic' },
 ];
 
 // Journey stages by index: 0 result, 1 notified, 2 understood, 3 booked, 4 attended,

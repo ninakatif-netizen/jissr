@@ -123,6 +123,9 @@ const clockOf = (c) => slaClock(c, nowMs());
 const open = () => state.cases.filter((c) => c.stage !== 'closed');
 const escOf = (c) => escalationsFor(c, state.today);
 const LANG = { ar: 'Arabic', en: 'English', ur: 'Urdu', hi: 'Hindi', tl: 'Tagalog', bn: 'Bengali', ml: 'Malayalam' };
+// deadlines and next actions in plain words
+const dueWords = (k) => { if (!k) return 'No deadline running'; const h = Math.abs(k.hoursLeft), span = h >= 48 ? `${Math.floor(h / 24)} days` : `${h} h`; return k.tier === 'BREACHED' ? `Overdue by ${span}` : `Due in ${span}`; };
+const NEXT_WORDS = { notified: (n) => `Tell ${n} about the result`, understood: (n) => `Check ${n} understood`, booked: (n) => `Help ${n} book`, attended: () => 'Record the visit', confirmed: () => 'Record the confirmatory test', referred: () => 'Decide on a referral', care_plan: () => 'Record the plan' };
 const TIER_RANK = { BREACHED: 0, WARNING: 1, ON_TRACK: 2 };
 const byUrgency = (a, b) => (TIER_RANK[clockOf(a)?.tier] ?? 3) - (TIER_RANK[clockOf(b)?.tier] ?? 3) || maxLevel(escOf(b)) - maxLevel(escOf(a));
 
@@ -137,7 +140,8 @@ function nextText(c) {
   if (r && r.status === 'rejected') return 'Referral rejected: new plan needed';
   const n = nextStageOf(c);
   if (c.stage === 'care_plan') return 'Close with evidence';
-  return n ? 'Record: ' + stageLabel(c, n) : 'Closed';
+  const first = c.patient.name.split(' ')[0];
+  return n ? (NEXT_WORDS[n] ? NEXT_WORDS[n](first) : 'Record: ' + stageLabel(c, n)) : 'Closed';
 }
 function myCases() {
   const a = me();
@@ -152,7 +156,7 @@ const caseItem = (c) => {
   const k = clockOf(c);
   return `<button class="citem" data-case="${c.id}"><span class="ci"><span class="nm"><b>${esc(c.patient.name)}</b><span class="res">${resultText(c)}</span></span>
     <span class="act">${esc(nextText(c))}</span>
-    <span class="trk">${miniSteps(journeyStep(c), stageLabel(c, c.stage))}<span class="when ${k ? k.tier.toLowerCase() : ''}">${k ? slaText(k) : 'No deadline running'}</span></span></span></button>`;
+    <span class="trk">${miniSteps(journeyStep(c), stageLabel(c, c.stage))}<span class="when ${k ? k.tier.toLowerCase() : ''}">${dueWords(k)}</span></span></span></button>`;
 };
 const rows = (html, empty) => html ? `<div class="rows">${html}</div>` : `<div class="empty2">${empty}</div>`;
 
@@ -258,7 +262,7 @@ function caseView() {
     <section class="phead navy"><h2>${esc(c.patient.name)}</h2><div class="meta">${c.patient.age} years old, speaks ${LANG[c.patient.language] || esc(c.patient.language)}.<br>${progOf(c).name}</div>
       <div class="big"><b>${resultText(c)}</b><span class="tiny">${({ urgent: 'Urgent', priority: 'Priority', routine: 'Routine' })[c.urgency] || ''}</span></div>
       <div class="hbr">${miniSteps(journeyStep(c), stageLabel(c, c.stage))}<span>${CLOE_LABEL[cloePhase(c)]}</span></div>
-      ${k ? `<div class="own"><span class="when ${k.tier.toLowerCase()}">${slaText(k)}</span>: ${k.stepText.toLowerCase()}, ${dueDay(k)}</div>` : ''}
+      ${k ? `<div class="own"><span class="when ${k.tier.toLowerCase()}">${dueWords(k)}</span>: ${k.stepText.toLowerCase()}, ${dueDay(k)}</div>` : ''}
       <div class="own">Owner: <b style="color:#fff">${o ? esc(o.name) : 'Unassigned'}</b>${o ? `, ${esc(o.org)}` : ''}</div></section>
     ${e.length ? `<div class="flash err"><b>Needs attention</b>${e.map((x) => `<div>${x.level >= 3 ? 'Clinical lead now: ' : ''}${esc(x.text)}</div>`).join('')}</div>` : ''}
     ${c.stage !== 'closed' ? actionsHtml(c) : `<div class="flash ok">Closed by ${esc(c.closed?.by || '')}: ${esc(CLOSE_TYPES[c.closed?.type] || '')}<br>${esc(c.closed?.evidence || '')}</div>`}

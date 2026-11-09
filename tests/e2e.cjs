@@ -48,7 +48,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   ok(/Upcoming appointment/.test(await text()), 'home shows the appointment card');
   await shot(p, '05-home-booked');
   await p.click('.tab[data-go=plan]'); await p.waitForTimeout(200);
-  ok(await p.locator('.ring .rnum').count() === 1 && /2\/5/.test(await p.innerText('.rnum')) && /Visit booked/.test(await text()), 'care plan shows the progress ring and the steps');
+  ok(await p.locator('.p5 li').count() === 5 && /Step 3 of 5/.test(await text()) && /Visit booked/.test(await text()), 'care plan shows the care path and the dated steps');
   await shot(p, '05b-plan');
   await p.click('.tab[data-go=home]'); await p.waitForTimeout(150);
   await p.click('#aa'); ok(await p.evaluate(() => document.documentElement.classList.contains('bigtext')), 'bigger text can be switched on');
@@ -67,6 +67,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await p.click('.tab[data-go=result]'); await p.waitForTimeout(250);
   ok(await p.locator('.rcard .rmeans').count() === 1 && await p.locator('.micro.navy').count() === 1 && /biopsy/i.test(await text()) && /not a diagnosis/.test(await text()), 'mammogram: result card with a plain-language meaning, then the nurse call as the next step');
   await shot(p, '07c-mammo-result');
+  ok(await p.isVisible('#yes-bar'), 'the result screen keeps "I understand my result" in reach while scrolling');
   await p.click('.mslot >> nth=0'); await p.waitForTimeout(200);
   ok(/Your 10-minute call/.test(await text()), 'one tap books a 10-minute call with a nurse navigator');
   await p.goto(BASE + 'patient.html?p=C-001&nosplash=1'); await p.waitForTimeout(200);

@@ -352,6 +352,12 @@ h2.h3s{font-size:1.02rem}
 .btn.small{min-height:44px}
 .foot a{display:inline-block;padding:12px 0}
 h1:focus,h2:focus{outline:none}
+/* usability pass */
+.actbar{position:sticky;bottom:calc(86px + env(safe-area-inset-bottom));margin:16px -4px 0;z-index:5}
+.actbar .btn{box-shadow:0 10px 24px rgba(20,40,75,.25)}
+.actbar{transition:opacity .2s}.actbar.gone{opacity:0;pointer-events:none}
+.me.demo-pill{width:auto;height:44px;padding:0 12px;border-radius:999px;font-size:12px;font-weight:600;color:var(--muted);background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.me.demo-pill:after{display:none}
 </style>
 </head>
 <body>
@@ -378,6 +384,7 @@ import { ic, wordmark, logo } from './core/ui.mjs';
 import { registerSW, isStandalone, isIOS, onInstallReady, canPrompt, promptInstall } from './core/pwa.mjs';
 import { startTour } from './core/tour.mjs';
 import { resultText, progOf } from './core/programmes.mjs';
+import { STAFF } from './core/data.mjs';
 
 /* ---------- words on the screen (English / Arabic) ---------- */
 const S = {
@@ -539,6 +546,9 @@ const T = () => S[lang];
 const loc = () => (lang === 'ar' ? 'ar-AE' : 'en-GB');
 const fmtDay = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString(loc(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
 const staffOf = (sid) => state.staff.find((s) => s.id === sid);
+// a staff member's name in the patient's language (older saved data has no nameAr, so fall back to the built-in list)
+const sName = (o) => !o ? '' : lang === 'ar' ? (o.nameAr || (STAFF.find((s) => s.id === o.id) || {}).nameAr || o.name) : o.name;
+const sNameById = (id, fallback) => { const o = staffOf(id); return o ? sName(o) : fallback; };
 const stageIdx = (c) => ['result', 'notified', 'understood', 'booked', 'attended', 'confirmed', 'referred', 'care_plan', 'closed'].indexOf(c.stage);
 
 // Opening the app counts as "patient notified" in this demo.
@@ -607,6 +617,8 @@ const T3 = {
     },
     reassure: (n) => `Take a breath. Finding something to check is what screening is for. ${n} is your nurse navigator and is with you at every step.`,
     sumT: 'In plain words',
+    greetSubs: ['Your result is ready. Here is your path to care.', 'You understood your result. Next: book a visit.', 'Your visit is booked. We will remind you the day before.', 'Your visit is done. Your care team is checking what comes next.', 'Your plan is agreed. We stay with you.', 'All steps are done. Thank you for looking after your health.'],
+    nowLbl: 'Where you are now', understoodBar: 'I understand my result', pickHint: 'Choose a time above first.',
     navT: 'Your next step: talk to a nurse', navSub: 'A 10-minute phone call with a nurse, to explain what happens next and answer your questions.', navWho: 'Your nurse navigator', navWith: 'With you at every step', meansT: 'What does this result mean?',
     microMore: 'More times', microT: 'Talk it through: 10 minutes with a nurse', microSub: 'One tap books a short phone call. No preparation needed.',
     microBooked: (d, tm, n) => `Your 10-minute call: ${d} at ${tm} with ${n}. We will call your phone.`, microDone: 'Your 10-minute call is done.',
@@ -647,6 +659,8 @@ const T3 = {
     },
     reassure: (n) => `خذ نفساً عميقاً. اكتشاف شيء يحتاج إلى فحص هو هدف الكشف المبكر. ${n} من فريق التمريض يرافقك في كل خطوة.`,
     sumT: 'بكلمات بسيطة',
+    greetSubs: ['نتيجتك جاهزة. هذا طريقك إلى الرعاية.', 'فهمت نتيجتك. الخطوة التالية: احجز زيارة.', 'تم حجز زيارتك. سنذكّرك قبل يوم.', 'تمت زيارتك. يراجع فريق رعايتك الخطوة التالية.', 'تم الاتفاق على خطتك. نحن معك.', 'اكتملت كل الخطوات. شكراً لاهتمامك بصحتك.'],
+    nowLbl: 'أين أنت الآن', understoodBar: 'فهمت نتيجتي', pickHint: 'اختر وقتاً أولاً.',
     navT: 'خطوتك التالية: تحدّث مع فريق التمريض', navSub: 'مكالمة هاتفية لمدة 10 دقائق مع فريق التمريض، لشرح الخطوات القادمة والإجابة عن أسئلتك.', navWho: 'مرافقك من فريق التمريض', navWith: 'معك في كل خطوة', meansT: 'ماذا تعني هذه النتيجة؟',
     microMore: 'أوقات أخرى', microT: 'لنتحدث: 10 دقائق مع ممرضة', microSub: 'لمسة واحدة تحجز مكالمة قصيرة. لا تحتاج إلى أي تحضير.',
     microBooked: (d, tm, n) => `مكالمتك لمدة 10 دقائق: ${d} الساعة ${tm} مع ${n}. سنتصل بهاتفك.`, microDone: 'تمت مكالمتك لمدة 10 دقائق.',
@@ -728,7 +742,7 @@ function nextCard(c) {
     default: d = n.done; action = 'none'; cls = 'ok';
   }
   const [icon, title, sub, btn] = d;
-  return `<section class="next ${cls}"><div class="nhead"><span class="gtile">${ic(icon, 22)}</span><div><span class="nlbl">${t.yourNext}</span><h2>${esc(title)}</h2></div></div><p>${esc(sub)}</p>
+  return `<section class="next ${cls}"><div class="nhead"><span class="gtile">${ic(icon, 22)}</span><div><span class="nlbl">${cls === 'wait' || action === 'none' ? T3n().nowLbl : t.yourNext}</span><h2>${esc(title)}</h2></div></div><p>${esc(sub)}</p>
     ${btn && action !== 'none' ? `<button class="btn" id="next-go" data-a="${action}">${btn}</button>` : ''}</section>`;
 }
 
@@ -736,7 +750,7 @@ function contactCard(c) {
   const t = T(), o = staffOf(c.owner);
   return `<section class="card"><div class="lbl">${t.careBy}</div>
     ${o ? `<div class="who"><div class="avatar" aria-hidden="true">${esc(initials(o.name))}</div>
-      <div class="info"><b>${esc(o.name)}</b><span class="tiny muted">${t.role[o.role]} · ${esc(o.org)}</span></div>
+      <div class="info"><b>${esc(sName(o))}</b><span class="tiny muted">${t.role[o.role]} · ${esc(o.org)}</span></div>
       <button class="call" data-go="nurse" aria-label="${t.qNurse}">${ic('phone', 20)}</button></div>`
       : `<p style="margin:0">${t.noOwner}</p>`}
   </section>`;
@@ -784,9 +798,9 @@ function helpList(c) {
   const t = T(), o = staffOf(c.owner);
   const row = (go, icon, label) => `<button class="lrow" data-go="${go}">${ic(icon, 22)}<span>${label}</span>${ic('next', 18)}</button>`;
   return `<section class="hlist">
-    <div class="lrow who2">${o ? `<span class="avatar2" aria-hidden="true">${esc(initials(o.name))}</span>` : ''}<span class="wt"><small>${t.careBy}</small><b>${o ? esc(o.name) : t.noOwner}</b></span>
+    <div class="lrow who2">${o ? `<span class="avatar2" aria-hidden="true">${esc(initials(o.name))}</span>` : ''}<span class="wt"><small>${t.careBy}</small><b>${o ? esc(sName(o)) : t.noOwner}</b></span>
       <button class="call2" data-go="nurse" aria-label="${t.qNurse}">${ic('phone', 19)}</button></div>
-    ${row('result', 'speaker', t.qListen)}
+    <button class="lrow" id="listen-row">${ic('speaker', 22)}<span>${t.qListen}</span>${ic('next', 18)}</button>
     ${row('plan', 'plan', T3n().planT)}
     ${stageIdx(c) >= 2 ? row('book', 'calendar', t.tBook) : ''}
     ${row('family', 'users', t.qFamily)}
@@ -797,8 +811,8 @@ function homeView(c) {
   const t = T();
   const first = c.patient.name.split(' ')[0];
   let h = `${topBar()}<div class="view">
-    <div class="greet"><div><h1 class="hello">${esc(t.hello(first))}</h1><p class="gsub">${t.greetSub}</p></div>
-      <button class="me" id="me-btn" aria-label="Demo: switch patient" title="Demo: switch patient">${esc(initials(c.patient.name))}</button></div>
+    <div class="greet"><div><h1 class="hello">${esc(t.hello(first))}</h1><p class="gsub">${T3n().greetSubs[Math.min(journeyStep(c), 5)]}</p></div>
+      <button class="me demo-pill" id="me-btn" aria-label="Demo: switch patient" title="Demo: switch patient">Demo</button></div>
     ${trackerHtml(c)}
     ${nextCard(c)}
     ${helpList(c)}`;
@@ -808,7 +822,7 @@ function homeView(c) {
       <div class="row tiny muted" style="justify-content:space-between;margin-top:6px"><span>${t.confLow}</span><span>${t.confHigh}</span></div>
       ${msg.confDone ? `<div class="ok-msg" style="margin-bottom:0">${t.confThanks}</div>` : ''}</section>`;
   }
-  h += `<p class="foot"><a href="staff.html?c=${esc(c.id)}">${t.seeStaff}</a><br>Synthetic demo, not medical advice</p></div>`;
+  h += `<p class="foot"><a href="staff.html?c=${esc(c.id)}">${t.seeStaff}</a><br>${lang === 'ar' ? 'عرض تجريبي ببيانات مصطنعة، وليس نصيحة طبية' : 'Synthetic demo, not medical advice'}</p></div>`;
   return h;
 }
 
@@ -850,6 +864,7 @@ function resultView(c) {
     </section>`;
   const more = `<details class="rmore" ${level === 'simple' ? 'open' : ''}><summary>${t.moreDetail}</summary><p>${esc(ex.text)}</p><div class="tag">${ex.source === 'ai' ? t.ai : t.tpl}</div></details>`;
   const stepsHtml = `<section class="rnext"><h2>${t.whatNext}</h2>${steps.map((st, i) => `<div class="rstep ${i === 0 ? 'on' : ''}"><i></i><span>${esc(st)}</span></div>`).join('')}</section>`;
+  const bar = understood || msg.tb ? '' : `<div class="actbar"><button class="btn bigbtn" id="yes-bar">${ic('check', 18)} ${u.understoodBar}</button></div>`;
   const notdx = `<p class="rnotdx">${ic('shield', 20)}<span>${t.notdx}</span></p>`;
 
   if (fit || mammo) {
@@ -863,16 +878,16 @@ function resultView(c) {
         ${actions}
       </section>
       ${microHtml(c, true)}
-      ${o ? `<section class="hlist"><div class="lrow who2"><span class="avatar2" aria-hidden="true">${esc(initials(o.name))}</span><span class="wt"><small>${u.navWho}</small><b>${esc(o.name)}</b></span>
+      ${o ? `<section class="hlist"><div class="lrow who2"><span class="avatar2" aria-hidden="true">${esc(initials(o.name))}</span><span class="wt"><small>${u.navWho}</small><b>${esc(sName(o))}</b></span>
         <button class="call2" data-go="nurse" aria-label="${t.qNurse}">${ic('phone', 19)}</button></div></section>` : ''}
-      ${stepsHtml}${notdx}${sense}${more}</div>`;
+      ${stepsHtml}${notdx}${sense}${more}${bar}</div>`;
   }
   return `${topBar()}<div class="view">${pageBar(t.tabs[1])}
     <h1 class="rhero">${hero}</h1>
     <div class="rvalue"><span>HbA1c</span><b>${c.value}%</b></div>
     ${scaleHtml(c)}
     ${actions}${stepsHtml}${notdx}${more}${sense}
-    ${microHtml(c)}</div>`;
+    ${microHtml(c)}${bar}</div>`;
 }
 
 // COMPREHENSION CHECK (teach-back): the patient picks their next step. Right answer = understood.
@@ -891,13 +906,13 @@ function microHtml(c, navy) {
   const u = T3n(), m = c.microConsult;
   if (stageIdx(c) >= 3 && !m) return '';
   const cls = navy ? 'micro navy' : 'micro';
-  if (m) return `<section class="${cls} booked">${ic(m.status === 'done' ? 'check' : 'phone', 22)}<span>${m.status === 'done' ? u.microDone : esc(u.microBooked(fmtDay(m.day), m.time, m.nurseName))}</span></section>`;
+  if (m) return `<section class="${cls} booked">${ic(m.status === 'done' ? 'check' : 'phone', 22)}<span>${m.status === 'done' ? u.microDone : esc(u.microBooked(fmtDay(m.day), m.time, sNameById(m.nurseId, m.nurseName)))}</span></section>`;
   const slots = microConsultSlots(state.staff, state.cases, state.today);
   const days = [...new Set(slots.map((x) => x.day))];
   const day = days.includes(msg.mday) ? msg.mday : days[0];
   return `<section class="${cls}">${navy ? `<div class="nhead"><span class="gtile">${ic('phone', 22)}</span><div><h2>${u.navT}</h2></div></div><p class="msub">${u.navSub}</p>` : `<h2>${ic('phone', 20)} ${u.microT}</h2><p class="tiny muted">${u.microSub}</p>`}
     ${msg.microAll ? `<div class="mdays">${days.map((d) => `<button class="pick" data-mday="${d}" aria-pressed="${d === day}">${fmtDay(d)}</button>`).join('')}</div>` : `<div class="mday1">${fmtDay(day)}</div>`}
-    <div class="mgrid">${slots.filter((x) => x.day === day).slice(0, msg.microAll ? 99 : 3).map((x) => `<button class="mslot" data-micro="${x.day}|${x.time}|${x.nurseId}"><b>${x.time}</b><small>${esc(x.nurseName.replace(/^Nurse /, ''))}</small></button>`).join('')}</div>
+    <div class="mgrid">${slots.filter((x) => x.day === day).slice(0, msg.microAll ? 99 : 3).map((x) => `<button class="mslot" data-micro="${x.day}|${x.time}|${x.nurseId}"><b>${x.time}</b><small>${esc(sNameById(x.nurseId, x.nurseName).replace(/^Nurse /, '').replace(/^الممرض(ة)? /, ''))}</small></button>`).join('')}</div>
     ${msg.microAll ? '' : `<button class="linkbtn" id="micro-more">${u.microMore}</button>`}</section>`;
 }
 
@@ -926,13 +941,13 @@ function planView(c) {
   const item = (go, icon, title, s, st) => `<button class="pitem ${st || ''}" ${go ? `data-go="${go}"` : 'disabled'}><span class="gtile">${ic(icon, 21)}</span><span class="pt"><b>${title}</b><small>${esc(s)}</small></span>${st === 'done' ? `<span class="pok">${ic('check', 16)}</span>` : go ? ic('next', 18) : ''}</button>`;
   return `${topBar()}<div class="view">${pageBar(u.planT)}
     <p class="gsub" style="margin:0 0 14px">${u.planSub}</p>
-    <section class="ring"><div class="rwrap">${ringHtml(now)}<div class="rnum"><b>${Math.min(now, 5)}/5</b><span>${u.done}</span></div></div>
-      <ol class="chk" aria-label="${u.progT}">${checklist}</ol></section>
+    ${trackerHtml(c)}
+    <section class="card"><h2 class="h3s">${u.progT}</h2><ol class="chk" aria-label="${u.progT}">${checklist}</ol></section>
     <section class="plist">
       ${item(now < 2 ? (now === 1 ? 'book' : 'result') : '', fit || mammo ? 'flask' : 'doctor', fit ? u.fitDoc : mammo ? u.mammo.doc : u.pDoc, docSub, now >= 3 ? 'done' : '')}
       ${item('', fit || mammo ? 'file' : 'flask', fit ? u.fitTests : mammo ? u.mammo.tests : u.pTests, fit ? u.fitTestsSub : mammo ? u.mammo.testsSub : u.pTestsSub, now >= 4 ? 'done' : '')}
       ${item('', 'plan', u.pPlan, planSub, now >= 5 || c.plan ? 'done' : '')}
-      ${item('nurse', 'phone', u.pHelp, o ? u.pHelpSub(o.name) : t.noOwner, '')}
+      ${item('nurse', 'phone', u.pHelp, o ? u.pHelpSub(sName(o)) : t.noOwner, '')}
     </section>
     <div class="ontrack ${late ? 'late' : ''}">${ic(late ? 'clock' : 'leaf', 22)}<div><b>${h}</b><span>${sub}</span></div></div>
   </div>`;
@@ -965,7 +980,8 @@ function bookView(c) {
       ${msg.mode === 'video' ? `<p class="tiny muted" style="margin:10px 0 0">${T3n().videoNote}</p>` : ''}</section>`}
     <section class="card"><h2 class="h3s">${t.pick}</h2>
       <div class="dates">${slots.map((sl, i) => { const p = dparts(sl.day); return `<button class="dt" data-slot="${i}" aria-pressed="${msg.slot === i}"><span>${p.mon}</span><b>${p.num}</b><span>${p.wd}</span><em>${sl.time}</em></button>`; }).join('')}</div>
-      <button class="btn bigbtn" id="confirm" ${msg.slot == null ? 'disabled' : ''}>${t.confirm}</button>
+      <button class="btn bigbtn" id="confirm" ${msg.slot == null ? 'disabled aria-describedby="pickhint"' : ''}>${t.confirm}</button>
+      ${msg.slot == null ? `<p class="tiny muted" id="pickhint" style="text-align:center;margin:8px 0 0">${T3n().pickHint}</p>` : ''}
     </section></div>`;
 }
 
@@ -1047,8 +1063,14 @@ function wire(c) {
   $('#me-btn') && ($('#me-btn').onclick = () => window.toggleDemo());
   $('#install-go') && ($('#install-go').onclick = async () => { await promptInstall(); render(); });
   $('#next-go') && ($('#next-go').onclick = () => { const a = $('#next-go').dataset.a; a === 'ics' ? downloadIcs() : go(a); });
+  $('#listen-row') && ($('#listen-row').onclick = () => { go('result'); listen(explainNow(c).text); render(); });
   $('#listen') && ($('#listen').onclick = () => { speaking ? stopSpeak() : listen(explainNow(c).text); render(); });
   $('#simpler') && ($('#simpler').onclick = () => { level = 'simple'; render(); });
+  if ($('#yes-bar') && $('#sense') && 'IntersectionObserver' in window) {
+    const barEl = $('.actbar');
+    new IntersectionObserver(([e]) => { barEl.classList.toggle('gone', e.isIntersecting); }, { threshold: 0.3 }).observe($('#sense'));
+  }
+  $('#yes-bar') && ($('#yes-bar').onclick = () => { msg.tb = true; msg.tbWrong = false; msg.no = false; render(); const sn = document.getElementById('sense'); if (sn) { sn.scrollIntoView({ block: 'center' }); const f = sn.querySelector('button'); if (f) f.focus({ preventScroll: true }); } });
   $('#yes') && ($('#yes').onclick = () => { msg.tb = true; msg.tbWrong = false; msg.no = false; render(); });
   document.querySelectorAll('[data-tb]').forEach((b) => b.onclick = () => {
     if (b.dataset.tb === 'ok') act(() => { if (stageIdx(c) < 2) advance(state, c.id, 'understood', patientActor(), 'Teach-back passed: the patient chose the right next step'); msg.tb = false; msg.tbWrong = false; });
