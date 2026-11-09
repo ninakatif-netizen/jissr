@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#ebe4d6">
+<meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <title>Jissr: try to break it</title>
@@ -15,11 +15,11 @@
 @media(max-width:820px){.hero2{grid-template-columns:1fr}}
 .hero2 h1{font-size:2.3rem;line-height:1.15;margin:6px 0 10px}
 .kicker{font-size:15px;color:#b47a10;font-weight:600}
-.scorecard{background:linear-gradient(135deg,#2c5294,#1a3463);color:#fff;border-radius:26px;padding:24px;box-shadow:0 18px 40px rgba(26,52,99,.3);position:relative;overflow:hidden}
+.scorecard{background:var(--hero);color:#fff;border-radius:26px;padding:24px;box-shadow:0 18px 40px rgba(26,52,99,.3);position:relative;overflow:hidden}
 .scorecard .big2{font-size:3.4rem;font-weight:700;line-height:1}
 .scorecard .bar{height:10px;border-radius:5px;background:rgba(255,255,255,.18);overflow:hidden;margin:14px 0 8px}
-.scorecard .bar i{display:block;height:100%;width:0;background:#f5b544;transition:width .25s}
-.scorecard .btn{background:#f5b544;color:#1b2238;box-shadow:none;width:100%;margin-top:12px}
+.scorecard .bar i{display:block;height:100%;width:0;background:#ffffff;transition:width .25s}
+.scorecard .btn{background:#ffffff;color:var(--hero);box-shadow:none;width:100%;margin-top:12px}
 .groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-top:18px}
 .grp{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:16px}
 .grp h3{display:flex;gap:8px;align-items:center;margin:0 0 10px}
@@ -44,6 +44,7 @@
 @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .rt td:first-child{font-weight:600}
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <div class="demo"><span>Prototype · synthetic data only · these checks run on the same code the app uses</span><span class="row"><a href="patient.html">Patient app</a><a href="staff.html">Care team</a><a href="index.html">Home</a></span></div>
@@ -88,7 +89,8 @@
     <tr><td>Urgent ≥ 10 %, deadlines, escalation rules</td><td>Our own proposals</td><td>Awaiting clinician review</td></tr>
     <tr><td>Patient messages (English and Arabic)</td><td>Written by the team</td><td>Our own work</td></tr>
     <tr><td>HbA1c code in the FHIR export</td><td>LOINC 4548-4</td><td>LOINC licence (notice below)</td></tr>
-    <tr><td>Font: Readex Pro (Arabic and Latin)</td><td>Thomas Jockin and Nadine Chahine, via Google Fonts / Fontsource</td><td>SIL Open Font License 1.1</td></tr>
+    <tr><td>Font: IBM Plex Sans Arabic (phone apps)</td><td>IBM Corp. (Bold Monday), via Fontsource</td><td>SIL Open Font License 1.1</td></tr>
+    <tr><td>Font: Readex Pro (desktop pages)</td><td>Thomas Jockin and Nadine Chahine, via Google Fonts / Fontsource</td><td>SIL Open Font License 1.1</td></tr>
     <tr><td>Logo, icons, skyline, animation, video</td><td>Drawn by the team in code</td><td>Our own work · no stock images</td></tr>
   </tbody></table></div>
   <div class="grp" style="margin-top:14px"><h3>Personal data: only what the follow-up needs</h3>

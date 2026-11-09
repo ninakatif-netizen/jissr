@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Jissr: who are you?</title>
 <meta name="description" content="One case, many organisations: choose your role in the screening-to-care loop. Synthetic data only.">
-<meta name="theme-color" content="#ebe4d6">
+<meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -15,20 +15,21 @@
 .chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:14px 0 22px}
 .chain span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13.5px;font-weight:500}
 .chain i{font-style:normal;color:var(--accent-d)}
-.chain b{background:#14284b;color:#fff;border-radius:999px;padding:6px 12px;font-size:13.5px;font-weight:600}
+.chain b{background:var(--hero);color:#fff;border-radius:999px;padding:6px 12px;font-size:13.5px;font-weight:600}
 .roles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
 .role{display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
-.role:hover{transform:translateY(-2px);border-color:#c4954a}
-.role .gt{width:46px;height:46px;border-radius:14px;background:#efe1c6;color:#7a5626;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.role:hover{transform:translateY(-2px);border-color:var(--accent)}
+.role .gt{width:46px;height:46px;border-radius:14px;background:var(--accent-l);color:var(--accent-d);display:flex;align-items:center;justify-content:center;margin-bottom:6px}
 .role h2{font-size:1.15rem;margin:0}
-.role .org{font-size:12.5px;color:#7a5626;font-weight:600}
+.role .org{font-size:12.5px;color:var(--accent-d);font-weight:600}
 .role p{margin:2px 0 0;font-size:14px;color:var(--muted)}
 .role .go{margin-top:auto;padding-top:10px;font-weight:600;font-size:14px}
-.role.patient{background:#14284b;color:#fff;border-color:#14284b}
-.role.patient .gt{background:rgba(255,255,255,.1);color:#e3c38f}
-.role.patient .org{color:#e3c38f}.role.patient p{color:#d3d9e6}
+.role.patient{background:var(--hero);color:#fff;border-color:var(--hero)}
+.role.patient .gt{background:rgba(255,255,255,.1);color:var(--hero-acc)}
+.role.patient .org{color:var(--hero-acc)}.role.patient p{color:var(--on-hero-2)}
 .note{font-size:13.5px;color:var(--muted);margin-top:22px;display:flex;gap:8px;align-items:flex-start}
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <div class="demo"><span>Prototype with synthetic data. Not medical advice.</span><a href="index.html">Home</a></div>

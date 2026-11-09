@@ -45,7 +45,7 @@ export function logo(size = 30) {
   return `<svg width="${size * 1.5}" height="${size}" viewBox="0 0 48 32" fill="none" aria-hidden="true" focusable="false">
     <path d="M2 27h44" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
     <path d="M4 27C6.5 18.5 13 18.5 16.5 27M12 27C15.5 -1 32.5 -1 36 27M31.5 27C35 18.5 41.5 18.5 44 27" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
-    <path d="M16.6 27C19.6 7.5 28.4 7.5 31.4 27" stroke="#d6a85a" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M16.6 27C19.6 7.5 28.4 7.5 31.4 27" style="stroke:var(--logo-acc,#d6a85a)" stroke-width="1.6" stroke-linecap="round"/>
   </svg>`;
 }
 
@@ -64,10 +64,10 @@ export const phaseChip = (phase) => `<span class="phase ph-${phase.toLowerCase()
 // Done steps filled, the current one in gold with a ring, the rest hollow.
 export function miniSteps(now, label = '') {
   const X = [6, 34, 62, 90, 118], end = now >= 5 ? 118 : X[now];
-  const dots = X.map((x, i) => i < now || now >= 5 ? `<circle cx="${x}" cy="13" r="4" fill="#14284b"/>`
-    : i === now ? `<circle cx="${x}" cy="13" r="5.2" fill="#c4954a" stroke="#14284b" stroke-width="1.6"/>`
-    : `<circle cx="${x}" cy="13" r="3.6" fill="#f6f2ea" stroke="#a8977a" stroke-width="1.4"/>`).join('');
+  const dots = X.map((x, i) => i < now || now >= 5 ? `<circle cx="${x}" cy="13" r="4" style="fill:var(--hero)"/>`
+    : i === now ? `<circle cx="${x}" cy="13" r="5.2" style="fill:var(--accent);stroke:var(--hero)" stroke-width="1.6"/>`
+    : `<circle cx="${x}" cy="13" r="3.6" style="fill:var(--card);stroke:var(--chev)" stroke-width="1.4"/>`).join('');
   return `<svg class="mini" viewBox="0 0 124 26" width="124" height="26" role="img" aria-label="${label || 'Step ' + Math.min(now + 1, 5) + ' of 5'}">
-    <path d="M6 13H118" stroke="#cfc4b0" stroke-width="2" stroke-linecap="round"/>
-    ${end > 6 ? `<path d="M6 13H${end}" stroke="#14284b" stroke-width="2.4" stroke-linecap="round"/>` : ''}${dots}</svg>`;
+    <path d="M6 13H118" style="stroke:var(--line)" stroke-width="2" stroke-linecap="round"/>
+    ${end > 6 ? `<path d="M6 13H${end}" style="stroke:var(--hero)" stroke-width="2.4" stroke-linecap="round"/>` : ''}${dots}</svg>`;
 }

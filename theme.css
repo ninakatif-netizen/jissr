@@ -1,0 +1,90 @@
+/* JISSR THEME v5 "Clinique": clear, exact, clinical.
+   White and cool grey, one petrol-teal for actions, orange only for "this is now", green for done.
+   Flat surfaces with hairlines, no decorative shadows. IBM Plex Sans Arabic for both scripts (SIL OFL, in /fonts).
+   Every phone screen reads the tokens; change a value here and the whole app follows. */
+@font-face{font-family:"Plex";font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Plex";font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Plex";font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Plex";font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Plex";font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Plex";font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Plex";font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Plex";font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+/* ---------- structure: every surface reads the theme tokens ---------- */
+body,.device{color:var(--ink);font-family:var(--text)}
+.device{background:var(--device-bg)}
+h1,h2,h3,.hello,.rhero,.next h2,.bar h1,.bar2 h1,.hero h1,.pick b{font-family:var(--display)}
+.hello{font-weight:var(--hello-w);letter-spacing:var(--display-ls)}
+.top{background:var(--top-bg);box-shadow:0 1px 0 var(--line);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
+.card,.card2,.hlist,.rcard,.path,.micro,.rmore,.rsum,.plist,.ring,.stat3,.journey,.pick:not(.navy):not([aria-pressed]){background:var(--card);border:var(--card-b);border-radius:var(--r);box-shadow:var(--card-sh);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
+.rmeans{background:var(--card2);border:0;border-radius:calc(var(--r) - 8px)}
+.next,.micro.navy,.navy,.pick.navy,.splash{background:var(--hero-bg)!important;color:#fff;border:0;box-shadow:var(--hero-sh)}
+.next{border-radius:var(--r)}
+.next.ok,.micro.navy.booked{background:var(--ok-bg)!important}
+.next .btn,.micro.navy .pick[aria-pressed=true]{background:var(--hero-btn);color:var(--hero-btn-ink)}
+.btn{border-radius:var(--btn-r);background:var(--brand)}
+.btn.ghost{background:transparent;color:var(--brand);box-shadow:inset 0 0 0 1.5px var(--brand)}
+.btn[disabled]{background:var(--card2);color:var(--muted)}
+.actbar .btn{box-shadow:var(--hero-sh)}
+.gtile{background:var(--accent-l);color:var(--accent-d);border-radius:calc(var(--r) * .6)}
+.tabs{background:var(--tabs-bg);border-top:1px solid var(--line);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
+.tab[aria-current=page]{color:var(--brand)}
+.tab[aria-current=page]:after{background:var(--tab-mark)}
+.p5 li.now .pd{background:var(--brand);border-color:var(--brand);box-shadow:0 0 0 4px var(--accent-l)}
+.langs button[aria-pressed=true]{text-decoration-color:var(--tab-mark)}
+.me.demo-pill{box-shadow:inset 0 0 0 1px var(--line)}
+input,select,textarea{border-radius:var(--btn-r)}
+.dt,.mslot,.modes button,.scale button,.otp input{border-radius:calc(var(--btn-r) + 2px)}
+.dt[aria-pressed=true],.scale button[aria-pressed=true],.modes button[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+@media (min-width:700px){body{background:radial-gradient(circle at 30% 0%,var(--desk-1),var(--desk-2))}.device{border-color:var(--frame)}.device:before{background:var(--frame)}}
+.tl li.next{background:none!important;color:inherit;border:0;box-shadow:none;border-radius:0;font-weight:600}
+:root{
+  --font:"Plex";--display:"Plex",system-ui,sans-serif;--text:"Plex",system-ui,sans-serif;--hello-w:600;--display-ls:-.02em;
+  --bg:#f2f5f6;--card:#ffffff;--card2:#e8eef0;--ink:#0d2230;--ink-2:#2b3b45;--muted:#4e5e68;--line:#d7e0e4;
+  --brand:#0a5f70;--brand-d:#07404c;--brand-l:#d5ebef;--hero:#0a5f70;--on-hero-2:#cfe7ec;--hero-acc:#bdeaf1;
+  --accent:#e0782a;--accent-d:#8a4510;--accent-l:#fbe7d5;--tab-mark:#0a5f70;
+  --ok:#157148;--ok-l:#e2f1e8;--ok-ink:#145536;--ok-line:#c4e2d0;--ok-on-hero:#bfe8d1;
+  --chev:#8a99a2;--ring:#a9b8c0;--bad:#b0301c;--bad-l:#fbe3de;
+  --r:14px;--btn-r:10px;--card-b:1px solid var(--line);--card-sh:none;--blur:none;
+  --device-bg:var(--bg);--top-bg:#ffffff;--tabs-bg:#ffffff;
+  --hero-bg:var(--hero);--hero-sh:none;--ok-bg:var(--ok);--hero-btn:#ffffff;--hero-btn-ink:#0a5f70;
+  --desk-1:#f7fafb;--desk-2:#dfe7ea;--frame:#0d2230;--logo-acc:#e0a24a;
+}
+.top{padding-bottom:12px}
+.next{border-inline-start:6px solid var(--accent)}
+/* structure A: a clinical record. Care path as a vertical timeline, next step as a white chart card with a signal bar. */
+.next{border-inline-start:0;background:var(--card)!important;color:var(--ink);border:1px solid var(--line);border-top:5px solid var(--accent);box-shadow:none}
+.next.ok{background:var(--card)!important;border-top-color:var(--ok)}
+.next h2{color:var(--ink);font-size:24px}
+.next p,.next .appt .sub{color:var(--muted)}
+.nlbl,.next .nlbl,.next.ok .nlbl{color:var(--accent-d);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.next.ok .nlbl{color:var(--ok)}
+.next .gtile{background:var(--accent-l);color:var(--accent-d)}
+.next .btn,.next.ok .btn{background:var(--brand);color:#fff}
+.next.wait .btn{background:transparent;color:var(--brand);border:1.5px solid var(--brand)}
+.next .datebox{background:var(--card2);color:var(--ink)}
+.phd b,.lbl,.rlabel,.sec{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+[dir=rtl] .phd b,[dir=rtl] .nlbl,[dir=rtl] .rlabel{letter-spacing:0}
+.path{padding:14px 16px 10px}
+.p5w:before,.p5w .pl{display:none}
+.p5{grid-template-columns:1fr}
+.p5 li{flex-direction:row;gap:14px;text-align:start;padding:5px 0}
+.p5 li:not(:last-child):after{content:"";position:absolute;inset-inline-start:15px;top:39px;bottom:-5px;width:2px;background:var(--line)}
+.p5 li.done:not(:last-child):after{background:var(--ok)}
+.pd{width:32px;height:32px;flex:none}
+.p5 small{font-size:15px}
+.p5 li.now small{font-weight:600}
+.p5 li.now:before{content:"";position:absolute;inset-inline-end:0;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--accent)}
+.hello{font-size:30px}
+.hlist{border-radius:var(--r)}
+.lrow{min-height:56px}
+/* the one action comes first; the full care path sits right under it */
+.view:has(>.greet){display:flex;flex-direction:column}
+.view:has(>.greet)>*{order:4}.view:has(>.greet)>.greet{order:0}.view:has(>.greet)>.next{order:1}.view:has(>.greet)>.path{order:2}.view:has(>.greet)>.hlist{order:3}
+.view:has(>.greet)>.next{margin-top:10px}
+.navy .when.breached{color:#ffd0c6}.navy .when.warning{color:#ffe2a8}.navy .when.on_track{color:#c6f0d6}
+/* the remaining shared tokens, so desktop pages and dark-mode phones get the same light, clinical look */
+:root{color-scheme:light;
+  --panel:#0a5f70;--on-panel:#ffffff;--teal:#0a5f70;--teal-d:#07404c;--teal-l:#d5ebef;
+  --blue:#0a5f70;--blue-l:#d5ebef;--green:#157148;--green-l:#e2f1e8;--amber:#8a5a0e;--amber-l:#fdf0d8;--red:#b0301c;--red-l:#fbe3de;
+  --p-blue:#e3eef1;--p-yellow:#fdf0d8;--p-pink:#fbe6ea;--p-lilac:#ece9f7;--p-mint:#e2f1e8;--shadow:0 1px 0 rgba(13,34,48,.06)}

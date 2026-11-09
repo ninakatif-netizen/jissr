@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#ebe4d6">
+<meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <title>Jissr: impact</title>
@@ -15,7 +15,7 @@
 .hero3{margin:18px 0 6px}.hero3 h1{font-size:2.5rem;line-height:1.12;margin:6px 0 10px;max-width:18ch}
 .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
 .fact{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column}
-.fact.dark{background:linear-gradient(135deg,#2c5294,#1a3463);color:#fff}
+.fact.dark{background:var(--hero);color:#fff}
 .fact b{font-size:2.3rem;line-height:1;font-weight:700;letter-spacing:-.02em}
 .fact.dark b{color:#f5b544}
 .fact p{margin:8px 0 10px;font-size:14.5px}
@@ -33,9 +33,9 @@
 .inp label{display:flex;justify-content:space-between;margin:14px 0 6px}
 .inp label:first-child{margin-top:0}
 .inp output{font-weight:700;color:var(--brand)}
-.inp input[type=range]{width:100%;accent-color:#1d3a6b;padding:0;border:0;background:none}
+.inp input[type=range]{width:100%;accent-color:var(--hero);padding:0;border:0;background:none}
 .inp small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
-.out{background:linear-gradient(135deg,#2c5294,#1a3463);color:#fff;border-radius:22px;padding:22px}
+.out{background:var(--hero);color:#fff;border-radius:22px;padding:22px}
 .out .row2{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)}
 .out .row2 b{font-size:1.3rem}
 .out .hl{background:rgba(245,181,68,.15);border-radius:16px;padding:14px;margin-top:14px}
@@ -44,6 +44,7 @@
 .bar2{height:14px;border-radius:7px;background:rgba(255,255,255,.12);overflow:hidden}.bar2 i{display:block;height:100%;transition:width .3s}
 .src li{margin:8px 0;font-size:14px}
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <div class="demo"><span>Prototype · every number on this page has a source or is labelled as an assumption</span><span class="row"><a href="pilot.html">Path to pilot</a><a href="index.html">Home</a></span></div>

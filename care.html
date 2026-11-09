@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Jissr · care team</title>
 <meta name="description" content="Jissr care team app: today's tasks, cases, alerts and protocols, on a phone. Synthetic demo.">
-<meta name="theme-color" content="#ebe4d6">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Jissr">
@@ -19,10 +19,10 @@
 .stat3{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;font:inherit;color:inherit;text-align:start;cursor:pointer}
 .stat3 b{display:block;font-size:22px;line-height:1.1}
 .stat3 span{font-size:11.5px;color:var(--muted)}
-.stat3.red b{color:#a3311f}.stat3.amber b{color:#8a5a0e}
+.stat3.red b{color:var(--bad)}.stat3.amber b{color:#8a5a0e}
 .citem{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:start;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin:0 0 8px;cursor:pointer}
-.pav{width:42px;height:42px;border-radius:50%;background:#e2e7f0;color:#14284b;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex:none}
-.pav.urgent{background:#fbe1dc;color:#a3311f}
+.pav{width:42px;height:42px;border-radius:50%;background:#e2e7f0;color:var(--hero);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex:none}
+.pav.urgent{background:var(--bad-l);color:var(--bad)}
 .ci{flex:1;min-width:0}
 .ci .nm{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
 .ci .nm b{font-weight:600;font-size:15px}
@@ -34,20 +34,20 @@
 .search{width:100%;margin:0 0 10px}
 .fchips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:6px;scrollbar-width:none}
 .fchips button{flex:none;border:0;border-radius:999px;background:var(--card2);color:var(--ink);font:inherit;font-size:13px;padding:8px 12px;cursor:pointer}
-.fchips button[aria-pressed=true]{background:#14284b;color:#fff}
+.fchips button[aria-pressed=true]{background:var(--hero);color:#fff}
 .alert{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:start;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin:0 0 8px;cursor:pointer}
 .alert.l3{border-color:#e9b7ad;background:#fdf1ee}
 .alert .gtile{width:38px;height:38px;border-radius:12px}
-.alert.l3 .gtile{background:#fbe1dc;color:#a3311f}
+.alert.l3 .gtile{background:var(--bad-l);color:var(--bad)}
 .sopq{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;font:inherit;color:inherit;text-align:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin:0 0 8px;cursor:pointer}
 .sopq b{font-size:20px}.sopq small{display:block;color:var(--muted);font-size:12.5px}
 .phead{border-radius:22px;padding:16px;margin:0 0 12px}
 .phead h2{color:#fff;font-size:22px;margin:0}
-.phead .meta{font-size:13px;color:#d3d9e6;margin:2px 0 10px}
+.phead .meta{font-size:13px;color:var(--on-hero-2);margin:2px 0 10px}
 .phead .big{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
 .phead .big b{font-size:30px;line-height:1}
 .phead .row2{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.phead .own{font-size:13px;color:#d3d9e6;margin-top:10px}
+.phead .own{font-size:13px;color:var(--on-hero-2);margin-top:10px}
 .act-card h3{font-size:15px;margin:0 0 8px;font-family:var(--text);font-weight:600}
 .act-card .btn{width:100%;justify-content:center;margin-top:8px}
 .act-card textarea,.act-card input,.act-card select{width:100%;margin-top:6px}
@@ -55,16 +55,16 @@
 .two .btn{margin-top:8px}
 .note2{font-size:13px;color:var(--muted);margin:6px 0 0}
 .flash{border-radius:14px;padding:10px 12px;font-size:14px;margin:0 0 12px}
-.flash.ok{background:#e3efe6;color:#1f6b45}.flash.err{background:#fbe1dc;color:#a3311f}
+.flash.ok{background:var(--ok-l);color:var(--ok)}.flash.err{background:var(--bad-l);color:var(--bad)}
 .tl{list-style:none;margin:0;padding:0}
 .tl li{display:flex;gap:10px;padding:6px 0;font-size:13.5px}
-.tl li i{width:14px;height:14px;border-radius:50%;border:2px solid #c9b99c;flex:none;margin-top:3px}
-.tl li.done i{background:#2f8a5b;border-color:#2f8a5b}
-.tl li.next i{border-color:#c4954a;box-shadow:0 0 0 3px #efe1c6}
+.tl li i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ring);flex:none;margin-top:3px}
+.tl li.done i{background:var(--ok);border-color:var(--ok)}
+.tl li.next i{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-l)}
 .tl li.todo{color:var(--muted)}
 .tl small{display:block;color:var(--muted);font-size:12px}
 .rules2{font-size:12.5px;color:var(--muted);padding-inline-start:18px;margin:8px 0 0}
-.rules2 li.bad{color:#a3311f;font-weight:500}
+.rules2 li.bad{color:var(--bad);font-weight:500}
 .me-card{display:flex;gap:12px;align-items:center}
 .linkrow{display:flex;align-items:center;gap:12px;width:100%;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:0 0 8px;text-decoration:none;cursor:pointer;text-align:start}
 .linkrow span{flex:1}
@@ -75,13 +75,14 @@
 .trk{display:flex;align-items:center;gap:10px}
 .trk .mini{flex:none}
 .when{font-size:12.5px;font-weight:600;color:var(--muted)}
-.when.breached{color:#a3311f}.when.warning{color:#8a5a0e}.when.on_track{color:#1f6b45}
+.when.breached{color:var(--bad)}.when.warning{color:#8a5a0e}.when.on_track{color:var(--ok)}
 .navy .when.breached{color:#ffb4a6}.navy .when.warning{color:#f1cd8a}.navy .when.on_track{color:#a9dcbc}
 .hbr{display:flex;align-items:center;gap:10px;margin:2px 0 6px;font-size:13.5px;font-weight:500}
-.navy .mini path:first-child{stroke:#5d6d8c}.navy .mini path:nth-child(2){stroke:#c9d2e3}
+.navy .mini path:first-child{stroke:rgba(255,255,255,.3)!important}.navy .mini path:nth-child(2){stroke:var(--on-hero-2)!important}.navy .mini circle{stroke:var(--on-hero-2)!important}
 .more{display:block;width:100%;background:none;border:0;font:inherit;font-weight:600;color:var(--ink);padding:14px 0;text-align:start;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
-.alert.l3 .gtile{background:#fbe1dc;color:#a3311f}
+.alert.l3 .gtile{background:var(--bad-l);color:var(--bad)}
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <div class="demo" style="justify-content:space-between;padding:8px 16px;font-size:13px"><span>Demo with synthetic data. Choosing a role is not a login.</span><span><a href="staff.html">Desktop dashboard</a>&nbsp;&nbsp;<a href="index.html">About</a></span></div>
@@ -163,7 +164,7 @@ const rows = (html, empty) => html ? `<div class="rows">${html}</div>` : `<div c
 /* ---------- tabs ---------- */
 function topBar() {
   const a = me();
-  return `<div class="top"><span style="color:#14284b;display:inline-flex;align-items:center;gap:8px;font-weight:700">${logo(26)} Jissr</span><span class="who"><b>${esc(a.name)}</b>${RV.title}</span></div>`;
+  return `<div class="top"><span style="color:var(--hero);display:inline-flex;align-items:center;gap:8px;font-weight:700">${logo(26)} Jissr</span><span class="who"><b>${esc(a.name)}</b>${RV.title}</span></div>`;
 }
 function todayView() {
   const a = me(), list = myCases(), o = open();

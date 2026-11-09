@@ -45,7 +45,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   ok(/Video call/.test(await text()), 'the booked visit shows it is a video call');
   ok(/Your visit is booked/.test(await text()), 'booking is confirmed');
   await p.click('.tab[data-go=home]'); await p.waitForTimeout(200);
-  ok(/Upcoming appointment/.test(await text()), 'home shows the appointment card');
+  ok(/Upcoming appointment/i.test(await text()), 'home shows the appointment card');
   await shot(p, '05-home-booked');
   await p.click('.tab[data-go=plan]'); await p.waitForTimeout(200);
   ok(await p.locator('.p5 li').count() === 5 && /Step 3 of 5/.test(await text()) && /Visit booked/.test(await text()), 'care plan shows the care path and the dated steps');
@@ -60,7 +60,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
 
   await p.click('#me-btn'); await p.selectOption('#who', 'C-031'); await p.waitForTimeout(250);
   await p.click('.tab[data-go=result]'); await p.waitForTimeout(250);
-  ok(/Positive/.test(await text()) && /colonoscopy/i.test(await text()) && /not a diagnosis/.test(await text()), 'a bowel screening patient sees their own result and next step');
+  ok(/Positive/i.test(await text()) && /colonoscopy/i.test(await text()) && /not a diagnosis/.test(await text()), 'a bowel screening patient sees their own result and next step');
   await shot(p, '07b-bowel-patient');
   // CLOE: a BI-RADS 4 mammogram patient
   await p.click('.tab[data-go=home]'); await p.waitForTimeout(150); await p.click('#me-btn'); await p.selectOption('#who', 'C-040'); await p.waitForTimeout(250);
@@ -103,7 +103,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await q.goto(BASE + 'app.html'); await q.waitForTimeout(250);
   ok(/I am a patient/.test(await q.innerText('body')) && /I work in care/.test(await q.innerText('body')), 'the app opens on "who are you?": patient or care team');
   await q.click('#care'); await q.click('[data-role=specialist]'); await q.waitForTimeout(500);
-  ok(/Referral inbox/.test(await q.innerText('#app')) && await q.locator('.tab').count() === 4, 'the care team app has its own tabs and the specialist sees the referral inbox');
+  ok(/Referral inbox/i.test(await q.innerText('#app')) && await q.locator('.tab').count() === 4, 'the care team app has its own tabs and the specialist sees the referral inbox');
   await q.click('.citem >> nth=0'); await q.waitForTimeout(250);
   await q.fill('#rnote', 'Accepted, clinic slot this week'); await q.click('#racc'); await q.waitForTimeout(250);
   ok(/You now own this case/.test(await q.innerText('#app')), 'on the phone, a specialist accepts a referral and becomes the owner');
