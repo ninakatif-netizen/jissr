@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0d1b35">
+<meta name="theme-color" content="#ebe4d6">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Jissr">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -127,7 +127,7 @@ body{font-size:16px}
 .fitres p{margin:4px auto 0;max-width:30ch;color:var(--ink)}
 /* identity check */
 .gate{text-align:center;padding-top:18px}
-.gico{width:76px;height:76px;border-radius:24px;background:var(--p-blue);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:8px auto 18px}
+.gico{width:76px;height:76px;border-radius:24px;background:var(--card2);color:var(--brand);display:flex;align-items:center;justify-content:center;margin:8px auto 18px}
 .otp{display:flex;gap:10px;justify-content:center;margin:20px 0}
 .otp input{width:58px;height:66px;text-align:center;font-size:1.6rem;font-weight:700;border-radius:16px;padding:0;background:var(--card);box-shadow:var(--shadow);border:2px solid transparent}
 .otp input:focus{border-color:var(--brand)}
@@ -338,8 +338,17 @@ html.bigtext .hello{font-size:36px}
 .tab[aria-current=page] .ico{background:transparent}
 .dates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;gap:8px}
 .dates .dt{width:auto}
+/* the one night sky: like the poster, night above the sand. The bridge is drawn in ivory and gold for it. */
+.sky{background:radial-gradient(120% 90% at 50% 0%,#17305c 0%,#0d1b35 70%);border-radius:28px;padding:16px 14px 8px;margin:14px 0}
+.sky .bridge{margin:0 0 2px}
+.sky .blabels span{color:#8d9cb9}.sky .blabels .on{color:#d6a85a}
+.sky .bmeta,.sky .bmeta i{color:#8d9cb9}.sky .bmeta b{color:#ece3d0}
+.sky .next,.sky .next.ok,.sky .next.wait{background:transparent!important;border:0!important;box-shadow:none!important;margin:8px 0 0!important;padding:16px 6px 10px!important;border-top:1px solid rgba(236,227,208,.14)!important;border-radius:0!important}
+.sky .next .btn{background:#ebe4d6!important;color:#14284b!important}
+.sky .next.ok .btn{background:#ebe4d6!important;color:#1f6f4f!important}
+.sky .next.wait .btn{background:transparent!important;color:#ece3d0!important;box-shadow:inset 0 0 0 1.5px rgba(236,227,208,.55)!important;border:0!important}
+.sky .next .datebox{background:#ebe4d6;color:#14284b}
 </style>
-<link rel="stylesheet" href="night.css">
 </head>
 <body>
 <div class="demo" id="demo">
@@ -796,8 +805,7 @@ function homeView(c) {
   let h = `${topBar()}<div class="view">
     <div class="greet"><div><h1 class="hello">${esc(t.hello(first))}</h1><p class="gsub">${t.greetSub}</p></div>
       <button class="me" id="me-btn" aria-label="Demo: switch patient" title="Demo: switch patient">${esc(initials(c.patient.name))}</button></div>
-    ${trackerHtml(c)}
-    ${nextCard(c)}
+    <section class="sky">${trackerHtml(c)}${nextCard(c)}</section>
     ${helpList(c)}`;
   h += installCard();
   if (stageIdx(c) >= 3 && c.stage !== 'closed') {
