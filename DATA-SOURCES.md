@@ -1,6 +1,6 @@
-# Jissr: data sources, licences and personal data
+# Falaj: data sources, licences and personal data
 
-The organisers provide no data. Jissr uses **only material we created or have the legal right to use**, and **no real personal data**.
+The organisers provide no data. Falaj uses **only material we created or have the legal right to use**, and **no real personal data**.
 
 ## 1. Data used in the prototype
 
@@ -41,7 +41,7 @@ No organiser data, no real patient data, no scraped data, and no third-party dat
 
 ## 4. Personal data: what we keep, and why
 
-Even though every record is invented, Jissr is built as if the data were real, and collects only what the follow-up needs.
+Even though every record is invented, Falaj is built as if the data were real, and collects only what the follow-up needs.
 
 | Field | Why it is needed |
 |---|---|

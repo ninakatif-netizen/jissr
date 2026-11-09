@@ -1,4 +1,4 @@
-// Makes Jissr installable and usable offline (service worker), and offers the install button.
+// Makes Falaj installable and usable offline (service worker), and offers the install button.
 export function registerSW() {
   if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 }

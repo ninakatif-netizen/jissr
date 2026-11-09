@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
-<title>Jissr: path to pilot</title>
-<meta name="description" content="How Jissr goes from prototype to a 90-day pilot: plan, success criteria, architecture, business model and risks.">
+<title>Falaj: path to pilot</title>
+<meta name="description" content="How Falaj goes from prototype to a 90-day pilot: plan, success criteria, architecture, business model and risks.">
 <link rel="stylesheet" href="styles.css">
 <style>
 .wrap{max-width:1040px}
@@ -45,7 +45,7 @@
       <li>Measure the baseline from the last months of the current process</li>
       <li>Train the nurse, coordinator and clinicians (one hour)</li></ul></div>
     <div class="ph"><span class="wk">Weeks 4–10</span><h3>Run</h3><ul>
-      <li>Every new actionable HbA1c result enters Jissr automatically</li>
+      <li>Every new actionable HbA1c result enters Falaj automatically</li>
       <li>Patients get their result in plain Arabic or English, with consent</li>
       <li>The care team works from "My tasks" and the alerts queue</li>
       <li>Weekly 15-minute review of alerts and any safety concern</li>
@@ -71,7 +71,7 @@
   <h2 style="margin-top:28px">What a pilot partner provides</h2>
   <div class="two">
     <div class="card" style="margin:0"><ul style="margin:0;padding-inline-start:18px">
-      <li>A clinical lead (about 2 hours a week)</li><li>One nurse and one coordinator using Jissr in their normal work</li>
+      <li>A clinical lead (about 2 hours a week)</li><li>One nurse and one coordinator using Falaj in their normal work</li>
       <li>Access to the lab result feed for one programme</li><li>Help with approvals, consent wording and the security review</li></ul></div>
     <div class="card" style="margin:0"><ul style="margin:0;padding-inline-start:18px">
       <li>We provide: the software, set-up, training, weekly support</li><li>Hosting planned in a UAE cloud region, so data stays in the country</li>
@@ -92,7 +92,7 @@
   </div>
 
   <h2 style="margin-top:28px">Risks and how they are handled</h2>
-  <div class="scroll" style="max-height:none"><table class="tbl"><thead><tr><th>Risk</th><th>How Jissr handles it</th></tr></thead><tbody>
+  <div class="scroll" style="max-height:none"><table class="tbl"><thead><tr><th>Risk</th><th>How Falaj handles it</th></tr></thead><tbody>
     <tr><td>A wrong clinical rule or message</td><td>Clinical sign-off before the pilot; rules are explicit and tested; weekly review</td></tr>
     <tr><td>AI says something unsafe</td><td>AI only rewords; safety filter; pre-written fallback; it can never act on a case (<a href="trust.html">proof</a>)</td></tr>
     <tr><td>Personal data</td><td>Only what the follow-up needs; UAE hosting; consent; nothing personal sent to the AI</td></tr>
@@ -121,7 +121,7 @@ document.getElementById('arch').innerHTML = `<svg viewBox="0 0 900 380" role="im
   ${box(20, 30, 200, 80, 'Patient app', ['Phone, installable, offline', 'Arabic and English'])}
   ${box(20, 150, 200, 80, 'Care-team web app', ['Nurses, coordinators', 'clinicians, leads'])}
   ${box(20, 270, 200, 80, 'Sign-in', ['Staff: Microsoft Entra ID', 'Patients: one-time SMS code'])}
-  ${box(300, 110, 280, 160, 'Jissr service (UAE region)', ['Same rules engine as the prototype', 'Owners, deadlines, escalation', 'Clinician-only closing', 'Audit log of every action', 'Database, encrypted'], '#1d3a6b', '#fff')}
+  ${box(300, 110, 280, 160, 'Falaj service (UAE region)', ['Same rules engine as the prototype', 'Owners, deadlines, escalation', 'Clinician-only closing', 'Audit log of every action', 'Database, encrypted'], '#1d3a6b', '#fff')}
   ${box(660, 20, 220, 80, 'Lab and records', ['Result feed (FHIR)', 'Malaffi, where approved'])}
   ${box(660, 120, 220, 80, 'Messaging', ['SMS or WhatsApp provider', 'Reminders, codes'])}
   ${box(660, 220, 220, 80, 'Azure OpenAI', ['Words only, UAE region if available', 'No names or identifiers'])}

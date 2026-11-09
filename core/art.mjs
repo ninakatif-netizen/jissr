@@ -1,4 +1,4 @@
-// Hand-drawn style line art for Jissr: an Abu Dhabi skyline, with a bridge whose wave-like arches are
+// Hand-drawn style line art for Falaj: an Abu Dhabi skyline, with a bridge whose wave-like arches are
 // inspired by the Sheikh Zayed Bridge (Zaha Hadid). An original drawing, not a copy of any photo or plan.
 // Drawn for this project (no stock art). Uses currentColor, so it takes the colour of where it sits.
 export function skyline({ width = 360, opacity = 1, sun = true } = {}) {

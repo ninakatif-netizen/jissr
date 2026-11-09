@@ -1,5 +1,5 @@
 import { slaText, CLOE_LABEL } from './rules.mjs';
-// Shared look: line icons (instead of emoji) and the Jissr bridge mark.
+// Shared look: line icons (instead of emoji) and the Falaj mark (a water channel and a palm).
 // Icons are simple 24px strokes drawn for this project; they inherit the text colour.
 
 const P = {
@@ -39,51 +39,33 @@ export function ic(name, size = 20, extra = '') {
   return `<svg class="ico" ${extra} width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${P[name] || ''}</svg>`;
 }
 
-// The Jissr mark, inspired by the Sheikh Zayed Bridge in Abu Dhabi (Zaha Hadid): one continuous ribbon rises over the
-// deck and dives below it like a desert dune, with a second, gold rib beside it (the real arches are double).
-// An original drawing, no photo or plan. The same ribbon is the care-path gauge (bridgeGauge / miniSteps).
-export const RIBBON = 'M4 62C16 62 24 18 42 18C60 18 64 70 82 70C100 70 104 6 124 6C144 6 150 70 168 70C186 70 190 28 206 28C220 28 228 52 236 52';
-// Vertical cables between the ribbon and the deck, where the ribbon is above the deck: they make it read as a bridge.
-function cablesFor(d, deck = 46) {
-  const n = d.match(/-?[\d.]+/g).map(Number), pts = [];
-  let x0 = n[0], y0 = n[1];
-  for (let k = 2; k + 5 < n.length; k += 6) {
-    const [a, b, c, e, f, g] = n.slice(k, k + 6);
-    for (let t = 0; t <= 1; t += 0.02) { const u = 1 - t; pts.push([u*u*u*x0 + 3*u*u*t*a + 3*u*t*t*c + t*t*t*f, u*u*u*y0 + 3*u*u*t*b + 3*u*t*t*e + t*t*t*g]); }
-    x0 = f; y0 = g;
-  }
-  let out = '';
-  for (let x = 10; x < 232; x += 7) {
-    const y = pts.reduce((m, p) => Math.abs(p[0] - x) < Math.abs(m[0] - x) ? p : m)[1];
-    if (y < deck - 6) out += `M${x} ${(y + 3).toFixed(1)}V${deck - 2}`;
-  }
-  return out;
-}
-const RIB2 = 'M4 70C18 70 26 28 42 28C58 28 64 78 82 78C100 78 106 16 124 16C142 16 150 78 168 78C186 78 192 38 206 38C218 38 228 60 236 60';
-export const CABLES = cablesFor(RIBBON);
+// The Falaj mark: a falaj (the water channel of the oases of Al Ain, UNESCO World Heritage) carrying water to a
+// palm tree. Every abnormal screening result is water that must reach care. An original drawing.
+const CH = 'M4 32C14 32 16 15 28 15C38 15 40 26 50 26';
+const PALM = 'M55 27C55.6 20 55.2 13 54 8M54 8C50 4.5 45 5 43 8.5M54 8C58 4.5 63 5 65 8.5M54 8C51.5 3.5 52.5 1 56 0M54 8C57 5 61 6 62.5 10';
 export function logo(size = 30) {
-  const h = Math.round(size * 0.9), w = Math.round(h * 240 / 84);
-  return `<svg class="jmark" width="${w}" height="${h}" viewBox="0 0 240 84" fill="none" aria-hidden="true" focusable="false">
-    <path d="${RIBBON}" style="stroke:var(--logo-rib,var(--brand,#0e5a80))" stroke-width="${size < 40 ? 7 : 6}" stroke-linecap="round"/>
-    ${size < 24 ? '' : `<path d="${RIB2}" style="stroke:var(--logo-acc,#d6a85a)" stroke-width="${size < 40 ? 6 : 4}" stroke-linecap="round"/>`}
-    <path d="${CABLES}" stroke="currentColor" stroke-width="${size < 40 ? 3 : 2}" opacity=".55"/>
-    <path d="M2 46H238" stroke="currentColor" stroke-width="${size < 40 ? 10 : 6}" stroke-linecap="round"/>
+  const h = Math.round(size), w = Math.round(h * 66 / 40);
+  return `<svg class="jmark" width="${w}" height="${h}" viewBox="0 0 66 40" fill="none" aria-hidden="true" focusable="false">
+    <path d="${CH}" style="stroke:var(--logo-sand,#e2d7c1)" stroke-width="9" stroke-linecap="round"/>
+    <path d="${CH}" style="stroke:var(--logo-water,var(--brand,#0a5c8a))" stroke-width="3.6" stroke-linecap="round"/>
+    <path d="${PALM}" style="stroke:var(--logo-palm,#1e7a4c)" stroke-width="2.6" stroke-linecap="round"/>
   </svg>`;
 }
 
-// The care path as a bridge that loads like a segmented progress bar: 20 segments along the ribbon, 4 per step.
-// Filled segments appear one after another (CSS delay per segment); the deck and the gold rib stay as the drawing.
+// The care path as a falaj: a U-shaped channel bed, filled segment by segment like a loading bar (20 segments,
+// 4 per step), with sluice gates at each step and a palm at the end that turns green when everything is done.
+const CANAL = 'M24 40H290A40 40 0 0 1 290 120H70';
 export function bridgeGauge(done, label = '') {
   const filled = Math.min(5, done) * 4;
-  const segs = Array.from({ length: 20 }, (_, i) => `<path class="gseg${i < filled ? ' on' : ''}" d="${RIBBON}" pathLength="100" stroke-dasharray="4 96" stroke-dashoffset="${-5 * i}" style="--i:${i}"/>`).join('');
-  return `<svg class="gauge-b${done >= 5 ? ' all' : ''}" viewBox="0 0 240 84" fill="none" role="img" aria-label="${label}">
-    <path class="gcab" d="${CABLES}" stroke-width="1.2"/>
-    <path class="grib" d="${RIB2}" stroke-width="2" stroke-linecap="round"/>
-    <g stroke-width="9">${segs}</g>
-    <path class="gdeck" d="M2 46H238" stroke-width="3.5" stroke-linecap="round"/></svg>`;
+  const segs = Array.from({ length: 20 }, (_, i) => `<path class="gseg${i < filled ? ' on' : ''}" d="${CANAL}" pathLength="100" stroke-dasharray="4.2 95.8" stroke-dashoffset="${-(i * 4.8 + 0.4)}" style="--i:${i}"/>`).join('');
+  return `<svg class="gauge-b${done >= 5 ? ' all' : ''}" viewBox="0 0 350 160" fill="none" role="img" aria-label="${label}">
+    <path class="gbed" d="${CANAL}" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+    <g stroke-width="11">${segs}</g>
+    <g class="gpalm" stroke-width="2.8" stroke-linecap="round"><path d="M46 142C47 130 46 114 44 100M44 100C36 94 28 96 24 102M44 100C52 93 60 95 64 101M44 100C40 90 42 84 48 80M44 100C48 91 56 88 60 89"/></g>
+  </svg>`;
 }
 
-export const wordmark = () => `${logo(30)}<span>Jissr</span><span class="ar">جسر</span>`;
+export const wordmark = () => `${logo(30)}<span>Falaj</span><span class="ar">فلج</span>`;
 
 // CLOE badges, shared by the staff screens.
 // SLA countdown: green on track, amber warning, red breached. The tier is also written in words (not colour only).
@@ -94,9 +76,12 @@ export function slaBadge(clock) {
 }
 export const phaseChip = (phase) => `<span class="phase ph-${phase.toLowerCase()}">${CLOE_LABEL[phase]}</span>`;
 
-// Mini care path for list rows: the same bridge, 5 segments (one per step).
+// Mini care path for list rows: a short falaj, 5 segments (one per step), and its palm.
 export function miniSteps(now, label = '') {
-  const segs = [0, 1, 2, 3, 4].map((i) => `<path d="${RIBBON}" pathLength="100" stroke-dasharray="19 81" stroke-dashoffset="${-20 * i}" class="${i < now || now >= 5 ? 'm-on' : 'm-off'}"/>`).join('');
-  return `<svg class="mini" viewBox="0 0 240 84" width="72" height="26" role="img" aria-label="${label || 'Step ' + Math.min(now + 1, 5) + ' of 5'}">
-    <g fill="none" stroke-width="16">${segs}</g><path d="M2 46H238" class="m-deck" stroke-width="8" stroke-linecap="round" fill="none"/></svg>`;
+  const d = 'M4 18C26 18 30 8 52 8S80 18 100 18';
+  const segs = [0, 1, 2, 3, 4].map((i) => `<path d="${d}" pathLength="100" stroke-dasharray="18 82" stroke-dashoffset="${-20 * i}" class="${i < now || now >= 5 ? 'm-on' : 'm-off'}"/>`).join('');
+  return `<svg class="mini" viewBox="0 0 120 26" width="84" height="20" role="img" aria-label="${label || 'Step ' + Math.min(now + 1, 5) + ' of 5'}">
+    <path d="${d}" class="m-bed" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <g fill="none" stroke-width="5">${segs}</g>
+    <path d="M110 22V9M110 10C107 7 104 8 103 10M110 10C113 7 116 8 117 10M110 10C109 6 110 4 112 3" class="${now >= 5 ? 'm-palm on' : 'm-palm'}" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`;
 }

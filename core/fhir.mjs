@@ -1,4 +1,4 @@
-// FHIR-READY EXPORT (demo). Shows how a Jissr case maps to standard HL7 FHIR R4 resources, so it could
+// FHIR-READY EXPORT (demo). Shows how a Falaj case maps to standard HL7 FHIR R4 resources, so it could
 // plug into hospital systems and Malaffi later. It is shaped to FHIR R4 but has NOT been checked with the
 // official FHIR validator, and it is synthetic data only. No AI-written text is included.
 //

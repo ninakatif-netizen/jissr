@@ -372,7 +372,7 @@ export function createCase(state, actor, { name, age, language, value, today, pr
   });
   c.events[0].at = new Date().toISOString();
   c.events[0].by = actor.type === 'system' ? 'Lab system' : `Lab result entered by ${actor.name}`;
-  if (owner) logEvent(c, 'owner', { type: 'system', name: 'Jissr rules' }, `Assigned by rule to ${pool[0].name} (least busy ${role})`);
+  if (owner) logEvent(c, 'owner', { type: 'system', name: 'Falaj rules' }, `Assigned by rule to ${pool[0].name} (least busy ${role})`);
   state.cases.push(c);
   return c;
 }

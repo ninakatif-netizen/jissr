@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Jissr · care team</title>
-<meta name="description" content="Jissr care team app: today's tasks, cases, alerts and protocols, on a phone. Synthetic demo.">
+<title>Falaj · care team</title>
+<meta name="description" content="Falaj care team app: today's tasks, cases, alerts and protocols, on a phone. Synthetic demo.">
 <meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Jissr">
+<meta name="apple-mobile-web-app-title" content="Falaj">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -163,7 +163,7 @@ const rows = (html, empty) => html ? `<div class="rows">${html}</div>` : `<div c
 /* ---------- tabs ---------- */
 function topBar() {
   const a = me();
-  return `<div class="top"><span style="color:var(--hero);display:inline-flex;align-items:center;gap:8px;font-weight:700">${logo(26)} Jissr</span><span class="who"><b>${esc(a.name)}</b>${RV.title}</span></div>`;
+  return `<div class="top"><span style="color:var(--hero);display:inline-flex;align-items:center;gap:8px;font-weight:700">${logo(26)} Falaj</span><span class="who"><b>${esc(a.name)}</b>${RV.title}</span></div>`;
 }
 function todayView() {
   const a = me(), list = myCases(), o = open();

@@ -1,4 +1,4 @@
-// Jissr: turns the patient's message into a natural voice (Azure AI Speech, neural voices).
+// Falaj: turns the patient's message into a natural voice (Azure AI Speech, neural voices).
 //   GET  /api/jissr-voice                      -> {ok:true, voice:true|false}   (is a natural voice set up? true/false only)
 //   GET  /api/jissr-voice?lang=ar&text=...     -> audio/mpeg (MP3)
 //
@@ -14,7 +14,7 @@
 const env = (k) => (process.env[k] || '').trim();
 export const voiceReady = () => !!(env('AZURE_SPEECH_KEY') && env('AZURE_SPEECH_REGION'));
 
-const MAX = 1500; // characters: longer than any Jissr message, short enough to stop misuse
+const MAX = 1500; // characters: longer than any Falaj message, short enough to stop misuse
 const hits = new Map(); // small best-effort rate limit per visitor
 function limited(req) {
   const ip = String(req.headers['x-forwarded-for'] || 'x').split(',')[0].trim();

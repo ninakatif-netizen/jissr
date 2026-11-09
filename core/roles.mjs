@@ -1,4 +1,4 @@
-// ROLE VIEWS: who uses Jissr across the health system, and what each one sees first.
+// ROLE VIEWS: who uses Falaj across the health system, and what each one sees first.
 // One shared case moves between organisations; each role opens the same engine with its own default list.
 // (Demo: picking a role is not a login.)
 

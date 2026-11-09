@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Jissr · جسر</title>
-<meta name="description" content="Jissr: one app for the screening-to-care loop, for patients and for the care team. Synthetic demo.">
+<title>Falaj · فلج</title>
+<meta name="description" content="Falaj: one app for the screening-to-care loop, for patients and for the care team. Synthetic demo.">
 <meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Jissr">
+<meta name="apple-mobile-web-app-title" content="Falaj">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -53,7 +53,7 @@ let last = null; try { last = localStorage.getItem('jissr.lastApp'); } catch { }
 function render() {
   const lastRole = last && last.startsWith('care:') ? roleView(last.slice(5)) : null;
   app.innerHTML = `<div class="view">
-    <div class="hero"><span class="mark">${logo(64)}</span><h1>Jissr<span>جسر</span></h1><p>From a screening result to the right care. Nobody left behind.</p><p class="insp">Our mark is inspired by the Sheikh Zayed Bridge, Abu Dhabi.</p></div>
+    <div class="hero"><span class="mark">${logo(64)}</span><h1>Falaj<span>فلج</span></h1><p>From a screening result to the right care. Nobody left behind.</p><p class="insp">Our mark is a falaj, the water channels of the oases of Al Ain (UNESCO World Heritage).</p></div>
     ${!showRoles ? `
       <p class="sec" style="text-align:center;margin-top:22px">Who are you? <span lang="ar">من أنت؟</span></p>
       <button class="pick navy" data-go="patient.html?p=C-001"><span class="gtile">${ic('home', 24)}</span><span class="t"><b>I am a patient</b><small>Understand my result, book, talk to a nurse. English and العربية.</small></span>${ic('next', 20)}</button>

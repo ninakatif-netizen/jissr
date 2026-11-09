@@ -1,7 +1,7 @@
 // GUIDED TOUR for judges: 7 short steps across the patient app, the care team and the measures.
 // Any page with ?tour=N shows the step card. Nothing here changes the rules.
 const STEPS = [
-  { url: 'patient.html?p=C-001&fresh=1', title: 'Meet Fatima', text: 'Her HbA1c came back high. She opens Jissr on her phone and first confirms it is her, with the code from her SMS (demo code: 2026). Then she taps "Read my result".' },
+  { url: 'patient.html?p=C-001&fresh=1', title: 'Meet Fatima', text: 'Her HbA1c came back high. She opens Falaj on her phone and first confirms it is her, with the code from her SMS (demo code: 2026). Then she taps "Read my result".' },
   { url: 'patient.html?p=C-001&view=result', title: 'Her result, in plain words', text: 'The gauge shows where 8.1% sits. Every message says "this is not a diagnosis". She can listen, ask for simpler words, or book a 10-minute call with a nurse. Tap "Yes, I understand", then answer the quick check.' },
   { url: 'patient.html?p=C-001&view=book', title: 'What gets in her way?', text: 'She works nights. Tap "No time / shifts": evening slots appear. Pick one and book it.' },
   { url: 'staff.html?as=n1&filter=attention', title: 'The care team sees every case', text: 'Three screening programmes run on the same engine: diabetes (HbA1c), bowel cancer (FIT) and breast screening (mammogram). Each case has a named owner and a deadline set by rules. This queue shows what needs a person now.' },

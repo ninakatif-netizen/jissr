@@ -1,4 +1,4 @@
-// Jissr: the ONE place that talks to an AI provider. To switch provider (for example to Azure OpenAI),
+// Falaj: the ONE place that talks to an AI provider. To switch provider (for example to Azure OpenAI),
 // set JISSR_AI_PROVIDER in the Vercel settings. Nothing else in the project needs to change.
 //
 //   JISSR_AI_PROVIDER = anthropic | azure-openai | gemini   (if empty: auto-detect from which key is present)
@@ -10,7 +10,7 @@
 
 const env = (k) => (process.env[k] || '').trim();
 
-export function pickJissrProvider() {
+export function pickFalajProvider() {
   const want = env('JISSR_AI_PROVIDER').toLowerCase();
   if ((!want || want === 'anthropic') && env('ANTHROPIC_API_KEY')) return 'anthropic';
   if ((!want || want === 'azure-openai') && env('AZURE_OPENAI_ENDPOINT') && env('AZURE_OPENAI_API_KEY') && env('AZURE_OPENAI_DEPLOYMENT')) return 'azure-openai';
@@ -53,8 +53,8 @@ const providers = {
 };
 
 // complete({system, user, maxTokens}) -> text. Throws if no provider is set up or the call fails.
-export async function jissrComplete(args) {
-  const p = pickJissrProvider();
+export async function falajComplete(args) {
+  const p = pickFalajProvider();
   if (!p) throw new Error('no provider');
   return { text: await providers[p](args), provider: p };
 }

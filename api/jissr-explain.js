@@ -1,4 +1,4 @@
-// Jissr: writes the patient's plain-language explanation, or rewords a rule-chosen next step.
+// Falaj: writes the patient's plain-language explanation, or rewords a rule-chosen next step.
 // POST {task:'explain'|'barrier', band, value, lang:'en'|'ar', level:'normal'|'simple', barrier}
 //  -> {ok:true, text, source:'ai'|'template', provider?}
 //
@@ -6,7 +6,7 @@
 // The AI only writes words. Urgency, deadlines and case changes are decided by rules elsewhere.
 // If the AI is not set up, fails, or says something that does not pass the safety filter, a pre-written
 // template is returned instead, so the demo never breaks.
-import { jissrComplete, pickJissrProvider } from './_jissr-ai.js';
+import { falajComplete, pickFalajProvider } from './_jissr-ai.js';
 import { explanation, barrierText } from '../core/templates.mjs';
 import { safeText, withDisclaimer, classify, BARRIERS } from '../core/rules.mjs';
 
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
   const send = (code, body) => { res.statusCode = code; res.end(JSON.stringify(body)); };
-  if (req.method === 'GET') return send(200, { ok: true, ai: !!pickJissrProvider() }); // true/false only
+  if (req.method === 'GET') return send(200, { ok: true, ai: !!pickFalajProvider() }); // true/false only
   if (req.method !== 'POST') return send(405, { ok: false });
   if (limited(req)) return send(429, { ok: false, error: 'slow down' });
 
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
   if (task === 'barrier' && barrier === 'none') return send(200, { ok: true, text: template, source: 'template' });
 
   try {
-    const { text, provider } = await jissrComplete({ system: SYSTEM(lang), user: userPrompt({ task, band: k.band, value: k.value, level, barrier }), maxTokens: 400 });
+    const { text, provider } = await falajComplete({ system: SYSTEM(lang), user: userPrompt({ task, band: k.band, value: k.value, level, barrier }), maxTokens: 400 });
     const ok = safeText(text, lang);
     if (!ok) return send(200, { ok: true, text: template, source: 'template', note: 'ai answer rejected by safety filter' });
     return send(200, { ok: true, text: withDisclaimer(ok, lang), source: 'ai', provider });

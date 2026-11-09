@@ -6,12 +6,12 @@
 <meta name="theme-color" content="#ffffff">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Jissr">
+<meta name="apple-mobile-web-app-title" content="Falaj">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<title>Jissr: your result</title>
+<title>Falaj: your result</title>
 <link rel="stylesheet" href="styles.css">
 <style>
 body{font-size:16px}
@@ -390,7 +390,7 @@ import { STAFF } from './core/data.mjs';
 /* ---------- words on the screen (English / Arabic) ---------- */
 const S = {
   en: {
-    greetSub: 'Your result is ready. This is your path to care.', yourNext: 'Your next step', inspired: 'Inspired by the Sheikh Zayed Bridge',
+    greetSub: 'Your result is ready. This is your path to care.', yourNext: 'Your next step', inspired: 'Inspired by the aflaj of Al Ain',
     whatNext: 'What happens next', moreDetail: 'Read the full explanation', you: 'You',
     hero: { prediabetes: 'Your blood sugar has been a little higher than usual over the last 2 to 3 months.', diabetes: 'Your blood sugar has been higher than usual over the last 2 to 3 months.', urgent: 'Your blood sugar has been much higher than usual. A nurse will call you within a day or two.' },
     nextSteps: (d, band) => band === 'urgent' ? [`A nurse calls you by ${d}`, 'A doctor sees you quickly and explains your result', 'You agree a plan together'] : [`Book a visit before ${d}`, 'A doctor explains your result and may repeat the test', 'You agree a plan together'],
@@ -407,7 +407,7 @@ const S = {
     gateT: 'Is it you?', gateSub: 'To keep your result private, enter the 4-digit code from the text message we sent you.', gateBtn: 'Show my result', gateErr: 'That code is not right. Please try again.', gateHint: 'Demo code: 2026', gateHelp: 'No code? Ask at your clinic or call the number in your letter.', textSize: 'Bigger text',
     hello: (n) => `Hello ${n}`, hi: 'Hello,', journey: 'Your care path', stepOf: (n) => `Step ${n} of 5`, allDone: 'All done',
     quick: 'Quick help', tListen: 'Listen', tNurse: 'Nurse', tFamily: 'Family', tBook: 'Appointment',
-    upcoming: 'Upcoming appointment', clinic: 'Jissr demo clinic', whatMeans: 'What this means',
+    upcoming: 'Upcoming appointment', clinic: 'Falaj demo clinic', whatMeans: 'What this means',
     checkBy: 'See a doctor by', nextLbl: 'Next step', nextBook: 'Book a visit', nextBooked: 'Visit booked',
     steps: ['Result', 'Book', 'Doctor', 'Tests', 'Plan'],
     back: 'Back', cont: 'Continue', home: 'Back to home',
@@ -422,7 +422,7 @@ const S = {
     thanks: 'Thank you. We have noted that you understand.',
     barrierQ: 'Is anything making this hard?', barrierSub: 'Tap what fits. It helps us help you.',
     barrier: { fear: 'I am worried', cost: 'Cost', time_shift: 'No time / shifts', language: 'Language', dont_understand: 'I do not understand', none: 'Nothing, I am ready' },
-    pick: 'Pick a time', confirm: 'Book this time', booked: 'Your visit is booked!', where: 'Jissr demo clinic · 20 minutes · bring your Emirates ID or insurance card',
+    pick: 'Pick a time', confirm: 'Book this time', booked: 'Your visit is booked!', where: 'Falaj demo clinic · 20 minutes · bring your Emirates ID or insurance card',
     remind: 'Remind me the day before', remindOn: 'Reminder is on. (Demo: no real message is sent.)', cal: 'Add to my calendar',
     n: {
       read: ['result', 'Read your result', 'It takes one minute. We explain it in plain words.', 'Read my result'],
@@ -440,11 +440,11 @@ const S = {
     },
     careBy: 'Looking after you', noOwner: 'A team member will be assigned to you very soon.', role: { nurse: 'Nurse', coordinator: 'Care coordinator', clinician: 'Doctor' },
     tabs: ['Home', 'My result', 'Plan', 'Nurse', 'Family'], gaugeCap: 'Where your result sits', zones: ['Usual', 'A bit high', 'High', 'Very high'], tag: 'Your result, explained.\nYour next step, clear.',
-    inst: 'Install Jissr on your phone', instSub: 'Add it to your home screen to open it like an app, even without internet.', instBtn: 'Install', instIos: 'Tap the Share button, then "Add to Home Screen".',
+    inst: 'Install Falaj on your phone', instSub: 'Add it to your home screen to open it like an app, even without internet.', instBtn: 'Install', instIos: 'Tap the Share button, then "Add to Home Screen".',
     qListen: 'Listen to my result', qNurse: 'Talk to a nurse', qFamily: 'Family helper',
     nurseT: 'Talk to a nurse', nurseSub: 'A nurse can explain your result, answer worries and help you book.', when: 'Best time to call', morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening',
     chanQ: 'How should we contact you?', chan: { app: 'This app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'Phone call' },
-    preview: 'This is how a message from us would look (demo):', previewMsg: 'Jissr: your result is ready. Tap to read it in plain words. We never put your result number in a message. This is not a diagnosis.',
+    preview: 'This is how a message from us would look (demo):', previewMsg: 'Falaj: your result is ready. Tap to read it in plain words. We never put your result number in a message. This is not a diagnosis.',
     note: 'Anything you want the nurse to know (optional)', ask: 'Ask a nurse to call me', asked: 'Done! A nurse will call you back.',
     sos: 'If you feel very unwell, very thirsty, confused or sick, do not wait. Call the ambulance on 998.',
     fam: 'Family helper', famSub: 'Let one family member see your appointment and reminders, so they can help you. They never see your result number. You can stop at any time.',
@@ -455,7 +455,7 @@ const S = {
     seeStaff: 'See this case on the staff screen',
   },
   ar: {
-    greetSub: 'نتيجتك جاهزة. هذا طريقك إلى الرعاية.', yourNext: 'خطوتك التالية', inspired: 'مستوحى من جسر الشيخ زايد',
+    greetSub: 'نتيجتك جاهزة. هذا طريقك إلى الرعاية.', yourNext: 'خطوتك التالية', inspired: 'مستوحى من أفلاج العين',
     whatNext: 'ما الذي سيحدث بعد ذلك', moreDetail: 'اقرأ الشرح كاملاً', you: 'أنت',
     hero: { prediabetes: 'كان مستوى السكر في دمك أعلى قليلاً من المعتاد خلال الشهرين أو الثلاثة الماضية.', diabetes: 'كان مستوى السكر في دمك أعلى من المعتاد خلال الشهرين أو الثلاثة الماضية.', urgent: 'كان مستوى السكر في دمك أعلى بكثير من المعتاد. ستتصل بك ممرضة خلال يوم أو يومين.' },
     nextSteps: (d, band) => band === 'urgent' ? [`ستتصل بك ممرضة قبل ${d}`, 'يراك الطبيب سريعاً ويشرح لك نتيجتك', 'تتفقان معاً على خطة'] : [`احجز زيارة قبل ${d}`, 'يشرح لك الطبيب نتيجتك وقد يعيد التحليل', 'تتفقان معاً على خطة'],
@@ -472,7 +472,7 @@ const S = {
     gateT: 'هل هذا أنت؟', gateSub: 'لحماية خصوصية نتيجتك، أدخل الرمز المكوّن من 4 أرقام الموجود في الرسالة النصية التي أرسلناها لك.', gateBtn: 'اعرض نتيجتي', gateErr: 'الرمز غير صحيح. يرجى المحاولة مرة أخرى.', gateHint: 'رمز العرض التجريبي: 2026', gateHelp: 'لم يصلك رمز؟ اسأل في عيادتك أو اتصل بالرقم الموجود في رسالتك.', textSize: 'خط أكبر',
     hello: (n) => `مرحباً ${n}`, hi: 'مرحباً،', journey: 'مسار رعايتك', stepOf: (n) => `الخطوة ${n} من 5`, allDone: 'اكتمل كل شيء',
     quick: 'مساعدة سريعة', tListen: 'استمع', tNurse: 'الممرضة', tFamily: 'العائلة', tBook: 'الموعد',
-    upcoming: 'موعدك القادم', clinic: 'عيادة جسر التجريبية', whatMeans: 'ماذا يعني هذا',
+    upcoming: 'موعدك القادم', clinic: 'عيادة فلج التجريبية', whatMeans: 'ماذا يعني هذا',
     checkBy: 'راجع الطبيب قبل', nextLbl: 'الخطوة التالية', nextBook: 'احجز زيارة', nextBooked: 'تم حجز الزيارة',
     steps: ['النتيجة', 'الحجز', 'الطبيب', 'الفحوصات', 'الخطة'],
     back: 'رجوع', cont: 'متابعة', home: 'العودة للرئيسية',
@@ -487,7 +487,7 @@ const S = {
     thanks: 'شكراً لك. سجّلنا أنك فهمت النتيجة.',
     barrierQ: 'هل هناك ما يجعل الأمر صعباً؟', barrierSub: 'اضغط على ما يناسبك. هذا يساعدنا على مساعدتك.',
     barrier: { fear: 'أشعر بالقلق', cost: 'التكلفة', time_shift: 'ضيق الوقت / المناوبات', language: 'اللغة', dont_understand: 'لا أفهم النتيجة', none: 'لا شيء، أنا جاهز' },
-    pick: 'اختر وقتاً', confirm: 'احجز هذا الوقت', booked: 'تم حجز زيارتك!', where: 'عيادة جسر التجريبية · 20 دقيقة · أحضر هويتك الإماراتية أو بطاقة التأمين',
+    pick: 'اختر وقتاً', confirm: 'احجز هذا الوقت', booked: 'تم حجز زيارتك!', where: 'عيادة فلج التجريبية · 20 دقيقة · أحضر هويتك الإماراتية أو بطاقة التأمين',
     remind: 'ذكّرني قبل يوم', remindOn: 'تم تشغيل التذكير. (تجريبي: لا تُرسل رسالة حقيقية.)', cal: 'أضف إلى تقويمي',
     n: {
       read: ['result', 'اقرأ نتيجتك', 'يستغرق الأمر دقيقة. نشرحها لك بكلمات بسيطة.', 'اقرأ نتيجتي'],
@@ -505,11 +505,11 @@ const S = {
     },
     careBy: 'من يعتني بك', noOwner: 'سيُخصَّص لك أحد أعضاء الفريق قريباً جداً.', role: { nurse: 'ممرضة', coordinator: 'منسق الرعاية', clinician: 'طبيب' },
     tabs: ['الرئيسية', 'نتيجتي', 'الخطة', 'الممرضة', 'العائلة'], gaugeCap: 'أين تقع نتيجتك', zones: ['معتاد', 'أعلى قليلاً', 'مرتفع', 'مرتفع جداً'], tag: 'نتيجتك واضحة،\nوخطوتك التالية معروفة.',
-    inst: 'ثبّت جسر على هاتفك', instSub: 'أضفه إلى الشاشة الرئيسية ليفتح مثل أي تطبيق، حتى دون إنترنت.', instBtn: 'تثبيت', instIos: 'اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».',
+    inst: 'ثبّت فلج على هاتفك', instSub: 'أضفه إلى الشاشة الرئيسية ليفتح مثل أي تطبيق، حتى دون إنترنت.', instBtn: 'تثبيت', instIos: 'اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».',
     qListen: 'استمع إلى نتيجتي', qNurse: 'تحدث مع ممرضة', qFamily: 'مساعد من العائلة',
     nurseT: 'تحدث مع ممرضة', nurseSub: 'يمكن للممرضة أن تشرح نتيجتك، وتجيب عن مخاوفك، وتساعدك في الحجز.', when: 'أفضل وقت للاتصال', morning: 'صباحاً', afternoon: 'بعد الظهر', evening: 'مساءً',
     chanQ: 'كيف تفضل أن نتواصل معك؟', chan: { app: 'هذا التطبيق', sms: 'رسالة نصية', whatsapp: 'واتساب', phone: 'اتصال هاتفي' },
-    preview: 'هكذا ستبدو رسالتنا إليك (تجريبي):', previewMsg: 'جسر: نتيجتك جاهزة. اضغط لتقرأها بكلمات بسيطة. لا نكتب رقم نتيجتك في الرسائل أبداً. هذا ليس تشخيصاً.',
+    preview: 'هكذا ستبدو رسالتنا إليك (تجريبي):', previewMsg: 'فلج: نتيجتك جاهزة. اضغط لتقرأها بكلمات بسيطة. لا نكتب رقم نتيجتك في الرسائل أبداً. هذا ليس تشخيصاً.',
     note: 'أي شيء تريد أن تعرفه الممرضة (اختياري)', ask: 'اطلب من ممرضة أن تتصل بي', asked: 'تم! ستتصل بك ممرضة.',
     sos: 'إذا شعرت بتعب شديد أو عطش شديد أو ارتباك أو غثيان فلا تنتظر. اتصل بالإسعاف على 998.',
     fam: 'مساعد من العائلة', famSub: 'اسمح لفرد واحد من عائلتك برؤية موعدك والتذكيرات ليساعدك. لن يرى رقم نتيجتك أبداً. ويمكنك التوقف في أي وقت.',
@@ -539,7 +539,7 @@ let cloudVoice = false, player = null; // natural voice (see "read aloud")
 let msg = {};            // small, temporary screen state
 let aiBox = {};          // AI or template text already shown, by key
 const patientActor = () => ({ type: 'patient', name: 'Patient (in app)' });
-const sysActor = { type: 'system', name: 'Jissr system' };
+const sysActor = { type: 'system', name: 'Falaj system' };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const cur = () => state.cases.find((c) => c.id === id) || state.cases[0];
 const save = () => saveState(state);
@@ -590,7 +590,7 @@ const topBar = () => `<div class="top"><div class="brand">${wordmark()}</div>
 // v3 strings: care plan, progress, in person / video
 const T3 = {
   en: {
-    planT: 'Your care plan', planSub: 'Your doctor decides the plan with you. Jissr keeps track, so nothing is forgotten.',
+    planT: 'Your care plan', planSub: 'Your doctor decides the plan with you. Falaj keeps track, so nothing is forgotten.',
     progT: 'Your progress', done: 'steps done', todo: 'To do', due: (d) => `By ${d}`,
     onTrack: ['You are on track', 'Your next step is on your home screen.'], late: ['A step is late', 'Your nurse will contact you. You can also ask her to call you now.'], finished: ['All steps are done', 'Thank you for looking after your health.'],
     stepNames: ['Result understood', 'Visit booked', 'Doctor seen', 'Tests checked', 'Plan agreed'],
@@ -628,11 +628,11 @@ const T3 = {
     tbOther: ['Nothing, the result is normal', 'Wait until I feel unwell'],
     tbRight: { hba1c: (band) => band === 'urgent' ? 'Talk to the nurse who calls me, then see a doctor' : 'Book a visit with a doctor', fit: () => 'Book a colonoscopy', mammo: (band) => band === 'birads0' ? 'Book the extra pictures' : 'Book a biopsy' },
     modeQ: 'How would you like to see the doctor?', inPerson: 'In person', video: 'Video call',
-    inPersonSub: 'Jissr pilot clinic', videoSub: 'From home, on your phone',
+    inPersonSub: 'Falaj pilot clinic', videoSub: 'From home, on your phone',
     videoNote: 'The doctor may still ask you to come in for a blood test. In a real service a secure link would be sent by text message the day before.',
   },
   ar: {
-    planT: 'خطة رعايتك', planSub: 'يقرّر طبيبك الخطة معك. ويتابع جسر الخطوات حتى لا يُنسى شيء.',
+    planT: 'خطة رعايتك', planSub: 'يقرّر طبيبك الخطة معك. ويتابع فلج الخطوات حتى لا يُنسى شيء.',
     progT: 'تقدّمك', done: 'خطوات مكتملة', todo: 'لم تتم بعد', due: (d) => `قبل ${d}`,
     onTrack: ['أنت على الطريق الصحيح', 'خطوتك التالية موجودة في الصفحة الرئيسية.'], late: ['هناك خطوة متأخرة', 'ستتواصل معك الممرضة. ويمكنك أن تطلب منها الاتصال بك الآن.'], finished: ['اكتملت كل الخطوات', 'شكراً لاهتمامك بصحتك.'],
     stepNames: ['فهمت النتيجة', 'حجزت الموعد', 'قابلت الطبيب', 'راجعت الفحوصات', 'اتفقنا على الخطة'],
@@ -670,7 +670,7 @@ const T3 = {
     tbOther: ['لا شيء، النتيجة طبيعية', 'أنتظر حتى أشعر بالتعب'],
     tbRight: { hba1c: (band) => band === 'urgent' ? 'أتحدث مع الممرضة التي تتصل بي، ثم أراجع الطبيب' : 'أحجز زيارة عند الطبيب', fit: () => 'أحجز تنظير القولون', mammo: (band) => band === 'birads0' ? 'أحجز الصور الإضافية' : 'أحجز الخزعة' },
     modeQ: 'كيف تفضّل أن تقابل الطبيب؟', inPerson: 'حضورياً', video: 'مكالمة فيديو',
-    inPersonSub: 'عيادة جسر التجريبية', videoSub: 'من البيت، على هاتفك',
+    inPersonSub: 'عيادة فلج التجريبية', videoSub: 'من البيت، على هاتفك',
     videoNote: 'قد يطلب منك الطبيب الحضور لإجراء فحص دم. في خدمة حقيقية يُرسل رابط آمن برسالة نصية قبل يوم من الموعد.',
   },
 };
@@ -1017,7 +1017,7 @@ function render() {
   const c = cur();
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  document.title = 'Jissr · ' + (lang === 'ar' ? 'نتيجتك' : 'your result');
+  document.title = 'Falaj · ' + (lang === 'ar' ? 'نتيجتك' : 'your result');
   if (!verified[c.id]) {
     document.getElementById('app').innerHTML = gateView(c);
     document.getElementById('tabs').innerHTML = '';
@@ -1152,8 +1152,8 @@ function stopSpeak() { if (player) { try { player.pause(); } catch { } player = 
 function downloadIcs() {
   const c = cur(); if (!c.slot) return;
   const d = c.slot.day.replace(/-/g, ''), tm = c.slot.time.replace(':', '') + '00';
-  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Jissr demo//EN', 'BEGIN:VEVENT', `UID:${c.id}-${d}@jissr-demo`, `DTSTAMP:${d}T000000Z`,
-    `DTSTART;TZID=Asia/Dubai:${d}T${tm}`, 'DURATION:PT20M', 'SUMMARY:Jissr demo visit (HbA1c follow-up)', 'DESCRIPTION:Demo only. Synthetic data.', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Falaj demo//EN', 'BEGIN:VEVENT', `UID:${c.id}-${d}@jissr-demo`, `DTSTAMP:${d}T000000Z`,
+    `DTSTART;TZID=Asia/Dubai:${d}T${tm}`, 'DURATION:PT20M', 'SUMMARY:Falaj demo visit (HbA1c follow-up)', 'DESCRIPTION:Demo only. Synthetic data.', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })); a.download = 'jissr-visit.ics'; a.click();
 }
 
@@ -1180,7 +1180,7 @@ try {
     document.documentElement.classList.add('splashing'); // the bridge lights up after the welcome screen
     const sp = document.createElement('div');
     sp.className = 'splash'; sp.setAttribute('aria-hidden', 'true');
-    sp.innerHTML = `${logo(64)}<div class="name">Jissr<span>جسر</span></div><p>${T().tag.replace('\n', '<br>')}</p>`;
+    sp.innerHTML = `${logo(64)}<div class="name">Falaj<span>فلج</span></div><p>${T().tag.replace('\n', '<br>')}</p>`;
     document.getElementById('device').appendChild(sp);
     setTimeout(() => sp.remove(), 2000);
   }

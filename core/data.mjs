@@ -118,7 +118,7 @@ export function buildState(today) {
       const stage = STAGES[i];
       const off = Math.min(STEP_OFFSET[stage] + (LATE[n] || 0), ago);
       let by, role, note = '', skipped = false;
-      if (stage === 'notified') { by = 'Jissr system'; role = 'system'; }
+      if (stage === 'notified') { by = 'Falaj system'; role = 'system'; }
       else if (stage === 'understood' || stage === 'booked') { by = 'Patient (in app)'; role = 'patient'; }
       else if (stage === 'attended') { [by, role] = staffBy(byId[owner]); note = fit ? 'Colonoscopy done' : 'Seen in clinic'; }
       else if (stage === 'confirmed') { [by, role] = staffBy(clin); note = fit ? 'Biopsy results reviewed with the patient' : 'Repeat HbA1c confirms the first result'; }
