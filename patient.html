@@ -174,13 +174,6 @@ html.bigtext .hello{font-size:36px}
 .gsub{margin:4px 0 0;color:var(--muted);font-size:15px}
 .me{background:var(--card2);box-shadow:none;color:var(--ink);font-size:14px}
 .me:after{background:#c4954a}
-.bridge{margin:12px 0 4px}
-.bridge svg{width:100%;height:auto;display:block}
-[dir=rtl] .bridge svg{transform:scaleX(-1)}
-.blabels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));text-align:center;font-size:12px;color:var(--muted);margin-top:-4px}
-.blabels .on{color:var(--ink);font-weight:600}
-.bmeta{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);margin-top:8px}
-.bmeta b{color:var(--ink);font-weight:600}.bmeta i{font-style:italic}
 .next{background:#14284b!important;box-shadow:none;border-radius:22px;padding:22px 20px 20px}
 .next.ok{background:#1f6f4f!important}
 .next:before,.next:after{display:none}
@@ -326,10 +319,6 @@ html.bigtext .hello{font-size:36px}
 .micro.navy .linkbtn{color:#fff}
 .micro.navy .pick{background:rgba(255,255,255,.1);color:#fff}.micro.navy .pick[aria-pressed=true]{background:#e3c38f;color:#14284b}
 .micro.navy.booked{background:#1f6f4f;color:#fff}
-.bridge .lit{stroke-dasharray:360;stroke-dashoffset:360;animation:lit 1.2s .25s cubic-bezier(.3,.7,.3,1) forwards}
-@keyframes lit{to{stroke-dashoffset:0}}
-.splashing .bridge .lit{animation-delay:1.6s}
-@media (prefers-reduced-motion:reduce){.bridge .lit{animation:none;stroke-dashoffset:0}}
 .installcard{background:transparent!important;border:0!important;border-top:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important;padding:14px 2px!important;margin-top:4px}
 .installcard .ico{color:#86602c}
 /* a quoted reply, not a box inside a box */
@@ -338,16 +327,24 @@ html.bigtext .hello{font-size:36px}
 .tab[aria-current=page] .ico{background:transparent}
 .dates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;gap:8px}
 .dates .dt{width:auto}
-/* the one night sky: like the poster, night above the sand. The bridge is drawn in ivory and gold for it. */
-.sky{background:radial-gradient(120% 90% at 50% 0%,#17305c 0%,#0d1b35 70%);border-radius:28px;padding:16px 14px 8px;margin:14px 0}
-.sky .bridge{margin:0 0 2px}
-.sky .blabels span{color:#8d9cb9}.sky .blabels .on{color:#d6a85a}
-.sky .bmeta,.sky .bmeta i{color:#8d9cb9}.sky .bmeta b{color:#ece3d0}
-.sky .next,.sky .next.ok,.sky .next.wait{background:transparent!important;border:0!important;box-shadow:none!important;margin:8px 0 0!important;padding:16px 6px 10px!important;border-top:1px solid rgba(236,227,208,.14)!important;border-radius:0!important}
-.sky .next .btn{background:#ebe4d6!important;color:#14284b!important}
-.sky .next.ok .btn{background:#ebe4d6!important;color:#1f6f4f!important}
-.sky .next.wait .btn{background:transparent!important;color:#ece3d0!important;box-shadow:inset 0 0 0 1.5px rgba(236,227,208,.55)!important;border:0!important}
-.sky .next .datebox{background:#ebe4d6;color:#14284b}
+
+/* the care path */
+.path{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px 12px 12px;margin:14px 0}
+.phd{display:flex;justify-content:space-between;align-items:baseline;padding:0 4px 12px;font-size:13.5px}
+.phd b{font-weight:600}.phd span{color:var(--muted)}
+.p5{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:relative}
+.p5:before{content:"";position:absolute;top:19px;inset-inline-start:10%;width:80%;height:3px;border-radius:2px;background:var(--line)}
+.p5 .pl{position:absolute;top:19px;inset-inline-start:10%;width:var(--p);height:3px;border-radius:2px;background:#1f6b45}
+.p5 .pl.lit{animation:pfill 1s .3s ease-out both}
+@keyframes pfill{from{width:0}}
+.splashing .p5 .pl.lit{animation-delay:1.6s}
+@media (prefers-reduced-motion:reduce){.p5 .pl.lit{animation:none}}
+.p5 li{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;z-index:1;text-align:center}
+.pd{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);border:1.5px solid var(--line);color:var(--muted)}
+.p5 li.done .pd{background:#1f6b45;border-color:#1f6b45;color:#fff}
+.p5 li.now .pd{background:#14284b;border-color:#14284b;color:#fff;box-shadow:0 0 0 4px #efe1c6}
+.p5 small{font-size:11.5px;color:var(--muted);line-height:1.2}
+.p5 li.now small{color:var(--ink);font-weight:600}
 </style>
 </head>
 <body>
@@ -393,7 +390,7 @@ const S = {
       },
     },
     gateT: 'Is it you?', gateSub: 'To keep your result private, enter the 4-digit code from the text message we sent you.', gateBtn: 'Show my result', gateErr: 'That code is not right. Please try again.', gateHint: 'Demo code: 2026', gateHelp: 'No code? Ask at your clinic or call the number in your letter.', textSize: 'Bigger text',
-    hello: (n) => `Hello ${n}`, hi: 'Hello,', journey: 'Your journey', stepOf: (n) => `Step ${n} of 5`, allDone: 'All done',
+    hello: (n) => `Hello ${n}`, hi: 'Hello,', journey: 'Your care path', stepOf: (n) => `Step ${n} of 5`, allDone: 'All done',
     quick: 'Quick help', tListen: 'Listen', tNurse: 'Nurse', tFamily: 'Family', tBook: 'Appointment',
     upcoming: 'Upcoming appointment', clinic: 'Jissr demo clinic', whatMeans: 'What this means',
     checkBy: 'See a doctor by', nextLbl: 'Next step', nextBook: 'Book a visit', nextBooked: 'Visit booked',
@@ -458,7 +455,7 @@ const S = {
       },
     },
     gateT: 'هل هذا أنت؟', gateSub: 'لحماية خصوصية نتيجتك، أدخل الرمز المكوّن من 4 أرقام الموجود في الرسالة النصية التي أرسلناها لك.', gateBtn: 'اعرض نتيجتي', gateErr: 'الرمز غير صحيح. يرجى المحاولة مرة أخرى.', gateHint: 'رمز العرض التجريبي: 2026', gateHelp: 'لم يصلك رمز؟ اسأل في عيادتك أو اتصل بالرقم الموجود في رسالتك.', textSize: 'خط أكبر',
-    hello: (n) => `مرحباً ${n}`, hi: 'مرحباً،', journey: 'رحلتك', stepOf: (n) => `الخطوة ${n} من 5`, allDone: 'اكتمل كل شيء',
+    hello: (n) => `مرحباً ${n}`, hi: 'مرحباً،', journey: 'مسار رعايتك', stepOf: (n) => `الخطوة ${n} من 5`, allDone: 'اكتمل كل شيء',
     quick: 'مساعدة سريعة', tListen: 'استمع', tNurse: 'الممرضة', tFamily: 'العائلة', tBook: 'الموعد',
     upcoming: 'موعدك القادم', clinic: 'عيادة جسر التجريبية', whatMeans: 'ماذا يعني هذا',
     checkBy: 'راجع الطبيب قبل', nextLbl: 'الخطوة التالية', nextBook: 'احجز زيارة', nextBooked: 'تم حجز الزيارة',
@@ -677,33 +674,23 @@ function journeyStep(c) {
   }
 }
 // The journey drawn as a bridge whose arches are inspired by the Sheikh Zayed Bridge (Zaha Hadid).
-let litOnce = false; // the bridge lights up once, the first time the home screen opens
+// THE CARE PATH: five steps a patient recognises, each with its icon, on one progress line.
+// Clear and clinical on purpose; the bridge lives in the logo, not in the medical information.
+let litOnce = false; // the progress line fills once, the first time the home screen opens
 function trackerHtml(c) {
   const now = journeyStep(c), t = T();
-  const X = [35, 105, 175, 245, 315], D = 118, IV = '#ece3d0', G = '#d6a85a';
-  const prog = now >= 5 ? 346 : X[now];
-  // the arches as ribbons of fine strokes, like an engraving (same drawing as the Jissr poster)
-  const ribbon = (x0, x1, cy, n) => Array.from({ length: n }, (_, i) => {
-    const k = i / (n - 1), w = x1 - x0, ins = k * w * .04, dr = k * (D - cy) * .18;
-    return `<path d="M${(x0 + ins).toFixed(1)} ${D}C${(x0 + w * .18).toFixed(1)} ${(cy + dr).toFixed(1)} ${(x1 - w * .18).toFixed(1)} ${(cy + dr).toFixed(1)} ${(x1 - ins).toFixed(1)} ${D}" stroke="${IV}" stroke-width="${i ? .55 : 1.2}" opacity="${(.18 + .55 * (1 - k)).toFixed(2)}"/>`;
-  }).join('');
-  const hangers = [140, 152, 164, 176, 188, 200, 212, 224, 236].map((x) => `<line x1="${x}" y1="${(30 + Math.abs(x - 188) * 1.15).toFixed(0)}" x2="${x}" y2="${D}"/>`).join('');
-  const nodes = X.map((x, i) => i < now || now >= 5
-    ? `<circle cx="${x}" cy="${D}" r="5.5" fill="${IV}"/>`
-    : i === now ? `<circle cx="${x}" cy="${D}" r="15" fill="${G}" opacity=".28" filter="url(#bglow)"/><circle cx="${x}" cy="${D}" r="6.5" fill="${G}"/>`
-      + [0, 1, 2, 3, 4].map((k) => `<line x1="${x - 11 + k * 1.6}" y1="${D + 10 + k * 5}" x2="${x + 11 - k * 1.6}" y2="${D + 10 + k * 5}" stroke="${G}" stroke-width="1.2" opacity="${(.55 - k * .1).toFixed(2)}"/>`).join('')
-    : `<circle cx="${x}" cy="${D}" r="4.5" fill="#0d1b35" stroke="${IV}" stroke-width="1.3" opacity=".75"/>`).join('');
   const steps = PS(c) ? PS(c).steps : t.steps;
+  const icons = c.programme === 'hba1c' || !c.programme ? ['result', 'calendar', 'doctor', 'flask', 'plan'] : ['result', 'calendar', 'flask', 'file', 'plan'];
   const where = now >= 5 ? t.allDone : t.stepOf(now + 1);
-  return `<div class="bridge"><svg viewBox="0 0 350 148" role="img" aria-label="${t.journey}: ${where}">
-    <defs><filter id="bglow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4"/></filter></defs>
-    <g fill="none">${ribbon(6, 132, 70, 10)}${ribbon(104, 272, -6, 16)}${ribbon(244, 346, 74, 10)}</g>
-    <g stroke="${IV}" stroke-width=".4" opacity=".28">${hangers}</g>
-    <path d="M4 ${D}H346" stroke="${IV}" stroke-width="1.3" opacity=".45"/>
-    <path class="${litOnce ? '' : 'lit'}" d="M4 ${D}H${prog}" stroke="${G}" stroke-width="2.6" stroke-linecap="round"/>
-    ${nodes}</svg>${(litOnce = true) ? '' : ''}
-    <div class="blabels">${steps.map((l, i) => `<span class="${i === now ? 'on' : ''}">${l}</span>`).join('')}</div>
-    <div class="bmeta"><b>${where}</b><i>${t.inspired}</i></div></div>`;
+  const pct = Math.min(now, 4) / 4 * 80; // the line runs from the first dot (10%) to the last (90%)
+  const html = `<section class="path" aria-label="${t.journey}: ${where}">
+    <div class="phd"><b>${t.journey}</b><span>${where}</span></div>
+    <ol class="p5" style="--p:${pct}%">${steps.map((l, i) => {
+      const st = i < now || now >= 5 ? 'done' : i === now ? 'now' : 'todo';
+      return `<li class="${st}"><span class="pd">${ic(st === 'done' ? 'check' : icons[i], 18)}</span><small>${l}</small></li>`;
+    }).join('')}<i class="pl ${litOnce ? '' : 'lit'}"></i></ol></section>`;
+  litOnce = true;
+  return html;
 }
 
 // the one big card: what happens next, in one sentence, with one button
@@ -805,7 +792,8 @@ function homeView(c) {
   let h = `${topBar()}<div class="view">
     <div class="greet"><div><h1 class="hello">${esc(t.hello(first))}</h1><p class="gsub">${t.greetSub}</p></div>
       <button class="me" id="me-btn" aria-label="Demo: switch patient" title="Demo: switch patient">${esc(initials(c.patient.name))}</button></div>
-    <section class="sky">${trackerHtml(c)}${nextCard(c)}</section>
+    ${trackerHtml(c)}
+    ${nextCard(c)}
     ${helpList(c)}`;
   h += installCard();
   if (stageIdx(c) >= 3 && c.stage !== 'closed') {

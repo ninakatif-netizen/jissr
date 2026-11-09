@@ -91,7 +91,7 @@
 </div>
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
-import { ic, logo, slaBadge, phaseChip, miniBridge } from './core/ui.mjs';
+import { ic, logo, slaBadge, phaseChip, miniSteps } from './core/ui.mjs';
 import { loadState, saveState, resetState } from './core/store.mjs';
 import { roleView, roleFilter, CARE_ROLES } from './core/roles.mjs';
 import { progOf, stageLabel, resultText, targetsFor } from './core/programmes.mjs';
@@ -152,7 +152,7 @@ const caseItem = (c) => {
   const k = clockOf(c);
   return `<button class="citem" data-case="${c.id}"><span class="ci"><span class="nm"><b>${esc(c.patient.name)}</b><span class="res">${resultText(c)}</span></span>
     <span class="act">${esc(nextText(c))}</span>
-    <span class="trk">${miniBridge(journeyStep(c), stageLabel(c, c.stage))}<span class="when ${k ? k.tier.toLowerCase() : ''}">${k ? slaText(k) : 'No deadline running'}</span></span></span></button>`;
+    <span class="trk">${miniSteps(journeyStep(c), stageLabel(c, c.stage))}<span class="when ${k ? k.tier.toLowerCase() : ''}">${k ? slaText(k) : 'No deadline running'}</span></span></span></button>`;
 };
 const rows = (html, empty) => html ? `<div class="rows">${html}</div>` : `<div class="empty2">${empty}</div>`;
 
@@ -257,7 +257,7 @@ function caseView() {
     ${flash ? `<div class="flash ${flash.err ? 'err' : 'ok'}">${esc(flash.text)}</div>` : ''}
     <section class="phead navy"><h2>${esc(c.patient.name)}</h2><div class="meta">${c.patient.age} years old, speaks ${LANG[c.patient.language] || esc(c.patient.language)}.<br>${progOf(c).name}</div>
       <div class="big"><b>${resultText(c)}</b><span class="tiny">${({ urgent: 'Urgent', priority: 'Priority', routine: 'Routine' })[c.urgency] || ''}</span></div>
-      <div class="hbr">${miniBridge(journeyStep(c), stageLabel(c, c.stage))}<span>${CLOE_LABEL[cloePhase(c)]}</span></div>
+      <div class="hbr">${miniSteps(journeyStep(c), stageLabel(c, c.stage))}<span>${CLOE_LABEL[cloePhase(c)]}</span></div>
       ${k ? `<div class="own"><span class="when ${k.tier.toLowerCase()}">${slaText(k)}</span>: ${k.stepText.toLowerCase()}, ${dueDay(k)}</div>` : ''}
       <div class="own">Owner: <b style="color:#fff">${o ? esc(o.name) : 'Unassigned'}</b>${o ? `, ${esc(o.org)}` : ''}</div></section>
     ${e.length ? `<div class="flash err"><b>Needs attention</b>${e.map((x) => `<div>${x.level >= 3 ? 'Clinical lead now: ' : ''}${esc(x.text)}</div>`).join('')}</div>` : ''}

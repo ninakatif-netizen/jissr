@@ -20,6 +20,7 @@
 .hero h1{font-size:34px;margin:12px 0 4px}
 .hero h1 span{font-family:var(--text);font-weight:500;color:#86602c;margin-inline-start:8px}
 .hero p{color:var(--muted);margin:0 auto;max-width:28ch}
+.hero .insp{font-size:12.5px;font-style:italic;margin-top:10px}
 .pick{display:flex;align-items:center;gap:14px;width:100%;text-align:start;font:inherit;color:inherit;cursor:pointer;border-radius:22px;padding:18px;margin:12px 0 0;border:1px solid var(--line);background:var(--card)}
 .pick.navy{border:0;background:#14284b;color:#fff}
 .pick.navy b{color:#fff}.pick.navy>.ico:last-child{color:#e3c38f}
@@ -51,7 +52,7 @@ let last = null; try { last = localStorage.getItem('jissr.lastApp'); } catch { }
 function render() {
   const lastRole = last && last.startsWith('care:') ? roleView(last.slice(5)) : null;
   app.innerHTML = `<div class="view">
-    <div class="hero"><span class="mark">${logo(64)}</span><h1>Jissr<span>جسر</span></h1><p>From a screening result to the right care. Nobody left behind.</p></div>
+    <div class="hero"><span class="mark">${logo(64)}</span><h1>Jissr<span>جسر</span></h1><p>From a screening result to the right care. Nobody left behind.</p><p class="insp">Our mark is inspired by the Sheikh Zayed Bridge, Abu Dhabi.</p></div>
     ${!showRoles ? `
       <p class="sec" style="text-align:center;margin-top:22px">Who are you? <span lang="ar">من أنت؟</span></p>
       <button class="pick navy" data-go="patient.html?p=C-001"><span class="gtile">${ic('home', 24)}</span><span class="t"><b>I am a patient</b><small>Understand my result, book, talk to a nurse. English and العربية.</small></span>${ic('next', 20)}</button>

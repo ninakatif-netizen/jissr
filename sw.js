@@ -1,7 +1,7 @@
 // Jissr service worker: lets the app open offline and be installed.
 // Strategy: network first (so new versions show immediately), fall back to the saved copy when offline.
 // Bump VERSION on every release so old saved copies are cleared.
-const VERSION = 'jissr-v27';
+const VERSION = 'jissr-v28';
 const SHELL = [
   '/', '/index.html', '/patient.html', '/staff.html', '/metrics.html', '/review.html', '/trust.html', '/impact.html', '/pilot.html', '/roles.html', '/app.html', '/care.html', '/app-shell.css', '/styles.css', '/manifest.webmanifest',
   '/core/rules.mjs', '/core/cases.mjs', '/core/data.mjs', '/core/store.mjs', '/core/templates.mjs', '/core/ui.mjs', '/core/fhir.mjs', '/core/programmes.mjs', '/core/pwa.mjs', '/core/art.mjs', '/core/tour.mjs', '/core/roles.mjs',

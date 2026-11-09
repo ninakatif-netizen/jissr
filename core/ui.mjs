@@ -39,13 +39,13 @@ export function ic(name, size = 20, extra = '') {
   return `<svg class="ico" ${extra} width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${P[name] || ''}</svg>`;
 }
 
-// The Jissr mark: a bridge (arch between two banks) with a saffron keystone.
+// The Jissr mark, inspired by the Sheikh Zayed Bridge in Abu Dhabi (Zaha Hadid): three arches rising from one deck,
+// the tall middle arch drawn as a twisting ribbon (a second, gold line inside it). An original drawing, no photo or plan.
 export function logo(size = 30) {
-  return `<svg width="${size * 1.25}" height="${size}" viewBox="0 0 40 32" fill="none" aria-hidden="true" focusable="false">
-    <path d="M2 28h36" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M6 28V19a14 14 0 0 1 28 0v9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M13 28v-8a7 7 0 0 1 14 0v8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-    <rect x="17" y="1.5" width="6" height="6" rx="1" transform="rotate(45 20 4.5)" fill="#f5b544"/>
+  return `<svg width="${size * 1.5}" height="${size}" viewBox="0 0 48 32" fill="none" aria-hidden="true" focusable="false">
+    <path d="M2 27h44" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M4 27C6.5 18.5 13 18.5 16.5 27M12 27C15.5 -1 32.5 -1 36 27M31.5 27C35 18.5 41.5 18.5 44 27" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+    <path d="M16.6 27C19.6 7.5 28.4 7.5 31.4 27" stroke="#d6a85a" stroke-width="1.6" stroke-linecap="round"/>
   </svg>`;
 }
 
@@ -60,15 +60,14 @@ export function slaBadge(clock) {
 }
 export const phaseChip = (phase) => `<span class="phase ph-${phase.toLowerCase()}">${CLOE_LABEL[phase]}</span>`;
 
-// The mini bridge: the same five-step journey as the patient's home screen, small enough for a list row.
-// Done steps in night blue, the current one in gold (the bridge's light), the rest unlit.
-export function miniBridge(now, label = '') {
+// Mini care path: the patient's five steps as dots on a line, small enough for a list row.
+// Done steps filled, the current one in gold with a ring, the rest hollow.
+export function miniSteps(now, label = '') {
   const X = [6, 34, 62, 90, 118], end = now >= 5 ? 118 : X[now];
-  const dots = X.map((x, i) => i < now || now >= 5 ? `<circle cx="${x}" cy="20" r="3.4" fill="#14284b"/>`
-    : i === now ? `<circle cx="${x}" cy="20" r="4.6" fill="#c4954a" stroke="#14284b" stroke-width="1.6"/>`
-    : `<circle cx="${x}" cy="20" r="3" fill="#ebe4d6" stroke="#a8977a" stroke-width="1.4"/>`).join('');
+  const dots = X.map((x, i) => i < now || now >= 5 ? `<circle cx="${x}" cy="13" r="4" fill="#14284b"/>`
+    : i === now ? `<circle cx="${x}" cy="13" r="5.2" fill="#c4954a" stroke="#14284b" stroke-width="1.6"/>`
+    : `<circle cx="${x}" cy="13" r="3.6" fill="#f6f2ea" stroke="#a8977a" stroke-width="1.4"/>`).join('');
   return `<svg class="mini" viewBox="0 0 124 26" width="124" height="26" role="img" aria-label="${label || 'Step ' + Math.min(now + 1, 5) + ' of 5'}">
-    <path d="M6 20C17 9 23 9 34 20M34 20C46 1 78 1 90 20M90 20C101 9 107 9 118 20" fill="none" stroke="#a8977a" stroke-width="1.3"/>
-    <path d="M6 20H118" stroke="#14284b" stroke-width="2" stroke-linecap="round"/>
-    ${end > 6 ? `<path d="M6 20H${end}" stroke="#c4954a" stroke-width="2.4" stroke-linecap="round"/>` : ''}${dots}</svg>`;
+    <path d="M6 13H118" stroke="#cfc4b0" stroke-width="2" stroke-linecap="round"/>
+    ${end > 6 ? `<path d="M6 13H${end}" stroke="#14284b" stroke-width="2.4" stroke-linecap="round"/>` : ''}${dots}</svg>`;
 }
