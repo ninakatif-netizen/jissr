@@ -115,3 +115,23 @@ export function falajSummary(state, now = Date.now(), only = 'all') {
   const worst = [...points].filter((p) => p.stuck > 0).sort((a, b) => b.stuck - a.stuck)[0] || null;
   return { points, closed, total, open: total - closed, noOwner, worst, owners: Object.values(owners).sort((a, b) => b.open - a.open) };
 }
+
+// Loop closure over time: for each of the last `weeks` weeks, the share of results received by the end of
+// that week that were closed with evidence by then. Computed from the case events, nothing invented.
+export function closureTrend(state, now = Date.now(), weeks = 12, only = 'all') {
+  const WEEK = 7 * 864e5, out = [];
+  const cases = state.cases.filter((c) => inPlace(only, emirateOf(c)));
+  for (let w = weeks - 1; w >= 0; w--) {
+    const end = now - w * WEEK;
+    let opened = 0, closed = 0;
+    for (const c of cases) {
+      const first = c.events && c.events[0] ? Date.parse(c.events[0].at) : NaN;
+      if (!(first <= end)) continue;
+      opened++;
+      const cl = (c.events || []).find((e) => e.type === 'closed');
+      if (cl && Date.parse(cl.at) <= end) closed++;
+    }
+    out.push({ end, opened, closed, pct: opened ? Math.round(closed / opened * 100) : 0 });
+  }
+  return out;
+}

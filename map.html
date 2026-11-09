@@ -81,7 +81,7 @@ svg .cp:focus-visible .cap,svg .cp.sel .cap{stroke:#fff;stroke-width:4}
   </div>
   <div class="mhead">
     <div><h1 id="h1">The living falaj</h1><p id="intro"></p></div>
-    <div class="seg" role="group" aria-label="View"><button data-view="falaj">The falaj</button><button data-view="emirates">The emirates</button></div>
+    <div class="seg" role="group" aria-label="View"><button data-view="emirates">The emirates</button><button data-view="falaj">The falaj</button></div>
   </div>
   <div class="chips2" role="group" aria-label="Emirate" id="ems"></div>
   <div class="mrow">
@@ -94,13 +94,13 @@ svg .cp:focus-visible .cap,svg .cp.sel .cap{stroke:#fff;stroke-width:4}
 import { registerSW } from './core/pwa.mjs';
 import { wordmark } from './core/ui.mjs';
 import { loadState } from './core/store.mjs';
-import { EMIRATES, CHANNELS, mapSummary, falajSummary } from './core/geo.mjs';
+import { EMIRATES, CHANNELS, mapSummary, falajSummary, closureTrend } from './core/geo.mjs';
 registerSW();
 document.getElementById('brand').innerHTML = wordmark() + '<span class="sub">Living map</span>';
 const state = loadState();
 const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const qs = new URLSearchParams(location.search);
-let only = qs.get('em') || 'all', moving = !calm, view = qs.get('view') === 'emirates' ? 'emirates' : 'falaj', sel = null;
+let only = qs.get('em') || 'all', moving = !calm, view = qs.get('view') === 'falaj' ? 'falaj' : 'emirates', sel = null;
 const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 const hrs = (h) => { const a = Math.abs(h); return a >= 48 ? `${Math.floor(a / 24)} days` : `${a} h`; };
 
@@ -146,7 +146,7 @@ function falajSvg(f) {
     const x = 1112 + (i % 5) * 16, base = ys(x) + (i < 5 ? 0 : 24) - 2;
     return `<path d="M${x} ${base}V${base - 22}M${x} ${base - 21}C${x - 5} ${base - 27} ${x - 11} ${base - 26} ${x - 13} ${base - 21}M${x} ${base - 21}C${x + 5} ${base - 27} ${x + 11} ${base - 26} ${x + 13} ${base - 21}M${x} ${base - 21}C${x - 2} ${base - 29} ${x + 1} ${base - 32} ${x + 5} ${base - 33}" stroke="#4cc285" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
   }).join('');
-  const drops = moving ? `<g class="drops" fill="#9fdaf4">${[0, 1.4, 2.8, 4.2].map((b) => `<circle r="4"><animateMotion dur="7s" begin="${b}s" repeatCount="indefinite" path="M110 465L780 ${yt(780).toFixed(1)}L1060 ${(ys(1060) + 2).toFixed(1)}"/></circle>`).join('')}</g>` : '';
+  const drops = moving ? `<g class="drops" fill="#9fdaf4">${[0, 1.4, 2.8, 4.2].map((b) => `<circle r="4"><animateMotion dur="7s" begin="-${b}s" repeatCount="indefinite" path="M110 465L780 ${yt(780).toFixed(1)}L1060 ${(ys(1060) + 2).toFixed(1)}"/></circle>`).join('')}</g>` : '';
   return `
     <path d="M0 560L0 205L50 128L95 158L150 92L210 150L1200 ${ys(1200)}L1200 560Z" fill="#102a3b"/>
     <path d="M0 205L50 128L95 158L150 92L210 150" stroke="#2c4a5e" stroke-width="2" fill="none"/>
@@ -177,19 +177,53 @@ function falajSvg(f) {
 
 function emiratesSvg(m) {
   const inSel = (id) => only === 'all' || id === only || (only === 'ad' && id === 'ain');
-  const LBL = { ad: [0, 1], ain: [0, 1], dxb: [-86, 0], shj: [84, -1], ajm: [-90, 0], uaq: [-70, -1], rak: [0, -1], fuj: [0, 1] };
+  const LBL = { ad: [0, 1], ain: [0, 1], dxb: [-86, 0], shj: [96, 0], ajm: [-90, 0], uaq: [-70, -1], rak: [0, -1], fuj: [0, 1] };
+  const byId = Object.fromEntries(m.nodes.map((n) => [n.id, n]));
   const leak = m.leakNode, leakCh = leak ? CHANNELS.findIndex(([a, b]) => a === leak.id || b === leak.id) : -1;
   const chan = CHANNELS.map(([, , d], i) => `<path d="${d}" stroke="#1f4b66" stroke-width="10" fill="none" stroke-linecap="round"/><path d="${d}" stroke="${i === leakCh ? '#e8573f' : '#36b5e8'}" stroke-width="${i === leakCh ? 3 : 2.5}" ${i === leakCh ? 'stroke-dasharray="5 6"' : 'opacity=".55"'} fill="none" stroke-linecap="round"/>`).join('');
-  const drops = moving ? `<g class="drops" fill="#9fdaf4">${CHANNELS.map(([, , d], i) => `<circle r="4.5"><animateMotion dur="${5 + (i % 3)}s" begin="${(i * 0.7).toFixed(1)}s" repeatCount="indefinite" path="${d}"/></circle>`).join('')}</g>` : '';
+  // drops travel whole routes across the country, each at its own pace (like the Signature prototype)
+  const ROUTES = [
+    ['M250 380C380 360 470 300 560 255', 6, 0], ['M250 380C380 360 470 300 560 255', 6, 2],
+    ['M250 380C330 420 400 450 470 450', 5, 1], ['M560 255C650 250 720 245 790 240', 7, 3],
+    ['M655 165C680 140 700 122 720 105C760 150 780 200 790 240', 5.5, 0.5],
+    ['M560 255C580 240 595 228 610 215C620 205 626 198 632 192C640 182 648 172 655 165', 4, 1.5],
+    ['M250 380C380 360 470 300 560 255C650 250 720 245 790 240', 9, 4],
+  ];
+  const drops = moving ? `<g class="drops" fill="#9fdaf4">${ROUTES.map(([d, dur, beg]) => `<circle r="4.5"><animateMotion dur="${dur}s" begin="-${beg}s" repeatCount="indefinite" path="${d}"/></circle>`).join('')}</g>` : '';
   const nodes = m.nodes.map((n) => {
     const r = Math.max(9, Math.round(Math.sqrt(n.open + n.closed) * 6)), isLeak = leak && n.id === leak.id, [dx, side] = LBL[n.id], on = inSel(n.id);
     const ty = side > 0 ? n.y + r + 18 : side < 0 ? n.y - r - 26 : n.y - 3;
     return `<g opacity="${on ? 1 : 0.35}"><circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${isLeak ? 'rgba(232,87,63,.18)' : 'rgba(54,181,232,.16)'}" stroke="${isLeak ? '#e8573f' : '#36b5e8'}" stroke-width="${on ? 3 : 1.5}"/>
       <text class="lbl" x="${n.x + dx}" y="${ty}" text-anchor="middle">${esc(n.name)}</text><text class="sub" x="${n.x + dx}" y="${ty + 16}" text-anchor="middle">${n.open} open · ${n.stuck} stuck</text></g>`;
   }).join('');
-  return `<g transform="translate(150 10)"><path d="M40 440C120 420 190 392 250 372C330 346 400 318 470 296C510 282 540 262 562 246C590 228 612 206 634 186C660 160 690 128 728 96C744 82 756 68 768 52" stroke="rgba(255,255,255,.14)" stroke-width="2" stroke-dasharray="2 7" fill="none"/>
-    <text class="tiny" x="96" y="470">Arabian Gulf</text>${chan}${drops}${nodes}
-    ${leak ? `<g><rect x="290" y="300" width="230" height="52" rx="12" fill="#fff"/><text x="306" y="322" font-size="14" font-weight="700" fill="#a52a17">${esc(leak.name)} · ${leak.stuck} of ${leak.open} stuck</text><text x="306" y="341" font-size="12.5" fill="#3c5160">the biggest leak right now</text></g>` : ''}</g>`;
+  let leakArt = '';
+  if (leak) {
+    const L = byId[leak.id], r = Math.max(9, Math.round(Math.sqrt(L.open + L.closed) * 6));
+    const rocks = Array.from({ length: Math.min(5, L.stuck) }, (_, i) => `<circle cx="${L.x - 8 + (i % 3) * 8}" cy="${L.y - 4 + Math.floor(i / 3) * 8}" r="4" fill="#e8573f"/>`).join('');
+    const pulse = moving ? `<circle cx="${L.x}" cy="${L.y}" r="${r}" fill="none" stroke="#e8573f" stroke-width="2" class="drops"><animate attributeName="r" values="${r};${r + 18};${r}" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0;.8" dur="2.4s" repeatCount="indefinite"/></circle>` : '';
+    const bx = L.x < 450 ? L.x + 40 : L.x - 300, by = L.y < 200 ? L.y + 40 : L.y - 110;
+    leakArt = `${pulse}${rocks}<g><path d="M${bx + (L.x < 450 ? 0 : 230)} ${by + 26}C${(bx + L.x) / 2} ${by + 26} ${L.x} ${(by + L.y) / 2} ${L.x} ${L.y - (L.y > by ? r : -r)}" stroke="#fff" stroke-width="1.5" fill="none"/>
+      <rect x="${bx}" y="${by}" width="230" height="52" rx="12" fill="#fff"/><text x="${bx + 16}" y="${by + 22}" font-size="14" font-weight="700" fill="#a52a17">${esc(leak.name)} · ${leak.stuck} of ${leak.open} stuck</text><text x="${bx + 16}" y="${by + 41}" font-size="12.5" fill="#3c5160">the biggest leak right now</text></g>`;
+  }
+  return `<g transform="translate(60 -40) scale(1.15)">
+    <path d="M40 440C120 420 190 392 250 372C330 346 400 318 470 296C510 282 540 262 562 246C590 228 612 206 634 186C660 160 690 128 728 96C744 82 756 68 768 52" stroke="rgba(255,255,255,.14)" stroke-width="2" stroke-dasharray="2 7" fill="none"/>
+    <path d="M812 120C806 170 800 210 796 250C792 290 786 320 780 350" stroke="rgba(255,255,255,.14)" stroke-width="2" stroke-dasharray="2 7" fill="none"/>
+    <text class="tiny" x="96" y="470">Arabian Gulf</text>
+    <text class="tiny" x="828" y="300" transform="rotate(90 828 300)">Gulf of Oman</text>
+    ${chan}${drops}${nodes}${leakArt}
+    <g font-size="12.5" fill="#c8d6df"><circle cx="40" cy="516" r="5" fill="#9fdaf4"/><text x="52" y="520">a case moving on time</text><circle cx="230" cy="516" r="5" fill="#e8573f"/><text x="242" y="520">stuck past its deadline</text></g></g>`;
+}
+
+function sparkCard() {
+  const t = closureTrend(state, Date.now(), 12, only).filter((w) => w.opened > 0);
+  if (t.length < 2) return '';
+  const W = 320, H = 90, X = (i) => (i * W / (t.length - 1)).toFixed(1), Y = (v) => (H - 4 - v / 100 * (H - 12)).toFixed(1);
+  const d = 'M' + t.map((w, i) => `${X(i)} ${Y(w.pct)}`).join(' L');
+  const last = t[t.length - 1];
+  return `<section class="mcard"><h2>Loop closed, week by week</h2><p class="lead2">Share of results received so far that are closed with proof (last ${t.length} weeks of demo data).</p>
+    <svg viewBox="0 0 ${W} ${H}" style="display:block;width:calc(100% - 36px);height:auto;margin:0 18px 14px" role="img" aria-label="Loop closure went from ${t[0].pct}% to ${last.pct}% over ${t.length} weeks, while results grew from ${t[0].opened} to ${last.opened}.">
+      <path d="M0 ${H - 1}H${W}" stroke="#e4eaee"/><path d="${d}" fill="none" stroke="#0b6fa8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="${X(t.length - 1)}" cy="${Y(last.pct)}" r="5" fill="#0b6fa8" stroke="#fff" stroke-width="2"/></svg></section>`;
 }
 
 function render() {
@@ -217,6 +251,7 @@ function render() {
   const maxEq = Math.max(1, ...m.equity.map((q) => q.pct));
   document.getElementById('side').innerHTML = `
     <div class="kp" id="kp"><div><span>Closed with proof</span><b class="ok">${m.closure}%</b></div><div><span>Past their deadline</span><b class="bad">${m.stuck}</b></div><div><span>Open cases</span><b>${m.open}</b></div><div><span>Cases with no arif</span><b class="${f.noOwner ? 'bad' : ''}">${f.noOwner}</b></div></div>
+    ${view === 'emirates' ? sparkCard() : ''}
     ${view === 'falaj' ? `<section class="mcard" aria-live="polite"><div class="cphead"><b>${esc(p.title)}</b></div><p class="lead2">${WHY[p.step]}</p>
       <div class="cpcount"><span>${p.waiting} waiting here</span>${p.stuck ? `<span class="bad">${p.stuck} past their deadline</span>` : ''}<span>arif: ${esc(p.arif)}</span></div>
       ${p.cases.slice(0, 6).map((c) => `<div class="cprow"><span>${esc(c.name)}<br><small>${c.owner ? esc(c.owner) : '<span class="none">No arif</span>'}</small></span><span>${c.hoursLeft == null ? '' : c.late ? `<span class="late">late ${hrs(c.hoursLeft)}</span>` : `<span class="due">due in ${hrs(c.hoursLeft)}</span>`}<br><a href="staff.html?c=${encodeURIComponent(c.id)}" aria-label="Open the case of ${esc(c.name)}">Open</a></span></div>`).join('') || '<p class="mnote">Nothing waiting here. The water flows.</p>'}
