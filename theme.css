@@ -1,15 +1,15 @@
-/* JISSR THEME v5 "Clinique": clear, exact, clinical.
-   White and cool grey, one petrol-teal for actions, orange only for "this is now", green for done.
-   Flat surfaces with hairlines, no decorative shadows. IBM Plex Sans Arabic for both scripts (SIL OFL, in /fonts).
-   Every phone screen reads the tokens; change a value here and the whole app follows. */
-@font-face{font-family:"Plex";font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Plex";font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"Plex";font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Plex";font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"Plex";font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Plex";font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"Plex";font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Plex";font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+/* JISSR THEME v6 "Premium clinical" (direction from the ui-ux-pro-max skill: healthcare app, Soft UI Evolution, clinical blue + health green).
+   Soft layered depth instead of hard borders, one deep clinical-blue card for the next step, green for done, amber only for "now".
+   Figtree for Latin and IBM Plex Sans Arabic for Arabic, both SIL OFL and bundled in /fonts.
+   Every phone screen and desktop page reads the tokens below; change a value here and the whole app follows. */
+@font-face{font-family:"Jissr";font-weight:400;font-display:swap;src:url(fonts/figtree-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Jissr";font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Jissr";font-weight:500;font-display:swap;src:url(fonts/figtree-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Jissr";font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Jissr";font-weight:600;font-display:swap;src:url(fonts/figtree-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Jissr";font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Jissr";font-weight:700;font-display:swap;src:url(fonts/figtree-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Jissr";font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
 /* ---------- structure: every surface reads the theme tokens ---------- */
 body,.device{color:var(--ink);font-family:var(--text)}
 .device{background:var(--device-bg)}
@@ -38,53 +38,116 @@ input,select,textarea{border-radius:var(--btn-r)}
 .dt[aria-pressed=true],.scale button[aria-pressed=true],.modes button[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
 @media (min-width:700px){body{background:radial-gradient(circle at 30% 0%,var(--desk-1),var(--desk-2))}.device{border-color:var(--frame)}.device:before{background:var(--frame)}}
 .tl li.next{background:none!important;color:inherit;border:0;box-shadow:none;border-radius:0;font-weight:600}
-:root{
-  --font:"Plex";--display:"Plex",system-ui,sans-serif;--text:"Plex",system-ui,sans-serif;--hello-w:600;--display-ls:-.02em;
-  --bg:#f2f5f6;--card:#ffffff;--card2:#e8eef0;--ink:#0d2230;--ink-2:#2b3b45;--muted:#4e5e68;--line:#d7e0e4;
-  --brand:#0a5f70;--brand-d:#07404c;--brand-l:#d5ebef;--hero:#0a5f70;--on-hero-2:#cfe7ec;--hero-acc:#bdeaf1;
-  --accent:#e0782a;--accent-d:#8a4510;--accent-l:#fbe7d5;--tab-mark:#0a5f70;
-  --ok:#157148;--ok-l:#e2f1e8;--ok-ink:#145536;--ok-line:#c4e2d0;--ok-on-hero:#bfe8d1;
-  --chev:#8a99a2;--ring:#a9b8c0;--bad:#b0301c;--bad-l:#fbe3de;
-  --r:14px;--btn-r:10px;--card-b:1px solid var(--line);--card-sh:none;--blur:none;
-  --device-bg:var(--bg);--top-bg:#ffffff;--tabs-bg:#ffffff;
-  --hero-bg:var(--hero);--hero-sh:none;--ok-bg:var(--ok);--hero-btn:#ffffff;--hero-btn-ink:#0a5f70;
-  --desk-1:#f7fafb;--desk-2:#dfe7ea;--frame:#0d2230;--logo-acc:#e0a24a;
+/* ---------- tokens: premium clinical ---------- */
+:root{color-scheme:light;
+  --display:"Jissr",system-ui,sans-serif;--text:"Jissr",system-ui,sans-serif;--hello-w:650;--display-ls:-.025em;
+  --bg:#f3f7f9;--card:#ffffff;--card2:#edf3f6;--ink:#0b2537;--ink-2:#26394a;--muted:#4f6070;--line:#e0e8ed;
+  --brand:#0e5a80;--brand-d:#0a4262;--brand-l:#e2eff6;--hero:#0e5a80;--on-hero-2:#d6e7f1;--hero-acc:#a8ecd6;
+  --accent:#c9811f;--accent-d:#8a5412;--accent-l:#fbefdd;--tab-mark:#0e5a80;
+  --ok:#0f7a55;--ok-l:#e3f4ec;--ok-ink:#0c5b40;--ok-line:#c3e6d5;--ok-on-hero:#b9f0d9;
+  --chev:#8496a3;--ring:#aebcc6;--bad:#b42318;--bad-l:#fde8e6;
+  --panel:#0e5a80;--on-panel:#ffffff;--teal:#0e5a80;--teal-d:#0a4262;--teal-l:#e2eff6;
+  --blue:#0e5a80;--blue-l:#e2eff6;--green:#0f7a55;--green-l:#e3f4ec;--amber:#8a5412;--amber-l:#fbefdd;--red:#b42318;--red-l:#fde8e6;
+  --p-blue:#e2eff6;--p-yellow:#fbefdd;--p-pink:#fbe7ec;--p-lilac:#eceaf8;--p-mint:#e3f4ec;
+  --r:20px;--btn-r:14px;--card-b:1px solid rgba(11,37,55,.05);
+  --card-sh:0 1px 2px rgba(11,37,55,.04),0 10px 28px -6px rgba(11,37,55,.08);--shadow:var(--card-sh);
+  --blur:none;--device-bg:var(--bg);--top-bg:rgba(255,255,255,.86);--tabs-bg:rgba(255,255,255,.92);
+  --hero-bg:radial-gradient(120% 90% at 100% 0%,#136892 0%,rgba(19,104,146,0) 60%),linear-gradient(160deg,#0f5f87 0%,#0a3f5c 100%);
+  --hero-sh:0 18px 36px -12px rgba(10,63,92,.45);
+  --ok-bg:radial-gradient(120% 90% at 100% 0%,#0f6b4a 0%,rgba(15,107,74,0) 60%),linear-gradient(160deg,#0d6545 0%,#0a4f37 100%);
+  --hero-btn:#ffffff;--hero-btn-ink:#0e5a80;
+  --desk-1:#f8fbfc;--desk-2:#dde9ef;--frame:#0b2537;--logo-acc:#d6a85a;
+  --ease:cubic-bezier(.2,.8,.2,1);
 }
-.top{padding-bottom:12px}
-.next{border-inline-start:6px solid var(--accent)}
-/* structure A: a clinical record. Care path as a vertical timeline, next step as a white chart card with a signal bar. */
-.next{border-inline-start:0;background:var(--card)!important;color:var(--ink);border:1px solid var(--line);border-top:5px solid var(--accent);box-shadow:none}
-.next.ok{background:var(--card)!important;border-top-color:var(--ok)}
-.next h2{color:var(--ink);font-size:24px}
-.next p,.next .appt .sub{color:var(--muted)}
-.nlbl,.next .nlbl,.next.ok .nlbl{color:var(--accent-d);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-.next.ok .nlbl{color:var(--ok)}
-.next .gtile{background:var(--accent-l);color:var(--accent-d)}
-.next .btn,.next.ok .btn{background:var(--brand);color:#fff}
-.next.wait .btn{background:transparent;color:var(--brand);border:1.5px solid var(--brand)}
-.next .datebox{background:var(--card2);color:var(--ink)}
-.phd b,.lbl,.rlabel,.sec{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-[dir=rtl] .phd b,[dir=rtl] .nlbl,[dir=rtl] .rlabel{letter-spacing:0}
-.path{padding:14px 16px 10px}
+body{font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
+.rvalue b,.stat3 b,.datebox b,.dt b,.mslot b,.sopq b,.fitbig{font-variant-numeric:tabular-nums lining-nums}
+
+/* header and tab bar: frosted white, hairline */
+.top{-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px);box-shadow:0 1px 0 var(--line)}
+.tabs{-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px)}
+.tab:after{display:none}
+.tab .ico{box-sizing:content-box;padding:4px 18px!important;border-radius:999px;transition:background .2s var(--ease)}
+.tab[aria-current=page] .ico{background:var(--brand-l)!important}
+.tab[aria-current=page]{color:var(--brand)}
+
+/* greeting */
+.hello{font-size:31px;line-height:1.12}
+.gsub{font-size:15px}
+
+/* the next step: the one deep, glowing card */
+.next{border-radius:24px;padding:22px 20px 20px}
+.next h2{color:#fff;font-size:24px;line-height:1.18;letter-spacing:-.02em}
+.next p,.next .appt .sub{color:var(--on-hero-2)}
+.nlbl,.next .nlbl{color:var(--hero-acc);font-size:13px;font-weight:600;letter-spacing:0;text-transform:none}
+.next.ok .nlbl{color:var(--ok-on-hero)}
+.next .gtile{background:rgba(255,255,255,.12);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);border-radius:14px}
+.next .btn{background:#fff;color:var(--brand);box-shadow:0 6px 16px -6px rgba(0,0,0,.35);min-height:52px}
+.next.ok .btn{color:var(--ok)}
+.next.wait .btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.45);box-shadow:none}
+.next .datebox{background:#fff;color:var(--brand)}
+.micro.navy{border-radius:22px}
+.micro.navy .gtile{background:rgba(255,255,255,.12);color:#fff}
+.micro.navy .mday1{color:var(--hero-acc)}
+.micro.navy .pick[aria-pressed=true],.micro.navy .mslot:active{background:#fff;color:var(--brand)}
+
+/* labels: quiet sentence case */
+.phd b,.lbl,.rlabel,.sec{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted)}
+.rlabel{color:var(--brand)}
+
+/* care path: a vertical timeline, every step named */
+.path{padding:16px 18px 12px}
 .p5w:before,.p5w .pl{display:none}
 .p5{grid-template-columns:1fr}
-.p5 li{flex-direction:row;gap:14px;text-align:start;padding:5px 0}
-.p5 li:not(:last-child):after{content:"";position:absolute;inset-inline-start:15px;top:39px;bottom:-5px;width:2px;background:var(--line)}
+.p5 li{flex-direction:row;gap:14px;text-align:start;padding:6px 0}
+.p5 li:not(:last-child):after{content:"";position:absolute;inset-inline-start:17px;top:42px;bottom:-6px;width:2px;border-radius:1px;background:var(--line)}
 .p5 li.done:not(:last-child):after{background:var(--ok)}
-.pd{width:32px;height:32px;flex:none}
-.p5 small{font-size:15px}
-.p5 li.now small{font-weight:600}
-.p5 li.now:before{content:"";position:absolute;inset-inline-end:0;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--accent)}
-.hello{font-size:30px}
-.hlist{border-radius:var(--r)}
-.lrow{min-height:56px}
-/* the one action comes first; the full care path sits right under it */
+.pd{width:36px;height:36px;flex:none;background:var(--card2);border:0;color:var(--muted)}
+.p5 li.done .pd{background:var(--ok);color:#fff}
+.p5 li.now .pd{background:var(--brand);color:#fff;box-shadow:0 0 0 5px var(--brand-l)}
+.p5 small{font-size:15px;color:var(--muted)}
+.p5 li.done small{color:var(--ink)}
+.p5 li.now small{color:var(--ink);font-weight:600}
+.p5 li.now:before{content:"";position:absolute;inset-inline-end:0;top:50%;margin-top:-11px;height:22px;padding:0 9px;border-radius:999px;background:var(--accent-l);color:var(--accent-d);font-size:12px;font-weight:600;line-height:22px;content:"Now"}
+[lang=ar] .p5 li.now:before{content:"الآن"}
+
+/* rows and tiles */
+.hlist{overflow:hidden}
+.lrow{min-height:58px;transition:background .15s var(--ease)}
+.lrow:active{background:var(--card2)}
+.lrow>.ico:first-child{width:36px;height:36px;padding:8px;border-radius:12px;background:var(--brand-l);color:var(--brand);box-sizing:border-box;flex:none}
+.lrow>.ico:last-child{color:var(--chev)}
+.avatar2{background:linear-gradient(160deg,#0f5f87,#0a3f5c)}
+.call2{border:0;background:var(--brand-l);color:var(--brand)}
+.gtile{background:var(--brand-l);color:var(--brand)}
+.pitem.done .gtile{background:var(--ok-l);color:var(--ok)}
+
+/* buttons: solid, soft lift, quick press */
+.btn{background:var(--brand);box-shadow:0 6px 16px -8px rgba(14,90,128,.6);transition:transform .12s var(--ease),filter .15s,background .15s}
+.btn.ghost{box-shadow:inset 0 0 0 1.5px var(--brand)}
+.btn[disabled]{box-shadow:none}
+.pick[aria-pressed=true]{background:var(--brand);color:#fff}
+.rmeans{background:var(--card2)}
+.reassure,.ontrack,.micro.booked{border-radius:18px}
+
+/* result screen and start screen */
+.rcard{padding:20px}
+.rcard .rhero{font-size:23px;letter-spacing:-.02em}
+.hero h1{letter-spacing:-.03em}
+.pick.navy{border-radius:22px}
+
+/* care team app */
+.stat3{border-radius:18px}
+.phead{border-radius:24px}
+.navy .when.breached{color:#ffd0c6}.navy .when.warning{color:#ffe2a8}.navy .when.on_track{color:#c6f0d6}
+.tl li.next{background:none!important;color:inherit;border:0;box-shadow:none;border-radius:0;font-weight:600}
+
+/* the one action comes first; the care path sits right under it */
 .view:has(>.greet){display:flex;flex-direction:column}
 .view:has(>.greet)>*{order:4}.view:has(>.greet)>.greet{order:0}.view:has(>.greet)>.next{order:1}.view:has(>.greet)>.path{order:2}.view:has(>.greet)>.hlist{order:3}
-.view:has(>.greet)>.next{margin-top:10px}
-.navy .when.breached{color:#ffd0c6}.navy .when.warning{color:#ffe2a8}.navy .when.on_track{color:#c6f0d6}
-/* the remaining shared tokens, so desktop pages and dark-mode phones get the same light, clinical look */
-:root{color-scheme:light;
-  --panel:#0a5f70;--on-panel:#ffffff;--teal:#0a5f70;--teal-d:#07404c;--teal-l:#d5ebef;
-  --blue:#0a5f70;--blue-l:#d5ebef;--green:#157148;--green-l:#e2f1e8;--amber:#8a5a0e;--amber-l:#fdf0d8;--red:#b0301c;--red-l:#fbe3de;
-  --p-blue:#e3eef1;--p-yellow:#fdf0d8;--p-pink:#fbe6ea;--p-lilac:#ece9f7;--p-mint:#e2f1e8;--shadow:0 1px 0 rgba(13,34,48,.06)}
+.view:has(>.greet)>.next{margin-top:12px}
+
+/* calm entrance; nothing moves for people who ask for less motion */
+.view>section{animation:rise .28s var(--ease) both}
+.view>section:nth-of-type(2){animation-delay:.04s}.view>section:nth-of-type(3){animation-delay:.08s}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view>section{animation:none}.btn,.lrow,.tab .ico{transition:none}}
