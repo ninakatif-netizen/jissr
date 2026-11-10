@@ -52,6 +52,12 @@
 .qa .bub small{display:block;font-size:12px;margin-bottom:2px;color:var(--muted)}.qa .bub.me small{color:#dcecf7}
 .qa .bub.me{background-color:var(--brand);color:#fff;margin-inline-start:auto;border-end-end-radius:4px}
 .qa .bub.them{background:var(--card);border:1px solid var(--line);border-end-start-radius:4px}
+.tags2{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 4px}
+.tg{font-size:12px;font-weight:600;border-radius:999px;padding:2px 9px}
+.tg.call{background:var(--bad-l);color:var(--bad)}.tg.radar{background:var(--accent-l);color:var(--accent-d)}
+.flash.call{background:var(--bad-l);color:var(--bad);display:flex;gap:8px;align-items:flex-start}
+.radarc ul{margin:4px 0 0;padding-inline-start:18px;font-size:14px}.radarc li{margin:3px 0}
+.fm{margin:6px 0 0;padding:12px 14px;border-radius:14px;background:var(--brand-l);font-size:15.5px;line-height:1.6}
 .hs-strip{display:flex;align-items:center;gap:6px;margin:10px 0 4px;font-size:12.5px}
 .hs-strip span{flex:1;border-radius:12px;padding:8px 10px;background:var(--card2);color:var(--muted);display:flex;flex-direction:column;line-height:1.3}
 .hs-strip span.on{background:var(--brand-l);color:var(--ink);box-shadow:inset 0 0 0 2px var(--brand)}
@@ -104,7 +110,9 @@ import { ic, logo, slaBadge, phaseChip, miniSteps } from './core/ui.mjs';
 import { loadState, saveState, resetState } from './core/store.mjs';
 import { roleView, roleFilter, CARE_ROLES } from './core/roles.mjs';
 import { progOf, stageLabel, resultText, targetsFor } from './core/programmes.mjs';
-import { STAGES, escalationsFor, maxLevel, cloePhase, slaClock, sopsFor, SOPS, slaText, journeyStep, CLOE_LABEL } from './core/rules.mjs';
+import { STAGES, escalationsFor, maxLevel, cloePhase, slaClock, sopsFor, SOPS, slaText, journeyStep, CLOE_LABEL, mustCall, radarFor } from './core/rules.mjs';
+import { firstMessage } from './core/templates.mjs';
+import { startTour } from './core/tour.mjs';
 import {
   advance, skipStage, closeCase, sendReferral, respondReferral, completeReferral, runSop, completeMicroConsult, logContact, requestConsult, answerConsult,
   canRecord, nextStageOf, CLOSE_TYPES, PLAN_KINDS, CLOSURE_RULES, validateClosure, MIN_EVIDENCE, RuleError,
@@ -115,8 +123,10 @@ const params = new URLSearchParams(location.search);
 let roleId = CARE_ROLES.includes(params.get('role')) ? params.get('role') : (() => { try { const l = localStorage.getItem('jissr.lastApp') || ''; return l.startsWith('care:') ? l.slice(5) : null; } catch { return null; } })();
 if (!CARE_ROLES.includes(roleId)) location.replace('app.html?care=1');
 try { localStorage.setItem('jissr.lastApp', 'care:' + roleId); } catch { }
-const RV = roleView(roleId);
+const RV = { ...roleView(roleId) };
 let state = loadState();
+// ?as=<staff id> opens the app as another person with the same role (used by the guided tour)
+{ const asId = params.get('as'), base = state.staff.find((x) => x.id === RV.as), alt = state.staff.find((x) => x.id === asId); if (alt && base && alt.role === base.role) RV.as = asId; }
 let tab = 'today', caseId = params.get('c'), cfilter = 'all', query = '', flash = null, sopFilter = null; // sopFilter: a protocol queue opened from Alerts
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -167,6 +177,7 @@ const caseItem = (c) => {
   const k = clockOf(c);
   return `<button class="citem" data-case="${c.id}"><span class="ci"><span class="nm"><b>${esc(c.patient.name)}</b><span class="res">${resultText(c)}</span></span>
     <span class="act">${esc(nextText(c))}</span>
+    ${mustCall(c) || radarFor(c, state.today).on ? `<span class="tags2">${mustCall(c) ? '<span class="tg call">Call required</span>' : ''}${radarFor(c, state.today).on ? `<span class="tg radar">Radar · ${radarFor(c, state.today).signals.length} signals</span>` : ''}</span>` : ''}
     <span class="trk">${miniSteps(journeyStep(c), stageLabel(c, c.stage))}<span class="when ${k ? k.tier.toLowerCase() : ''}">${dueWords(k)}</span></span></span></button>`;
 };
 const rows = (html, empty) => html ? `<div class="rows">${html}</div>` : `<div class="empty2">${empty}</div>`;
@@ -262,6 +273,7 @@ function actionsHtml(c) {
       <span class="${holder === 'from' ? 'on' : ''}">${esc(fromOrg)}<b>${holder === 'from' ? 'holds it' : 'released'}</b></span>${ic('next', 16)}
       <span class="${holder === 'to' ? 'on' : ''}">${esc(r.to)}<b>${r.status === 'sent' ? 'offered' : r.status === 'accepted' ? 'owner now' : 'declined'}</b></span></div>`;
     let h = `<div class="card2 act-card hs"><h3>${ic('send', 16)} Handshake: ${esc(fromOrg)} → ${esc(r.to)}</h3><div class="tiny muted">${esc(r.reason)}</div>${strip}`;
+    if (r.preauth) h += `<p class="note2">${ic('shield', 14)} Insurance pre-approval: <b>${r.preauth.status === 'approved' ? 'approved' : 'requested with the referral'}</b> (simulated)</p>`;
     if (r.status === 'sent') h += `<p class="hs-clock">${k && k.step === 'referral_reply' ? 'Answer ' + dueWords(k).toLowerCase().replace('due in', 'within') : 'Waiting for an answer'}</p>` + (recv ? `<textarea id="rnote" placeholder="Note to the referring team (needed if not for you)"></textarea><button class="btn" id="racc">Take this case</button><button class="btn ghost" id="rrej">Not for us: send it back</button><p class="note2">Until you answer, ${esc(fromOrg)} stays responsible. No answer in time: the clinical lead is alerted. A case is never between two owners.</p>` : `<p class="note2">Offered to ${esc(r.to)}. ${esc(fromOrg)} stays responsible until a clinician there takes it.</p>`);
     else if (r.status === 'accepted') h += recv ? `<textarea id="rrep" placeholder="Report back (at least ${MIN_EVIDENCE} characters)"></textarea><button class="btn" id="rdone">Complete and report back</button>` : `<p class="note2">The specialist team owns the case until they report back.</p>`;
     else h += isDoc ? `<p class="note2">Rejected: ${esc(r.note || '')}</p><select id="rto">${targetsFor(c).map((o) => `<option>${o}</option>`).join('')}</select><textarea id="rwhy" placeholder="Reason for the new referral"></textarea><button class="btn" id="rsend">Re-send referral</button>` : `<p class="note2">Rejected. A clinician must decide the next step.</p>`;
@@ -298,6 +310,9 @@ function caseView() {
       ${k ? `<div class="own"><span class="when ${k.tier.toLowerCase()}">${dueWords(k)}</span>: ${k.stepText.toLowerCase()}, ${dueDay(k)}</div>` : ''}
       <div class="own">Owner: <b style="color:#fff">${o ? esc(o.name) : 'Unassigned'}</b>${o ? `, ${esc(o.org)}` : ''}</div></section>
     ${e.length ? `<div class="flash err"><b>Needs attention</b>${e.map((x) => `<div>${x.level >= 3 ? 'Clinical lead now: ' : ''}${esc(x.text)}</div>`).join('')}</div>` : ''}
+    ${mustCall(c) ? `<div class="flash call">${ic('phone', 16)} <b>Call required.</b> ${esc(mustCall(c))}</div>` : ''}
+    ${(() => { const r = radarFor(c, state.today); return r.signals.length ? `<div class="card2 act-card radarc"><h3>${ic('chart', 16)} Dropout radar${r.on ? ' · on the radar' : ''}</h3><ul>${r.signals.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><p class="note2">Simple visible rules, no AI. It suggests who to call first; you decide.</p></div>` : ''; })()}
+    ${c.stage !== 'closed' && ['result', 'notified'].includes(c.stage) ? (() => { const m = firstMessage(c.patient.language); return `<div class="card2 act-card"><h3>${ic('send', 16)} First message, in ${m.name}</h3><p class="fm" lang="${c.patient.language}" dir="${m.dir}">${esc(m.text)}</p><p class="note2">Never contains the result. Draft wording, to be checked by a medical translator.</p></div>`; })() : ''}
     ${c.stage !== 'closed' ? actionsHtml(c) : `<div class="flash ok">Closed by ${esc(c.closed?.by || '')}: ${esc(CLOSE_TYPES[c.closed?.type] || '')}<br>${esc(c.closed?.evidence || '')}</div>`}
     ${c.stage !== 'closed' ? `<div class="card2 act-card"><h3>${ic('phone', 16)} Contact</h3><input id="contact" placeholder="Log a call or message"><button class="btn ghost" id="log">Log contact</button></div>` : ''}
     ${c.stage !== 'closed' && (sops.length || isDoc || ['nurse', 'coordinator'].includes(a.role)) ? `<p class="sec">Protocols</p>${Object.entries(SOPS).filter(([code]) => code === 'refusal' || sops.includes(code)).map(([code, sp]) => `<div class="card2 act-card"><h3>${sp.label}${sops.includes(code) ? ' <span class="chip warn">applies now</span>' : ''}</h3><div class="tiny muted">${sp.when}</div>
@@ -351,6 +366,7 @@ function wire() {
 render();
 setInterval(() => { if (!document.hidden && !document.activeElement?.matches('input,textarea,select')) render(); }, 60000); // live countdowns
 addEventListener('storage', () => { state = loadState(); render(); });
+startTour();
 </script>
 <div id="sr-status" role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></div>
 <script>

@@ -144,7 +144,7 @@ body{font-size:15px}
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
 import { wordmark, ic, slaBadge, phaseChip } from './core/ui.mjs';
-import { skyline } from './core/art.mjs';
+import { falajScene } from './core/art.mjs';
 import { roleView, roleFilter } from './core/roles.mjs';
 import { startTour } from './core/tour.mjs';
 import { loadState, saveState, resetState } from './core/store.mjs';
@@ -505,7 +505,7 @@ document.addEventListener('keydown', (e) => {
 $('#scrim').onclick = closeDrawer;
 $('#modal').onclick = (e) => { if (e.target.id === 'modal') closeIntake(); };
 $('#brand').innerHTML = wordmark() + '<span class="sub">Care team</span>';
-$('#art').innerHTML = skyline({ width: 230, opacity: 0.22, sun: true });
+$('#art').innerHTML = falajScene({ width: 230, opacity: 0.35 });
 $('#new-result').innerHTML = ic('flask', 18) + ' New result';
 $('#new-result').onclick = openIntake;
 // ROLE VIEW: a banner saying whose view this is and what their part of the journey is

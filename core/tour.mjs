@@ -1,14 +1,14 @@
-// GUIDED TOUR for judges: 7 short steps across the patient app, the care team and the measures.
+// GUIDED TOUR for judges: 8 short steps, one story (Priya, BI-RADS 4) across patient, care team and authorities.
 // Any page with ?tour=N shows the step card. Nothing here changes the rules.
 const STEPS = [
-  { url: 'patient.html?p=C-001&fresh=1', title: 'Meet Fatima', text: 'Her HbA1c came back high. She opens Falaj on her phone and first confirms it is her, with the code from her SMS (demo code: 2026). Then she taps "Read my result".' },
-  { url: 'patient.html?p=C-001&view=result', title: 'Her result, in plain words', text: 'The gauge shows where 8.1% sits. Every message says "this is not a diagnosis". She can listen, ask for simpler words, or book a 10-minute call with a nurse. Tap "Yes, I understand", then answer the quick check.' },
-  { url: 'patient.html?p=C-001&view=book', title: 'What gets in her way?', text: 'She works nights. Tap "No time / shifts": evening slots appear. Pick one and book it.' },
-  { url: 'staff.html?as=n1&filter=attention', title: 'The care team sees every case', text: 'Three screening programmes run on the same engine: diabetes (HbA1c), bowel cancer (FIT) and breast screening (mammogram). Each case has a named owner and a deadline set by rules. This queue shows what needs a person now.' },
-  { url: 'staff.html?as=c1&new=1', title: 'A new result arrives', text: 'Type an HbA1c and add it. The rules set urgency, the due date and the least busy owner at once. No AI is involved.' },
-  { url: 'staff.html?as=d1&c=C-002', title: 'Only a clinician closes, with evidence', text: 'Dr Mariam can close this case only by writing the evidence. A nurse cannot, and the AI cannot change anything. This is enforced in code and tested.' },
-  { url: 'trust.html?run=1', title: 'Try to break it', text: 'Every safety promise is checked live on the real code. Then press any red button: make the AI close a case, close without proof, make a case vanish. The rules block each one.' },
-  { url: 'metrics.html', title: 'Proving it works', text: 'Time to each step, referral completion, unresolved results and why patients drop out. These numbers are synthetic: this is what a pilot would measure.' },
+  { url: 'patient.html?p=C-040&fresh=1', title: 'Meet Priya', text: 'Her mammogram shows an area that needs a closer look (BI-RADS 4). She speaks Malayalam. She opens Falaj on her phone and first confirms it is her.' },
+  { url: 'patient.html?p=C-040&view=result', title: 'Her result, without fear', text: 'Plain words, in her language or read aloud: "this is not a diagnosis of cancer". Then she says in her own words what happens next, and books a 10-minute call with a nurse.' },
+  { url: 'care.html?role=nurse&as=n2', title: 'The nurse sees who to call first', text: 'Every case has one owner and a deadline. "Call required": a suspicious mammogram is told by a person, never by a message alone. The dropout radar shows why someone may be lost.' },
+  { url: 'care.html?role=specialist', title: 'The handshake', text: 'A referral exists only when the hospital takes it. Until then the sender stays responsible, and the insurance approval is requested at the same time. A case is never between two owners.' },
+  { url: 'care.html?role=gp', title: 'A 2-minute consult', text: 'Open a case and ask the specialist a short question from the phone. The answer joins the case and often makes a referral unnecessary.' },
+  { url: 'map.html', title: 'Where does the water stop?', text: 'For the Department of Health: open and late cases in every emirate, the biggest leak, who holds the water, and who drops out by language. Switch to "The falaj" to see each checkpoint.' },
+  { url: 'patient.html?p=C-012&view=proof', title: 'The palm: proof of care', text: 'When care is in place, a clinician closes the case with evidence and the patient keeps a dated receipt she can share. It shows the steps, never the result.' },
+  { url: 'trust.html?run=1', title: 'Try to break it', text: 'Every safety promise is checked live on the real code. Press any red button: make the AI close a case, skip a step, or remove an owner. The rules refuse.' },
 ];
 export const tourUrl = (i) => { const s = STEPS[i]; return s.url + (s.url.includes('?') ? '&' : '?') + 'tour=' + i; };
 
@@ -18,19 +18,19 @@ export function startTour() {
   const i = Math.max(0, Math.min(STEPS.length - 1, parseInt(p.get('tour'), 10) || 0));
   const st = STEPS[i];
   const css = document.createElement('style');
-  css.textContent = `.tour{position:fixed;z-index:120;inset-inline-start:20px;bottom:20px;width:340px;background:#1b2238;color:#fff;border-radius:22px;padding:18px 18px 14px;box-shadow:0 24px 60px rgba(27,34,56,.35);font:14px/1.55 "Readex",system-ui,sans-serif;animation:tourin .35s ease}
+  css.textContent = `.tour{position:fixed;z-index:120;inset-inline-start:20px;bottom:20px;width:340px;background:#0a1f2e;color:#fff;border-radius:22px;padding:18px 18px 14px;box-shadow:0 24px 60px rgba(10,31,46,.4);font:14px/1.55 var(--text,system-ui),sans-serif;animation:tourin .35s ease}
   @keyframes tourin{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-  .tour .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#f5b544;font-weight:600}
+  .tour .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9fdaf4;font-weight:600}
   .tour h4{margin:4px 0 6px;font-size:17px;font-weight:600}
   .tour p{margin:0 0 14px;color:rgba(255,255,255,.85)}
-  .tour .dots{display:flex;gap:5px;margin-bottom:12px}.tour .dots i{height:4px;flex:1;border-radius:2px;background:rgba(255,255,255,.18)}.tour .dots i.on{background:#f5b544}
+  .tour .dots{display:flex;gap:5px;margin-bottom:12px}.tour .dots i{height:4px;flex:1;border-radius:2px;background:rgba(255,255,255,.18)}.tour .dots i.on{background:#36b5e8}
   .tour .r{display:flex;gap:8px;align-items:center}
   .tour a,.tour button{font:inherit;font-size:13.5px;border-radius:12px;padding:8px 14px;text-decoration:none;cursor:pointer;border:0}
-  .tour .nx{background:#f5b544;color:#1b2238;font-weight:600;margin-inline-start:auto}
+  .tour .nx{background:#fff;color:#0a1f2e;font-weight:600;margin-inline-start:auto}
   .tour .bk{background:rgba(255,255,255,.1);color:#fff}
   .tour .x{background:none;color:rgba(255,255,255,.6);padding:8px 4px}
   .tour.min p,.tour.min .dots,.tour.min .r .bk{display:none}
-  @media(max-width:699px){.tour{inset-inline:12px;width:auto;bottom:92px}}`;
+  @media(max-width:699px){.tour{inset-inline:12px;width:auto;bottom:96px}}`;
   document.head.appendChild(css);
   const el = document.createElement('aside');
   el.className = 'tour'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Guided tour');

@@ -75,3 +75,17 @@ export function explanation({ band, value, lang = 'en', level = 'normal' }) {
 }
 export const barrierText = (barrier, lang = 'en') => pick(lang).barrier[barrier] || pick(lang).barrier.none;
 export const nurseText = (lang = 'en') => pick(lang).nurse;
+
+// The first message to a patient, in their language. It never contains the result itself (privacy),
+// only that there is a result and that a nurse will help. DRAFTS: to be reviewed by professional
+// medical translators before any real use.
+export const FIRST_MESSAGE = {
+  en: { name: 'English', dir: 'ltr', text: 'You have a new screening result. A nurse will help you understand it. Please open Falaj or reply to this message.' },
+  ar: { name: 'العربية', dir: 'rtl', text: 'لديك نتيجة فحص جديدة. ستساعدك ممرضة على فهمها. يُرجى فتح تطبيق فلج أو الرد على هذه الرسالة.' },
+  ur: { name: 'اردو', dir: 'rtl', text: 'آپ کے اسکریننگ ٹیسٹ کا نیا نتیجہ آ گیا ہے۔ ایک نرس اسے سمجھنے میں آپ کی مدد کرے گی۔ براہ کرم فلج کھولیں یا اس پیغام کا جواب دیں۔' },
+  hi: { name: 'हिन्दी', dir: 'ltr', text: 'आपकी स्क्रीनिंग जाँच का नया परिणाम आया है। एक नर्स इसे समझने में आपकी मदद करेगी। कृपया फ़लज खोलें या इस संदेश का उत्तर दें।' },
+  tl: { name: 'Tagalog', dir: 'ltr', text: 'May bago kang resulta ng screening test. Tutulungan ka ng isang nurse na maunawaan ito. Pakibuksan ang Falaj o sumagot sa mensaheng ito.' },
+  ml: { name: 'മലയാളം', dir: 'ltr', text: 'നിങ്ങളുടെ സ്ക്രീനിംഗ് പരിശോധനയുടെ പുതിയ ഫലം ലഭ്യമാണ്. അത് മനസ്സിലാക്കാൻ ഒരു നഴ്സ് നിങ്ങളെ സഹായിക്കും. ദയവായി ഫലജ് തുറക്കുക അല്ലെങ്കിൽ ഈ സന്ദേശത്തിന് മറുപടി നൽകുക.' },
+  bn: { name: 'বাংলা', dir: 'ltr', text: 'আপনার স্ক্রিনিং পরীক্ষার নতুন ফলাফল এসেছে। একজন নার্স আপনাকে এটি বুঝতে সাহায্য করবেন। অনুগ্রহ করে ফালাজ খুলুন অথবা এই বার্তার উত্তর দিন।' },
+};
+export const firstMessage = (lang) => FIRST_MESSAGE[lang] || FIRST_MESSAGE.en;

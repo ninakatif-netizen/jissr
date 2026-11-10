@@ -233,3 +233,5 @@ html.bigtext .hello{font-size:42px}
 .stat3 b{font-family:var(--display);font-size:30px;letter-spacing:-.03em}
 .hero h1{font-size:44px;letter-spacing:-.04em}
 .hello+.gsub{margin-top:14px}
+/* the dark journey band: plain ink, no old skyline */
+.arch-band{background:#0a1f2e!important}.arch-band:after{display:none}

@@ -339,3 +339,32 @@ export function journeyStep(c) {
     default: return 4; // care_plan
   }
 }
+
+// ---- FALAJ: clinical safety and the dropout radar ----
+// Proposed by the team (a medical student), awaiting sign-off by a supervising clinician.
+// Some results must be told by a person, by phone or face to face, never by a message alone.
+export function mustCall(c) {
+  if (!c || c.stage === 'closed') return null;
+  if (c.programme === 'mammo' && ['birads4', 'birads5'].includes(c.band)) return 'Suspicious mammogram: tell her in person or by phone, never by message alone.';
+  if ((!c.programme || c.programme === 'hba1c') && c.urgency === 'urgent') return 'HbA1c in the urgent band: call the same day and ask about symptoms.';
+  return null;
+}
+
+// The dropout radar: simple visible rules, no AI. Two signals or more puts a case on the radar.
+// It suggests who to call first; a person always decides.
+const BARRIER_WORDS = { dont_understand: 'does not understand the result', time_shift: 'time off work or shifts', fear: 'feels worried', cost: 'cost', language: 'language', transport: 'transport', family: 'family duties' };
+const RADAR_LANG = { ur: 'Urdu', hi: 'Hindi', tl: 'Tagalog', ml: 'Malayalam', bn: 'Bengali' };
+export function radarFor(c, today) {
+  if (!c || c.stage === 'closed') return { on: false, signals: [] };
+  const s = [];
+  const told = [...(c.events || [])].reverse().find((e) => e.type === 'notified');
+  if (c.stage === 'notified' && told && today && daysBetween(told.at.slice(0, 10), today) >= 2) s.push('Result not opened for 2 days or more');
+  const lang = c.patient && c.patient.language;
+  if (RADAR_LANG[lang]) s.push(`Speaks ${RADAR_LANG[lang]}: use an interpreter or a first message in ${RADAR_LANG[lang]}`);
+  if (c.patient && c.patient.shifts) s.push('Works shifts: offer an evening or weekend slot');
+  if ((c.events || []).some((e) => e.type === 'contact' && /no answer|not reached|missed/i.test(e.note || ''))) s.push('A call was not answered');
+  if (c.barrier && c.barrier !== 'none') s.push(`Said something gets in the way: ${BARRIER_WORDS[c.barrier] || c.barrier.replace(/_/g, ' ')}`);
+  if ((c.events || []).some((e) => e.type === 'micro_consult_missed') || (c.microConsult && c.microConsult.status === 'missed')) s.push('Missed a booked call before');
+  if (c.referral && c.referral.preauth && c.referral.preauth.status === 'requested') s.push('Insurance approval still pending');
+  return { on: s.length >= 2, signals: s };
+}

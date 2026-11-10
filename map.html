@@ -95,6 +95,7 @@ import { registerSW } from './core/pwa.mjs';
 import { wordmark } from './core/ui.mjs';
 import { loadState } from './core/store.mjs';
 import { EMIRATES, CHANNELS, mapSummary, falajSummary, closureTrend } from './core/geo.mjs';
+import { startTour } from './core/tour.mjs';
 registerSW();
 document.getElementById('brand').innerHTML = wordmark() + '<span class="sub">Living map</span>';
 const state = loadState();
@@ -279,6 +280,7 @@ function render() {
 }
 document.getElementById('motion').onclick = () => { moving = !moving; render(); };
 render();
+startTour();
 </script>
 </body>
 </html>

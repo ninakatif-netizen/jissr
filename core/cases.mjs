@@ -104,7 +104,8 @@ export function sendReferral(state, id, actor, { to, reason } = {}) {
   if (!resend && nextStageOf(c) !== 'referred') throw new RuleError('out_of_order', `Next step is "${nextStageOf(c)}".`);
   const why = needText(reason, MIN_REASON, 'reason_required', `Write the reason for referral (at least ${MIN_REASON} characters).`);
   const history = c.referral ? [...(c.referral.history || []), { to: c.referral.to, status: c.referral.status, note: c.referral.note || '' }] : [];
-  c.referral = { to, reason: why, status: 'sent', sentAt: new Date().toISOString(), fromOwner: c.owner, history };
+  // insurance pre-approval is requested together with the referral, so the patient never waits for it (simulated)
+  c.referral = { to, reason: why, status: 'sent', sentAt: new Date().toISOString(), fromOwner: c.owner, history, preauth: { status: 'requested', at: new Date().toISOString() } };
   c.stage = 'referred';
   logEvent(c, resend ? 'referral_resent' : 'referred', actor, `Referred to ${to}: ${why}`);
   return c;
@@ -121,6 +122,7 @@ export function respondReferral(state, id, actor, { accept, note } = {}) {
     c.referral.status = 'accepted';
     c.referral.note = (note || '').trim();
     c.referral.acceptedAt = new Date().toISOString();
+    if (c.referral.preauth) c.referral.preauth = { ...c.referral.preauth, status: 'approved', approvedAt: new Date().toISOString() }; // simulated insurer reply
     c.owner = actor.id; // HAND-OFF: the receiving clinician now owns the case
     logEvent(c, 'referral_accepted', actor, `Accepted by ${actor.name}. Owner is now ${actor.name}.`);
   } else {

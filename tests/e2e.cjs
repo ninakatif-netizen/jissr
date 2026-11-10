@@ -170,10 +170,11 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   // ---------- tour + measures ----------
   await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);
   ok((await s.getAttribute('#b3', 'href')).includes('tour=0'), 'the home page offers the guided tour');
-  await s.goto(BASE + 'staff.html?as=n1&filter=attention&tour=3'); await s.waitForTimeout(200);
-  ok(/step 4 of 8/i.test(await s.innerText('.tour')), 'the tour card shows on each step');
+  ok((await s.getAttribute('#b3', 'href')).includes('C-040'), 'the tour follows one story: Priya, BI-RADS 4');
+  await s.goto(BASE + 'care.html?role=specialist&tour=3'); await s.waitForSelector('.tour');
+  ok(/step 4 of 8/i.test(await s.innerText('.tour')) && /handshake/i.test(await s.innerText('.tour')), 'the tour card shows on each step, in the care team app too');
   await s.click('.tour .nx');
-  const moved = await s.waitForURL(/tour=4/, { timeout: 10000 }).then(() => s.waitForSelector('#modal.open', { timeout: 10000 })).then(() => true, () => false);
+  const moved = await s.waitForURL(/role=gp.*tour=4/, { timeout: 10000 }).then(() => s.waitForSelector('.tour', { timeout: 10000 })).then(() => true, () => false);
   ok(moved, 'Next moves to the following step');
   await s.goto(BASE + 'trust.html?run=1');
   const res = await s.waitForFunction(() => document.body.dataset.result, null, { timeout: 15000 }).then((h) => h.jsonValue(), () => 'none');

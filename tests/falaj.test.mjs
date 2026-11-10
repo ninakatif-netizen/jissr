@@ -49,3 +49,37 @@ test('living map: every case sits in one emirate, and the numbers add up', () =>
   assert.equal(dxb.open, all.nodes.find((n) => n.id === 'dxb').open, 'filtering shows that place only');
   assert.equal(dxb.nodes.find((n) => n.id === 'ad').open, all.nodes.find((n) => n.id === 'ad').open, 'other places keep their numbers');
 });
+
+import { mustCall, radarFor } from '../core/rules.mjs';
+import { firstMessage, FIRST_MESSAGE } from '../core/templates.mjs';
+test('safety: suspicious mammograms and urgent HbA1c must be told by a person', () => {
+  const state = buildState('2026-11-10');
+  const b4 = state.cases.find((c) => c.programme === 'mammo' && c.band === 'birads4' && c.stage !== 'closed');
+  assert.ok(mustCall(b4));
+  const routine = state.cases.find((c) => (!c.programme || c.programme === 'hba1c') && c.urgency === 'routine' && c.stage !== 'closed');
+  assert.equal(mustCall(routine), null);
+});
+test('dropout radar: signals are listed in words, two or more put a case on the radar', () => {
+  const state = buildState('2026-11-10');
+  const c = state.cases.find((x) => x.stage !== 'closed');
+  const before = radarFor(c, '2026-11-10').signals.length;
+  c.patient = { ...c.patient, language: 'ur', shifts: true };
+  const r = radarFor(c, '2026-11-10');
+  assert.ok(r.signals.length >= before + 1 && r.on);
+  assert.ok(r.signals.every((x) => typeof x === 'string' && !/_/.test(x)));
+});
+test('first messages never carry the result, and fall back to English', () => {
+  for (const m of Object.values(FIRST_MESSAGE)) assert.ok(!/\d/.test(m.text), 'no number in a first message');
+  assert.equal(firstMessage('xx').text, FIRST_MESSAGE.en.text);
+});
+test('insurance pre-approval is requested with the referral and approved when the hospital accepts (simulated)', () => {
+  const state = buildState('2026-11-10');
+  const c = state.cases.find((x) => x.stage === 'confirmed' && !x.referral);
+  if (!c) return;
+  const gp = actorOf(state.staff.find((s) => s.role === 'clinician' && !/Hospital/.test(s.org)));
+  const to = targetsFor(c)[0];
+  sendReferral(state, c.id, gp, { to, reason: 'Specialist review needed for this result.' });
+  assert.equal(c.referral.preauth.status, 'requested');
+  respondReferral(state, c.id, actorOf(state.staff.find((s) => s.role === 'clinician' && s.org === to)), { accept: true });
+  assert.equal(c.referral.preauth.status, 'approved');
+});

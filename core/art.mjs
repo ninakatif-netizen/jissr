@@ -17,3 +17,20 @@ export function skyline({ width = 360, opacity = 1, sun = true } = {}) {
     <path d="M0 112c40-6 80-6 120 0s80 6 120 0 80-6 120 0" stroke-opacity=".55"/>
   </svg>`;
 }
+
+// The falaj in cross-section, for the home page: mountain and mother well, the tunnel with its access
+// shafts, the open channel, the palm garden. Drawn in code, an original illustration.
+export function falajScene({ width = 360, opacity = 1 } = {}) {
+  const h = Math.round(width * 0.45);
+  const palm = (x, y) => `<path d="M${x} ${y}V${y - 22}M${x} ${y - 21}C${x - 5} ${y - 27} ${x - 11} ${y - 26} ${x - 13} ${y - 21}M${x} ${y - 21}C${x + 5} ${y - 27} ${x + 11} ${y - 26} ${x + 13} ${y - 21}M${x} ${y - 21}C${x - 2} ${y - 29} ${x + 1} ${y - 32} ${x + 5} ${y - 33}"/>`;
+  return `<svg width="${width}" height="${h}" viewBox="0 0 400 180" fill="none" aria-hidden="true" style="opacity:${opacity}" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 70L28 34L50 52L76 18L104 58L400 104" stroke="#0a1f2e" stroke-width="2"/>
+    <path d="M40 66V150" stroke="#0a1f2e" stroke-width="2"/><path d="M48 62V150" stroke="#0a1f2e" stroke-width="2"/>
+    <path d="M44 148L270 92" stroke="#0b6fa8" stroke-width="7"/>
+    <path d="M44 148L270 92" stroke="#9fdaf4" stroke-width="2" stroke-dasharray="4 6"/>
+    <path d="M110 66V129M162 74V116M214 83V104" stroke="#0a1f2e" stroke-width="1.6" stroke-dasharray="2 3"/>
+    <path d="M270 92L398 104" stroke="#0b6fa8" stroke-width="5"/>
+    <g stroke="#1a7f52" stroke-width="2">${palm(320, 97)}${palm(345, 99)}${palm(370, 101)}</g>
+    <path d="M0 160C60 152 120 166 180 158" stroke="#36b5e8" stroke-width="2" opacity=".5"/>
+  </svg>`;
+}
