@@ -50,3 +50,14 @@ test('only GET is allowed', async () => {
   });
   assert.equal(r.code, 405);
 });
+
+test('another website cannot use the voice (the Azure key stays ours)', async () => {
+  process.env.AZURE_SPEECH_KEY = 'test'; process.env.AZURE_SPEECH_REGION = 'uaenorth';
+  const ask = (headers) => new Promise((resolve) => {
+    const res = { headers: {}, setHeader(k, v) { this.headers[k] = v; }, end(b) { resolve({ code: this.statusCode, body: b }); } };
+    handler({ method: 'GET', url: '/api/jissr-voice?lang=en&text=hi', headers: { 'x-forwarded-for': '9.9.9.' + Math.random(), host: 'falaj.test', ...headers } }, res);
+  });
+  assert.equal((await ask({ 'sec-fetch-site': 'cross-site' })).code, 403);
+  assert.equal((await ask({ referer: 'https://evil.example/page' })).code, 403);
+  assert.equal((await ask({ 'sec-fetch-site': 'same-origin', referer: 'https://falaj.test/patient.html' })).code, 200);
+});

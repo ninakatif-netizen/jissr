@@ -97,8 +97,12 @@
   </tbody></table></div>
   <div class="grp" style="margin-top:14px"><h3>Personal data: only what the follow-up needs</h3>
     <p class="tiny" style="margin:0 0 6px"><b>Kept:</b> name, age, preferred language, works shifts (yes/no), the HbA1c result, and what the patient chooses (barrier, contact channel, confidence, family helper with consent).</p>
-    <p class="tiny" style="margin:0 0 6px"><b>Never collected:</b> Emirates ID or any ID number, phone, address, nationality, sex, date of birth, medical history.</p>
+    <p class="tiny" style="margin:0 0 6px"><b>Family helper, only if the patient invites one:</b> their first name, relation and UAE mobile, kept on this device only. The mobile is never put in the invitation link.</p>
+    <p class="tiny" style="margin:0 0 6px"><b>Never collected:</b> Emirates ID or any ID number, the patient's own phone, address, nationality, sex, date of birth, medical history.</p>
     <p class="tiny" style="margin:0"><b>Where it lives:</b> only in your own browser. Nothing is stored on a server. The AI receives only the result band, number, language and barrier.</p></div>
+  <div class="grp" style="margin-top:14px"><h3>Security: what this demo does, and what a pilot must add</h3>
+    <p class="tiny" style="margin:0 0 6px"><b>Done here:</b> the site refuses to be framed by other sites; family and proof pages send no referrer, so their codes do not leak; the natural voice answers only this site, with a length and rate limit; the AI receives no free text, only a band, a number, a language and a barrier from a fixed list; every screen escapes what it shows.</p>
+    <p class="tiny" style="margin:0"><b>Not real yet, said plainly:</b> the family code and the proof code are computed in the browser, so someone who reads the code could make one. That is fine for synthetic data and would not be fine for real patients. A pilot needs the Falaj service to issue random codes, check them, expire them and revoke them on every phone, and to sign proofs of care with a key only the service holds.</p></div>
   <p class="tiny muted" style="margin-top:12px">This material contains content from LOINC (http://loinc.org). LOINC is copyright © Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license.</p>
   <p class="foot">Synthetic prototype · not medical advice</p>
 </div>

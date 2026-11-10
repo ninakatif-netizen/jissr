@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="app-shell.css">
 <style>
 .fwrap{display:flex;flex-direction:column;gap:14px}
+.sure{border:1.5px solid var(--red);background:var(--red-l)}
+.sure .btn.danger{background:var(--red);color:#fff;margin-bottom:8px}
 .fhero{padding:8px 2px 0}
 .fhero h1{margin:6px 0 4px;font-size:34px;line-height:1.08;letter-spacing:-.03em}
 .fhero p{margin:0;color:var(--muted)}
@@ -69,7 +71,9 @@ const L = {
     hi: (h) => `Hello ${h}`, invited: (p) => `${p} has invited you to help with ${p}'s health appointments.`,
     see: 'You will see', seeList: (p) => [`${p}'s next step, in words`, 'The appointment: date, time, place, what to bring', 'Reminders the day before'],
     never: 'You will never see', neverList: ['Any result or number', 'Any diagnosis', 'Messages with the nurse'],
-    accept: 'Accept and help', decline: 'No, thank you', declined: (p) => `You declined. ${p} will see that you said no. Nothing is shared with you.`,
+    accept: 'Accept and help', decline: 'No, thank you', declined: (p) => `${p ? p + ' will see that you said no. ' : ''}Nothing is shared with you.`, declinedT: 'You said no, thank you',
+    again: (p) => `If you change your mind, ask ${p || 'the person who invited you'} to send a new invitation.`,
+    sureStop: (p) => `Stop helping ${p}? You will no longer see the appointments, and ${p} will be told.`, sureDec: (p) => `Say no to ${p}? ${p} will be told, and nothing is shared with you.`, yesStop: 'Yes, stop helping', yesDec: 'Yes, say no', keep: 'Go back',
     helping: (p) => `You are helping ${p}`, sub: 'Only what you need to help. Never a result.',
     nextT: 'The next step', now: 'Now',
     next: (p, step, due) => [
@@ -80,17 +84,19 @@ const L = {
       `${p} and the doctor are agreeing a care plan.`,
       `${p}'s care plan is in place. You will get a reminder before each check.`][step],
     steps: ['Result told', 'Understood', 'Visit with the doctor', 'More tests, if needed', 'Care plan'],
-    apptT: 'The appointment', where: 'Falaj demo clinic', bring: 'Bring: Emirates ID or insurance card', remind: 'You will get a reminder the day before.', cal: 'Add to my calendar', noAppt: (p) => `No appointment booked yet. You can help ${p} choose a time in the Falaj app.`,
+    apptT: 'The appointment', where: 'Falaj demo clinic', bring: 'Bring: Emirates ID or insurance card', remind: 'You will get a reminder the day before.', cal: 'Add to my calendar', noAppt: (p) => `No appointment yet. When ${p} books one, the date, time and place will appear here, and you will get a reminder the day before.`,
     helpT: 'How you can help', tips: ['Offer a lift to the clinic', 'Send a reminder the day before', 'Go along, if wanted'],
     teamT: 'Questions about the appointment', team: (o) => `The care team${o ? ` (${o})` : ''} can help with times and places. They will not discuss results with you.`,
-    foot: (p) => `${p} can stop sharing at any time. You can stop too.`, stop: 'Stop helping', stopped: 'You have stopped. Nothing is shared with you any more.',
+    foot: (p) => `${p} can stop sharing at any time. You can stop too.`, stop: 'Stop helping', stoppedT: 'You have stopped helping', stopped: 'Nothing is shared with you any more.',
   },
   ar: {
     bad: 'هذه الدعوة غير صالحة', badSub: 'اطلب من الشخص الذي دعاك إرسالها مرة أخرى.',
     hi: (h) => `مرحباً ${h}`, invited: (p) => `تمت دعوتك من قِبل ${p} للمساعدة في مواعيد ${p} الصحية.`,
     see: 'سترى', seeList: (p) => [`الخطوة التالية لـ ${p} بكلمات بسيطة`, 'الموعد: التاريخ والوقت والمكان وما يجب إحضاره', 'تذكيرات قبل الموعد بيوم'],
     never: 'لن ترى أبداً', neverList: ['أي نتيجة أو رقم', 'أي تشخيص', 'الرسائل مع الممرضة'],
-    accept: 'أقبل وأساعد', decline: 'لا، شكراً', declined: (p) => `لقد اعتذرت، وسيتم إبلاغ ${p} بذلك. لن تتم مشاركة أي شيء معك.`,
+    accept: 'أقبل وأساعد', decline: 'لا، شكراً', declined: (p) => `${p ? `سيتم إبلاغ ${p} باعتذارك. ` : ''}لن تتم مشاركة أي شيء معك.`, declinedT: 'لقد اعتذرت، شكراً لك',
+    again: (p) => `إذا غيّرت رأيك، اطلب من ${p || 'الشخص الذي دعاك'} إرسال دعوة جديدة.`,
+    sureStop: (p) => `التوقف عن مساعدة ${p}؟ لن ترى المواعيد بعد الآن، وسيتم إبلاغ ${p}.`, sureDec: (p) => `الاعتذار عن دعوة ${p}؟ سيتم إبلاغ ${p}، ولن تتم مشاركة أي شيء معك.`, yesStop: 'نعم، أتوقف', yesDec: 'نعم، أعتذر', keep: 'رجوع',
     helping: (p) => `أنت تساعد ${p}`, sub: 'فقط ما تحتاجه للمساعدة. ولا نتيجة أبداً.',
     nextT: 'الخطوة التالية', now: 'الآن',
     next: (p, step, due) => [
@@ -101,30 +107,34 @@ const L = {
       `يجري الاتفاق مع الطبيب على خطة الرعاية لـ ${p}.`,
       `خطة الرعاية لـ ${p} جاهزة. ستصلك تذكيرات قبل كل فحص.`][step],
     steps: ['إبلاغ النتيجة', 'فهم النتيجة', 'زيارة الطبيب', 'فحوصات إضافية عند الحاجة', 'خطة الرعاية'],
-    apptT: 'الموعد', where: 'عيادة فلج التجريبية', bring: 'يرجى إحضار الهوية الإماراتية أو بطاقة التأمين', remind: 'سيصلك تذكير قبل الموعد بيوم.', cal: 'إضافة إلى التقويم', noAppt: (p) => `لم يُحجز موعد بعد. يمكنك مساعدة ${p} في اختيار وقت عبر تطبيق فلج.`,
+    apptT: 'الموعد', where: 'عيادة فلج التجريبية', bring: 'يرجى إحضار الهوية الإماراتية أو بطاقة التأمين', remind: 'سيصلك تذكير قبل الموعد بيوم.', cal: 'إضافة إلى التقويم', noAppt: (p) => `لا يوجد موعد بعد. عندما يحجز ${p} موعداً، سيظهر هنا التاريخ والوقت والمكان، وسيصلك تذكير قبل الموعد بيوم.`,
     helpT: 'كيف يمكنك المساعدة', tips: ['التوصيل إلى العيادة', 'إرسال تذكير قبل يوم', 'المرافقة عند الرغبة'],
     teamT: 'أسئلة حول الموعد', team: (o) => `يمكن لفريق الرعاية${o ? ` (${o})` : ''} المساعدة في الأوقات والأماكن، ولن يناقش النتائج معك.`,
-    foot: (p) => `يمكن لـ ${p} إيقاف المشاركة في أي وقت، ويمكنك أنت أيضاً التوقف.`, stop: 'التوقف عن المساعدة', stopped: 'لقد توقفت. لم تعد تتم مشاركة أي شيء معك.',
+    foot: (p) => `يمكن لـ ${p} إيقاف المشاركة في أي وقت، ويمكنك أنت أيضاً التوقف.`, stop: 'التوقف عن المساعدة', stoppedT: 'لقد توقفت عن المساعدة', stopped: 'لم تعد تتم مشاركة أي شيء معك.',
   },
 };
 const ICON_TIPS = ['pin', 'clock', 'users'];
 
+let sure = '';  // 'stop' or 'dec' while the helper confirms; both are final, so we ask once
 function render() {
   const t = L[lang];
+  const confirmBox = (q, yes) => `<div class="fcard sure" role="group" aria-label="${esc(q)}"><p style="margin:0 0 12px;font-weight:600">${esc(q)}</p><button class="btn bigbtn danger" id="sure-yes">${yes}</button><button class="btn ghost bigbtn" id="sure-no">${t.keep}</button></div>`;
   document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   const st = familyStatus(state, C, N, TK), me = local();
   const top = `<div class="top"><span style="display:inline-flex;align-items:center;gap:8px;font-weight:700">${logo(26)} Falaj</span>
     <div class="langs2" role="group" aria-label="Language"><button data-lang="en" aria-pressed="${lang === 'en'}">EN</button><button data-lang="ar" aria-pressed="${lang === 'ar'}" lang="ar">عربي</button></div></div>`;
   let body;
   if (!st.ok || me === 'stopped' || me === 'declined') {
-    const msg = me === 'declined' ? t.declined(st.ok ? st.patientFirst : '') : me === 'stopped' ? t.stopped : null;
-    body = `<div class="fhero"><h1>${msg ? '' : esc(t.bad)}</h1><p>${msg ? esc(msg) : esc(t.badSub)}</p></div>`;
+    const cc = me ? state.cases.find((x) => x.id === C) : null;  // they already knew the name on this device
+    const pf = st.ok ? st.patientFirst : cc ? cc.patient.name.split(' ')[0] : '';
+    const [h, msg] = me === 'declined' ? [t.declinedT, t.declined(pf)] : me === 'stopped' ? [t.stoppedT, t.stopped] : [t.bad, t.badSub];
+    body = `<div class="fhero"><h1>${esc(h)}</h1><p>${esc(msg)}</p>${me ? `<p class="fnote">${esc(t.again(pf))}</p>` : ''}</div>`;
   } else if (!st.accepted && me !== 'accepted') {
     const p = esc(st.patientFirst);
     body = `<div class="fhero"><p>${esc(t.hi(N))}</p><h1>${esc(t.invited(st.patientFirst))}</h1></div>
       <section class="fcard"><div class="scope2"><div><b>${t.see}</b><ul>${t.seeList(st.patientFirst).map((x) => `<li>${ic('check', 15)}${esc(x)}</li>`).join('')}</ul></div>
         <div><b>${t.never}</b><ul class="no">${t.neverList.map((x) => `<li>${ic('close', 15)}${esc(x)}</li>`).join('')}</ul></div></div></section>
-      <button class="btn bigbtn" id="acc">${t.accept}</button><button class="btn ghost bigbtn" id="dec">${t.decline}</button>
+      <button class="btn bigbtn" id="acc">${t.accept}</button>${sure === 'dec' ? confirmBox(t.sureDec(st.patientFirst), t.yesDec) : `<button class="btn ghost bigbtn" id="dec">${t.decline}</button>`}
       <p class="fnote">${esc(t.foot(st.patientFirst))}</p>`;
     void p;
   } else {
@@ -138,8 +148,8 @@ function render() {
       <section class="fcard"><span class="fnow">${t.now}</span><h2>${esc(t.next(p, step, due))}</h2><ol class="fsteps" aria-label="${t.nextT}">${steps}</ol></section>
       <section class="fcard"><h2>${t.apptT}</h2>${appt}</section>
       <section class="fcard"><h2>${t.helpT}</h2><div class="tips">${t.tips.map((x, i) => `<div>${ic(ICON_TIPS[i], 20)}${esc(x)}</div>`).join('')}</div></section>
-      <section class="fcard"><h2>${t.teamT}</h2><p class="fnote">${esc(t.team(owner ? owner.name : ''))}</p></section>
-      <p class="fnote">${esc(t.foot(p))}</p><button class="btn ghost bigbtn" id="stop">${t.stop}</button>`;
+      <section class="fcard"><h2>${t.teamT}</h2><p class="fnote">${esc(t.team(owner ? owner.name.replace(/\s*\(([^)]*)\)\s*$/, ', $1') : ''))}</p></section>
+      <p class="fnote">${esc(t.foot(p))}</p>${sure === 'stop' ? confirmBox(t.sureStop(p), t.yesStop) : `<button class="btn ghost bigbtn" id="stop">${t.stop}</button>`}`;
   }
   document.getElementById('app').innerHTML = top + `<div class="fwrap" style="padding-top:10px">${body}</div>`;
   document.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => { lang = b.dataset.lang; render(); });
@@ -156,8 +166,11 @@ function render() {
   };
   const $ = (s) => document.querySelector(s);
   $('#acc') && ($('#acc').onclick = () => mark('accepted'));
-  $('#dec') && ($('#dec').onclick = () => mark('declined'));
-  $('#stop') && ($('#stop').onclick = () => mark('stopped'));
+  const ask = (k) => { sure = k; render(); const y = document.getElementById('sure-yes'); y && y.focus(); };
+  $('#dec') && ($('#dec').onclick = () => ask('dec'));
+  $('#stop') && ($('#stop').onclick = () => ask('stop'));
+  $('#sure-yes') && ($('#sure-yes').onclick = () => { const v = sure === 'dec' ? 'declined' : 'stopped'; sure = ''; mark(v); });
+  $('#sure-no') && ($('#sure-no').onclick = () => { const k = sure; sure = ''; render(); const b = document.getElementById(k); b && b.focus(); });
   $('#cal') && ($('#cal').onclick = () => {
     const d = st.slot.day.replace(/-/g, ''), tm = st.slot.time.replace(':', '') + '00';
     const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Falaj demo//EN', 'BEGIN:VEVENT', `UID:${C}-${d}-family@falaj-demo`, `DTSTAMP:${d}T000000Z`, `DTSTART;TZID=Asia/Dubai:${d}T${tm}`, 'DURATION:PT20M', `SUMMARY:${st.patientFirst}: appointment (Falaj demo)`, 'DESCRIPTION:Demo only. Synthetic data.', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');

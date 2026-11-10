@@ -2,7 +2,8 @@
 // Both must agree: the patient chooses and consents, the helper accepts. The helper sees only the steps,
 // the appointment and how to help. Never the result, the diagnosis or the messages with the nurse.
 // In this demo the invitation link carries a code computed from the case and the helper's name (never the
-// phone number), so it opens on any phone; in a pilot the Falaj service would issue, check and revoke it.
+// phone number), so it opens on any phone. SECURITY: anyone who reads this file can compute a code, so this is
+// for synthetic data only. A pilot must use random codes issued, checked, expired and revoked by the Falaj service.
 import { journeyStep } from './rules.mjs';
 
 // UAE mobile numbers: 05x xxx xxxx, 5x xxx xxxx, +971 5x xxx xxxx or 00971 5x xxx xxxx.

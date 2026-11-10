@@ -24,6 +24,16 @@ function limited(req) {
   return list.length > 15;
 }
 
+// Only this site may use the voice: a browser sends Sec-Fetch-Site, and another website calling us gets refused.
+// (A script outside a browser can still call it; the rate limit and the length limit cap that, and Azure's own quota caps cost.)
+export function fromThisSite(req) {
+  const site = String(req.headers['sec-fetch-site'] || '');
+  if (site && site !== 'same-origin' && site !== 'none') return false;
+  const ref = String(req.headers.referer || req.headers.origin || '');
+  if (ref) { try { if (new URL(ref).host !== String(req.headers.host || '')) return false; } catch { return false; } }
+  return true;
+}
+
 const xml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 
 export function ssml(text, lang) {
@@ -45,6 +55,7 @@ export default async function handler(req, res) {
   if (!text) return json(200, { ok: true, voice: voiceReady() });
   if (!voiceReady()) return json(503, { ok: false, error: 'voice not set up' });
   if (text.length > MAX) return json(400, { ok: false, error: 'text too long' });
+  if (!fromThisSite(req)) return json(403, { ok: false, error: 'only from the Falaj site' });
   if (limited(req)) return json(429, { ok: false, error: 'slow down' });
 
   const ctl = new AbortController();

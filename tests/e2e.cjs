@@ -137,6 +137,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     const href = await g.getAttribute('.fam-demo a', 'href'); await g.goto(href); await g.click('#acc'); await g.waitForTimeout(300);
     const txt = await g.innerText('#app');
     ok(/You are helping/.test(txt) && !/\d+(\.\d+)?%/.test(txt), 'the family helper accepts and sees the next step, never a result');
+    await g.click('#stop'); ok(!!(await g.$('#sure-yes')), 'stopping asks once before it happens'); await g.click('#sure-no'); ok(!!(await g.$('#stop')), 'Go back keeps the helper helping');
     await g.goto(BASE + 'patient.html?p=C-004&view=family&nosplash=1'); await g.waitForSelector('.fam-state');
     ok(/accepted/.test(await g.innerText('.fam-state')), 'the patient sees that the helper accepted'); await g.close(); }
   await s.goto(BASE + 'roles.html'); await s.waitForTimeout(250);

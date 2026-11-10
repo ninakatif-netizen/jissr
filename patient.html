@@ -426,7 +426,7 @@ const S = {
     hero: { prediabetes: 'Your blood sugar has been a little higher than usual over the last 2 to 3 months.', diabetes: 'Your blood sugar has been higher than usual over the last 2 to 3 months.', urgent: 'Your blood sugar has been much higher than usual. A nurse will call you within a day or two.' },
     nextSteps: (d, band) => band === 'urgent' ? [`A nurse calls you by ${d}`, 'A doctor sees you quickly and explains your result', 'You agree a plan together'] : [`Book a visit before ${d}`, 'A doctor explains your result and may repeat the test', 'You agree a plan together'],
     fit: {
-      steps: ['Result', 'Book', 'Colonoscopy', 'Results', 'Plan'], yourTest: 'Your bowel screening test (FIT)', bandLabel: 'Needs a follow-up test',
+      steps: ['Screening result', 'Book', 'Colonoscopy', 'Colonoscopy result', 'Plan'], yourTest: 'Your bowel screening test (FIT)', bandLabel: 'Needs a follow-up test',
       checkBy: 'Colonoscopy by', nextBook: 'Book a colonoscopy', nextSteps: (d) => [`Book your colonoscopy before ${d}`, 'The clinic explains how to prepare', 'Your doctor goes through the results with you'], big: 'Positive', bigSub: 'A small amount of hidden blood was found. A colonoscopy will check why.',
       n: {
         book: ['calendar', 'Book your colonoscopy', 'Pick a time that suits you. The clinic will explain how to prepare.', 'Choose a time'],
@@ -491,7 +491,7 @@ const S = {
     hero: { prediabetes: 'كان مستوى السكر في دمك أعلى قليلاً من المعتاد خلال الشهرين أو الثلاثة الماضية.', diabetes: 'كان مستوى السكر في دمك أعلى من المعتاد خلال الشهرين أو الثلاثة الماضية.', urgent: 'كان مستوى السكر في دمك أعلى بكثير من المعتاد. ستتصل بك ممرضة خلال يوم أو يومين.' },
     nextSteps: (d, band) => band === 'urgent' ? [`ستتصل بك ممرضة قبل ${d}`, 'يراك الطبيب سريعاً ويشرح لك نتيجتك', 'تتفقان معاً على خطة'] : [`احجز زيارة قبل ${d}`, 'يشرح لك الطبيب نتيجتك وقد يعيد التحليل', 'تتفقان معاً على خطة'],
     fit: {
-      steps: ['النتيجة', 'الحجز', 'التنظير', 'النتائج', 'الخطة'], yourTest: 'فحص الكشف المبكر عن سرطان القولون (FIT)', bandLabel: 'يحتاج إلى فحص إضافي',
+      steps: ['نتيجة الفحص', 'الحجز', 'التنظير', 'نتيجة التنظير', 'الخطة'], yourTest: 'فحص الكشف المبكر عن سرطان القولون (FIT)', bandLabel: 'يحتاج إلى فحص إضافي',
       checkBy: 'التنظير قبل', nextBook: 'احجز تنظير القولون', nextSteps: (d) => [`احجز تنظير القولون قبل ${d}`, 'تشرح لك العيادة كيفية التحضير', 'يراجع طبيبك النتائج معك'], big: 'إيجابية', bigSub: 'وُجدت كمية صغيرة من الدم الخفي. سيتحقق تنظير القولون من السبب.',
       n: {
         book: ['calendar', 'احجز تنظير القولون', 'اختر وقتاً يناسبك. ستشرح لك العيادة كيفية التحضير.', 'اختر وقتاً'],
@@ -631,7 +631,7 @@ const T3 = {
     pHelp: 'Help between visits', pHelpSub: (n) => `${n} answers your questions`,
     fitDoc: 'Colonoscopy appointment', fitTests: 'Colonoscopy results', fitTestsSub: 'Your doctor goes through them with you.',
     mammo: {
-      steps: ['Result', 'Book', 'Biopsy', 'Results', 'Plan'], yourTest: 'Your mammogram',
+      steps: ['Screening result', 'Book', 'Biopsy', 'Biopsy result', 'Plan'], yourTest: 'Your mammogram',
       big: { birads0: 'More pictures', birads4: 'A closer look', birads5: 'Check soon' },
       hero: { birads0: 'Your mammogram needs a few more pictures. This is common.', birads4: 'Your mammogram found an area that needs a closer look. This is not a diagnosis of cancer.', birads5: 'Your mammogram found an area that needs to be checked soon. A nurse is with you at every step.' },
       sum: {
@@ -673,7 +673,7 @@ const T3 = {
     pHelp: 'مساعدة بين الزيارات', pHelpSub: (n) => `${n} تجيب عن أسئلتك`,
     fitDoc: 'موعد التنظير', fitTests: 'نتائج التنظير', fitTestsSub: 'يراجعها طبيبك معك.',
     mammo: {
-      steps: ['النتيجة', 'الحجز', 'الخزعة', 'النتائج', 'الخطة'], yourTest: 'الماموغرام',
+      steps: ['نتيجة الفحص', 'الحجز', 'الخزعة', 'نتيجة الخزعة', 'الخطة'], yourTest: 'الماموغرام',
       big: { birads0: 'صور إضافية', birads4: 'فحص أدق', birads5: 'فحص قريب' },
       hero: { birads0: 'يحتاج الماموغرام إلى بعض الصور الإضافية. هذا شائع.', birads4: 'وجد الماموغرام منطقة تحتاج إلى فحص أدق. هذا ليس تشخيصاً للسرطان.', birads5: 'وجد الماموغرام منطقة يجب فحصها قريباً. ممرضة معكِ في كل خطوة.' },
       sum: {

@@ -2,6 +2,7 @@
 // The verification code is derived from the case and its closure, so the same receipt always has the
 // same code. In this demo it is checked against the demo data on the device; in a pilot it would be
 // checked by the Falaj service (the patient's consent is needed to share it).
+// SECURITY: the code is a public hash, so it can be computed by anyone; a pilot signs proofs with a server key.
 
 const closedEvent = (c) => (c.events || []).find((e) => e.type === 'closed');
 
