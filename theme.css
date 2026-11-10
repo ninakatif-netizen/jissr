@@ -235,3 +235,4 @@ html.bigtext .hello{font-size:42px}
 .hello+.gsub{margin-top:14px}
 /* the dark journey band: plain ink, no old skyline */
 .arch-band{background:#0a1f2e!important}.arch-band:after{display:none}
+.tabs:empty,.tabs:has(>:empty){display:none}

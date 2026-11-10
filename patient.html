@@ -368,7 +368,13 @@ h1:focus,h2:focus{outline:none}
 .proof-l b{display:block;font-weight:600;font-size:15px}.proof-l small{color:var(--muted);font-size:13px}
 .proof-c{border-top:1px dashed var(--ring);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
 .proof-c b{display:block;font-family:ui-monospace,Menlo,monospace;font-size:16px;color:var(--ink);letter-spacing:.04em}
-.proof-c .ico{color:var(--brand)}
+.proof-c small{display:block;font-size:12.5px;color:var(--muted);margin-top:4px;max-width:22ch}
+.proof-c .qr{flex:none;border-radius:10px}
+
+/* simulated UAE PASS sign-in */
+.or2{display:flex;align-items:center;gap:10px;margin:14px 0 8px;color:var(--muted);font-size:13px}.or2:before,.or2:after{content:"";flex:1;height:1px;background:var(--line)}
+.uaep{text-align:start;margin-top:14px}.uaep-row{display:flex;gap:14px;align-items:center;margin:8px 0 12px}.uaep-row .qr{flex:none;border-radius:12px;box-shadow:0 0 0 1px var(--line)}
+.uaep ol{margin:0;padding-inline-start:20px;font-size:14.5px;display:flex;flex-direction:column;gap:6px}
 </style>
 <link rel="stylesheet" href="theme.css">
 </head>
@@ -395,6 +401,8 @@ import { explanation, barrierText, nurseText } from './core/templates.mjs';
 import { ic, wordmark, logo } from './core/ui.mjs';
 import { registerSW, isStandalone, isIOS, onInstallReady, canPrompt, promptInstall } from './core/pwa.mjs';
 import { startTour } from './core/tour.mjs';
+import { proofCode, proofUrl } from './core/proof.mjs';
+import { qrSvg } from './core/qr.mjs';
 import { resultText, progOf } from './core/programmes.mjs';
 import { STAFF } from './core/data.mjs';
 
@@ -794,6 +802,7 @@ function gateView(c) {
     <div class="otp ${msg.gateErr ? 'shake' : ''}" dir="ltr">${[0, 1, 2, 3].map((i) => `<input class="d" data-i="${i}" inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="${lang === 'ar' ? 'الرقم ' : 'Digit '}${i + 1}">`).join('')}</div>
     ${msg.gateErr ? `<div class="err-msg">${t.gateErr}</div>` : ''}
     <button class="btn bigbtn" id="gate-go">${t.gateBtn}</button>
+    ${uaePassHtml(c)}
     <p class="tiny muted" style="margin-top:14px"><span class="chip grey">${t.gateHint}</span></p>
     <p class="tiny muted">${t.gateHelp}</p></div>`;
 }
@@ -944,12 +953,11 @@ function stepDate(c, i) {
 const PROOF = {
   en: { t: 'Proof of care', btn: 'See my proof of care', head: 'Case closed with evidence', opened: 'Opened', closed: 'Closed',
     steps: { notified: 'You were told your result', understood: 'You said you understood', booked: 'Your visit was booked', attended: 'You were seen', confirmed: 'Confirmatory test done', referred: 'Specialist referral decided', care_plan: 'Care plan agreed', closed: 'Case closed by a clinician' },
-    code: 'Verification code', share: 'Anyone you choose can check this receipt: a new doctor, your insurer or the Department of Health. It shows the steps, never your result.', shareBtn: 'Share with my new doctor', demo: 'Demo: the code is an illustration.' },
+    code: 'Verification code', scan: 'A doctor or insurer can scan it to check the steps.', share: 'Anyone you choose can check this receipt: a new doctor, your insurer or the Department of Health. It shows the steps, never your result.', shareBtn: 'Share with my new doctor', demo: 'Demo: the check runs on the demo data in this browser.' },
   ar: { t: 'إثبات الرعاية', btn: 'عرض إثبات الرعاية', head: 'أُغلقت الحالة مع الدليل', opened: 'فُتحت', closed: 'أُغلقت',
     steps: { notified: 'تم إبلاغك بالنتيجة', understood: 'تم تأكيد فهمك للنتيجة', booked: 'تم حجز موعدك', attended: 'تمت الزيارة', confirmed: 'تم إجراء الفحص التأكيدي', referred: 'تم البتّ في التحويل إلى الأخصائي', care_plan: 'تم الاتفاق على خطة الرعاية', closed: 'أغلق الطبيب الحالة' },
-    code: 'رمز التحقق', share: 'يمكن لأي شخص تختاره التحقق من هذا الإيصال: طبيب جديد أو شركة التأمين أو دائرة الصحة. يُظهر الخطوات فقط، ولا يُظهر نتيجتك أبداً.', shareBtn: 'مشاركته مع طبيبي الجديد', demo: 'عرض تجريبي: الرمز للتوضيح فقط.' },
+    code: 'رمز التحقق', scan: 'يمكن للطبيب أو لشركة التأمين مسحه للتحقق من الخطوات.', share: 'يمكن لأي شخص تختاره التحقق من هذا الإيصال: طبيب جديد أو شركة التأمين أو دائرة الصحة. يُظهر الخطوات فقط، ولا يُظهر نتيجتك أبداً.', shareBtn: 'مشاركته مع طبيبي الجديد', demo: 'عرض تجريبي: يتم التحقق من البيانات التجريبية في هذا المتصفح.' },
 };
-const proofCode = (c) => { let h = 7; for (const ch of c.id + (c.events.find((e) => e.type === 'closed') || {}).at) h = (h * 31 + ch.charCodeAt(0)) >>> 0; const b = h.toString(36).toUpperCase().padStart(8, '0'); return `FLJ-${b.slice(0, 4)}-${b.slice(4, 8)}`; };
 const proofLink = () => `<button class="lrow proof-link" data-go="proof">${ic('shield', 22)}<span>${PROOF[lang].btn}</span>${ic('next', 18)}</button>`;
 function proofView(c) {
   const P = PROOF[lang], order = ['notified', 'understood', 'booked', 'attended', 'confirmed', 'referred', 'care_plan', 'closed'];
@@ -959,7 +967,7 @@ function proofView(c) {
     <section class="proof">
       <div class="proof-h"><span>${P.head}</span><b>${esc(progOf(c).name || '')}</b><small>${esc(c.patient.name)} · ${P.opened} ${fmtDay(open.at.slice(0, 10))}${close ? ` · ${P.closed} ${fmtDay(close.at.slice(0, 10))}` : ''}</small></div>
       <ol class="proof-l">${rows.map(([k, e]) => `<li>${ic('check', 18)}<span><b>${P.steps[k]}</b><small>${fmtDay(e.at.slice(0, 10))} · ${esc(e.by)}</small></span></li>`).join('')}</ol>
-      <div class="proof-c"><span>${P.code}<b dir="ltr">${proofCode(c)}</b></span>${ic('shield', 30)}</div>
+      <div class="proof-c"><span>${P.code}<b dir="ltr">${proofCode(c)}</b><small>${P.scan}</small></span>${qrSvg(proofUrl(c, location.origin), { size: 112, label: P.code + ' ' + proofCode(c) })}</div>
     </section>
     <p class="gsub">${P.share}</p>
     <button class="btn bigbtn" id="proof-share">${P.shareBtn}</button>
@@ -1078,6 +1086,23 @@ function render() {
 function act(fn) { try { fn(); save(); } catch (e) { alert(e.message); } render(); }
 const go = (v) => { view = v; msg = { ...msg, no: false }; stopSpeak(); render(); document.getElementById('screen').scrollTo({ top: 0 }); window.__focusHeading && window.__focusHeading(); };
 
+
+// Sign in with UAE PASS, SIMULATED: a QR code to scan with the UAE PASS app, then "approve" on the phone.
+// No connection to the real service and no UAE PASS branding; in a pilot this would use the official integration.
+const UAEP = {
+  en: { btn: 'Sign in with UAE PASS (simulated)', or: 'or', h: 'Scan with the UAE PASS app', s1: 'Open UAE PASS on your phone', s2: 'Scan this code', s3: 'Approve the request', ok: 'Simulate the approval', cancel: 'Use the code instead', note: 'Demo only: no connection to UAE PASS. In a pilot, patients would sign in with UAE PASS, the national digital identity.' },
+  ar: { btn: 'الدخول عبر الهوية الرقمية UAE PASS (محاكاة)', or: 'أو', h: 'امسح الرمز بتطبيق UAE PASS', s1: 'افتح تطبيق UAE PASS على هاتفك', s2: 'امسح هذا الرمز', s3: 'وافق على الطلب', ok: 'محاكاة الموافقة', cancel: 'استخدام الرمز بدلاً من ذلك', note: 'عرض تجريبي فقط: لا يوجد اتصال بـ UAE PASS. في المرحلة التجريبية سيدخل المرضى عبر الهوية الرقمية الوطنية UAE PASS.' },
+};
+function uaePassHtml(c) {
+  const u = UAEP[lang] || UAEP.en;
+  if (!msg.uaepass) return `<div class="or2"><span>${u.or}</span></div><button class="btn ghost bigbtn" id="uaep">${ic('shield', 18)} ${u.btn}</button>`;
+  const nonce = (msg.uaepassNonce = msg.uaepassNonce || Math.random().toString(36).slice(2, 10));
+  return `<section class="card uaep" aria-live="polite"><h2 class="h3s">${u.h}</h2>
+    <div class="uaep-row">${qrSvg(`falaj-demo-signin:${c.id}:${nonce}`, { size: 150, label: u.h })}
+    <ol><li>${u.s1}</li><li>${u.s2}</li><li>${u.s3}</li></ol></div>
+    <button class="btn bigbtn" id="uaep-ok">${u.ok}</button><button class="linkbtn" id="uaep-x">${u.cancel}</button>
+    <p class="tiny muted" style="margin:8px 0 0">${u.note}</p></section>`;
+}
 function wireGate(c) {
   const ds = [...document.querySelectorAll('.otp .d')];
   const tryCode = () => {
@@ -1090,9 +1115,12 @@ function wireGate(c) {
     d.onkeydown = (e) => { if (e.key === 'Backspace' && !d.value && ds[i - 1]) ds[i - 1].focus(); };
   });
   document.getElementById('gate-go').onclick = tryCode;
+  const up = document.getElementById('uaep'); if (up) up.onclick = () => { msg.uaepass = true; render(); };
+  const upx = document.getElementById('uaep-x'); if (upx) upx.onclick = () => { msg.uaepass = false; render(); };
+  const upok = document.getElementById('uaep-ok'); if (upok) upok.onclick = () => { verified[c.id] = true; try { sessionStorage.setItem('jissr.ok', JSON.stringify(verified)); } catch { } msg.uaepass = false; msg.gateErr = false; ensureNotified(); render(); };
   document.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => { lang = b.dataset.lang; try { localStorage.setItem('jissr.lang', lang); } catch { } render(); });
   document.getElementById('aa').onclick = toggleBig;
-  setTimeout(() => ds[0] && ds[0].focus(), 60);
+  if (!msg.uaepass) setTimeout(() => ds[0] && ds[0].focus(), 60);
 }
 function toggleBig() { big = !big; try { localStorage.setItem('jissr.big', big ? '1' : '0'); } catch { } document.documentElement.classList.toggle('bigtext', big); render(); }
 

@@ -83,3 +83,27 @@ test('insurance pre-approval is requested with the referral and approved when th
   respondReferral(state, c.id, actorOf(state.staff.find((s) => s.role === 'clinician' && s.org === to)), { accept: true });
   assert.equal(c.referral.preauth.status, 'approved');
 });
+
+import { proofCode, verifyProof } from '../core/proof.mjs';
+import { qrMatrix } from '../core/qr.mjs';
+test('proof of care: the code is stable, checks out for a closed case, and shows no result', () => {
+  const s1 = buildState('2026-11-10'), s2 = buildState('2026-12-01');
+  const c = s1.cases.find((x) => x.stage === 'closed');
+  assert.equal(proofCode(c), proofCode(s2.cases.find((x) => x.id === c.id)), 'same receipt, same code, whatever the day');
+  const ok = verifyProof(s1, c.id, proofCode(c));
+  assert.equal(ok.ok, true);
+  assert.ok(!JSON.stringify(ok).includes(String(c.value)), 'the result value is never shown');
+  assert.equal(verifyProof(s1, c.id, 'FLJ-0000-0000').ok, false);
+  const open = s1.cases.find((x) => x.stage !== 'closed');
+  assert.equal(verifyProof(s1, open.id, proofCode(open)).ok, false, 'an open case has no valid proof');
+});
+test('QR codes: right size for the text and the three finder patterns in place', () => {
+  for (const [text, size] of [['FLJ-7Q4M-2026', 21], ['https://jissr-three.vercel.app/verify.html?c=C-012&code=FLJ-7Q4M-2026', 37]]) {
+    const m = qrMatrix(text);
+    assert.equal(m.length, size);
+    for (const [x, y] of [[0, 0], [size - 7, 0], [0, size - 7]]) {
+      assert.ok(m[y][x] && m[y][x + 6] && m[y + 6][x] && m[y + 3][x + 3], 'finder corners and centre are dark');
+      assert.ok(!m[y + 1][x + 1], 'finder ring is light');
+    }
+  }
+});

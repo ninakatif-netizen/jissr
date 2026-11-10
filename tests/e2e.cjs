@@ -121,6 +121,15 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await s.click('[data-view=emirates]'); await s.click('[data-em=dxb]'); await s.waitForTimeout(200);
   ok(await s.getAttribute('[data-em=dxb]', 'aria-pressed') === 'true' && /Dubai/.test(await s.getAttribute('#map', 'aria-label')), 'the map can be filtered by emirate');
   await shot(s, '08d-map');
+  // proof of care: the QR link opens a page that checks the receipt; signing in with UAE PASS is simulated
+  await s.goto(BASE + 'verify.html?c=C-012&code=FLJ-0000-0000'); await s.waitForSelector('#out section');
+  ok(/Not verified/.test(await s.innerText('#out')), 'a wrong proof-of-care code is refused');
+  { const g = await browser.newPage(); await g.goto(BASE + 'patient.html?p=C-012&nosplash=1&fresh=1'); await g.click('#uaep'); await g.waitForSelector('.uaep .qr');
+    await g.click('#uaep-ok'); await g.waitForTimeout(400);
+    ok(!(await g.$('.otp .d')), 'signing in with UAE PASS (simulated) opens the app');
+    await g.goto(BASE + 'patient.html?p=C-012&view=proof&nosplash=1'); await g.waitForSelector('.proof-c .qr');
+    const code = await g.innerText('.proof-c b'); await g.goto(BASE + 'verify.html?c=C-012&code=' + code); await g.waitForSelector('#out section');
+    ok(/Valid proof of care/.test(await g.innerText('#out')), 'the code on the receipt checks out on the verify page'); await g.close(); }
   await s.goto(BASE + 'roles.html'); await s.waitForTimeout(250);
   ok(await s.locator('.role').count() === 7, 'the "who are you?" page offers patient, lab, nurse, family doctor, specialist, clinical lead and programme manager');
   await shot(s, '08c-roles');
