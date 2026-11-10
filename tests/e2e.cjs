@@ -130,6 +130,15 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await g.goto(BASE + 'patient.html?p=C-012&view=proof&nosplash=1'); await g.waitForSelector('.proof-c .qr');
     const code = await g.innerText('.proof-c b'); await g.goto(BASE + 'verify.html?c=C-012&code=' + code); await g.waitForSelector('#out section');
     ok(/Valid proof of care/.test(await g.innerText('#out')), 'the code on the receipt checks out on the verify page'); await g.close(); }
+  // family helper: the patient invites by number, the helper accepts on their own screen, never sees a result
+  { const g = await browser.newPage(); await g.goto(BASE + 'patient.html?p=C-004&view=family&nosplash=1&fresh=1');
+    if (await g.$('.otp .d')) { const d = await g.$$('.otp .d'); for (let i = 0; i < 4; i++) await d[i].fill('2026'[i]); await g.waitForSelector('#fn'); }
+    await g.fill('#fn', 'Aisha'); await g.fill('#fp', '0501234567'); await g.check('#fc'); await g.click('#fam-on'); await g.waitForSelector('.fam-demo a');
+    const href = await g.getAttribute('.fam-demo a', 'href'); await g.goto(href); await g.click('#acc'); await g.waitForTimeout(300);
+    const txt = await g.innerText('#app');
+    ok(/You are helping/.test(txt) && !/\d+(\.\d+)?%/.test(txt), 'the family helper accepts and sees the next step, never a result');
+    await g.goto(BASE + 'patient.html?p=C-004&view=family&nosplash=1'); await g.waitForSelector('.fam-state');
+    ok(/accepted/.test(await g.innerText('.fam-state')), 'the patient sees that the helper accepted'); await g.close(); }
   await s.goto(BASE + 'roles.html'); await s.waitForTimeout(250);
   ok(await s.locator('.role').count() === 7, 'the "who are you?" page offers patient, lab, nurse, family doctor, specialist, clinical lead and programme manager');
   await shot(s, '08c-roles');

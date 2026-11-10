@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Falaj · helping a loved one</title>
+<meta name="description" content="Falaj for a family helper: the appointment, the next step and how to help. Never the result. Synthetic demo.">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app-shell.css">
+<style>
+.fwrap{display:flex;flex-direction:column;gap:14px}
+.fhero{padding:8px 2px 0}
+.fhero h1{margin:6px 0 4px;font-size:34px;line-height:1.08;letter-spacing:-.03em}
+.fhero p{margin:0;color:var(--muted)}
+.fcard{background:var(--card);border-radius:24px;box-shadow:var(--card-sh);padding:18px}
+.fcard h2{margin:0 0 8px;font-size:19px;letter-spacing:-.01em}
+.fnow{display:inline-flex;font-size:12.5px;font-weight:600;color:var(--accent-d);background:var(--accent-l);border-radius:999px;padding:2px 10px;margin-bottom:8px}
+.fsteps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.fsteps li{display:flex;gap:12px;align-items:center;font-size:15px}
+.fsteps i{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:13px;font-weight:700;background:#fff;border:2.5px solid var(--ring);color:var(--muted)}
+.fsteps li.done i{background:var(--brand);border-color:var(--brand);color:#fff}.fsteps li.now i{background:var(--accent-l);border-color:var(--accent);color:var(--accent-d)}
+.fsteps li.todo{color:var(--ink-2)}.fsteps li.now{font-weight:600}
+.appt2{display:flex;gap:14px;align-items:center}
+.appt2 .d{width:62px;flex:none;text-align:center;border-radius:16px;background:var(--brand);color:#fff;padding:8px 0}
+.appt2 .d b{display:block;font-size:24px;line-height:1.1}.appt2 .d span{font-size:12.5px;font-weight:600}
+.tips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tips div{background:var(--card2);border-radius:16px;padding:12px;font-size:13.5px;display:flex;flex-direction:column;gap:6px}
+.tips .ico{color:var(--brand)}
+.scope2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.scope2>div{background:var(--card2);border-radius:16px;padding:12px}
+.scope2 ul{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.scope2 li{display:flex;gap:6px}.scope2 li .ico{flex:none;margin-top:3px;color:var(--ok)}.scope2 .no li .ico{color:var(--bad)}
+.fnote{font-size:13.5px;color:var(--muted);margin:0}
+.langs2{display:flex;gap:2px}.langs2 button{border:0;background:transparent;font:inherit;font-size:14px;color:var(--muted);padding:10px 8px;min-height:44px;min-width:44px;cursor:pointer}
+.langs2 button[aria-pressed=true]{color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:6px}
+@media (max-width:360px){.tips,.scope2{grid-template-columns:1fr}}
+</style>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<div class="demo" style="justify-content:space-between;padding:8px 16px;font-size:13px"><span>Demo with synthetic data. Not medical advice.</span><a href="index.html">About the project</a></div>
+<div class="device">
+  <div class="screen" id="screen"><main class="wrap" id="app"></main></div>
+</div>
+<script type="module">
+import { registerSW } from './core/pwa.mjs';
+import { ic, logo } from './core/ui.mjs';
+import { loadState, saveState } from './core/store.mjs';
+import { familyStatus } from './core/family.mjs';
+registerSW();
+const q = new URLSearchParams(location.search);
+const C = q.get('c'), N = q.get('n') || '', TK = q.get('t') || '';
+let lang = q.get('lang') === 'ar' ? 'ar' : 'en';
+let state = loadState();
+const KEY = `falaj.family.${C}.${TK}`;
+const local = () => { try { return localStorage.getItem(KEY) || ''; } catch { return ''; } };
+const setLocal = (v) => { try { localStorage.setItem(KEY, v); } catch { } };
+const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+const fmtDay = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString(lang === 'ar' ? 'ar-AE' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+const dparts = (d) => { const x = new Date(d + 'T00:00:00Z'); return { day: x.getUTCDate(), mon: x.toLocaleDateString(lang === 'ar' ? 'ar-AE' : 'en-GB', { month: 'short', timeZone: 'UTC' }) }; };
+
+const L = {
+  en: {
+    bad: 'This invitation is not valid', badSub: 'Ask the person who invited you to send it again.',
+    hi: (h) => `Hello ${h}`, invited: (p) => `${p} has invited you to help with ${p}'s health appointments.`,
+    see: 'You will see', seeList: (p) => [`${p}'s next step, in words`, 'The appointment: date, time, place, what to bring', 'Reminders the day before'],
+    never: 'You will never see', neverList: ['Any result or number', 'Any diagnosis', 'Messages with the nurse'],
+    accept: 'Accept and help', decline: 'No, thank you', declined: (p) => `You declined. ${p} will see that you said no. Nothing is shared with you.`,
+    helping: (p) => `You are helping ${p}`, sub: 'Only what you need to help. Never a result.',
+    nextT: 'The next step', now: 'Now',
+    next: (p, step, due) => [
+      `${p} has a new screening result. A nurse is helping ${p} understand it.`,
+      `${p} has a new screening result. A nurse is checking it is clear.`,
+      `${p} needs to book a visit with the family doctor${due ? ` before ${due}` : ''}.`,
+      `${p} may need one more test. The doctor decides.`,
+      `${p} and the doctor are agreeing a care plan.`,
+      `${p}'s care plan is in place. You will get a reminder before each check.`][step],
+    steps: ['Result told', 'Understood', 'Visit with the doctor', 'More tests, if needed', 'Care plan'],
+    apptT: 'The appointment', where: 'Falaj demo clinic', bring: 'Bring: Emirates ID or insurance card', remind: 'You will get a reminder the day before.', cal: 'Add to my calendar', noAppt: (p) => `No appointment booked yet. You can help ${p} choose a time in the Falaj app.`,
+    helpT: 'How you can help', tips: ['Offer a lift to the clinic', 'Send a reminder the day before', 'Go along, if wanted'],
+    teamT: 'Questions about the appointment', team: (o) => `The care team${o ? ` (${o})` : ''} can help with times and places. They will not discuss results with you.`,
+    foot: (p) => `${p} can stop sharing at any time. You can stop too.`, stop: 'Stop helping', stopped: 'You have stopped. Nothing is shared with you any more.',
+  },
+  ar: {
+    bad: 'هذه الدعوة غير صالحة', badSub: 'اطلب من الشخص الذي دعاك إرسالها مرة أخرى.',
+    hi: (h) => `مرحباً ${h}`, invited: (p) => `تمت دعوتك من قِبل ${p} للمساعدة في مواعيد ${p} الصحية.`,
+    see: 'سترى', seeList: (p) => [`الخطوة التالية لـ ${p} بكلمات بسيطة`, 'الموعد: التاريخ والوقت والمكان وما يجب إحضاره', 'تذكيرات قبل الموعد بيوم'],
+    never: 'لن ترى أبداً', neverList: ['أي نتيجة أو رقم', 'أي تشخيص', 'الرسائل مع الممرضة'],
+    accept: 'أقبل وأساعد', decline: 'لا، شكراً', declined: (p) => `لقد اعتذرت، وسيتم إبلاغ ${p} بذلك. لن تتم مشاركة أي شيء معك.`,
+    helping: (p) => `أنت تساعد ${p}`, sub: 'فقط ما تحتاجه للمساعدة. ولا نتيجة أبداً.',
+    nextT: 'الخطوة التالية', now: 'الآن',
+    next: (p, step, due) => [
+      `لدى ${p} نتيجة فحص جديدة، وتساعد ممرضةٌ على فهمها.`,
+      `لدى ${p} نتيجة فحص جديدة، وتتأكد ممرضةٌ من وضوحها.`,
+      `يجب حجز زيارة لـ ${p} عند طبيب الأسرة${due ? ` قبل ${due}` : ''}.`,
+      `قد تكون هناك حاجة إلى فحص إضافي لـ ${p}، والقرار للطبيب.`,
+      `يجري الاتفاق مع الطبيب على خطة الرعاية لـ ${p}.`,
+      `خطة الرعاية لـ ${p} جاهزة. ستصلك تذكيرات قبل كل فحص.`][step],
+    steps: ['إبلاغ النتيجة', 'فهم النتيجة', 'زيارة الطبيب', 'فحوصات إضافية عند الحاجة', 'خطة الرعاية'],
+    apptT: 'الموعد', where: 'عيادة فلج التجريبية', bring: 'يرجى إحضار الهوية الإماراتية أو بطاقة التأمين', remind: 'سيصلك تذكير قبل الموعد بيوم.', cal: 'إضافة إلى التقويم', noAppt: (p) => `لم يُحجز موعد بعد. يمكنك مساعدة ${p} في اختيار وقت عبر تطبيق فلج.`,
+    helpT: 'كيف يمكنك المساعدة', tips: ['التوصيل إلى العيادة', 'إرسال تذكير قبل يوم', 'المرافقة عند الرغبة'],
+    teamT: 'أسئلة حول الموعد', team: (o) => `يمكن لفريق الرعاية${o ? ` (${o})` : ''} المساعدة في الأوقات والأماكن، ولن يناقش النتائج معك.`,
+    foot: (p) => `يمكن لـ ${p} إيقاف المشاركة في أي وقت، ويمكنك أنت أيضاً التوقف.`, stop: 'التوقف عن المساعدة', stopped: 'لقد توقفت. لم تعد تتم مشاركة أي شيء معك.',
+  },
+};
+const ICON_TIPS = ['pin', 'clock', 'users'];
+
+function render() {
+  const t = L[lang];
+  document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  const st = familyStatus(state, C, N, TK), me = local();
+  const top = `<div class="top"><span style="display:inline-flex;align-items:center;gap:8px;font-weight:700">${logo(26)} Falaj</span>
+    <div class="langs2" role="group" aria-label="Language"><button data-lang="en" aria-pressed="${lang === 'en'}">EN</button><button data-lang="ar" aria-pressed="${lang === 'ar'}" lang="ar">عربي</button></div></div>`;
+  let body;
+  if (!st.ok || me === 'stopped' || me === 'declined') {
+    const msg = me === 'declined' ? t.declined(st.ok ? st.patientFirst : '') : me === 'stopped' ? t.stopped : null;
+    body = `<div class="fhero"><h1>${msg ? '' : esc(t.bad)}</h1><p>${msg ? esc(msg) : esc(t.badSub)}</p></div>`;
+  } else if (!st.accepted && me !== 'accepted') {
+    const p = esc(st.patientFirst);
+    body = `<div class="fhero"><p>${esc(t.hi(N))}</p><h1>${esc(t.invited(st.patientFirst))}</h1></div>
+      <section class="fcard"><div class="scope2"><div><b>${t.see}</b><ul>${t.seeList(st.patientFirst).map((x) => `<li>${ic('check', 15)}${esc(x)}</li>`).join('')}</ul></div>
+        <div><b>${t.never}</b><ul class="no">${t.neverList.map((x) => `<li>${ic('close', 15)}${esc(x)}</li>`).join('')}</ul></div></div></section>
+      <button class="btn bigbtn" id="acc">${t.accept}</button><button class="btn ghost bigbtn" id="dec">${t.decline}</button>
+      <p class="fnote">${esc(t.foot(st.patientFirst))}</p>`;
+    void p;
+  } else {
+    const p = st.patientFirst, step = Math.min(st.step, 5);
+    const due = st.due ? fmtDay(st.due) : '';
+    const steps = t.steps.map((name, i) => { const s = i < step ? 'done' : i === step ? 'now' : 'todo'; return `<li class="${s}"><i>${s === 'done' ? ic('check', 14) : i + 1}</i>${esc(name)}</li>`; }).join('');
+    const owner = (state.staff || []).find((x) => x.id === st.owner);
+    const appt = st.slot ? `<div class="appt2"><span class="d"><b>${dparts(st.slot.day).day}</b><span>${dparts(st.slot.day).mon}</span></span><span><b>${esc(fmtDay(st.slot.day))} · ${esc(st.slot.time)}</b><br><span class="muted">${t.where}</span></span></div>
+        <p class="fnote" style="margin-top:10px">${t.bring}<br>${t.remind}</p><button class="btn ghost" id="cal" style="width:100%;margin-top:10px">${ic('calendar', 18)} ${t.cal}</button>` : `<p class="fnote">${esc(t.noAppt(p))}</p>`;
+    body = `<div class="fhero"><p>${esc(t.sub)}</p><h1>${esc(t.helping(p))}</h1></div>
+      <section class="fcard"><span class="fnow">${t.now}</span><h2>${esc(t.next(p, step, due))}</h2><ol class="fsteps" aria-label="${t.nextT}">${steps}</ol></section>
+      <section class="fcard"><h2>${t.apptT}</h2>${appt}</section>
+      <section class="fcard"><h2>${t.helpT}</h2><div class="tips">${t.tips.map((x, i) => `<div>${ic(ICON_TIPS[i], 20)}${esc(x)}</div>`).join('')}</div></section>
+      <section class="fcard"><h2>${t.teamT}</h2><p class="fnote">${esc(t.team(owner ? owner.name : ''))}</p></section>
+      <p class="fnote">${esc(t.foot(p))}</p><button class="btn ghost bigbtn" id="stop">${t.stop}</button>`;
+  }
+  document.getElementById('app').innerHTML = top + `<div class="fwrap" style="padding-top:10px">${body}</div>`;
+  document.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => { lang = b.dataset.lang; render(); });
+  const mark = (v) => {
+    setLocal(v);
+    const c = state.cases.find((x) => x.id === C);
+    if (c && c.familyHelper && c.familyHelper.token === TK) {   // the same browser as the patient (the demo): tell the patient's app
+      if (v === 'accepted') c.familyHelper = { ...c.familyHelper, accepted: true, acceptedAt: new Date().toISOString() };
+      if (v === 'declined' || v === 'stopped') c.familyHelper = { ...c.familyHelper, accepted: false, revoked: true, revokedAt: new Date().toISOString(), by: 'helper' };
+      c.events.push({ type: 'family', at: new Date().toISOString(), by: `${N} (family helper)`, role: 'family', note: v === 'accepted' ? 'Accepted to help with appointments' : v === 'declined' ? 'Declined the invitation' : 'Stopped helping' });
+      saveState(state);
+    }
+    render();
+  };
+  const $ = (s) => document.querySelector(s);
+  $('#acc') && ($('#acc').onclick = () => mark('accepted'));
+  $('#dec') && ($('#dec').onclick = () => mark('declined'));
+  $('#stop') && ($('#stop').onclick = () => mark('stopped'));
+  $('#cal') && ($('#cal').onclick = () => {
+    const d = st.slot.day.replace(/-/g, ''), tm = st.slot.time.replace(':', '') + '00';
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Falaj demo//EN', 'BEGIN:VEVENT', `UID:${C}-${d}-family@falaj-demo`, `DTSTAMP:${d}T000000Z`, `DTSTART;TZID=Asia/Dubai:${d}T${tm}`, 'DURATION:PT20M', `SUMMARY:${st.patientFirst}: appointment (Falaj demo)`, 'DESCRIPTION:Demo only. Synthetic data.', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })); a.download = 'appointment.ics'; a.click();
+  });
+}
+render();
+</script>
+</body>
+</html>

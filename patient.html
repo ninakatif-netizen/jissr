@@ -375,6 +375,17 @@ h1:focus,h2:focus{outline:none}
 .or2{display:flex;align-items:center;gap:10px;margin:14px 0 8px;color:var(--muted);font-size:13px}.or2:before,.or2:after{content:"";flex:1;height:1px;background:var(--line)}
 .uaep{text-align:start;margin-top:14px}.uaep-row{display:flex;gap:14px;align-items:center;margin:8px 0 12px}.uaep-row .qr{flex:none;border-radius:12px;box-shadow:0 0 0 1px var(--line)}
 .uaep ol{margin:0;padding-inline-start:20px;font-size:14.5px;display:flex;flex-direction:column;gap:6px}
+
+/* family helper */
+.fam-scope{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0 8px}
+.fam-scope>div{background:var(--card2);border-radius:16px;padding:12px}
+.fam-scope ul{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.fam-scope li{display:flex;gap:6px;align-items:flex-start}.fam-scope li .ico{flex:none;margin-top:3px;color:var(--ok)}.fam-scope ul.no li .ico{color:var(--bad)}
+.fam-ok{display:flex;gap:12px;align-items:center;font-size:14.5px;margin:12px 0 4px;cursor:pointer;min-height:44px}.fam-ok input{width:28px;height:28px;flex:none;margin:0;accent-color:var(--brand)}
+.fam-state{display:flex;gap:8px;align-items:center;font-weight:600;color:var(--accent-d);margin:10px 0}.fam-state.on{color:var(--ok)}
+.fam-msg{background:var(--brand-l);border-radius:14px;padding:12px 14px;font-size:14.5px;margin:6px 0 12px}
+.fam-demo{display:flex;gap:14px;align-items:center}.fam-demo .qr{flex:none;border-radius:10px;box-shadow:0 0 0 1px var(--line)}
+@media (max-width:360px){.fam-scope{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="theme.css">
 </head>
@@ -402,6 +413,7 @@ import { ic, wordmark, logo } from './core/ui.mjs';
 import { registerSW, isStandalone, isIOS, onInstallReady, canPrompt, promptInstall } from './core/pwa.mjs';
 import { startTour } from './core/tour.mjs';
 import { proofCode, proofUrl } from './core/proof.mjs';
+import { normaliseUaeMobile, maskPhone, familyToken, familyUrl, inviteText } from './core/family.mjs';
 import { qrSvg } from './core/qr.mjs';
 import { resultText, progOf } from './core/programmes.mjs';
 import { STAFF } from './core/data.mjs';
@@ -1049,16 +1061,49 @@ function nurseView(c) {
     </section></div>`;
 }
 
+// FAMILY HELPER (patient side): who, their UAE mobile, WhatsApp or SMS, exactly what they will and will not see,
+// the patient's consent, then an invitation the helper must accept on their own phone (family.html).
+const FAM2 = {
+  en: { phone: 'Their mobile number', phoneHint: 'UAE mobile, for example 050 123 4567', phoneErr: 'Please enter a UAE mobile number (05x xxx xxxx).', nameErr: 'Please write their name.', via: 'Send the invitation by',
+    see: 'They will see', seeList: ['Your next step, in words', 'Your appointment: date, time, place, what to bring', 'Reminders the day before'],
+    never: 'They will never see', neverList: ['Your result or any number', 'Any diagnosis', 'Your messages with the nurse'],
+    consent: (n) => `I agree to share my appointment status with ${n || 'this person'}. I can stop at any time.`, consentErr: 'Please tick the box to agree.',
+    send: 'Send the invitation', sent: (n, ph, ch) => `Invitation sent to ${n} (${ph}) by ${ch}.`, waiting: (n) => `Waiting for ${n} to accept on their phone.`, accepted: (n, d) => `${n} accepted on ${d}.`,
+    preview: 'The message they receive:', demo: 'Demo: open the invitation as them, or scan it with another phone.', openAs: (n) => `Open as ${n}`, stop: 'Stop sharing', stopped: 'Sharing stopped. They can no longer see anything.' },
+  ar: { phone: 'رقم هاتفه المحمول', phoneHint: 'رقم إماراتي، مثلاً 050 123 4567', phoneErr: 'يرجى إدخال رقم هاتف إماراتي (05x xxx xxxx).', nameErr: 'يرجى كتابة الاسم.', via: 'إرسال الدعوة عبر',
+    see: 'سيرى', seeList: ['خطوتك التالية، بكلمات بسيطة', 'موعدك: التاريخ والوقت والمكان وما يجب إحضاره', 'تذكيرات قبل الموعد بيوم'],
+    never: 'لن يرى أبداً', neverList: ['نتيجتك أو أي رقم', 'أي تشخيص', 'رسائلك مع الممرضة'],
+    consent: (n) => `أوافق على مشاركة حالة موعدي مع ${n || 'هذا الشخص'}. ويمكنني التوقف في أي وقت.`, consentErr: 'يرجى وضع علامة للموافقة.',
+    send: 'إرسال الدعوة', sent: (n, ph, ch) => `أُرسلت الدعوة إلى ${n} (${ph}) عبر ${ch}.`, waiting: (n) => `بانتظار موافقة ${n} من هاتفه.`, accepted: (n, d) => `وافق ${n} في ${d}.`,
+    preview: 'الرسالة التي سيستلمها:', demo: 'عرض تجريبي: افتح الدعوة كأنك هو، أو امسحها بهاتف آخر.', openAs: (n) => `فتح كـ ${n}`, stop: 'إيقاف المشاركة', stopped: 'تم إيقاف المشاركة. لم يعد بإمكانه رؤية أي شيء.' },
+};
 function familyView(c) {
-  const t = T(), fh = c.familyHelper;
+  const t = T(), f = FAM2[lang] || FAM2.en, fh = c.familyHelper && !c.familyHelper.revoked ? c.familyHelper : null;
+  const chName = (ch) => (ch === 'sms' ? 'SMS' : 'WhatsApp');
+  if (fh) {
+    const url = familyUrl(c.id, fh, location.origin);
+    return `${topBar()}<div class="view">${pageBar(t.fam)}
+      <section class="card"><div class="ok-msg" style="margin-top:0">${esc(f.sent(fh.name + (fh.relation ? ', ' + fh.relation : ''), maskPhone(fh.phone), chName(fh.channel)))}</div>
+        <p class="fam-state ${fh.accepted ? 'on' : ''}">${ic(fh.accepted ? 'check' : 'clock', 18)} ${esc(fh.accepted ? f.accepted(fh.name, fmtDay(fh.acceptedAt.slice(0, 10))) : f.waiting(fh.name))}</p>
+        <div class="tiny muted">${f.preview}</div>
+        <p class="fam-msg" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">${esc(inviteText(lang, c.patient.name.split(' ')[0], fh.name, url))}</p>
+        <div class="fam-demo">${qrSvg(url, { size: 120, label: f.openAs(fh.name) })}<div><p class="tiny muted" style="margin:0 0 8px">${f.demo}</p><a class="btn small" href="${esc(url)}">${esc(f.openAs(fh.name))}</a></div></div>
+        <button class="btn ghost" id="fam-off" style="width:100%;margin-top:12px">${f.stop}</button></section></div>`;
+  }
+  const ch = msg.fch || 'whatsapp';
   return `${topBar()}<div class="view">${pageBar(t.fam)}
     <section class="card"><p class="muted" style="margin-top:0">${t.famSub}</p>
-      ${fh && fh.consent
-        ? `<div class="ok-msg">${esc(t.famDone(fh.name))}</div>
-           <div class="card soft"><div class="tiny muted">${t.famPreview}</div><p style="margin-bottom:0">${t.famMsg}</p></div>
-           <button class="btn ghost" id="fam-off">${t.famOff}</button>`
-        : `<label for="fn">${t.famName}</label><input id="fn" maxlength="40" value="${esc(msg.fn || '')}"><label for="fr">${t.famRel}</label><input id="fr" maxlength="30" value="${esc(msg.fr || '')}">
-           <p><button class="btn bigbtn" id="fam-on">${t.famOn}</button></p>`}
+      ${msg.famStopped ? `<div class="ok-msg">${f.stopped}</div>` : ''}
+      <label for="fn">${t.famName}</label><input id="fn" maxlength="40" autocomplete="off" value="${esc(msg.fn || '')}">
+      <label for="fr">${t.famRel}</label><input id="fr" maxlength="30" autocomplete="off" value="${esc(msg.fr || '')}">
+      <label for="fp">${f.phone}</label><input id="fp" type="tel" inputmode="tel" autocomplete="off" dir="ltr" placeholder="05x xxx xxxx" aria-describedby="fp-h" value="${esc(msg.fp || '')}"><small id="fp-h" class="tiny muted">${f.phoneHint}</small>
+      <p class="lbl" style="margin:14px 0 6px">${f.via}</p>
+      <div class="chips" role="group" aria-label="${f.via}"><button class="pick" data-fch="whatsapp" aria-pressed="${ch === 'whatsapp'}">WhatsApp</button><button class="pick" data-fch="sms" aria-pressed="${ch === 'sms'}">SMS</button></div>
+      <div class="fam-scope"><div><b>${f.see}</b><ul>${f.seeList.map((x) => `<li>${ic('check', 15)}${x}</li>`).join('')}</ul></div>
+        <div><b>${f.never}</b><ul class="no">${f.neverList.map((x) => `<li>${ic('close', 15)}${x}</li>`).join('')}</ul></div></div>
+      <label class="fam-ok"><input type="checkbox" id="fc" ${msg.fc ? 'checked' : ''}><span>${esc(f.consent(msg.fn))}</span></label>
+      ${msg.famErr ? `<div class="err-msg" role="alert">${msg.famErr}</div>` : ''}
+      <p><button class="btn bigbtn" id="fam-on">${f.send}</button></p>
     </section></div>`;
 }
 
@@ -1166,12 +1211,22 @@ function wire(c) {
   document.querySelectorAll('[data-ch]').forEach((b) => b.onclick = () => { msg.nn = $('#nn') ? $('#nn').value : msg.nn; act(() => setChannel(state, c.id, b.dataset.ch, patientActor())); });
   $('#nurse-go') && ($('#nurse-go').onclick = () => act(() => requestNurse(state, c.id, patientActor(), `Preferred time: ${$('#nw').value}. ${$('#nn').value.trim()}`.trim())));
   document.querySelectorAll('[data-conf]').forEach((b) => b.onclick = () => { msg.confDone = true; act(() => recordConfidence(state, c.id, +b.dataset.conf, patientActor())); });
+  document.querySelectorAll('[data-fch]').forEach((b) => b.onclick = () => { msg.fn = $('#fn').value; msg.fr = $('#fr').value; msg.fp = $('#fp').value; msg.fc = $('#fc').checked; msg.fch = b.dataset.fch; render(); });
+  $('#fn') && ($('#fn').oninput = () => { msg.fn = $('#fn').value; const l = $('.fam-ok span'); if (l) l.textContent = (FAM2[lang] || FAM2.en).consent(msg.fn.trim()); });
   $('#fam-on') && ($('#fam-on').onclick = () => {
-    const n = $('#fn').value.trim();
-    if (!n) { $('#fn').focus(); return; }
-    act(() => { c.familyHelper = { name: n, relation: $('#fr').value.trim(), consent: true, at: new Date().toISOString() }; c.events.push({ type: 'family', at: new Date().toISOString(), by: 'Patient (in app)', role: 'patient', note: `Allowed ${n} to see appointment status (not the result)` }); msg.fn = msg.fr = ''; });
+    const f = FAM2[lang] || FAM2.en, n = $('#fn').value.trim(), ph = normaliseUaeMobile($('#fp').value);
+    msg.fn = $('#fn').value; msg.fr = $('#fr').value; msg.fp = $('#fp').value; msg.fc = $('#fc').checked;
+    msg.famErr = !n ? f.nameErr : !ph ? f.phoneErr : !$('#fc').checked ? f.consentErr : '';
+    if (msg.famErr) { render(); const el = !n ? '#fn' : !ph ? '#fp' : '#fc'; $(el) && $(el).focus(); return; }
+    act(() => {
+      const helper = { name: n, relation: $('#fr').value.trim(), phone: ph, channel: msg.fch || 'whatsapp', consent: true, at: new Date().toISOString(), accepted: false };
+      helper.token = familyToken(c.id, helper);
+      c.familyHelper = helper;
+      c.events.push({ type: 'family', at: new Date().toISOString(), by: 'Patient (in app)', role: 'patient', note: `Invited ${n} (${maskPhone(ph)}) by ${helper.channel} to see appointment status (not the result)` });
+      msg.fn = msg.fr = msg.fp = ''; msg.fc = false; msg.famStopped = false;
+    });
   });
-  $('#fam-off') && ($('#fam-off').onclick = () => act(() => { c.familyHelper = null; c.events.push({ type: 'family', at: new Date().toISOString(), by: 'Patient (in app)', role: 'patient', note: 'Stopped sharing with family helper' }); }));
+  $('#fam-off') && ($('#fam-off').onclick = () => act(() => { c.familyHelper = { ...c.familyHelper, revoked: true, revokedAt: new Date().toISOString() }; msg.famStopped = true; c.events.push({ type: 'family', at: new Date().toISOString(), by: 'Patient (in app)', role: 'patient', note: 'Stopped sharing with family helper' }); }));
 }
 
 /* ---------- read aloud ---------- */

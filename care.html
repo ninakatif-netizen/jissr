@@ -308,7 +308,8 @@ function caseView() {
       <div class="big"><b>${resultText(c)}</b><span class="tiny">${({ urgent: 'Urgent', priority: 'Priority', routine: 'Routine' })[c.urgency] || ''}</span></div>
       <div class="hbr">${miniSteps(journeyStep(c), stageLabel(c, c.stage))}<span>${CLOE_LABEL[cloePhase(c)]}</span></div>
       ${k ? `<div class="own"><span class="when ${k.tier.toLowerCase()}">${dueWords(k)}</span>: ${k.stepText.toLowerCase()}, ${dueDay(k)}</div>` : ''}
-      <div class="own">Owner: <b style="color:#fff">${o ? esc(o.name) : 'Unassigned'}</b>${o ? `, ${esc(o.org)}` : ''}</div></section>
+      <div class="own">Owner: <b style="color:#fff">${o ? esc(o.name) : 'Unassigned'}</b>${o ? `, ${esc(o.org)}` : ''}</div>
+      ${c.familyHelper && !c.familyHelper.revoked ? `<div class="own">Family helper: <b style="color:#fff">${esc(c.familyHelper.name)}</b>${c.familyHelper.relation ? `, ${esc(c.familyHelper.relation)}` : ''} · ${c.familyHelper.accepted ? 'accepted' : 'invited'} (appointments only, never the result)</div>` : ''}</section>
     ${e.length ? `<div class="flash err"><b>Needs attention</b>${e.map((x) => `<div>${x.level >= 3 ? 'Clinical lead now: ' : ''}${esc(x.text)}</div>`).join('')}</div>` : ''}
     ${mustCall(c) ? `<div class="flash call">${ic('phone', 16)} <b>Call required.</b> ${esc(mustCall(c))}</div>` : ''}
     ${(() => { const r = radarFor(c, state.today); return r.signals.length ? `<div class="card2 act-card radarc"><h3>${ic('chart', 16)} Dropout radar${r.on ? ' · on the radar' : ''}</h3><ul>${r.signals.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><p class="note2">Simple visible rules, no AI. It suggests who to call first; you decide.</p></div>` : ''; })()}

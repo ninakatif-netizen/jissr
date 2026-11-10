@@ -107,3 +107,23 @@ test('QR codes: right size for the text and the three finder patterns in place',
     }
   }
 });
+
+import { normaliseUaeMobile, familyToken, familyUrl, familyStatus, inviteText } from '../core/family.mjs';
+test('family helper: UAE mobiles only, a link without the number, and never the result', () => {
+  assert.equal(normaliseUaeMobile('050 123 4567'), '+971501234567');
+  assert.equal(normaliseUaeMobile('+971 55 765 4321'), '+971557654321');
+  assert.equal(normaliseUaeMobile('12345'), null);
+  assert.equal(normaliseUaeMobile('04 123 4567'), null, 'a landline is not accepted');
+  const state = buildState('2026-11-10');
+  const c = state.cases.find((x) => x.stage !== 'closed');
+  const helper = { name: 'Aisha', phone: '+971501234567' };
+  const url = familyUrl(c.id, helper, 'https://x.test');
+  assert.ok(!/971|501234567/.test(url), 'the phone number is not in the link');
+  const st = familyStatus(state, c.id, 'Aisha', familyToken(c.id, helper));
+  assert.equal(st.ok, true);
+  assert.ok(!('value' in st) && !JSON.stringify(st).includes(String(c.value)), 'the helper never gets the result');
+  assert.equal(familyStatus(state, c.id, 'Aisha', 'WRONG1').ok, false);
+  assert.ok(!/\d+(\.\d+)?%/.test(inviteText('en', 'Fatima', 'Aisha', url)), 'the invitation has no result');
+  c.familyHelper = { ...helper, token: familyToken(c.id, helper), revoked: true };
+  assert.equal(familyStatus(state, c.id, 'Aisha', c.familyHelper.token).ok, false, 'stopped sharing means no access');
+});
