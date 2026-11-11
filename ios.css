@@ -145,10 +145,10 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,t
 .falaj button.ch:hover{background:var(--bg)}
 .falaj .ch[aria-expanded=true]{background:var(--warn-l)}
 .falaj .lbl{font-size:14px;font-weight:600}
-.falaj .bar{height:14px;background:var(--line);border-radius:7px;overflow:hidden}
-.falaj .bar span{display:block;height:100%;min-width:4px;border-radius:7px;background:linear-gradient(90deg,#0b6fa8,#36b5e8,#0b6fa8);background-size:80px 100%;animation:flowx 2.2s linear infinite}
-.falaj .bar.end span{background:var(--go);animation:none}
-[dir=rtl] .falaj .bar span{animation-direction:reverse}
+.falaj .fbar{height:14px;background:var(--line);border-radius:7px;overflow:hidden}
+.falaj .fbar span{display:block;height:100%;min-width:4px;border-radius:7px;background:linear-gradient(90deg,#0b6fa8,#36b5e8,#0b6fa8);background-size:80px 100%;animation:flowx 2.2s linear infinite}
+.falaj .fbar.end span{background:var(--go);animation:none}
+[dir=rtl] .falaj .fbar span{animation-direction:reverse}
 @keyframes flowx{to{background-position:80px 0}}
 .falaj .ch b{font-size:17px;min-width:28px;text-align:end}
 .falaj .stop{grid-column:2 / 4;font-size:13px;font-weight:600;color:var(--muted)}
@@ -157,5 +157,54 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,t
 .agline{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:10px 10px 10px 14px;font-size:14px;line-height:1.4;color:var(--ink2)}
 .agline span{flex:1}
 .agline button{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--fill);color:#fff;font-size:26px;line-height:1;cursor:pointer}
-@media (prefers-reduced-motion:reduce){.falaj .bar span{animation:none}}
+@media (prefers-reduced-motion:reduce){.falaj .fbar span{animation:none}}
 [hidden]{display:none !important}
+/* ---- the website layout for clinicians (computers): sidebar, list, patient file ---- */
+body.web{font-family:-apple-system,"SF Pro Text",system-ui,"Segoe UI",Arial,sans-serif}   /* system fonts only: no foreign font service (ADHICS) */
+.summary{margin:0;font-size:15px;line-height:1.45;color:var(--ink2);background:var(--card);border-radius:12px;padding:10px 14px}
+.summary .late{color:var(--warn-ink)}
+@media (min-width:1024px){
+  body.web{background:var(--bg)}
+  body.web .stage{display:block;place-items:normal;padding:0;min-height:100vh}
+  body.web .phone{width:auto;height:auto;max-width:none;margin:0;border:0;border-radius:0;box-shadow:none;overflow:visible;display:block;min-height:100vh}
+  body.web .phone>.inner{height:auto;overflow:visible}
+  body.web .bar,body.web .tabs{display:none !important}
+  body.web main{padding:0}
+  body.web .scrim{position:fixed !important;align-items:center}
+  body.web .sheet{border-radius:18px;max-width:560px;max-height:86vh}
+  body.web .toast{top:20px}
+  .desk{display:grid;grid-template-columns:232px minmax(380px,460px) minmax(0,1fr);min-height:100vh}
+  .side{position:sticky;top:0;height:100vh;background:#0a1f2e;color:#e7dfcf;display:flex;flex-direction:column;gap:4px;padding:18px 12px;overflow-y:auto}
+  .side a,.side button{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:10px;color:#e7dfcf;text-decoration:none;background:none;border:0;font:inherit;font-size:15px;font-weight:700;cursor:pointer;text-align:start}
+  .side a:hover,.side button:hover{background:rgba(255,255,255,.08)}
+  .side [aria-current=page]{background:rgba(255,255,255,.14);color:#fff}
+  .side .sbrand{font-size:20px;margin-bottom:8px}
+  .side .sbrand svg path:first-child{stroke:#5fb3e6}
+  .side .sme{display:flex;gap:10px;align-items:center;padding:10px 10px 14px;border-bottom:1px solid rgba(231,223,207,.15);margin-bottom:8px}
+  .side .sme b{display:block;color:#fff;font-size:14px}.side .sme small{display:block;font-size:12px;color:#c9c1b2}
+  .side .sc{margin-inline-start:auto;min-width:22px;height:22px;border-radius:11px;background:#d98a1c;color:#0a1f2e;font-size:12px;display:grid;place-items:center;padding:0 6px}
+  .side .sgap{flex:1}
+  .side .sdemo{font-size:12px;color:#c9c1b2;margin:8px 12px 0;line-height:1.4}
+  .pane{padding:24px 24px 48px;display:flex;flex-direction:column;gap:18px;min-width:0;height:100vh;overflow-y:auto;position:sticky;top:0}
+  .plist{border-inline-end:1px solid var(--line)}
+  .pdetail{background:color-mix(in srgb,var(--card) 55%,var(--bg))}
+  .pdetail > *{max-width:860px;width:100%;margin-inline:auto}
+  .pdetail .wf{max-width:540px;margin:0 auto}
+  .pdetail #back{display:none}
+  .plist .head .who{display:none}
+  .plist a.prow[aria-current=true]{background:var(--tint-l,#e3eff7);box-shadow:inset 4px 0 0 var(--tint)}
+  .dempty{margin:auto;max-width:440px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;padding-top:12vh}
+  .dempty h2{font-size:24px}.dempty p{margin:0;color:var(--ink2);font-size:16px;line-height:1.5}
+  .dempty .dflow{animation:wff 1.2s linear infinite}
+}
+@media (min-width:1024px) and (prefers-reduced-motion:reduce){.dempty .dflow{animation:none}}
+/* patient page and start screen on a computer: a simple centred column, no phone frame */
+@media (min-width:980px){
+  body.webp{background:var(--bg)}
+  body.webp .stage{display:block;place-items:normal;padding:32px 16px}
+  body.webp .phone{width:auto;max-width:560px;height:auto;min-height:0;margin:0 auto;border:0;border-radius:0;box-shadow:none;overflow:visible;background:transparent}
+  body.webp .phone>.inner{height:auto;overflow:visible}
+  body.webp .scrim{position:fixed !important;align-items:center}
+  body.webp .sheet{border-radius:18px}
+  body.webp .call{position:fixed}
+}

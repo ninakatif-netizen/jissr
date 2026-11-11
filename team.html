@@ -149,6 +149,7 @@ function act(fn, msg) {
 let toastT = null;
 function toast(msg) { say(msg); const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; document.body.appendChild(el); clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 2200); }
 
+const ACTIONS_NEXT = { notified: 'reach the patient', understood: 'confirm understanding', booked: 'book the visit', attended: 'the visit', confirmed: 'confirmatory test', referred: 'referral decision', care_plan: 'agree the plan', closed: 'close the loop' };
 const EVENT = { result: 'Result from the lab', notified: 'Message sent', contact: 'Talked with the patient', call_attempt: 'Call attempt', understood: 'Understanding confirmed', booked: 'Visit booked', attended: 'Seen', confirmed: 'Confirmatory test', referred: 'Referred', referral_accepted: 'Referral accepted', referral_rejected: 'Referral declined', referral_completed: 'Report back', care_plan: 'Plan agreed', closed: 'Loop closed', nurse_requested: 'Asked for a nurse', barrier: 'Said what makes it hard', channel: 'Chose how to be contacted', confidence: 'Confidence', owner: 'Owner changed', agent: 'Falaj agent', consult_asked: 'Question to a specialist', consult_answered: 'Specialist answered', micro_consult_booked: 'Nurse call booked', micro_consult_done: 'Nurse call done', family: 'Family helper', shared: 'Passport shared', share_stopped: 'Sharing stopped', rebooked: 'Visit moved', sop_unread_outreach: 'Protocol: message not read', sop_stalled_referral: 'Protocol: referral stalled', sop_refusal: 'Protocol: refusal', drop_reason: 'Reason for delay' };
 
 // ---- screens ----
@@ -190,7 +191,7 @@ function attentionScreen(s) {
   const lateAll = fl.leaks.reduce((n, l) => n + l.late, 0), max = Math.max(1, fl.total);
   const rows = CHANNELS.map((ch, i) => {
     const lk = fl.leaks[i], w = Math.round((fl.counts[i] / max) * 100), last = i === CHANNELS.length - 1;
-    const inner = `<span class="lbl">${esc(ch.label)}</span><span class="bar${last ? ' end' : ''}"><span style="width:${w}%"></span></span><b>${fl.counts[i]}</b>${lk && lk.cases.length ? `<span class="stop${lk.late ? ' late' : ''}">${lk.cases.length} stopped here${lk.late ? `, ${lk.late} overdue` : ''}</span>` : ''}`;
+    const inner = `<span class="lbl">${esc(ch.label)}</span><span class="fbar${last ? ' end' : ''}"><span style="width:${w}%"></span></span><b>${fl.counts[i]}</b>${lk && lk.cases.length ? `<span class="stop${lk.late ? ' late' : ''}">${lk.cases.length} stopped here${lk.late ? `, ${lk.late} overdue` : ''}</span>` : ''}`;
     const open = sel === i && lk;
     const list = open ? `<ul class="list stopped" aria-label="Stopped after ${esc(ch.label)}">${lk.cases.slice().sort((x, y) => isOverdue(y, TODAY) - isOverdue(x, TODAY)).map((c) => flowRow(c, lk.act)).join('')}</ul>` : '';
     return `<li>${lk && lk.cases.length ? `<button class="ch" data-flow="${i}" aria-expanded="${!!open}">${inner}</button>` : `<div class="ch">${inner}</div>`}${list}</li>`;
@@ -223,6 +224,7 @@ function caseScreen(s, c) {
   return `<button class="back" id="back">‹ ${params().tab === 'patients' ? 'Patients' : 'The Falaj'}</button>
     <div class="head"><h1>${esc(c.patient.name)}</h1><p class="ctx">${c.patient.age} · speaks ${LANG[c.patient.language] || c.patient.language}${c.channel ? ` · prefers ${esc({ app: 'the app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'a phone call' }[c.channel] || c.channel)}` : ''}</p></div>
     ${action}
+    ${(() => { const o = staffOf(c.owner), nx = nextStageOf(c), late = isOverdue(c, TODAY), days = c.due ? Math.round((Date.parse(TODAY) - Date.parse(c.due)) / 864e5) : 0; return c.stage === 'closed' ? '' : `<p class="summary"><b>Now:</b> ${esc(EVENT[c.stage] || c.stage)} → next: ${esc(ACTIONS_NEXT[nx] || nx || '')} · keeper ${esc(o ? cleanName(o.name) : 'unassigned')} · ${late ? `<b class="late">overdue by ${days} ${days === 1 ? 'day' : 'days'}</b>` : c.due ? `due ${fmt(c.due)}` : ''}</p>`; })()}
     <div class="group"><div class="gh">${esc(first(c))}'s falaj</div>${(() => { const r = workflowHtml(c, { staff: state.staff, today: TODAY, resultText: resultText(c), selected: shaftSel }); const n = r.nodes.find((x) => x.id === shaftSel); return r.html + (n ? `<div class="card status ${n.late ? 'wait' : n.done ? 'ok' : ''}" aria-live="polite"><span><b>${esc(n.label)}</b><span>${n.done ? esc([n.who, n.day ? fmt(n.day.slice(0, 10)) : ''].filter(Boolean).join(' · ')) : n.late ? 'Overdue' : n.now ? 'This is where the water is now.' : 'Still to come.'}${n.note ? `<br>${esc(n.note)}` : ''}${n.rule ? `<br><small style="color:var(--muted)">${esc(n.rule)}</small>` : ''}</span></span></div>` : ''); })()}</div>
     <button class="wide ghost" data-act="add">+ Add to the falaj</button>
     <details class="more"><summary>Timeline (${events.length})</summary><ul class="timeline">${events.map((e) => `<li><span><b>${esc(EVENT[e.type] || e.type)}</b><small>${esc(e.by)}${e.note ? ' · ' + esc(e.note) : ''}</small></span><span class="d">${fmt(e.at.slice(0, 10))}</span></li>`).join('')}</ul></details>
@@ -377,15 +379,42 @@ function wireIntake(s) {
 }
 
 // ---- render ----
+const DESK = () => matchMedia('(min-width: 1024px)').matches;
+let lastDesk = null;
+addEventListener('resize', () => { if (DESK() !== lastDesk) render(); });
+function sideNav(s, p, c) {
+  const n = tasksFor(s).tasks.length, cur = (t) => (!c || DESK()) && (p.tab === t || (t === 'attention' && p.tab !== 'patients')) ? ' aria-current="page"' : '';
+  return `<nav class="side" aria-label="Falaj">
+    <a class="sbrand" href="index.html" aria-label="Falaj home">${logo}<span>Falaj</span></a>
+    <div class="sme">${avatar(s, true)}<span><b>${esc(cleanName(s.name))}</b><small>${esc(roleLabel(s))}</small></span></div>
+    <a href="?as=${s.id}" data-tab="attention"${cur('attention')}>${icon.water}<span>The Falaj</span>${n ? `<span class="sc" aria-label="${n} to do">${n}</span>` : ''}</a>
+    <a href="?as=${s.id}&tab=patients" data-tab="patients"${cur('patients')}>${icon.list}<span>Patients</span></a>
+    <button id="side-agents">${icon.bell}<span>Agents and documents</span></button>
+    <span class="sgap"></span>
+    <a href="loop.html">Watch the story</a><a href="jury.html">For the jury</a>
+    <button id="switch">Switch person</button>
+    <p class="sdemo">Synthetic data. Choosing a person is not a sign-in.</p></nav>`;
+}
+function emptyDetail(s) {
+  const top = tasksFor(s).tasks[0];
+  return `<div class="dempty"><svg width="120" height="64" viewBox="0 0 120 64" aria-hidden="true"><path d="M4 50c20 0 22-34 46-34s26 34 46 34h20" fill="none" stroke="#0b6fa8" stroke-width="5" stroke-linecap="round"/><path d="M4 50c20 0 22-34 46-34s26 34 46 34h20" fill="none" stroke="#d6f3fc" stroke-width="2" stroke-dasharray="4 10" class="dflow"/></svg>
+    <h2>Open a patient to see their falaj</h2><p>Every lab, call, visit and referral appears as a step, with who did it and when. The water shows how far they have come.</p>
+    ${top ? `<a class="wide" href="?as=${s.id}&c=${top.c.id}" data-case="${top.c.id}" style="max-width:320px">Start with ${esc(first(top.c))}: ${esc(top.action)}</a>` : ''}</div>`;
+}
 function render() {
   state = loadState();
   const wantFresh = freshShaft === 'last';
   const p = params(), s = staffOf(p.as), c = p.c ? state.cases.find((x) => x.id === p.c) : null;
   $('#bar').innerHTML = `<a class="brand" href="index.html" aria-label="Falaj home">${logo} Falaj</a>${s ? `<button class="light" id="switch">Switch person</button>` : '<span class="chip">Care team · demo</span>'}`;
-  if (!s) { $('#main').innerHTML = pickScreen(); $('#tabs').hidden = true; }
+  if (!s) { document.body.classList.remove('web'); lastDesk = DESK(); $('#main').innerHTML = pickScreen(); $('#tabs').hidden = true; }
   else {
     store.set('falaj.team.as', s.id);
-    $('#main').innerHTML = c ? caseScreen(actorOf(s), c) : p.tab === 'patients' ? patientsScreen(s) : attentionScreen(s);
+    lastDesk = DESK();
+    document.body.classList.toggle('web', lastDesk);
+    $('#main').innerHTML = lastDesk
+      ? `<div class="desk">${sideNav(s, p, c)}<section class="pane plist" aria-label="${p.tab === 'patients' ? 'Patients' : 'The Falaj'}">${p.tab === 'patients' ? patientsScreen(s) : attentionScreen(s)}</section><section class="pane pdetail" aria-label="Patient file">${c ? caseScreen(actorOf(s), c) : emptyDetail(s)}</section></div>`
+      : c ? caseScreen(actorOf(s), c) : p.tab === 'patients' ? patientsScreen(s) : attentionScreen(s);
+    document.querySelectorAll('[data-case]').forEach((x) => { if (c && x.dataset.case === c.id) x.setAttribute('aria-current', 'true'); });
     const n = tasksFor(s).tasks.length;
     $('#tabs').hidden = false;
     $('#tabs').innerHTML = `<a href="?as=${s.id}" data-tab="attention"${!c && p.tab !== 'patients' ? ' aria-current="page"' : ''}>${icon.water}Falaj${n ? `<span class="badge" aria-label="${n} to do">${n}</span>` : ''}</a><a href="?as=${s.id}&tab=patients" data-tab="patients"${!c && p.tab === 'patients' ? ' aria-current="page"' : ''}>${icon.list}Patients</a>`;
@@ -396,7 +425,7 @@ function render() {
   document.querySelectorAll('[data-case]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ c: a.dataset.case }); });
   document.querySelectorAll('[data-as]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ as: a.dataset.as, c: '', tab: 'attention' }); });
   document.querySelectorAll('[data-tab]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ c: '', tab: a.dataset.tab }); });
-  const am = $('#agents-more'); if (am) am.onclick = () => { intake = { step: 'menu', err: '' }; render(); };
+  ['#agents-more', '#side-agents'].forEach((sel) => { const am = $(sel); if (am) am.onclick = () => { intake = { step: 'menu', err: '' }; render(); }; });
   document.querySelectorAll('[data-flow]').forEach((b) => b.onclick = () => { flowSel = flowSel === b.dataset.flow ? 'needs' : b.dataset.flow; render(); const x = document.querySelector(`[data-flow="${flowSel}"]`); if (x) x.focus(); });
   document.querySelectorAll('[data-scope]').forEach((b) => b.onclick = () => { scope = b.dataset.scope; render(); const x = document.querySelector(`[data-scope="${scope}"]`); if (x) x.focus(); });
   const sw = $('#switch'); if (sw) sw.onclick = () => { store.set('falaj.team.as', ''); history.pushState(null, '', location.pathname + '?as='); sheet = null; render(); };
