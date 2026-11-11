@@ -31,7 +31,7 @@ do the routine work to start it flowing again. People decide; the system never d
 **The gap Falaj fills:** about nine in ten UAE residents are expatriates (estimate; no recent official breakdown),
 speaking many languages, often on shifts, moving between public and private providers, insurers and jobs.
 Abu Dhabi already shares records through Malaffi; what is missing is a responsible person and a patient-facing
-journey across those organisations. **Falaj is a Care Passport for a multilingual, multi-provider system.**
+journey across those organisations. **Falaj is the care team's falaj for a multilingual, multi-provider system.**
 
 Do not say: "we invented closed-loop care", "AI replaces navigators", or any figure not in this list.
 
