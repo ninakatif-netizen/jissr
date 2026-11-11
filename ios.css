@@ -112,3 +112,15 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,t
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.28s}
 @media (prefers-reduced-motion:reduce){.pop,.ring,.rec,.scrim,.sheet,.toast{animation:none}.switch,button,details.more summary::after{transition:none}::view-transition-old(root),::view-transition-new(root){animation:none}}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* the Falaj flow (care team) */
+.flowbox{background:var(--card);border-radius:14px;padding:12px 10px 6px;color:var(--ink)}
+.flowbox svg{display:block;width:100%;height:auto}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--line);border-radius:10px;padding:2px;gap:2px}
+.seg button{min-height:40px;border:0;border-radius:8px;background:none;font:inherit;font-size:15px;font-weight:600;color:var(--ink2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;margin:0 -2px}
+.chipb{flex:none;min-height:40px;padding:0 14px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chipb.late{border-color:var(--warn)}
+.chipb[aria-pressed=true]{background:var(--fill);border-color:var(--fill);color:#fff}
+.prog{display:block;height:6px;border-radius:3px;background:var(--line);margin:6px 0 2px;overflow:hidden;max-width:220px}
+.prog span{display:block;height:100%;border-radius:3px;background:var(--tint)}
