@@ -10,6 +10,29 @@ Live demo: https://jissr-three.vercel.app/loop.html ("See it in 3 moments" on th
 
 **Falaj · The Care Passport.** One result. One passport. One continuous journey.
 
+## What already exists (say it before the judges do)
+
+- **Screening follow-up platforms (US):** Azra AI (oncology navigation, incidental findings, closed-loop
+  tracking over the hospital record), Inflo Health (diagnostic-to-care orchestration).
+- **Referral coordination:** Infina Connect (referring and receiving teams, referral status).
+- **Patient outreach:** Luma Health (AI outreach, scheduling, missed-visit recovery).
+- **Patient-held records:** Patients Know Best (UK). **National recall:** NHS cervical screening.
+
+**The evidence that it works:**
+- Atlas et al., *JAMA* 2023;330(14):1348-58 (mFOCUS, 44 practices): completion within 120 days was 22.9% with
+  usual care, 22.7% with reminders in the record alone, 31.0% with reminders + patient outreach, 31.4% with
+  outreach + navigation. **Reminders alone did nothing; reaching the patient did.**
+- Coronado et al., *Annals of Internal Medicine* 2025 (32 community clinics, Washington State, about 970 patients):
+  bilingual telephone navigation after an abnormal stool test: colonoscopy within a year 55.1% vs 42.1%
+  (difference 13.0 points, 95% CI 6.5 to 19.4). **Reaching people in their language works.**
+
+**The gap Falaj fills:** about nine in ten UAE residents are expatriates (estimate; no recent official breakdown),
+speaking many languages, often on shifts, moving between public and private providers, insurers and jobs.
+Abu Dhabi already shares records through Malaffi; what is missing is a responsible person and a patient-facing
+journey across those organisations. **Falaj is a Care Passport for a multilingual, multi-provider system.**
+
+Do not say: "we invented closed-loop care", "AI replaces navigators", or any figure not in this list.
+
 ## The one sentence
 
 **Falaj makes sure every abnormal screening result ends in a confirmed visit with a doctor.**

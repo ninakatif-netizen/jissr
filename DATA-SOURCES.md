@@ -20,6 +20,17 @@ The organisers provide no data. Falaj uses **only material we created or have th
 
 No organiser data, no real patient data, no scraped data, and no third-party datasets are used.
 
+### Evidence and context cited on the home page and in the pitch
+
+| Claim | Source | Checked |
+|---|---|---|
+| Outreach raised 120-day follow-up of abnormal screening results (22.9% usual care, 31.0% outreach, 31.4% outreach + navigation) | Atlas SJ et al. A Multilevel Primary Care Intervention to Improve Follow-Up of Overdue Abnormal Cancer Screening Test Results. JAMA 2023;330(14):1348-58 (mFOCUS, NCT03979495) | Via trial registry and published summaries; verify against the full text before print |
+| Bilingual phone navigation: colonoscopy within a year 55.1% vs 42.1% | Coronado GD et al. Patient Navigation to Improve Colonoscopy Completion After an Abnormal Stool Test Result: A Randomized Controlled Trial. Ann Intern Med 2025 (PMID 40163863) | Via PubMed listing and university release; enrolment reported as about 970 |
+| About nine in ten UAE residents are expatriates | UN and secondary estimates (88 to 90%); no recent official breakdown | Estimate, stated as such |
+| Al Aflaj on UNESCO's Representative List of the Intangible Cultural Heritage (2020), submitted by the UAE | UNESCO ICH element 01577; Abu Dhabi Department of Culture and Tourism | Via UNESCO listing title and DCT Abu Dhabi |
+| Malaffi, the Abu Dhabi health information exchange, connects the emirate's hospitals | Abu Dhabi Media Office; Department of Health | Figures change; not quoted as numbers |
+| Competitors (Azra AI, Inflo Health, Infina Connect, Luma Health, Patients Know Best, NHS CSMS) | Their public websites | Capabilities as published by the companies; not tested |
+
 ## 2. Design and media
 
 | What | Source | Rights / licence |
