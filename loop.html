@@ -12,7 +12,7 @@
 <style>
 /* One continuous journey, seen from four phones. iOS structure (system font, grouped lists, switches, sheets),
    Falaj identity (navy and sand). Green means done, amber means waiting or action needed. Nothing else is coloured.
-   Every step changes Priya's real demo case (C-040): the nurse's list, her app and the Care Passport all follow. */
+   Every step changes Priya's real demo case (C-040): the nurse's list and the care team app follow. */
 :root{--fill:#0a1f2e;--go:#1a7f52;--bg:#f6f2ea;--card:#fff;--ink:#0a1f2e;--ink2:#2c3e4c;--muted:#56616b;--line:#e6dfd2;--tint:#0b6fa8;--ok:#1a7f52;--ok-l:#e3f4ec;--ok-ink:#0f5a3a;--bad:#c4271b;--warn:#a8670f;--warn-l:#fbefdd;--warn-ink:#7a4a0c;--off:#cbc3b4;--desk:#ebe3d3}
 @media (prefers-color-scheme:dark){:root{--fill:#2b6a94;--bg:#07141d;--card:#10232f;--ink:#f3efe6;--ink2:#d7d0c3;--muted:#a3adb5;--line:#203543;--tint:#5fb3e6;--ok:#34a46e;--ok-l:#12301f;--ok-ink:#9be0bd;--bad:#ff5b4f;--warn:#f2c46e;--warn-l:#3a2c12;--warn-ink:#f2c46e;--off:#3a4d5a;--desk:#040c12}}
 *{box-sizing:border-box}
@@ -52,7 +52,7 @@ main{flex:1 1 auto;padding:6px 16px 24px;display:flex;flex-direction:column;gap:
 h1{margin:6px 0 0;font-size:34px;line-height:1.12;font-weight:700;letter-spacing:.2px}
 .head{padding:0 4px}
 .ctx{margin:4px 0 0;font-size:15px;color:var(--muted)}
-/* the Care Passport: the same card on every phone; only the owner, the next step and the status change */
+/* the patient's channel: the same on every phone; only the keeper and the next step change */
 .pass{background:var(--fill);color:#fff;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .pass .t{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;opacity:.92}
 .pass .o{display:flex;align-items:center;gap:10px;font-size:15px}
@@ -192,8 +192,7 @@ import { loadState, saveState } from './core/store.mjs';
 import { buildState } from './core/data.mjs';
 import { addDays } from './core/rules.mjs';
 import { advance, skipStage, sendReferral, respondReferral, closeCase, requestNurse, logEvent, nextStageOf } from './core/cases.mjs';
-import { proofUrl } from './core/proof.mjs';
-import { passportHtml, milestones } from './core/passport.mjs';
+import { channelHtml } from './core/channel.mjs';
 registerSW();
 
 // ---- The story runs on Priya's real demo case. A week of care is compressed into a minute. ----
@@ -250,9 +249,9 @@ const SHARE = [['r', 'Screening result'], ['a', 'Appointments'], ['l', 'Preferre
 const ASIDE = [
   ['Moment 1 of 3 · The call', 'Nobody reached Priya. Falaj calls.', `The result has waited ${daysSinceResult()} days. Instead of a letter, an AI assistant calls Priya in Malayalam and holds a visit around her work.`, 'The rule', 'The AI never discusses a result. Worry goes to a person, the same day.'],
   ['Moment 1 of 3 · The nurse', 'A person checks she understood.', `${NURSE_NAME}'s list says who needs a call and why. Priya explains the next step back in her own words. Only then is the visit confirmed.`, 'The rule', 'The AI routes people to the right human. It never replaces one.'],
-  ['Moment 2 of 3 · The hand over', 'Two organisations. One passport.', `${GP_NAME}, in a private family clinic, refers Priya to a public hospital's breast clinic: another organisation, another record system. A single-hospital tool loses her here. The Care Passport goes with her, and the owner changes only when the clinic accepts.`, 'The rule', 'The sender stays responsible until the specialist accepts. No reply in 2 days raises an alarm.'],
+  ['Moment 2 of 3 · The hand over', 'Two organisations. One channel.', `${GP_NAME}, in a private family clinic, refers Priya to a public hospital's breast clinic: another organisation, another record system. A single-hospital tool loses her here. The channel goes with her, and the keeper changes only when the clinic accepts.`, 'The rule', 'The sender stays responsible until the specialist accepts. No reply in 2 days raises an alarm.'],
   ['Moment 3 of 3 · The close', 'The loop closes in the consultation.', `With Priya's consent, ${SPEC_NAME} dictates. The words become a draft note the doctor reviews, then confirms.`, 'The rule', 'A booked appointment is not care. Only a confirmed consultation closes the loop.'],
-  ['Loop closed', 'One result. One passport. One journey.', 'The passport travelled with Priya across four phones. Each stamp was pressed by the person who did the step: the nurse, the family doctor, the specialist.', 'Try it', 'Scan the QR code with a phone. It shows the journey and who did each step, never the result.'],
+  ['Loop closed', 'The water reached the palm.', 'From the result to a confirmed consultation, every channel has a date and the name of the person who did it: the nurse, the family doctor, the specialist.', 'The rule', 'Only a doctor closes the loop. The agents never decide.'],
 ];
 
 const init = () => ({ step: 0, call: 'ring', n: 0, nurse: 'idle', share: { r: true, a: true, l: true, h: false }, hand: 'list', consent: false, rec: 'idle', m: 0, sheet: false });
@@ -316,13 +315,9 @@ function passport() {
   if (s === 1 || S.call === 'done') return ['nurse', 'Check Priya understood', 'Visit held', 'amber'];
   return ['nurse', 'Reach Priya', 'Not reached', 'amber'];
 }
-let lastDone = null;   // which stamps were already there, so a new one is pressed in with a small animation
 function passCard() {
-  const [o, next, st, tone] = passport();
-  const done = milestones(C()).map(([x]) => x === 'done');
-  const fresh = lastDone ? done.map((d, i) => (d && !lastDone[i] ? i : -1)).filter((i) => i >= 0) : [];
-  lastDone = done;
-  return passportHtml(C(), { compact: true, owner: PEOPLE[o][3], next, status: st, tone, fresh });
+  const [o, next] = passport();
+  return channelHtml(C(), { compact: true, owner: PEOPLE[o][3], next, today: TODAY });
 }
 
 // ---- small pieces ----
@@ -401,13 +396,12 @@ function screenClose() {
     ${mic}${dict}${ready}</div>`;
 }
 function screenDone() {
-  const c = C(), url = proofUrl(c, location.origin);
+  const c = C();
   const days = Math.round((Date.parse(SPEC_DAY) - Date.parse(c.resultDay)) / 864e5);
-  lastDone = milestones(c).map(([x]) => x === 'done');
   return `<div class="pop" style="display:flex;flex-direction:column;gap:18px"><div class="closedhero"><span class="palm"><svg width="46" height="46" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 44V22" stroke="#7a5a2a" stroke-width="3" stroke-linecap="round"/><path d="M24 22c-3-7-11-9-17-6 6 0 11 2 17 6zM24 22c3-7 11-9 17-6-6 0-11 2-17 6zM24 22c-5-4-6-11-3-16 0 6 1 11 3 16zM24 22c5-4 6-11 3-16 0 6-1 11-3 16z" fill="var(--ok)"/><path d="M6 44c6-3 12-3 18 0s12 3 18 0" fill="none" stroke="var(--tint)" stroke-width="3" stroke-linecap="round"/></svg></span>
     <h1>Loop closed</h1><p>Priya reached a specialist ${days} days after her result, and a doctor confirmed it.</p></div>
-    ${passportHtml(c, { qr: true, staff: state.staff, link: url.replace(location.origin + '/', ''), fresh: [4] })}
-    <div class="group"><div class="gh">The same passport, everywhere</div><ul class="list links"><li class="row"><a href="care.html?role=nurse&as=${NURSE.id}">In ${NURSE_NAME}'s care app</a></li><li class="row"><a href="patient.html?p=${ID}&view=proof&nosplash=1">In Priya's app</a></li></ul></div></div>`;
+    ${channelHtml(c, { staff: state.staff })}
+    <div class="group"><div class="gh">The same case, in the real app</div><ul class="list links"><li class="row"><a href="team.html?as=${NURSE.id}&c=${ID}">In ${NURSE_NAME}'s falaj</a></li><li class="row"><a href="team.html?as=${SPEC.id}&c=${ID}">In ${SPEC_NAME}'s falaj</a></li></ul></div></div>`;
 }
 function sheetHtml() {
   return `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t" tabindex="-1" id="sheet">
@@ -434,10 +428,10 @@ function render(focusId) {
   if (S.step === 0 && S.call === 'done') p = [`Next: ${NURSE_NAME}'s phone`, () => go(1)];
   if (S.step === 1 && S.nurse === 'done') p = [`Next: ${GP_NAME}'s phone`, () => go(2)];
   if (S.step === 2 && S.hand !== 'list') p = S.hand === 'seen' ? ['Send referral to the breast clinic', () => { if (referralSent()) { set({ hand: 'sent' }, 'next'); say('Referral sent. You stay responsible until it is accepted.'); } }]
-    : S.hand === 'sent' ? ['Accept as the breast clinic (demo)', () => { if (referralAccepted()) { set({ hand: 'accepted' }, 'next'); say(`Accepted by ${SPEC_NAME}. The Care Passport moves to the breast clinic.`); } }]
+    : S.hand === 'sent' ? ['Accept as the breast clinic (demo)', () => { if (referralAccepted()) { set({ hand: 'accepted' }, 'next'); say(`Accepted by ${SPEC_NAME}, the new keeper.`); } }]
     : [`Next: ${SPEC_NAME}'s phone`, () => go(3)];
   if (S.step === 3 && S.rec === 'done') p = ['Review and confirm', () => set({ sheet: true })];
-  if (done) p = ['Replay the demo', () => { stop(); freshCase(); lastDone = null; S = init(); go(0); }];
+  if (done) p = ['Replay the demo', () => { stop(); freshCase(); S = init(); go(0); }];
   $('#foot').innerHTML = p ? `<button class="primary" id="next">${p[0]}</button>` : '';
   $('#foot').hidden = !p;
   if (p) $('#next').onclick = p[1];

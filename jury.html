@@ -52,23 +52,6 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
     <a class="tile" href="loop.html"><div class="card"><span class="mn">3</span><h3>Close</h3><p class="muted">In the consultation, a voice note becomes the clinical note, with the patient's consent. The doctor confirms, and the loop closes with proof.</p></div></a>
   </div>
 
-  <section class="card passport-sec">
-    <div class="ps-grid">
-      <div>
-        <h2>The Care Passport</h2>
-        <p class="muted">Not another medical records app. A record of the next steps, who is responsible, the referrals, and the care that was confirmed. The patient opens it from a link; no new app to install.</p>
-        <ol class="num">
-          <li><b>Result communicated.</b> A person reached the patient, not just a message sent.</li>
-          <li><b>Understanding confirmed.</b> The patient explains the next step back, in their own words.</li>
-          <li><b>Referral accepted.</b> The receiving team takes responsibility. Until then, the sender keeps it.</li>
-          <li><b>Care delivered.</b> The visit, test or treatment is documented. A booking does not count.</li>
-          <li><b>Loop closed.</b> A clinician confirms the follow-up, or documents another valid decision.</li>
-        </ol>
-        <p class="muted">Each stamp is pressed only by the person who did the step. If progress stops, Falaj alerts the care team. The passport never shows the result.</p>
-      </div>
-      <div id="sample-passport"></div>
-    </div>
-  </section>
 
   <section class="card why-falaj">
     <h2>Why Falaj</h2>
@@ -106,22 +89,17 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
   <section class="card">
     <h2>What already exists, and what Falaj adds</h2>
     <p class="muted">Falaj did not invent closed-loop follow-up. Platforms in the US and the UK already track abnormal results (Azra AI, Inflo Health), referrals between providers (Infina Connect) and patient outreach (Luma Health); the NHS runs national screening recall. And it works: in a trial of 44 primary care practices, adding patient outreach raised follow-up within 120 days from about 23% to 31% <a href="https://jamanetwork.com/journals/jama/fullarticle/2810508">(Atlas et al., JAMA 2023)</a>; bilingual phone navigation after an abnormal bowel test raised colonoscopy from 42.1% to 55.1% <a href="https://pubmed.ncbi.nlm.nih.gov/40163863/">(Coronado et al., Annals of Internal Medicine 2025)</a>.</p>
-    <p class="muted" style="margin-top:10px"><b>The gap in the UAE.</b> About nine in ten residents are expatriates, speaking many languages, often working shifts, and moving between public and private providers, insurers and jobs. Tools built for one US hospital network, in English and Spanish, lose them at every handover. Falaj is a Care Passport for that system: it reaches each patient in their own language, keeps a named person responsible across every organisation, and travels with the patient.</p>
+    <p class="muted" style="margin-top:10px"><b>The gap in the UAE.</b> About nine in ten residents are expatriates, speaking many languages, often working shifts, and moving between public and private providers, insurers and jobs. Tools built for one US hospital network, in English and Spanish, lose them at every handover. Falaj is the care team's view of that system: every result as water flowing to care, a named keeper at every channel, reached in the patient's own language, across every organisation.</p>
   </section>
 
   <details class="card team" open>
-    <summary><h2 style="display:inline">Everything in Falaj</h2></summary>
-    <p class="muted">The full app for patients and the care team, where results get lost, the safety tests, and the plan for a pilot.</p>
+    <summary><h2 style="display:inline">The prototype</h2></summary>
+    <p class="muted">Everything the jury can open. Synthetic data only.</p>
     <div class="tiles">
-      <a class="tile" href="patient.html?p=C-040&fresh=1&tour=0" id="b3"><div class="card"><span data-ic="next" data-s="26"></span><h3>Guided tour</h3><p class="muted">3 minutes through the full app, following Priya.</p></div></a>
-      <a class="tile" href="me.html"><div class="card"><span data-ic="phone" data-s="26"></span><h3>Patient app</h3><p class="muted">The next step, the Care Passport, the AI call, the result in plain words, a family helper.</p></div></a>
-      <a class="tile" href="team.html"><div class="card"><span data-ic="doctor" data-s="26"></span><h3>Care team app</h3><p class="muted">Nurse, family doctor, specialist: who needs you, why, and the one thing to do.</p></div></a>
-      <a class="tile" href="pathways.html"><div class="card"><span data-ic="plan" data-s="26"></span><h3>Channel map</h3><p class="muted">Each pathway step by step: who may act, by when, and what the AI may never do.</p></div></a>
-      <a class="tile" href="map.html"><div class="card"><span data-ic="pin" data-s="26"></span><h3>Where results get lost</h3><p class="muted">Open and late cases, place by place.</p></div></a>
-      <a class="tile" href="trust.html"><div class="card"><span data-ic="shield" data-s="26"></span><h3>Try to break it</h3><p class="muted">Run every safety rule live.</p></div></a>
-      <a class="tile" href="metrics.html"><div class="card"><span data-ic="chart" data-s="26"></span><h3>Measures</h3><p class="muted">Is the loop closing? Time to each step.</p></div></a>
-      <a class="tile" href="pilot.html"><div class="card"><span data-ic="plan" data-s="26"></span><h3>Path to pilot</h3><p class="muted">90 days, success criteria, costs and risks.</p></div></a>
-      <a class="tile" href="impact.html"><div class="card"><span data-ic="chart" data-s="26"></span><h3>Impact</h3><p class="muted">Sourced figures on lost follow-up.</p></div></a>
+      <a class="tile" href="team.html"><div class="card"><span data-ic="doctor" data-s="26"></span><h3>The care team app</h3><p class="muted">The falaj for a nurse, a family doctor or a specialist: who stopped where, and the one thing to do.</p></div></a>
+      <a class="tile" href="me.html?p=C-040"><div class="card"><span data-ic="phone" data-s="26"></span><h3>The patient's page</h3><p class="muted">What the patient's message links to: the next step, in their language.</p></div></a>
+      <a class="tile" href="loop.html" id="b3"><div class="card"><span data-ic="next" data-s="26"></span><h3>The story</h3><p class="muted">Priya, from her result to a confirmed consultation, in three minutes.</p></div></a>
+      <a class="tile" href="trust.html"><div class="card"><span data-ic="shield" data-s="26"></span><h3>Try to break it</h3><p class="muted">Run every safety rule live: the AI cannot close a case, skip a step or remove an owner.</p></div></a>
     </div>
   <section class="card">
     <h2>How Falaj answers the challenge</h2>
@@ -177,11 +155,6 @@ import { falajScene } from './core/art.mjs';
 import { passportHtml } from './core/passport.mjs';
 import { buildState } from './core/data.mjs';
 import { isoDay } from './core/rules.mjs';
-{ // a sample passport from the synthetic demo data: a case closed with evidence
-  const demo = buildState(isoDay(Date.now())); const byStaff = (x) => (x.events || []).some((e) => e.type === 'understood' && e.role !== 'system' && e.role !== 'patient');
-  const c = demo.cases.find((x) => x.stage === 'closed' && byStaff(x)) || demo.cases.find((x) => x.stage === 'closed');
-  if (c) document.getElementById('sample-passport').innerHTML = passportHtml(c, { staff: demo.staff });
-}
 document.getElementById('brand').innerHTML = wordmark();
 document.querySelectorAll('[data-ic]').forEach((el) => { el.innerHTML = ic(el.dataset.ic, +el.dataset.s || 22); el.style.cssText = 'display:block;color:var(--accent-d);margin-bottom:8px'; });
 document.getElementById('bapp').innerHTML = ic('doctor', 18) + ' Open Falaj';

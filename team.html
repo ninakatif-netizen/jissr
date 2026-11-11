@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Falaj care team</title>
-<meta name="description" content="The Falaj care team app: who needs you, why, and the one thing to do. Every patient has a Care Passport. Synthetic data only.">
+<meta name="description" content="The Falaj care team app: who needs you, why, and the one thing to do. Every patient is water flowing to care. Synthetic data only.">
 <meta name="theme-color" content="#f6f2ea">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
@@ -33,10 +33,9 @@ import { loadState, saveState, resetState } from './core/store.mjs';
 import { isOverdue, mustCall, slotsFor, addDays } from './core/rules.mjs';
 import { advance, skipStage, sendReferral, respondReferral, completeReferral, closeCase, logContact, logEvent, nextStageOf, createCase } from './core/cases.mjs';
 import { progOf, resultText, targetsFor } from './core/programmes.mjs';
-import { passportHtml } from './core/passport.mjs';
+import { channelHtml } from './core/channel.mjs';
 import { flowOf, flowSvg, levelOf, CHANNELS } from './core/flow.mjs';
 import { runAgents, agentSummary, AGENTS, readDocument, SAMPLE_DOCUMENTS } from './core/agents.mjs';
-import { proofUrl } from './core/proof.mjs';
 registerSW();
 
 let state = loadState();
@@ -116,7 +115,7 @@ function casesFor(s) {
 // ---- the one action on a case, for this person, by the rules ----
 function actionFor(s, c) {
   const r = c.referral, n = first(c);
-  if (c.stage === 'closed') return { info: ['ok', 'Loop closed', `Closed by ${c.closed ? c.closed.by : 'a clinician'}. The Care Passport is complete.`] };
+  if (c.stage === 'closed') return { info: ['ok', 'Loop closed', `Closed by ${c.closed ? c.closed.by : 'a clinician'}. The water reached the palm.`] };
   if ((s.role === 'nurse' || s.role === 'coordinator') && c.owner === s.id) {
     if (c.nurseRequest && !c.nurseRequest.done) return { title: `Call ${n} today`, text: `${n} asked to talk to a nurse.`, btns: [['call', `Call ${n}`, 'go']] };
     if (['result', 'notified'].includes(c.stage)) return { title: `Call ${n}`, text: mustCall(c) || `${n} has not been reached yet. Explain the result and check they understood.`, btns: [['call', `Call ${n}`, 'go']] };
@@ -207,7 +206,7 @@ function attentionScreen(s) {
 }
 function patientsScreen(s) {
   const list = casesFor(s);
-  return `<div class="head"><p class="who">${avatar(s)}${esc(cleanName(s.name))}</p><h1>Patients</h1><p class="ctx">${list.length} with a Care Passport you can see</p></div>
+  return `<div class="head"><p class="who">${avatar(s)}${esc(cleanName(s.name))}</p><h1>Patients</h1><p class="ctx">${list.length} in your falaj</p></div>
     <label class="sr" for="find">Find a patient</label><input class="search" id="find" type="search" placeholder="Find a patient" autocomplete="off" value="${esc(findText)}">
     <ul class="list" id="plist">${list.filter((c) => !findText || c.patient.name.toLowerCase().includes(findText.toLowerCase())).map((c) => {
       const tone = c.stage === 'closed' ? ['green', 'Loop closed'] : isOverdue(c, TODAY) ? ['amber', 'Overdue'] : ['grey', 'In progress'];
@@ -224,9 +223,9 @@ function caseScreen(s, c) {
     <div class="head"><h1>${esc(c.patient.name)}</h1><p class="ctx">${c.patient.age} · speaks ${LANG[c.patient.language] || c.patient.language}${c.channel ? ` · prefers ${esc({ app: 'the app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'a phone call' }[c.channel] || c.channel)}` : ''}</p></div>
     ${action}
     <div class="group"><div class="gh">Result (staff only)</div><ul class="list"><li class="row"><span>${esc(progOf(c).name)}</span><span class="v">${esc(resultText(c))}</span></li>${c.due ? `<li class="row"><span>Follow up by</span><span class="v">${fmt(c.due)}</span></li>` : ''}</ul></div>
-    ${passportHtml(c, { staff: state.staff, qr: true, link: proofUrl(c, location.origin).replace(location.origin + '/', '') })}
+    ${channelHtml(c, { staff: state.staff, today: TODAY, title: 'Where the water is' })}
     <details class="more"><summary>Timeline (${events.length})</summary><ul class="timeline">${events.map((e) => `<li><span><b>${esc(EVENT[e.type] || e.type)}</b><small>${esc(e.by)}${e.note ? ' · ' + esc(e.note) : ''}</small></span><span class="d">${fmt(e.at.slice(0, 10))}</span></li>`).join('')}</ul></details>
-    ${owner ? `<p class="demo-note">Owner: ${esc(cleanName(owner.name))}</p>` : ''}`;
+`;
 }
 
 // ---- sheets ----
@@ -250,7 +249,7 @@ function sheetHtml(s, c) {
   if (k === 'refer') return wrap(`Refer ${esc(n)}`, `<fieldset class="choice"><legend class="gh" style="padding:0 4px 6px">To</legend>${targetsFor(c).map((t, i) => `<label><input type="radio" name="to" value="${esc(t)}"${i === 0 ? ' checked' : ''}>${esc(t)}</label>`).join('')}</fieldset>
     <div class="field"><label for="why">Reason</label><textarea id="why">${esc(c.programme === 'mammo' ? 'Screening finding: breast assessment and biopsy.' : c.programme === 'fit' ? 'Positive FIT: colonoscopy.' : 'Raised HbA1c: specialist review.')}</textarea></div>
     <div class="group"><div class="gh">What ${esc(n)} chose to share</div><ul class="list">${[['r', 'Screening result', true], ['a', 'Appointments', true], ['l', 'Preferred language', true], ['h', 'Other medical history', false]].map(([key, l, on]) => `<li class="row sw"><span id="s-${key}-l">${l}</span><button class="switch" data-share="${l}" role="switch" aria-checked="${sheet.share ? sheet.share.includes(l) : on}" aria-labelledby="s-${key}-l"><span></span></button></li>`).join('')}</ul></div>
-    <p>The Care Passport goes with ${esc(n)}: their language, what they chose to share, and who is responsible. Their records stay where they are.</p><p>You stay responsible until they accept. No answer in 2 days raises an alert.</p><button class="wide go" id="do-refer">Send referral</button>`);
+    <p>The channel goes with ${esc(n)}: their language, what they chose to share, and who is the keeper. Their records stay where they are.</p><p>You stay responsible until they accept. No answer in 2 days raises an alert.</p><button class="wide go" id="do-refer">Send referral</button>`);
   if (k === 'decline') return wrap('Decline the referral', `<p>The family doctor stays responsible and is told why.</p>
     <fieldset class="choice">${['Not the right service: please refer to another clinic.', 'Missing information: please send the imaging report.', 'Can be managed in primary care: advice sent.'].map((t, i) => `<label><input type="radio" name="dec" value="${esc(t)}"${i === 0 ? ' checked' : ''}>${esc(t)}</label>`).join('')}</fieldset>
     <button class="wide" id="do-decline">Decline</button>`);
@@ -275,7 +274,7 @@ function wireSheet(s, c) {
   const pick = (name) => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
   document.querySelectorAll('[data-call]').forEach((b) => b.onclick = () => {
     const v = b.dataset.call;
-    if (v === 'understood') done(() => { logContact(state, c.id, s, 'Result explained by phone.'); advance(state, c.id, 'understood', s, 'Teach-back: said the next step back in their own words.'); }, 'Understanding confirmed. Passport stamped.');
+    if (v === 'understood') done(() => { logContact(state, c.id, s, 'Result explained by phone.'); advance(state, c.id, 'understood', s, 'Teach-back: said the next step back in their own words.'); }, 'Understanding confirmed.');
     if (v === 'reached') done(() => logContact(state, c.id, s, 'Reached. Needs more explanation; follow-up call planned.'), 'Call logged.');
     if (v === 'none') done(() => logEvent(c, 'call_attempt', s, 'No answer. Falaj tries again outside working hours.'), 'No answer logged. Falaj will try again.');
   });
@@ -295,7 +294,7 @@ function wireSheet(s, c) {
     skipStage(state, c.id, 'referred', s, why);
   }, 'Recorded: no referral needed.'));
   on('do-plan', () => done(() => advance(state, c.id, 'care_plan', s, 'Plan agreed with the patient.', undefined, { planKind: pick('plan') }), 'Plan recorded.'));
-  on('do-close', () => done(() => closeCase(state, c.id, s, { type: 'care_plan_agreed', evidence: $('#ev').value }), 'Loop closed. Care Passport complete.'));
+  on('do-close', () => done(() => closeCase(state, c.id, s, { type: 'care_plan_agreed', evidence: $('#ev').value }), 'Loop closed. The water reached the palm.'));
   on('cs', () => { sheet.consent = !sheet.consent; render(); $('#cs').focus(); });
   on('dictate', () => { if (!sheet.consent) { sheetErr = 'Turn on consent first.'; render(); return; } sheetErr = ''; sheet.m = 3; render(); });
   on('do-consult', () => done(() => closeCase(state, c.id, s, { type: 'transferred_care', evidence: DICT[c.programme || 'hba1c'].join(' ') }), 'Consultation confirmed. Loop closed.'));
@@ -329,7 +328,7 @@ function intakeHtml(s) {
       <button class="wide go" id="in-create">Create the case</button>`);
   }
   const c = state.cases.find((x) => x.id === intake.created), o = c && staffOf(c.owner);
-  const ticks = [`Care Passport created · ${c.id}`, `Owner set by the rules: ${o ? cleanName(o.name) : 'the care team'} · follow up by ${fmt(c.due)}`, `Acknowledgment sent to ${intake.f.from || 'the sender'}`, `Outreach agent will call in ${LANGS[c.patient.language]}`, 'The patient books after a person checks understanding'];
+  const ticks = [`Case created · ${c.id}: the water enters the falaj`, `Owner set by the rules: ${o ? cleanName(o.name) : 'the care team'} · follow up by ${fmt(c.due)}`, `Acknowledgment sent to ${intake.f.from || 'the sender'}`, `Outreach agent will call in ${LANGS[c.patient.language]}`, 'The patient books after a person checks understanding'];
   return wrap('The workflow ran', `<ol class="ticks">${ticks.map((x, i) => `<li style="animation-delay:${i * 0.25}s"><span aria-hidden="true">✓</span>${esc(x)}</li>`).join('')}</ol><button class="wide" id="in-open">Open ${esc(c.patient.name.split(' ')[0])}'s case</button>`);
 }
 function wireIntake(s) {
@@ -394,7 +393,7 @@ function render() {
     const id = b.dataset.act, a = actorOf(s);
     if (id === 'attended') return void (act(() => advance(state, c.id, 'attended', a, 'Seen.'), 'Visit recorded.') && render());
     if (id === 'confirmed') return void (act(() => advance(state, c.id, 'confirmed', a, 'Confirmatory test done.'), 'Test recorded.') && render());
-    if (id === 'accept') return void (act(() => respondReferral(state, c.id, a, { accept: true, note: 'Accepted.' }), 'Accepted. You are now responsible. Passport stamped.') && render());
+    if (id === 'accept') return void (act(() => respondReferral(state, c.id, a, { accept: true, note: 'Accepted.' }), 'Accepted. You are now the keeper.') && render());
     sheet = { kind: id }; sheetErr = ''; render();
   });
   if (intake && s) wireIntake(s);

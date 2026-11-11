@@ -5,10 +5,12 @@ Live demo: https://jissr-three.vercel.app/loop.html ("See it in 3 moments" on th
 
 ## The opening slide
 
-> For centuries, the falaj made sure water reached where life depended on it. Today, we bring that
-> principle to healthcare: every actionable screening result gets a clear pathway to care.
+> For centuries, the falaj made sure water reached where life depended on it, with a named keeper for every
+> channel. Falaj does the same for abnormal screening results.
 
-**Falaj · The Care Passport.** One result. One passport. One continuous journey.
+**Falaj is the care team's view of every abnormal result as water flowing to care.** Each step is a channel
+with a named keeper and a deadline. When the water stops, Falaj shows who, where and since when, and its agents
+do the routine work to start it flowing again. People decide; the system never does.
 
 ## What already exists (say it before the judges do)
 
@@ -44,12 +46,6 @@ Do not say: "we invented closed-loop care", "AI replaces navigators", or any fig
 
 Figures: only the two published trials above. Falaj itself has not been measured; that is what a pilot is for.
 
-## The one sentence
-
-**Falaj makes sure every abnormal screening result ends in a confirmed visit with a doctor.**
-An AI assistant calls the patient and books the visit, doctors hand the case to each other,
-and the loop closes only when the doctor confirms the consultation.
-
 ## The script (about 3 minutes)
 
 **0:00 · The problem (25 s)**
@@ -72,8 +68,7 @@ two doctors."
 
 **2:05 · Moment 3, the close (35 s)**
 "In the consultation, with Priya's consent, Dr Noura dictates. The words become a draft note she checks
-and confirms. Only then is the loop closed. Her Care Passport travelled with her the whole way: scan the QR, it shows every step and who
-did it, never the result. The audio is deleted; only the confirmed note is kept."
+and confirms. Only then is the loop closed: the water reaches the palm, and every channel shows who did it and when. The audio is deleted; only the confirmed note is kept."
 
 **2:40 · Why we can be trusted (15 s)**
 "The AI only talks and writes. Rules and people decide: who owns the case, the deadlines, and the closing."

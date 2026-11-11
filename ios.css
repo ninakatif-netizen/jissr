@@ -158,3 +158,4 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,t
 .agline span{flex:1}
 .agline button{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--fill);color:#fff;font-size:26px;line-height:1;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.falaj .bar span{animation:none}}
+[hidden]{display:none !important}

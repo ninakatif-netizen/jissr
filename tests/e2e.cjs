@@ -224,7 +224,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await f.click('#agents-more'); await f.click('#newdoc'); await f.click('#in-read'); await f.click('#in-create');
     ok(/confirm the result/i.test(await f.innerText('#sheet')), 'the Intake agent will not create a case until a person confirms the result');
     await f.check('#in-ok'); await f.click('#in-create'); await f.waitForSelector('.ticks');
-    ok(/Care Passport created/.test(await f.innerText('.ticks')) && /Acknowledgment sent/.test(await f.innerText('.ticks')), 'a document becomes a case: passport, owner, acknowledgment, outreach');
+    ok(/Case created/.test(await f.innerText('.ticks')) && /Acknowledgment sent/.test(await f.innerText('.ticks')), 'a document becomes a case: owner, acknowledgment, outreach');
     await f.click('#in-open'); ok(/Meera Pillai/.test(await f.innerText('main')), 'the new case opens with its Care Passport');
     await f.goto(BASE + 'pathways.html'); await f.click('[data-node="1"]');
     ok(/may never/i.test(await f.innerText('.panel')) && /result or a diagnosis/.test(await f.innerText('.panel')), 'the channel map says what the AI may never do');
@@ -235,7 +235,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await t.click('[data-act="call"]'); ok(!!(await t.$('[data-call="understood"]')), 'a nurse can confirm understanding after a call');
     await t.click('[data-call="understood"]'); await t.waitForSelector('[data-act="book"]');
     await t.click('[data-act="book"]'); await t.click('#do-book'); await t.waitForSelector('main .card.status');
-    ok(/Visit booked/.test(await t.innerText('main')) && (await t.$$('main .cp-stamps li.done')).length === 2, 'the nurse books; the passport has two stamps, a booking is not care');
+    ok(/Visit booked/.test(await t.innerText('main')) && (await t.$$('main .wc-steps li.done')).length === 4, 'the nurse books: the water reaches Booked, and a booking is not care');
     await t.goto(BASE + `team.html?as=d1&c=${cid}`); await t.click('[data-act="attended"]'); await t.waitForSelector('[data-act="refer"]');
     await t.click('[data-act="refer"]'); const to = await t.getAttribute('input[name=to]:checked', 'value'); await t.click('#do-refer'); await t.waitForTimeout(200);
     ok(/You stay responsible/.test(await t.innerText('main')), 'the family doctor stays responsible until the referral is accepted');
@@ -244,7 +244,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await t.click('.hl a.wide'); await t.click('[data-act="accept"]'); await t.waitForSelector('[data-act="consult"]');
     await t.click('[data-act="consult"]'); ok((await t.getAttribute('#dictate', 'aria-disabled')) === 'true' && !(await t.$('#do-consult')), 'no voice note without consent');
     await t.click('#cs'); await t.click('#dictate'); await t.click('#do-consult'); await t.waitForTimeout(300);
-    ok((await t.$$('main .cp-stamps li.done')).length === 5 && /Loop closed/.test(await t.innerText('main')), 'the clinic confirms the consultation: five stamps, loop closed');
+    ok((await t.$$('main .wc-steps li.done')).length === 7 && /Loop closed/.test(await t.innerText('main')), 'the clinic confirms the consultation: the water reaches the palm');
     await t.goto(BASE + 'team.html?reset=1'); await t.close(); }
   await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);
   ok((await s.getAttribute('#b0', 'href')) === 'loop.html', 'the home page leads to the three moments');
@@ -255,19 +255,17 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     ok(/Held/.test(call) && /will call today/.test(call) && !/\d+(\.\d+)?%/.test(call), 'the call holds the visit, hands worry to the nurse, never gives a result');
     await l.click('#next'); ok(/Call today/i.test(await l.innerText('#main')), 'the nurse sees Priya flagged: call today');
     await l.click('#callp'); ok(/understood/i.test(await l.innerText('#main')), 'the nurse checks understanding before the visit is confirmed');
-    await l.click('#next'); ok(/Responsible:.*Mariam/s.test(await l.innerText('main .cp')), 'the Care Passport shows the family doctor as owner');
+    await l.click('#next'); ok(/Keeper:.*Mariam/s.test(await l.innerText('main .wc')), 'the Care Passport shows the family doctor as owner');
     await l.click('#openp'); await l.click('#next'); ok(/Waiting for the breast clinic/.test(await l.innerText('#main')), 'the GP stays responsible until the specialist accepts');
-    await l.click('#next'); ok(/Accepted by/.test(await l.innerText('#main')) && /Responsible:.*Noura/s.test(await l.innerText('main .cp')), 'the specialist accepts, and the Care Passport moves to them');
+    await l.click('#next'); ok(/Accepted by/.test(await l.innerText('#main')) && /Keeper:.*Noura/s.test(await l.innerText('main .wc')), 'the specialist accepts, and the Care Passport moves to them');
     await l.click('#next'); ok((await l.getAttribute('#rec', 'aria-disabled')) === 'true', 'no recording without the patient\'s consent');
     await l.click('#consent'); await l.click('#rec'); await l.waitForSelector('#next');
     await l.click('#next'); ok(/Clinical note/i.test(await l.innerText('#sheet')), 'the voice note becomes a draft clinical note, reviewed in a sheet');
-    await l.click('#confirm'); ok(/Loop closed/.test(await l.innerText('#main')) && !!(await l.$('#main .cp-q svg.qr')) && (await l.$$('#main .cp-stamps li.done')).length === 5, 'confirming closes the loop: five stamps and a Care Passport QR');
-    await l.click('#openproof'); await l.waitForSelector('#out section .cp');
-    const vt = await l.innerText('body'); ok(/Valid Care Passport/.test(vt) && /Loop closed/i.test(vt) && !/BI-RADS|\d+(\.\d+)?%/.test(vt), 'the Care Passport from the three moments verifies, without the result');
+    await l.click('#confirm'); ok(/Loop closed/.test(await l.innerText('#main')) && (await l.$$('#main .wc-steps li.done')).length === 7, 'confirming closes the loop: the water reaches the palm');
     await l.close(); }
   ok((await s.getAttribute('#bapp', 'href')) === 'team.html', 'the home page opens the care team app first');
   await s.goto(BASE + 'jury.html'); await s.waitForTimeout(200);
-  ok((await s.getAttribute('#b3', 'href')).includes('tour=0') && (await s.getAttribute('#b3', 'href')).includes('C-040'), 'the jury page keeps the guided tour of Priya');
+  ok((await s.getAttribute('#b3', 'href')) === 'loop.html' && !(await s.$('a[href="map.html"]')), 'the jury page leads to the story, and the removed parts are not linked');
   await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);
   await s.goto(BASE + 'care.html?role=specialist&tour=3'); await s.waitForSelector('.tour');
   ok(/step 4 of 8/i.test(await s.innerText('.tour')) && /handshake/i.test(await s.innerText('.tour')), 'the tour card shows on each step, in the care team app too');

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Falaj for patients</title>
-<meta name="description" content="The Falaj patient app: your next step, your Care Passport, your result in plain words, and someone to help. Synthetic data only.">
+<meta name="description" content="Falaj for patients: the page your message links to. Your next step, your appointment, and a nurse to talk to. Synthetic data only.">
 <meta name="theme-color" content="#f6f2ea">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
@@ -118,7 +118,7 @@ const T = {
     seenT: 'You were seen', seenX: 'Your doctor decides the next step with you.',
     refT: (to) => `Referred to ${to}`, refSent: 'Your family doctor has referred you. The clinic will accept and contact you. Your doctor stays responsible until then.', refAcc: 'The clinic has accepted you and is now responsible. They will contact you for an appointment.', refDone: 'The specialist reported back to your family doctor. Next: agree your plan together.',
     planT: 'Your plan is agreed', planX: 'The loop closes when your doctor confirms your follow-up.',
-    doneT: 'Loop closed', doneX: 'A doctor confirmed your follow-up. Your Care Passport is complete.', seePass: 'See my Care Passport',
+    doneT: 'Your care is confirmed', doneX: 'A doctor confirmed your follow-up. Thank you for looking after your health.', msgYou: 'The message you received', seePass: 'See my Care Passport',
     help: 'Help', talk: 'Talk to a nurse', hard: 'Something makes it hard?', how: 'How should we contact you?',
     resultT: 'My result', notYet: 'Your nurse will explain this result with you by phone first. Some results are best explained by a person.', notDiag: 'This is not a diagnosis.',
     tbT: 'Can you say what happens next?', tbX: 'Choose the sentence closest to what you understood.', tbOk: 'Exactly. Thank you.', tbNo: (r) => `Not quite. ${r} A nurse can explain it again.`,
@@ -156,7 +156,7 @@ const T = {
     seenT: 'تمت زيارتك', seenX: 'يقرر طبيبك الخطوة التالية معك.',
     refT: (to) => `تحويل إلى ${to}`, refSent: 'حوّلك طبيب الأسرة. ستقبل العيادة التحويل وتتواصل معك. يبقى طبيبك مسؤولاً حتى ذلك الحين.', refAcc: 'قبلت العيادة التحويل وأصبحت مسؤولة عن متابعتك. ستتواصل معك لتحديد موعد.', refDone: 'أرسل الأخصائي تقريره إلى طبيب الأسرة. الخطوة التالية: الاتفاق على خطتك معاً.',
     planT: 'تم الاتفاق على خطتك', planX: 'تُغلق الحلقة عندما يؤكد طبيبك المتابعة.',
-    doneT: 'اكتملت الحلقة', doneX: 'أكد الطبيب متابعتك. جواز الرعاية مكتمل.', seePass: 'عرض جواز الرعاية',
+    doneT: 'تم تأكيد رعايتك', doneX: 'أكد الطبيب متابعتك. شكراً لاهتمامك بصحتك.', msgYou: 'الرسالة التي وصلتك', seePass: 'عرض جواز الرعاية',
     help: 'مساعدة', talk: 'التحدث مع ممرض', hard: 'هل هناك ما يصعّب الأمر؟', how: 'كيف تفضّل أن نتواصل معك؟',
     resultT: 'نتيجتي', notYet: 'سيشرح لك الممرض هذه النتيجة عبر الهاتف أولاً. بعض النتائج من الأفضل أن يشرحها شخص.', notDiag: 'هذا ليس تشخيصاً.',
     tbT: 'هل يمكنك أن تقول ما الخطوة التالية؟', tbX: 'اختر الجملة الأقرب لما فهمته.', tbOk: 'تماماً. شكراً لك.', tbNo: (r) => `ليس تماماً. ${r} يمكن للممرض أن يشرح ذلك مرة أخرى.`,
@@ -225,7 +225,7 @@ function pickScreen(t, lang) {
 function nextCard(c, t, lang) {
   const nurse = nurseName(c), r = c.referral;
   const card = (title, text, btns, tone = 'hl') => `<div class="${tone}">${tone === 'hl' ? `<div class="top"><b>${title}</b><span class="st amber">${t.next}</span></div><p class="q">${text}</p>` : `<span><b>${title}</b><span>${text}</span></span>`}${btns ? `<div class="btns">${btns}</div>` : ''}</div>`;
-  if (c.stage === 'closed') return `<div class="card status ok"><span><b>${t.doneT}</b><span>${t.doneX}</span></span></div><button class="wide" data-tab="passport">${t.seePass}</button>`;
+  if (c.stage === 'closed') return `<div class="card status ok"><span><b>${t.doneT}</b><span>${t.doneX}</span></span></div>`;
   if (['result', 'notified'].includes(c.stage)) {
     if (!aiCalled(c) && !humanReached(c)) return card(t.callT, t.callX(nurse), `<button class="wide go" id="answer">${I.phone('#fff', 20)} ${t.answer}</button>`);
     if (toldByPerson(c)) return card(t.nurseT(nurse), t.nurseX, c.nurseRequest && !c.nurseRequest.done ? `<p class="q"><b>${t.asked}</b></p>` : `<button class="wide" id="callme">${t.callMe}</button>`);
@@ -260,6 +260,7 @@ function apptCard(c, t, lang) {
 function homeScreen(c, t, lang) {
   const steps = patientSteps(c, t), now = steps.findIndex(([, , done]) => !done);
   return `<div class="head"><h1>${t.hello(esc(c.patient.name.split(' ')[0]))}</h1><p class="ctx">${c.stage === 'closed' ? t.doneT : t.nextSteps} · ${fmt(TODAY, lang, true)}</p></div>
+    ${(() => { const fm = firstMessage(c.patient.language), mine = firstMessage(lang); return `<div class="card msgcard"><span class="gh" style="padding:0">${t.msgYou}</span><p lang="${c.patient.language}" dir="${fm.dir}" style="margin:6px 0 0;font-size:16px;line-height:1.5">${esc(fm.text)}</p>${c.patient.language !== lang ? `<p style="margin:6px 0 0;font-size:13px;color:var(--muted)">${t.translated} ${esc(mine.text)}</p>` : ''}</div>`; })()}
     ${apptCard(c, t, lang)}
     <ol class="chan2" aria-label="${t.nextSteps}">${steps.map(([k, label, done, e], i) => `<li class="${done ? 'done' : i === now ? 'now' : ''}"${i === now ? ' aria-current="step"' : ''}><span class="node" aria-hidden="true">${done ? '✓' : i + 1}</span><b>${esc(label)}</b>${done && e ? `<small>${esc(byWho(e, lang))} · ${fmt(e.at.slice(0, 10), lang)}</small>` : ''}${i === now ? `<div class="nowcard">${nextCard(c, t, lang)}</div>` : ''}</li>`).join('')}</ol>
     ${now < 0 ? nextCard(c, t, lang) : ''}
@@ -392,7 +393,7 @@ function render() {
     store.set('falaj.me.p', c.id);
     const tabs = ['home', 'messages', 'passport', 'family'];
     $('#main').innerHTML = ({ home: homeScreen, messages: messagesScreen, journey: passportScreen, result: resultScreen, passport: passportScreen, family: familyScreen }[p.tab] || homeScreen)(c, t, lang);
-    $('#tabs').hidden = false;
+    $('#tabs').hidden = true;   // one page: the patient is not an app user
     $('#tabs').innerHTML = tabs.map((k, i) => `<a href="?p=${c.id}&tab=${k}" data-tab="${k}"${p.tab === k ? ' aria-current="page"' : ''}>${[I.route, I.chat, I.pass, I.fam][i]}${t.tabs[i]}</a>`).join('');
   }
   $('#sheetroot').innerHTML = sheet && c ? sheetHtml(c, t, lang) : '';
