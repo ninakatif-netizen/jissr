@@ -149,3 +149,28 @@ test('Care Passport: stamps only for recorded steps, by the right person, never 
   const closed = state.cases.find((x) => x.stage === 'closed');
   assert.equal(milestones(closed)[4][0], 'done');
 });
+
+import { runAgents, agentSummary } from '../core/agents.mjs';
+test('Falaj agents move things forward but never take a clinical decision', () => {
+  const state = buildState('2026-11-11');
+  const before = new Map(state.cases.map((c) => [c.id, c.stage]));
+  const out = runAgents(state, '2026-11-11');
+  assert.ok(out.length > 0, 'the agents did something');
+  for (const c of state.cases) {
+    const was = before.get(c.id);
+    // the only stage an agent run may change: understood -> booked, and only by the patient's own YES
+    if (c.stage !== was) {
+      assert.equal(was, 'understood'); assert.equal(c.stage, 'booked');
+      assert.equal(c.events.filter((e) => e.type === 'booked').pop().role, 'patient');
+    }
+    for (const e of c.events.filter((x) => (x.by || '').startsWith('Falaj agent'))) {
+      assert.equal(e.role, 'system');
+      assert.ok(!['understood', 'attended', 'confirmed', 'care_plan', 'closed', 'referral_accepted', 'referral_rejected'].includes(e.type), `an agent recorded ${e.type}`);
+      assert.ok(!/BI-RADS|biopsy|HbA1c \d|%/.test(e.note), 'an agent never mentions the result');
+    }
+  }
+  const again = runAgents(state, '2026-11-11');
+  assert.ok(again.filter((a) => a.kind === 'call').length === 0, 'a second run the same day does not call again');
+  const s = agentSummary(state.cases, '2026-11-11');
+  assert.ok(s.calls > 0 && s.items.length >= s.calls);
+});

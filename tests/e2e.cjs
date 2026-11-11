@@ -218,6 +218,9 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     ok(!!(await f.$('.flowbox svg')) && /Needs you/.test(await f.innerText('.chips')), 'the care team app opens on the Falaj flow');
     await f.click('[data-scope="all"]'); await f.click('[data-flow]:not([data-flow="needs"])');
     ok(/where the water stops/i.test(await f.innerText('main')) && (await f.$$('main .prog')).length > 0, 'a leak shows the patients stopped there, with their progress');
+    await f.click('[data-scope="all"]'); await f.click('#runagents'); await f.waitForTimeout(300);
+    const ag = await f.innerText('.agents');
+    ok(/calls made/.test(ag) && /never confirm understanding/.test(ag) && (await f.$$('.agents .timeline li')).length > 0, 'the agents run, show every action, and say what they never do');
     await f.goto(BASE + 'pathways.html'); await f.click('[data-node="1"]');
     ok(/may never/i.test(await f.innerText('.panel')) && /result or a diagnosis/.test(await f.innerText('.panel')), 'the channel map says what the AI may never do');
     await f.close(); }

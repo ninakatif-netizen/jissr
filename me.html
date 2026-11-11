@@ -102,7 +102,7 @@ const T = {
     hello: (n) => `Hello ${n}`, tabs: ['Steps', 'Messages', 'Passport', 'Family'], next: 'Your next step', nextSteps: 'Your next steps', apptT: 'Family doctor visit', heldT: 'Held for you', place: 'Falaj demo clinic',
     steps: { told: 'Hear about your result', understood: 'Say the next step in your own words', booked: 'Book your visit', seen: 'See your doctor', accepted: (to) => `${to} accepts you`, closed: 'Your care is confirmed' },
     msgT: 'Messages', msgX: (ch) => `What Falaj sent you by ${ch}.`, openSteps: 'Open my steps', translated: 'In English:', callLog: 'Call from the Falaj care line', nurseLog: (n) => `Call with ${n}`,
-    mBooked: (d) => `Your visit with your family doctor is on ${d}. Reply YES to confirm.`, mYes: 'YES', mConfirmed: 'Thank you, your visit is confirmed. A reminder comes the day before.', mAccepted: (to) => `${to} has accepted your referral. They will contact you for an appointment.`, mClosed: 'Your care is confirmed. Your Care Passport is complete.',
+    mBooked: (d) => `Your visit with your family doctor is on ${d}. Reply YES to confirm.`, mYes: 'YES', mConfirmed: 'Thank you, your visit is confirmed. A reminder comes the day before.', mAccepted: (to) => `${to} has accepted your referral. They will contact you for an appointment.`, mClosed: 'Your care is confirmed. Your Care Passport is complete.', mRemind: (t) => `Reminder: your visit is tomorrow at ${t}.`, mMissed: 'We missed you at your visit. A new time is held for you. Reply YES to confirm, or call us.',
     jT: 'My care journey', jX: 'Every step of your care, who did it, and what comes next.', notYet2: 'Not yet', nextUp: 'Next', reread: 'Read my result again', backHome: '‹ Home',
     ms: ['Result communicated', 'Understanding confirmed', 'Referral accepted', 'Care delivered', 'Loop closed'], na: 'Not needed for you',
     msX: ['Someone from your care team talked with you about your result.', 'You explained the next step in your own words.', 'A specialist team accepted to take care of the next step.', 'The visit, test or treatment you needed took place.', 'A doctor confirmed your follow-up is complete.'],
@@ -140,7 +140,7 @@ const T = {
     hello: (n) => `مرحباً ${n}`, tabs: ['خطواتي', 'الرسائل', 'الجواز', 'العائلة'], next: 'خطوتك التالية', nextSteps: 'خطواتك التالية', apptT: 'زيارة طبيب الأسرة', heldT: 'محجوز لك', place: 'عيادة فلج التجريبية',
     steps: { told: 'معرفة نتيجتك', understood: 'قول الخطوة التالية بكلماتك', booked: 'حجز موعدك', seen: 'زيارة طبيبك', accepted: (to) => `قبول ${to} لتحويلك`, closed: 'تأكيد رعايتك' },
     msgT: 'الرسائل', msgX: (ch) => `ما أرسله لك فلج عبر ${ch}.`, openSteps: 'فتح خطواتي', translated: 'بالعربية:', callLog: 'مكالمة من خط الرعاية في فلج', nurseLog: (n) => `مكالمة مع ${n}`,
-    mBooked: (d) => `موعدك مع طبيب الأسرة في ${d}. أرسل «نعم» للتأكيد.`, mYes: 'نعم', mConfirmed: 'شكراً لك، تم تأكيد موعدك. يصلك تذكير قبل الموعد بيوم.', mAccepted: (to) => `قبلت ${to} تحويلك، وستتواصل معك لتحديد موعد.`, mClosed: 'تم تأكيد رعايتك. جواز الرعاية مكتمل.',
+    mBooked: (d) => `موعدك مع طبيب الأسرة في ${d}. أرسل «نعم» للتأكيد.`, mYes: 'نعم', mConfirmed: 'شكراً لك، تم تأكيد موعدك. يصلك تذكير قبل الموعد بيوم.', mAccepted: (to) => `قبلت ${to} تحويلك، وستتواصل معك لتحديد موعد.`, mClosed: 'تم تأكيد رعايتك. جواز الرعاية مكتمل.', mRemind: (t) => `تذكير: موعدك غداً الساعة ${t}.`, mMissed: 'لم نرك في موعدك. حجزنا لك وقتاً جديداً. أرسل «نعم» للتأكيد، أو اتصل بنا.',
     jT: 'رحلة رعايتي', jX: 'كل خطوة في رعايتك، ومن قام بها، وما الخطوة التالية.', notYet2: 'لم يتم بعد', nextUp: 'التالي', reread: 'قراءة نتيجتي مرة أخرى', backHome: '‹ الرئيسية',
     ms: ['إبلاغ النتيجة', 'تأكيد الفهم', 'قبول الإحالة', 'تقديم الرعاية', 'إغلاق الحلقة'], na: 'غير مطلوب في حالتك',
     msX: ['تحدث معك شخص من فريق الرعاية عن نتيجتك.', 'شرحت الخطوة التالية بكلماتك.', 'قبل فريق أخصائي تولي الخطوة التالية.', 'تمت الزيارة أو الفحص أو العلاج الذي احتجته.', 'أكد طبيب اكتمال متابعتك.'],
@@ -278,6 +278,8 @@ function messagesScreen(c, t, lang) {
     else if (e.type === 'contact') out.push(`<li><span class="b sys">${I.phone('currentColor', 14)} ${t.nurseLog(esc(nurse))} · ${when}</span></li>`);
     else if (e.type === 'booked' && c.slot) out.push(`<li><span class="b ai">${esc(t.mBooked(`${fmt(c.slot.day, lang, true)} · ${c.slot.time}`))}<small class="w">${when}</small></span></li><li><span class="b me">${t.mYes}</span></li><li><span class="b ai">${t.mConfirmed}</span></li>`);
     else if (e.type === 'referral_accepted' && c.referral) out.push(`<li><span class="b ai">${esc(t.mAccepted(c.referral.to))}<small class="w">${when}</small></span></li>`);
+    else if (e.type === 'agent' && e.kind === 'reminder' && c.slot) out.push(`<li><span class="b ai">${esc(t.mRemind(c.slot.time))}<small class="w">${when}</small></span></li>`);
+    else if (e.type === 'agent' && e.kind === 'missed') out.push(`<li><span class="b ai">${t.mMissed}<small class="w">${when}</small></span></li>`);
     else if (e.type === 'closed') out.push(`<li><span class="b ai">${t.mClosed}<a href="?p=${c.id}&tab=passport" data-tab="passport">${t.seePass}</a><small class="w">${when}</small></span></li>`);
   }
   return `<div class="head"><h1>${t.msgT}</h1><p class="ctx">${t.msgX(ch)}</p></div><ol class="chat msgs" aria-label="${t.msgT}">${out.join('')}</ol>`;

@@ -35,6 +35,7 @@ import { advance, skipStage, sendReferral, respondReferral, completeReferral, cl
 import { progOf, resultText, targetsFor } from './core/programmes.mjs';
 import { passportHtml } from './core/passport.mjs';
 import { flowOf, flowSvg, levelOf, CHANNELS } from './core/flow.mjs';
+import { runAgents, agentSummary, AGENTS } from './core/agents.mjs';
 import { proofUrl } from './core/proof.mjs';
 registerSW();
 
@@ -77,7 +78,7 @@ function tasksFor(s) {
   const T = (c, reason, action, pri) => out.push({ c, reason, action, pri, late: isOverdue(c, TODAY) });
   if (s.role === 'nurse' || s.role === 'coordinator') {
     for (const c of open.filter((x) => x.owner === s.id)) {
-      if (c.nurseRequest && !c.nurseRequest.done) T(c, 'Asked to talk to a nurse', 'Call today', 0);
+      if (c.nurseRequest && !c.nurseRequest.done) T(c, /^Agent:/.test(c.nurseRequest.note || '') ? 'From the agent: ' + c.nurseRequest.note.replace(/^Agent:\s*/, '') : 'Asked to talk to a nurse', 'Call today', 0);
       else if (['result', 'notified'].includes(c.stage)) T(c, mustCall(c) ? 'Not reached yet · must be told by a person' : 'Not reached yet', 'Call', mustCall(c) ? 1 : 2);
       else if (c.stage === 'understood') T(c, 'Understood · no visit booked', 'Book the visit', 3);
       else if (c.stage === 'booked' && c.slot && c.slot.day <= TODAY) T(c, `Visit was due ${fmt(c.slot.day)}`, 'Confirm the visit', 3);
@@ -148,7 +149,7 @@ function act(fn, msg) {
 let toastT = null;
 function toast(msg) { say(msg); const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; document.body.appendChild(el); clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 2200); }
 
-const EVENT = { result: 'Result from the lab', notified: 'Message sent', contact: 'Talked with the patient', call_attempt: 'Call attempt', understood: 'Understanding confirmed', booked: 'Visit booked', attended: 'Seen', confirmed: 'Confirmatory test', referred: 'Referred', referral_accepted: 'Referral accepted', referral_rejected: 'Referral declined', referral_completed: 'Report back', care_plan: 'Plan agreed', closed: 'Loop closed', nurse_requested: 'Asked for a nurse', barrier: 'Said what makes it hard', channel: 'Chose how to be contacted', confidence: 'Confidence', owner: 'Owner changed', consult_asked: 'Question to a specialist', consult_answered: 'Specialist answered', micro_consult_booked: 'Nurse call booked', micro_consult_done: 'Nurse call done', family: 'Family helper', shared: 'Passport shared', share_stopped: 'Sharing stopped', rebooked: 'Visit moved', sop_unread_outreach: 'Protocol: message not read', sop_stalled_referral: 'Protocol: referral stalled', sop_refusal: 'Protocol: refusal', drop_reason: 'Reason for delay' };
+const EVENT = { result: 'Result from the lab', notified: 'Message sent', contact: 'Talked with the patient', call_attempt: 'Call attempt', understood: 'Understanding confirmed', booked: 'Visit booked', attended: 'Seen', confirmed: 'Confirmatory test', referred: 'Referred', referral_accepted: 'Referral accepted', referral_rejected: 'Referral declined', referral_completed: 'Report back', care_plan: 'Plan agreed', closed: 'Loop closed', nurse_requested: 'Asked for a nurse', barrier: 'Said what makes it hard', channel: 'Chose how to be contacted', confidence: 'Confidence', owner: 'Owner changed', agent: 'Falaj agent', consult_asked: 'Question to a specialist', consult_answered: 'Specialist answered', micro_consult_booked: 'Nurse call booked', micro_consult_done: 'Nurse call done', family: 'Family helper', shared: 'Passport shared', share_stopped: 'Sharing stopped', rebooked: 'Visit moved', sop_unread_outreach: 'Protocol: message not read', sop_stalled_referral: 'Protocol: referral stalled', sop_refusal: 'Protocol: refusal', drop_reason: 'Reason for delay' };
 
 // ---- screens ----
 const icon = {
@@ -174,6 +175,14 @@ function flowRow(c, act) {
   return `<li><a class="prow" href="?as=${params().as}&c=${c.id}" data-case="${c.id}"><span class="t"><b>${esc(first(c))}, ${c.patient.age}</b><small>${SHORT[c.programme || 'hba1c']} · ${esc(EVENT[last.type] || last.type)} · ${fmt(last.at.slice(0, 10))}</small>
     <span class="prog" role="img" aria-label="${pct}% of the way"><span style="width:${pct}%"></span></span>${act ? `<small style="color:var(--ink);font-weight:600">${esc(act)}</small>` : ''}</span>${c.stage === 'closed' ? '<span class="st green">Closed</span>' : late ? '<span class="st amber">Overdue</span>' : '<span class="st grey">On time</span>'}</a></li>`;
 }
+function agentsCard(s) {
+  const a = agentSummary(scopeCases(s), TODAY);
+  const stat = (n, l) => `<div><b>${n}</b><span>${l}</span></div>`;
+  return `<section class="card agents" aria-labelledby="ag-t"><div class="top"><h2 id="ag-t">The agents today</h2><button class="light" id="runagents">Run the agents (demo)</button></div>
+    <div class="agrid">${stat(a.calls, `calls made${a.calls ? `, ${a.answered} answered` : ''}`)}${stat(a.confirmed, 'visits confirmed by YES')}${stat(a.reminders + a.missed, 'reminders and missed visits')}${stat(a.chased + a.status, 'referrals chased or reported')}${stat(a.preauth, 'pre-approvals')}${stat(a.flagged, 'passed to a person')}</div>
+    ${a.items.length ? `<details class="more"><summary>Every action (${a.items.length})</summary><ul class="timeline">${a.items.slice().reverse().map(({ c, e }) => `<li><span><b>${esc(first(c))} · ${esc(AGENTS[e.agent].name)}</b><small>${esc(e.note)}</small></span></li>`).join('')}</ul></details>` : ''}
+    <p class="gf" style="padding:0">Agents move the next step forward and log everything. They never confirm understanding, record a visit, accept a referral or close a loop. Patient replies are simulated.</p></section>`;
+}
 function attentionScreen(s) {
   const { tasks, waiting } = tasksFor(s);
   const fl = flowOf(scopeCases(s), TODAY), sel = flowSel === 'needs' ? null : +flowSel, top = tasks[0];
@@ -194,7 +203,7 @@ function attentionScreen(s) {
   return `<div class="head"><p class="who">${avatar(s)}${esc(cleanName(s.name))} · ${esc(roleLabel(s))}</p><h1>The Falaj</h1><p class="ctx">${fmt(TODAY, true)} · ${fl.total} patients · ${fl.counts[fl.counts.length - 1]} loops closed${lateAll ? ` · <b style="color:var(--warn-ink)">${lateAll} overdue</b>` : ''}</p></div>
     <div class="seg" role="group" aria-label="Whose patients"><button data-scope="mine" aria-pressed="${scope === 'mine'}">Mine</button><button data-scope="all" aria-pressed="${scope === 'all'}">Everyone</button></div>
     <div class="flowbox" role="img" aria-label="The flow of patients from result to loop closed. The same numbers are in the buttons below.">${flowSvg(fl, { selected: sel })}</div>
-    ${chips}${body}`;
+    ${agentsCard(s)}${chips}${body}`;
 }
 function patientsScreen(s) {
   const list = casesFor(s);
@@ -312,6 +321,7 @@ function render() {
   document.querySelectorAll('[data-case]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ c: a.dataset.case }); });
   document.querySelectorAll('[data-as]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ as: a.dataset.as, c: '', tab: 'attention' }); });
   document.querySelectorAll('[data-tab]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ c: '', tab: a.dataset.tab }); });
+  const ra = $('#runagents'); if (ra) ra.onclick = () => { const out = runAgents(state, TODAY); saveState(state); const acts = out.filter((x) => x.kind !== 'flag').length, fl = out.length - acts; toast(out.length ? `The agents took ${acts} actions${fl ? ` and passed ${fl} to a person` : ''}.` : 'Nothing new for the agents today.'); render(); const x = $('#runagents'); if (x) x.focus(); };
   document.querySelectorAll('[data-flow]').forEach((b) => b.onclick = () => { flowSel = b.dataset.flow; render(); const x = document.querySelector(`[data-flow="${flowSel}"]`); if (x) x.focus(); });
   document.querySelectorAll('[data-scope]').forEach((b) => b.onclick = () => { scope = b.dataset.scope; render(); const x = document.querySelector(`[data-scope="${scope}"]`); if (x) x.focus(); });
   const sw = $('#switch'); if (sw) sw.onclick = () => { store.set('falaj.team.as', ''); history.pushState(null, '', location.pathname + '?as='); sheet = null; render(); };

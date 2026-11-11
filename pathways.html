@@ -52,6 +52,7 @@ import { loadState } from './core/store.mjs';
 import { SLA, PROGRAMME_SLA, REFERRAL_REPLY_DAYS, NURSE_CALLBACK_DAYS } from './core/rules.mjs';
 import { PROGRAMMES } from './core/programmes.mjs';
 import { flowOf, CHANNELS } from './core/flow.mjs';
+import { AGENTS } from './core/agents.mjs';
 registerSW();
 const $ = (s) => document.querySelector(s);
 const state = loadState();
@@ -77,15 +78,15 @@ function nodesFor(id, sla) {
   return [
     { k: 'results', ic: 'lab', role: 'system', t: 'Result arrives', who: 'Lab system', due: 'Day 0', sub: 'Rules set the urgency, the deadline and the owner.',
       may: ['Set urgency and deadlines from fixed rules', `Assign an owner: ${person ? 'a nurse navigator for a suspicious mammogram' : 'a care coordinator, or a nurse if urgent'}`], never: ['Wait for someone to notice'], leak: null },
-    { k: 'reached', ic: 'ai', ai: true, role: 'ai', t: 'Falaj call', who: 'AI voice assistant · the patient’s language', due: `By day ${sla.notified}`, sub: 'Reaches the patient, holds a visit, passes worry to a nurse.',
+    { k: 'reached', agents: ['outreach'], ic: 'ai', ai: true, role: 'ai', t: 'Falaj call', who: 'AI voice assistant · the patient’s language', due: `By day ${sla.notified}`, sub: 'Reaches the patient, holds a visit, passes worry to a nurse.',
       may: ['Call in the patient’s language, outside working hours if needed', 'Hold a visit time', 'Flag worry to the nurse the same day'], never: ['Talk about the result or a diagnosis', 'Decide, refer or close anything'], leak: `No answer twice → the owner calls in person` },
     { k: 'understood', ic: 'phone', role: 'nurse', t: 'Nurse call and teach-back', who: 'Nurse navigator', due: `By day ${sla.understood}`, sub: person ? 'Must be told by a person: never by a message alone.' : 'The patient says the next step back in their own words.',
       may: ['Explain the result', 'Confirm understanding (teach-back)', `Call back within ${NURSE_CALLBACK_DAYS} day when the patient asks`], never: ['A coordinator cannot confirm understanding'], leak: 'Not understood → another call, an interpreter, or a family helper' },
-    { k: 'booked', ic: 'cal', role: 'patient', t: 'Booking', who: 'The patient, a nurse or a coordinator', due: `By day ${sla.booked}`, sub: 'Times fit the patient: early or evening for shift workers.',
+    { k: 'booked', agents: ['booking'], ic: 'cal', role: 'patient', t: 'Booking', who: 'The patient, a nurse or a coordinator', due: `By day ${sla.booked}`, sub: 'Times fit the patient: early or evening for shift workers.',
       may: ['Book or move the visit', 'Send a reminder the day before'], never: ['A booking is not care: the loop stays open'], leak: 'No booking by the deadline → the owner is alerted' },
     { k: 'seen', ic: 'doc', role: 'gp', t: 'Visit: family doctor', who: 'Family doctor', due: `By day ${sla.attended}`, sub: 'Seen, then decides: refer, test, or no referral needed.',
       may: ['Record the visit', 'Refer, or record why no referral is needed'], never: ['Skip a step without a written reason'], leak: 'Visit missed → the nurse calls and rebooks' },
-    { k: 'next', ic: 'hand', role: 'gp', t: 'Hand over', who: `Family doctor → ${p.referralTargets.join(' or ')}`, due: `Accept within ${REFERRAL_REPLY_DAYS} days`, sub: 'The sender stays responsible until the receiving team accepts.',
+    { k: 'next', agents: ['referral', 'insurance'], ic: 'hand', role: 'gp', t: 'Hand over', who: `Family doctor → ${p.referralTargets.join(' or ')}`, due: `Accept within ${REFERRAL_REPLY_DAYS} days`, sub: 'The sender stays responsible until the receiving team accepts.',
       may: ['Send what the patient chose to share', 'Accept, or decline with a reason'], never: ['Leave a referral without an owner'], leak: `No answer in ${REFERRAL_REPLY_DAYS} days → the sender is alerted` },
     { k: 'consult', ic: 'mic', role: 'spec', t: 'Consultation', who: 'Specialist', due: 'At the visit', sub: 'Voice note only with consent; a draft note the doctor checks.',
       may: ['Turn a consented voice note into a draft note', 'Confirm the consultation, or report back to the family doctor'], never: ['Record without consent', 'Keep the audio after the note'], leak: null },
@@ -103,12 +104,13 @@ function render() {
     <div class="seg" role="group" aria-label="Pathway" style="max-width:520px">${PROGS.map(([k, l]) => `<button data-prog="${k}" aria-pressed="${k === id}">${l}</button>`).join('')}</div>
     <div class="pmap">
       <div class="canvas"><p class="gh" style="text-align:center;margin:0 0 14px">${esc(ex)}</p>
-        <ol class="nodes" aria-label="${esc(name)} pathway">${nodes.map((x, i) => `<li><button class="node" data-node="${i}" aria-pressed="${i === sel}" style="--c:${ROLE[x.role]}"><span class="ic" aria-hidden="true">${IC[x.ic]}</span><span><b>${esc(x.t)}${x.ai ? '<span class="ai">AI</span>' : ''}</b><small>${esc(x.who)}</small></span><span class="due">${esc(x.due)}</span></button>${x.leak ? `<span class="leaknote" aria-hidden="true">↳ leak</span>` : ''}</li>`).join('')}</ol></div>
+        <ol class="nodes" aria-label="${esc(name)} pathway">${nodes.map((x, i) => `<li><button class="node" data-node="${i}" aria-pressed="${i === sel}" style="--c:${ROLE[x.role]}"><span class="ic" aria-hidden="true">${IC[x.ic]}</span><span><b>${esc(x.t)}${x.ai ? '<span class="ai">AI</span>' : ''}</b><small>${esc(x.who)}</small>${x.agents ? `<small style="color:var(--tint);font-weight:600">Agent: ${x.agents.map((k) => AGENTS[k].name).join(' + ')}</small>` : ''}</span><span class="due">${esc(x.due)}</span></button>${x.leak ? `<span class="leaknote" aria-hidden="true">↳ leak</span>` : ''}</li>`).join('')}</ol></div>
       <aside class="panel" aria-live="polite">
         <div class="card"><p class="who" style="margin-bottom:6px"><span class="av" style="background:${ROLE[n.role]}" aria-hidden="true"></span>${esc(n.who)}</p><h2>${esc(n.t)}</h2><p class="q" style="margin:0;color:var(--ink2);font-size:15px;line-height:1.45">${esc(n.sub)}</p>
           <dl class="kv"><dt>Deadline</dt><dd>${esc(n.due)}</dd>${here ? `<dt>Waiting here now</dt><dd>${here.cases.length} ${here.cases.length === 1 ? 'patient' : 'patients'}${here.late ? `, <span style="color:var(--warn-ink)">${here.late} overdue</span>` : ''}</dd>` : ''}</dl></div>
         <div class="card"><b class="may">${n.ai ? 'The AI may' : 'May'}</b><ul>${n.may.map((m) => `<li>${esc(m)}</li>`).join('')}</ul>
           <b class="never" style="display:block;margin-top:10px">${n.ai ? 'The AI may never' : 'Never'}</b><ul>${n.never.map((m) => `<li>${esc(m)}</li>`).join('')}</ul></div>
+        ${n.agents ? n.agents.map((k) => `<div class="card"><b>Agent at work: ${esc(AGENTS[k].name)}</b><p style="margin:6px 0 0;font-size:15px;line-height:1.45">${esc(AGENTS[k].does)}</p><p class="never" style="margin:6px 0 0;font-size:15px"><b>Never:</b> ${esc(AGENTS[k].never)}</p></div>`).join('') : ''}
         ${n.leak ? `<div class="card status wait"><span><b>If the water stops here</b><span>${esc(n.leak)}</span></span></div>` : ''}
         <a class="wide" href="team.html">See the patients in the care team app</a>
       </aside>
