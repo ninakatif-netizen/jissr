@@ -203,7 +203,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await l.click('#consent'); await l.click('#rec'); await l.waitForSelector('#next');
     await l.click('#next'); ok(/Clinical note/i.test(await l.innerText('#sheet')), 'the voice note becomes a draft clinical note, reviewed in a sheet');
     await l.click('#confirm'); ok(/Loop closed/.test(await l.innerText('#main')) && !!(await l.$('#main .cp-q svg.qr')) && (await l.$$('#main .cp-stamps li.done')).length === 5, 'confirming closes the loop: five stamps and a Care Passport QR');
-    await l.click('#openproof'); await l.waitForTimeout(400);
+    await l.click('#openproof'); await l.waitForSelector('#out section .cp');
     const vt = await l.innerText('body'); ok(/Valid Care Passport/.test(vt) && /Loop closed/i.test(vt) && !/BI-RADS|\d+(\.\d+)?%/.test(vt), 'the Care Passport from the three moments verifies, without the result');
     await l.close(); }
   ok((await s.getAttribute('#b3', 'href')).includes('tour=0'), 'the home page offers the guided tour');
