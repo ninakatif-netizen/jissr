@@ -187,6 +187,19 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await shot(s, '09-care-team');
 
   // ---------- tour + measures ----------
+  // the full patient app: the AI call, a result told by a person first, booking the held time, the passport
+  { const m = await browser.newPage(); await m.goto(BASE + 'me.html?reset=1&fast=1&p=C-040');
+    await m.click('#answer'); await m.click('#caccept'); const callTxt = await m.innerText('.call');
+    ok(/cannot talk about results/.test(callTxt) && !/BI-RADS|biopsy/i.test(callTxt), 'the AI call never talks about the result');
+    await m.click('#cclose'); await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=result');
+    ok(!/BI-RADS|biopsy/i.test(await m.innerText('main')), 'a suspicious mammogram is not shown in the app before a person has called');
+    await m.goto(BASE + 'team.html?as=n2'); ok(/Asked to talk to a nurse/.test(await m.innerText('main')), 'the nurse sees that the patient asked for a call');
+    await m.goto(BASE + 'team.html?as=n2&c=C-040'); await m.click('[data-act="call"]'); await m.click('[data-call="understood"]'); await m.waitForTimeout(200);
+    await m.goto(BASE + 'me.html?fast=1&p=C-040'); await m.click('#book'); await m.click('#do-book'); await m.waitForTimeout(200);
+    ok(/Your visit/.test(await m.innerText('main')) && (await m.$$('main .cp-stamps li.done')).length === 2, 'the patient books the held time; the passport shows two stamps');
+    await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=family'); await m.fill('#fn', 'Anu'); await m.fill('#fp', '12345'); await m.check('#fc'); await m.click('#faminvite');
+    ok(/UAE mobile/.test(await m.innerText('main')), 'the family invitation needs a UAE mobile number');
+    await m.goto(BASE + 'me.html?reset=1&p=&lang=en'); await m.close(); }
   // the full care team app: nurse calls and books, family doctor refers, the clinic accepts and closes, on one patient
   { const t = await browser.newPage(); await t.goto(BASE + 'team.html?reset=1'); await t.click('[data-as="n2"]');
     const cid = await t.getAttribute('.hl a.wide', 'data-case'); await t.click('.hl a.wide');

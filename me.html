@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Falaj for patients</title>
+<meta name="description" content="The Falaj patient app: your next step, your Care Passport, your result in plain words, and someone to help. Synthetic data only.">
+<meta name="theme-color" content="#f6f2ea">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="ios.css">
+<style>
+.call{position:fixed;inset:0;z-index:12;background:var(--bg);display:flex;flex-direction:column;overflow-y:auto}
+@media (min-width:980px){.call{position:absolute}}
+.call .in{max-width:480px;margin:0 auto;width:100%;padding:calc(18px + env(safe-area-inset-top)) 16px 24px;display:flex;flex-direction:column;gap:14px;flex:1}
+.ringcard{background:var(--card);border-radius:20px;padding:30px 20px 26px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.avatar{width:84px;height:84px;border-radius:50%;background:var(--go);display:grid;place-items:center;margin-bottom:10px}
+.ringcard .name{font-size:24px;font-weight:600}
+.calls{display:flex;gap:64px;margin-top:22px}
+.calls div{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.round{width:68px;height:68px;border-radius:50%;border:0;display:grid;place-items:center;cursor:pointer}
+.round.red{background:#c4271b}.round.green{background:var(--go)}
+.chat{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.chat li{display:flex}
+.b{max-width:82%;padding:10px 14px;font-size:15px;line-height:1.38}
+.b.ai{background:var(--card);border-radius:18px 18px 18px 6px}
+.b.me{margin-inline-start:auto;background:var(--fill);color:#fff;border-radius:18px 18px 6px 18px}
+.b.sys{margin-inline:auto;background:var(--warn-l);color:var(--warn-ink);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:600}
+[dir=rtl] .b.ai{border-radius:18px 18px 6px 18px}[dir=rtl] .b.me{border-radius:18px 18px 18px 6px}
+.explain{font-size:17px;line-height:1.55;margin:0;white-space:pre-line}
+.langs{display:flex;gap:4px}
+.langs button{min-height:44px;min-width:44px;border:0;background:none;font:inherit;font-size:15px;font-weight:600;color:var(--muted);cursor:pointer;border-radius:10px}
+.langs button[aria-pressed=true]{color:var(--ink);background:var(--line)}
+.fam-q{display:flex;gap:14px;align-items:center}
+.fam-q .qr{flex:none;border-radius:6px}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="phone" id="phone">
+    <div class="inner" id="inner" tabindex="0" role="region" aria-label="Patient app">
+      <header class="bar" id="bar"></header>
+      <main id="main" tabindex="-1"></main>
+      <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+    </div>
+    <div id="sheetroot"></div>
+    <div id="callroot"></div>
+  </div>
+</div>
+<p class="sr" aria-live="polite" id="say"></p>
+
+<script type="module">
+// THE PATIENT APP. One thing on the home screen: your next step. Your Care Passport travels with you.
+// Some results are told by a person first (a suspicious mammogram, a very high HbA1c): the app does not show
+// them until a nurse has talked with you. Picking a patient is a demo, not a sign-in.
+import { registerSW } from './core/pwa.mjs';
+import { loadState, saveState, resetState } from './core/store.mjs';
+import { mustCall, slotsFor } from './core/rules.mjs';
+import { advance, requestNurse, setBarrier, setChannel, logEvent } from './core/cases.mjs';
+import { explanation, barrierText } from './core/templates.mjs';
+import { passportHtml } from './core/passport.mjs';
+import { qrSvg } from './core/qr.mjs';
+import { normaliseUaeMobile, maskPhone, familyToken, familyUrl, inviteText } from './core/family.mjs';
+registerSW();
+
+let state = loadState();
+const TODAY = state.today;
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+const say = (t) => { $('#say').textContent = t; };
+const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* blocked */ } } };
+
+const T = {
+  en: {
+    who: 'Who are you?', whoSub: 'Pick a patient to open their app. In the demo there is no sign-in.', team: 'Open the care team app instead',
+    hello: (n) => `Hello ${n}`, tabs: ['Home', 'My result', 'Passport', 'Family'], next: 'Your next step',
+    callT: 'Falaj will call you', callX: (nurse) => `About your new screening result, in your language. You can answer now. ${nurse} is your nurse.`, answer: 'Answer the call (demo)',
+    nurseT: (nurse) => `${nurse} will call you today`, nurseX: 'Some results are best explained by a person. Keep your phone close.', callMe: 'Call me now', asked: 'Asked: the nurse will call you',
+    readT: 'Read your result', readX: 'It takes a minute. Plain words, and a nurse is there if you need one.', readB: 'Read my result',
+    bookT: 'Book your visit', bookX: 'With your family doctor. Choose a time that suits you.', bookB: 'Choose a time', held: (d) => `Held for you during the call: ${d}`,
+    visitT: 'Your visit', visitX: (d) => `${d} with your family doctor. Bring your Emirates ID or insurance card. A reminder comes the day before.`, cal: 'Add to my calendar', move: 'I can’t make it',
+    seenT: 'You were seen', seenX: 'Your doctor decides the next step with you.',
+    refT: (to) => `Referred to ${to}`, refSent: 'Your family doctor has referred you. The clinic will accept and contact you. Your doctor stays responsible until then.', refAcc: 'The clinic has accepted you and is now responsible. They will contact you for an appointment.', refDone: 'The specialist reported back to your family doctor. Next: agree your plan together.',
+    planT: 'Your plan is agreed', planX: 'The loop closes when your doctor confirms your follow-up.',
+    doneT: 'Loop closed', doneX: 'A doctor confirmed your follow-up. Your Care Passport is complete.', seePass: 'See my Care Passport',
+    help: 'Help', talk: 'Talk to a nurse', hard: 'Something makes it hard?', how: 'How should we contact you?',
+    resultT: 'My result', notYet: 'Your nurse will explain this result with you by phone first. Some results are best explained by a person.', notDiag: 'This is not a diagnosis.',
+    tbT: 'Can you say what happens next?', tbX: 'Choose the sentence closest to what you understood.', tbOk: 'Exactly. Thank you.', tbNo: (r) => `Not quite. ${r} A nurse can explain it again.`,
+    tbOpts: { ok: 'I need to see a doctor to check this result.', fine: 'Nothing: it is fine, I can wait.', meds: 'I should start a medicine now.' }, check: 'Check',
+    passT: 'My Care Passport', passX: 'Share it with a new doctor, your insurer or anyone you choose. It shows your journey of care, never your result.',
+    famT: 'A family helper', famX: 'Invite one person to help with your appointments. They see the dates and reminders. Never your result.',
+    fName: 'Their first name', fRel: 'How they are related (optional)', fPhone: 'Their UAE mobile', via: 'Send the invitation by', wa: 'WhatsApp', sms: 'SMS',
+    consent: 'I agree to share my appointment dates and reminders with this person. I can stop at any time.', invite: 'Send the invitation',
+    badPhone: 'Please enter a UAE mobile number, for example 050 123 4567.', needName: 'Please write their first name.', needConsent: 'Please tick the box to agree.',
+    invited: (n) => `${n} is invited`, accepted: (n) => `${n} is helping you`, sent: (via, ph) => `Sent by ${via} to ${ph}.`, demoOpen: 'Demo: open their invitation on this phone', stop: 'Stop sharing', stopped: 'You stopped sharing. Nothing is shared any more.',
+    slotsT: 'Choose a time', book: 'Book this time', cancel: 'Cancel', barT: 'What makes it hard?', chT: 'How should we contact you?', save: 'Save',
+    bars: { fear: 'I feel worried', cost: 'The cost', time_shift: 'Time off work or shifts', language: 'Language', dont_understand: 'I don’t understand the result', none: 'Nothing, thank you' },
+    chs: { app: 'This app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'A phone call' },
+    saved: 'Saved.', booked: 'Visit booked. A reminder comes the day before.', nurseAsked: 'Done. A nurse will call you.', understood: 'Thank you. Your Care Passport is stamped.',
+    callLive: 'Spoken in your language · transcript', ended: 'Call ended', live: 'Live', decline: 'Decline', accept: 'Accept', close: 'Close',
+  },
+  ar: {
+    who: 'من أنت؟', whoSub: 'اختر مريضاً لفتح تطبيقه. لا يوجد تسجيل دخول في النسخة التجريبية.', team: 'فتح تطبيق فريق الرعاية',
+    hello: (n) => `مرحباً ${n}`, tabs: ['الرئيسية', 'نتيجتي', 'الجواز', 'العائلة'], next: 'خطوتك التالية',
+    callT: 'سيتصل بك فلج', callX: (nurse) => `بخصوص نتيجة الفحص الجديدة، بلغتك. يمكنك الرد الآن. ${nurse} هو الممرض المسؤول عنك.`, answer: 'الرد على المكالمة (تجريبي)',
+    nurseT: (nurse) => `سيتصل بك ${nurse} اليوم`, nurseX: 'بعض النتائج من الأفضل أن يشرحها شخص. أبقِ هاتفك قريباً.', callMe: 'اتصلوا بي الآن', asked: 'تم الطلب: سيتصل بك الممرض',
+    readT: 'اقرأ نتيجتك', readX: 'دقيقة واحدة. بكلمات بسيطة، والممرض متاح عند الحاجة.', readB: 'قراءة نتيجتي',
+    bookT: 'احجز موعدك', bookX: 'مع طبيب الأسرة. اختر الوقت المناسب لك.', bookB: 'اختيار وقت', held: (d) => `محجوز لك خلال المكالمة: ${d}`,
+    visitT: 'موعدك', visitX: (d) => `${d} مع طبيب الأسرة. يرجى إحضار الهوية الإماراتية أو بطاقة التأمين. يصلك تذكير قبل الموعد بيوم.`, cal: 'إضافة إلى التقويم', move: 'لا أستطيع الحضور',
+    seenT: 'تمت زيارتك', seenX: 'يقرر طبيبك الخطوة التالية معك.',
+    refT: (to) => `تحويل إلى ${to}`, refSent: 'حوّلك طبيب الأسرة. ستقبل العيادة التحويل وتتواصل معك. يبقى طبيبك مسؤولاً حتى ذلك الحين.', refAcc: 'قبلت العيادة التحويل وأصبحت مسؤولة عن متابعتك. ستتواصل معك لتحديد موعد.', refDone: 'أرسل الأخصائي تقريره إلى طبيب الأسرة. الخطوة التالية: الاتفاق على خطتك معاً.',
+    planT: 'تم الاتفاق على خطتك', planX: 'تُغلق الحلقة عندما يؤكد طبيبك المتابعة.',
+    doneT: 'اكتملت الحلقة', doneX: 'أكد الطبيب متابعتك. جواز الرعاية مكتمل.', seePass: 'عرض جواز الرعاية',
+    help: 'مساعدة', talk: 'التحدث مع ممرض', hard: 'هل هناك ما يصعّب الأمر؟', how: 'كيف تفضّل أن نتواصل معك؟',
+    resultT: 'نتيجتي', notYet: 'سيشرح لك الممرض هذه النتيجة عبر الهاتف أولاً. بعض النتائج من الأفضل أن يشرحها شخص.', notDiag: 'هذا ليس تشخيصاً.',
+    tbT: 'هل يمكنك أن تقول ما الخطوة التالية؟', tbX: 'اختر الجملة الأقرب لما فهمته.', tbOk: 'تماماً. شكراً لك.', tbNo: (r) => `ليس تماماً. ${r} يمكن للممرض أن يشرح ذلك مرة أخرى.`,
+    tbOpts: { ok: 'أحتاج إلى زيارة طبيب لفحص هذه النتيجة.', fine: 'لا شيء: النتيجة جيدة ويمكنني الانتظار.', meds: 'يجب أن أبدأ دواءً الآن.' }, check: 'تحقق',
+    passT: 'جواز الرعاية', passX: 'شاركه مع طبيب جديد أو شركة التأمين أو أي شخص تختاره. يُظهر مسار رعايتك، ولا يُظهر نتيجتك أبداً.',
+    famT: 'مساعد من العائلة', famX: 'ادعُ شخصاً واحداً للمساعدة في مواعيدك. سيرى التواريخ والتذكيرات فقط، ولن يرى نتيجتك أبداً.',
+    fName: 'الاسم الأول', fRel: 'صلة القرابة (اختياري)', fPhone: 'رقم الهاتف المتحرك الإماراتي', via: 'إرسال الدعوة عبر', wa: 'واتساب', sms: 'رسالة نصية',
+    consent: 'أوافق على مشاركة مواعيدي وتذكيراتي مع هذا الشخص، ويمكنني التوقف في أي وقت.', invite: 'إرسال الدعوة',
+    badPhone: 'يرجى إدخال رقم هاتف متحرك إماراتي، مثل 050 123 4567.', needName: 'يرجى كتابة الاسم الأول.', needConsent: 'يرجى تحديد خانة الموافقة.',
+    invited: (n) => `تمت دعوة ${n}`, accepted: (n) => `${n} يساعدك الآن`, sent: (via, ph) => `أُرسلت عبر ${via} إلى ${ph}.`, demoOpen: 'تجريبي: فتح الدعوة على هذا الهاتف', stop: 'إيقاف المشاركة', stopped: 'أوقفت المشاركة. لم يعد يُشارك أي شيء.',
+    slotsT: 'اختر وقتاً', book: 'حجز هذا الوقت', cancel: 'إلغاء', barT: 'ما الذي يصعّب الأمر؟', chT: 'كيف تفضّل أن نتواصل معك؟', save: 'حفظ',
+    bars: { fear: 'أشعر بالقلق', cost: 'التكلفة', time_shift: 'وقت العمل أو المناوبات', language: 'اللغة', dont_understand: 'لا أفهم النتيجة', none: 'لا شيء، شكراً' },
+    chs: { app: 'هذا التطبيق', sms: 'رسالة نصية', whatsapp: 'واتساب', phone: 'مكالمة هاتفية' },
+    saved: 'تم الحفظ.', booked: 'تم حجز الموعد. يصلك تذكير قبل الموعد بيوم.', nurseAsked: 'تم. سيتصل بك الممرض.', understood: 'شكراً لك. تم ختم جواز الرعاية.',
+    callLive: 'بلغتك · نص المكالمة', ended: 'انتهت المكالمة', live: 'مباشر', decline: 'رفض', accept: 'قبول', close: 'إغلاق',
+  },
+};
+const LANG_NAME = { ar: ['Arabic', 'العربية'], en: ['English', 'الإنجليزية'], ur: ['Urdu', 'الأردية'], hi: ['Hindi', 'الهندية'], tl: ['Tagalog', 'التاغالوغية'], bn: ['Bengali', 'البنغالية'], ml: ['Malayalam', 'المالايالامية'] };
+const TEST = { en: { hba1c: 'HbA1c blood test', fit: 'bowel screening test', mammo: 'mammogram' }, ar: { hba1c: 'تحليل السكر التراكمي', fit: 'فحص الكشف عن سرطان القولون', mammo: 'صورة الثدي الشعاعية' } };
+
+// ---- state of the screen, in the URL ----
+function params() { const q = new URLSearchParams(location.search); return { p: q.get('p') || store.get('falaj.me.p') || '', tab: q.get('tab') || 'home', lang: q.get('lang') || store.get('falaj.me.lang') || 'en' }; }
+function nav(p, push = true) {
+  const next = { ...params(), ...p }, q = new URLSearchParams();
+  if (next.p) q.set('p', next.p); if (next.tab && next.tab !== 'home') q.set('tab', next.tab); if (next.lang === 'ar') q.set('lang', 'ar');
+  const url = location.pathname + (q.toString() ? '?' + q : '');
+  if (push) history.pushState(null, '', url); else history.replaceState(null, '', url);
+  sheet = null; render(); $('#inner').scrollTop = 0; scrollTo({ top: 0 }); $('#main').focus({ preventScroll: true });
+}
+addEventListener('popstate', () => { sheet = null; render(); });
+
+let sheet = null, sheetErr = '', tb = null, famErr = '', call = null, callTimer = null;
+const PAT = (c) => ({ type: 'patient', name: `${c.patient.name} (patient)` });
+const staffOf = (id) => state.staff.find((s) => s.id === id);
+const nurseName = (c) => { const o = staffOf(c.owner); return o ? o.name.replace(/\s*\(coordinator\)/, '').replace(/^(Nurse)\s+(\S+).*/, '$1 $2') : 'your nurse'; };
+const fmt = (d, lang, long) => new Date(d + 'T00:00:00Z').toLocaleDateString(lang === 'ar' ? 'ar-AE' : 'en-GB', long ? { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' } : { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+const humanReached = (c) => (c.events || []).some((e) => (e.type === 'contact' && e.role !== 'system') || e.type === 'understood');
+const aiCalled = (c) => (c.events || []).some((e) => e.type === 'contact' && e.role === 'system');
+const toldByPerson = (c) => !!mustCall(c) && !humanReached(c);
+function act(fn, msg) {
+  try { fn(); saveState(state); toast(msg); return true; }
+  catch (e) { sheetErr = e.message; render(); return false; }
+}
+let toastT = null;
+function toast(msg) { say(msg); document.querySelectorAll('.toast').forEach((x) => x.remove()); const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; document.body.appendChild(el); clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 2200); }
+
+const logo = '<svg width="26" height="20" viewBox="0 0 34 26" aria-hidden="true"><path d="M2 20c6 0 8-12 15-12s9 12 15 12" fill="none" stroke="#0b6fa8" stroke-width="3" stroke-linecap="round"/><path d="M27 9V3M24 5l3-2 3 2" fill="none" stroke="#1a7f52" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const I = {
+  home: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  doc: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  pass: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  fam: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="9" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20a6 6 0 0 1 12 0M14 20a4.5 4.5 0 0 1 8 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  phone: (f = '#fff', s = 30) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" fill="${f}"/></svg>`,
+};
+
+// ---- screens ----
+function pickScreen(t, lang) {
+  const open = state.cases.slice().sort((a, b) => (a.stage === 'closed') - (b.stage === 'closed'));
+  return `<div class="head"><h1>${t.who}</h1><p class="ctx">${t.whoSub}</p></div>
+    <ul class="list">${open.map((c) => `<li><a class="prow" href="?p=${c.id}" data-p="${c.id}"><span class="t"><b><bdi>${esc(c.patient.name)}</bdi>, ${c.patient.age}</b><small>${TEST[lang][c.programme || 'hba1c']} · ${LANG_NAME[c.patient.language] ? LANG_NAME[c.patient.language][lang === 'ar' ? 1 : 0] : ''}</small></span>${c.stage === 'closed' ? `<span class="st green">${T[lang].doneT}</span>` : ''}</a></li>`).join('')}</ul>
+    <p class="demo-note"><a href="team.html" style="color:var(--tint)">${t.team}</a></p>`;
+}
+function nextCard(c, t, lang) {
+  const nurse = nurseName(c), r = c.referral;
+  const card = (title, text, btns, tone = 'hl') => `<div class="${tone}">${tone === 'hl' ? `<div class="top"><b>${title}</b><span class="st amber">${t.next}</span></div><p class="q">${text}</p>` : `<span><b>${title}</b><span>${text}</span></span>`}${btns ? `<div class="btns">${btns}</div>` : ''}</div>`;
+  if (c.stage === 'closed') return `<div class="card status ok"><span><b>${t.doneT}</b><span>${t.doneX}</span></span></div><button class="wide" data-tab="passport">${t.seePass}</button>`;
+  if (['result', 'notified'].includes(c.stage)) {
+    if (!aiCalled(c) && !humanReached(c)) return card(t.callT, t.callX(nurse), `<button class="wide go" id="answer">${I.phone('#fff', 20)} ${t.answer}</button>`);
+    if (toldByPerson(c)) return card(t.nurseT(nurse), t.nurseX, c.nurseRequest && !c.nurseRequest.done ? `<p class="q"><b>${t.asked}</b></p>` : `<button class="wide" id="callme">${t.callMe}</button>`);
+    return card(t.readT, t.readX, `<button class="wide" data-tab="result">${t.readB}</button>`);
+  }
+  if (c.stage === 'understood') return card(t.bookT, `${t.bookX}${c.hold ? `<br><b>${t.held(`${fmt(c.hold.day, lang, true)} · ${c.hold.time}`)}</b>` : ''}`, `<button class="wide go" id="book">${t.bookB}</button>`);
+  if (c.stage === 'booked') return card(t.visitT, t.visitX(c.slot ? `${fmt(c.slot.day, lang, true)} · ${c.slot.time}` : ''), `<button class="wide" id="ics">${t.cal}</button><button class="wide ghost" id="book">${t.move}</button>`);
+  if (r && c.stage === 'referred') return `<div class="card status wait"><span><b>${t.refT(esc(r.to))}</b><span>${r.status === 'accepted' ? t.refAcc : r.status === 'completed' ? t.refDone : t.refSent}</span></span></div>`;
+  if (c.stage === 'care_plan') return `<div class="card status wait"><span><b>${t.planT}</b><span>${t.planX}</span></span></div>`;
+  return `<div class="card status wait"><span><b>${t.seenT}</b><span>${t.seenX}</span></span></div>`;
+}
+function homeScreen(c, t, lang) {
+  return `<div class="head"><h1>${t.hello(esc(c.patient.name.split(' ')[0]))}</h1><p class="ctx">${fmt(TODAY, lang, true)}</p></div>
+    ${nextCard(c, t, lang)}
+    ${passportHtml(c, { compact: true, lang, staff: state.staff })}
+    <div class="group"><div class="gh">${t.help}</div><ul class="list">
+      <li><button class="prow" id="talk"><span class="t"><b>${t.talk}</b>${c.nurseRequest && !c.nurseRequest.done ? `<small>${t.asked}</small>` : ''}</span></button></li>
+      <li><button class="prow" id="hard"><span class="t"><b>${t.hard}</b>${c.barrier && c.barrier !== 'none' ? `<small>${t.bars[c.barrier]}</small>` : ''}</span></button></li>
+      <li><button class="prow" id="how"><span class="t"><b>${t.how}</b><small>${t.chs[c.channel || 'app']}</small></span></button></li></ul></div>`;
+}
+function resultScreen(c, t, lang) {
+  const head = `<div class="head"><h1>${t.resultT}</h1><p class="ctx">${TEST[lang][c.programme || 'hba1c']}</p></div>`;
+  if (toldByPerson(c)) return head + `<div class="card status wait"><span><b>${t.nurseT(nurseName(c))}</b><span>${t.notYet}</span></span></div>${c.nurseRequest && !c.nurseRequest.done ? '' : `<button class="wide" id="callme">${t.callMe}</button>`}`;
+  const text = explanation({ band: c.band, value: c.value, lang }) || t.notDiag;
+  const needTb = ['result', 'notified'].includes(c.stage);
+  return head + `<div class="card"><p class="explain">${esc(text)}</p></div>
+    ${needTb ? `<div class="group"><div class="gh">${t.tbT}</div><fieldset class="choice"><legend class="sr">${t.tbT}</legend>${[['fine', t.tbOpts.fine], ['ok', t.tbOpts.ok], ['meds', t.tbOpts.meds]].map(([k, l]) => `<label><input type="radio" name="tb" value="${k}"${tb === k ? ' checked' : ''}>${l}</label>`).join('')}</fieldset><div class="gf">${t.tbX}</div></div>
+      ${tb && tb !== 'ok' ? `<div class="card status wait" role="alert"><span><span>${t.tbNo(t.tbOpts.ok)}</span></span></div><button class="wide ghost" id="callme">${t.callMe}</button>` : ''}
+      <button class="wide" id="tbcheck">${t.check}</button>` : ''}`;
+}
+function passportScreen(c, t, lang) {
+  return `<div class="head"><h1>${t.passT}</h1><p class="ctx">${t.passX}</p></div>${passportHtml(c, { lang, staff: state.staff, qr: true, link: true })}`;
+}
+function familyScreen(c, t, lang) {
+  const fh = c.familyHelper, head = `<div class="head"><h1>${t.famT}</h1><p class="ctx">${t.famX}</p></div>`;
+  if (fh && !fh.revoked) {
+    const url = familyUrl(c.id, fh, location.origin) + (lang === 'ar' ? '&lang=ar' : '');
+    return head + `<div class="card status ${fh.accepted ? 'ok' : 'wait'} fam-state"><span><b>${fh.accepted ? t.accepted(esc(fh.name)) : t.invited(esc(fh.name))}</b><span>${t.sent(fh.via === 'sms' ? t.sms : t.wa, esc(maskPhone(fh.phone)))}</span></span></div>
+      <div class="card fam-q">${qrSvg(url, { size: 116, label: t.demoOpen })}<span><p class="q" style="margin:0 0 8px;font-size:15px;color:var(--ink2)">${esc(inviteText(lang, c.patient.name.split(' ')[0], fh.name, ''))}</p><a class="light" style="display:inline-flex;align-items:center;text-decoration:none" href="${esc(url)}">${t.demoOpen}</a></span></div>
+      <button class="wide danger" id="famstop">${t.stop}</button>`;
+  }
+  return head + `${fh && fh.revoked ? `<div class="card status wait"><span><span>${t.stopped}</span></span></div>` : ''}
+    <div class="field"><label for="fn">${t.fName}</label><input id="fn" autocomplete="off"></div>
+    <div class="field"><label for="fr">${t.fRel}</label><input id="fr" autocomplete="off"></div>
+    <div class="field"><label for="fp">${t.fPhone}</label><input id="fp" inputmode="tel" autocomplete="off" dir="ltr" placeholder="050 123 4567"></div>
+    <fieldset class="choice"><legend class="gh" style="padding:0 4px 6px">${t.via}</legend><label><input type="radio" name="via" value="whatsapp" checked>${t.wa}</label><label><input type="radio" name="via" value="sms">${t.sms}</label></fieldset>
+    <label class="card" style="display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.45"><input type="checkbox" id="fc" style="width:22px;height:22px;flex:none;accent-color:var(--go)">${t.consent}</label>
+    ${famErr ? `<p class="err" role="alert">${famErr}</p>` : ''}
+    <button class="wide go" id="faminvite">${t.invite}</button>`;
+}
+function sheetHtml(c, t, lang) {
+  const err = sheetErr ? `<p class="err" role="alert">${esc(sheetErr)}</p>` : '';
+  const wrap = (title, body) => `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t" tabindex="-1" id="sheet"><span class="grab" aria-hidden="true"></span><h2 id="sh-t">${title}</h2>${body}${err}<button class="wide ghost" id="sh-x">${t.cancel}</button></div></div>`;
+  if (sheet === 'book') {
+    const slots = slotsFor({ band: c.band, barrier: c.barrier }, TODAY);
+    if (c.hold && !slots.some((x) => x.day === c.hold.day && x.time === c.hold.time)) slots.unshift(c.hold);
+    const cur = c.slot || c.hold || slots[0];
+    return wrap(t.slotsT, `${c.barrier && c.barrier !== 'none' ? `<p>${esc(barrierText(c.barrier, lang))}</p>` : ''}<fieldset class="choice"><legend class="sr">${t.slotsT}</legend>${slots.map((x) => `<label><input type="radio" name="slot" value="${x.day}|${x.time}"${cur && x.day === cur.day && x.time === cur.time ? ' checked' : ''}>${fmt(x.day, lang, true)} · ${x.time}</label>`).join('')}</fieldset><button class="wide go" id="do-book">${t.book}</button>`);
+  }
+  if (sheet === 'hard') return wrap(t.barT, `<fieldset class="choice"><legend class="sr">${t.barT}</legend>${Object.entries(t.bars).map(([k, l]) => `<label><input type="radio" name="bar" value="${k}"${(c.barrier || 'none') === k ? ' checked' : ''}>${l}</label>`).join('')}</fieldset><button class="wide" id="do-hard">${t.save}</button>`);
+  if (sheet === 'how') return wrap(t.chT, `<fieldset class="choice"><legend class="sr">${t.chT}</legend>${Object.entries(t.chs).map(([k, l]) => `<label><input type="radio" name="ch" value="${k}"${(c.channel || 'app') === k ? ' checked' : ''}>${l}</label>`).join('')}</fieldset><button class="wide" id="do-how">${t.save}</button>`);
+  return '';
+}
+
+// ---- the AI call (simulated): it never talks about results; worry goes to the nurse ----
+function callLines(c, lang) {
+  const n = c.patient.name.split(' ')[0], nurse = nurseName(c), hold = slotsFor({ band: c.band, barrier: c.barrier }, TODAY)[0], test = TEST[lang][c.programme || 'hba1c'];
+  const d = `${fmt(hold.day, lang, true)}, ${hold.time}`;
+  return { hold, lines: lang === 'ar' ? [
+    ['ai', `مرحباً ${n}. معك خط الرعاية في فلج، مساعد آلي يعمل مع ${nurse}.`], ['ai', `نتيجة ${test} جاهزة. الخطوة التالية هي زيارة طبيب الأسرة.`],
+    ['me', 'هل هو شيء سيئ؟'], ['sys', `تم سماع قلقك: سيتصل بك ${nurse} اليوم`],
+    ['ai', `لا يمكنني التحدث عن النتائج. سيتصل بك ${nurse} اليوم ليشرحها. هل أحجز لك موعداً؟`], ['me', 'نعم، من فضلك.'], ['ai', `تم حجز موعد مبدئي: ${d}. سيؤكده معك ${nurse}.`],
+  ] : [
+    ['ai', `Hello ${n}. This is the Falaj care line, an automated assistant working with ${nurse}.`], ['ai', `Your ${test} result is ready. The next step is a visit with your family doctor.`],
+    ['me', 'Is it something bad?'], ['sys', `Worry heard: ${nurse} will call you today`],
+    ['ai', `I cannot talk about results. ${nurse} will call you today to explain. Shall I hold a visit for you?`], ['me', 'Yes, please.'], ['ai', `Held: ${d}. ${nurse} will confirm it with you.`],
+  ] };
+}
+function callHtml(c, t, lang) {
+  const { lines } = callLines(c, lang);
+  if (call.phase === 'ring') return `<div class="call" role="dialog" aria-modal="true" aria-label="Falaj care line"><div class="in"><div class="ringcard pop"><span class="avatar ring">${I.phone('none', 38).replace('fill="none"', 'fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"')}</span><div class="name">Falaj care line</div><div style="font-size:15px;color:var(--muted)">${LANG_NAME[c.patient.language] ? LANG_NAME[c.patient.language][lang === 'ar' ? 1 : 0] : ''}</div>
+    <div class="calls"><div><button class="round red" id="cdecline" aria-label="${t.decline}"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14c5-5 13-5 18 0l-2 3-4-1v-3a10 10 0 0 0-6 0v3l-4 1z" fill="#fff"/></svg></button>${t.decline}</div><div><button class="round green" id="caccept" aria-label="${t.accept}">${I.phone()}</button>${t.accept}</div></div></div></div></div>`;
+  return `<div class="call" role="dialog" aria-modal="true" aria-label="Falaj care line"><div class="in">
+    <div class="card" style="display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:50%;background:var(--go);display:grid;place-items:center;flex:none">${I.phone('#fff', 20)}</span><span style="flex:1"><b style="display:block;font-size:15px">Falaj care line</b><small style="color:var(--muted);font-size:13px">${t.callLive}</small></span><span class="st ${call.phase === 'done' ? 'grey' : 'amber'}">${call.phase === 'done' ? t.ended : t.live}</span></div>
+    <ol class="chat" aria-live="polite">${lines.slice(0, call.n).map(([k, x], i) => `<li class="${i === call.n - 1 ? 'pop' : ''}"><span class="b ${k}">${esc(x)}</span></li>`).join('')}</ol>
+    ${call.phase === 'done' ? `<button class="wide" id="cclose">${t.close}</button>` : ''}</div></div>`;
+}
+
+// ---- render ----
+function render() {
+  state = loadState();
+  const p = params(), lang = p.lang === 'ar' ? 'ar' : 'en', t = T[lang], c = state.cases.find((x) => x.id === p.p);
+  document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  $('#bar').innerHTML = `<a class="brand" href="index.html" aria-label="Falaj home">${logo} ${lang === 'ar' ? 'فلج' : 'Falaj'}</a><div class="langs" role="group" aria-label="Language"><button data-lang="en" aria-pressed="${lang === 'en'}">EN</button><button data-lang="ar" aria-pressed="${lang === 'ar'}" lang="ar">عربي</button></div>`;
+  if (!c) { $('#main').innerHTML = pickScreen(t, lang); $('#tabs').hidden = true; }
+  else {
+    store.set('falaj.me.p', c.id);
+    const tabs = ['home', 'result', 'passport', 'family'];
+    $('#main').innerHTML = ({ home: homeScreen, result: resultScreen, passport: passportScreen, family: familyScreen }[p.tab] || homeScreen)(c, t, lang);
+    $('#tabs').hidden = false;
+    $('#tabs').innerHTML = tabs.map((k, i) => `<a href="?p=${c.id}&tab=${k}" data-tab="${k}"${p.tab === k ? ' aria-current="page"' : ''}>${[I.home, I.doc, I.pass, I.fam][i]}${t.tabs[i]}</a>`).join('');
+  }
+  $('#sheetroot').innerHTML = sheet && c ? sheetHtml(c, t, lang) : '';
+  $('#callroot').innerHTML = call && c ? callHtml(c, t, lang) : '';
+  ['#bar', '#main', '#tabs'].forEach((x) => { $(x).inert = !!((sheet || call) && c); });
+  wire(c, t, lang);
+}
+function wire(c, t, lang) {
+  const on = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = fn; };
+  document.querySelectorAll('[data-lang]').forEach((b) => b.onclick = () => { store.set('falaj.me.lang', b.dataset.lang); nav({ lang: b.dataset.lang }, false); });
+  document.querySelectorAll('[data-p]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ p: a.dataset.p, tab: 'home' }); });
+  document.querySelectorAll('[data-tab]').forEach((a) => a.onclick = (e) => { e.preventDefault(); tb = null; nav({ tab: a.dataset.tab }); });
+  if (!c) return;
+  const pick = (name) => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
+  const P = PAT(c);
+  on('callme', () => { if (act(() => requestNurse(state, c.id, P, 'Asked for a call from the app'), t.nurseAsked)) render(); });
+  on('talk', () => { if (act(() => requestNurse(state, c.id, P, 'Asked to talk to a nurse from the app'), t.nurseAsked)) render(); });
+  on('hard', () => { sheet = 'hard'; render(); });
+  on('how', () => { sheet = 'how'; render(); });
+  on('book', () => { sheet = 'book'; sheetErr = ''; render(); });
+  on('tbcheck', () => {
+    tb = pick('tb') || null; if (!tb) return;
+    if (tb === 'ok') { if (act(() => advance(state, c.id, 'understood', P, 'Teach-back in the app: chose the right next step.'), t.understood)) { tb = null; nav({ tab: 'home' }); } }
+    else render();
+  });
+  on('ics', () => {
+    const d = c.slot.day.replace(/-/g, ''), tm = c.slot.time.replace(':', '') + '00';
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Falaj demo//EN', 'BEGIN:VEVENT', `UID:${c.id}-${d}@falaj-demo`, `DTSTAMP:${d}T000000Z`, `DTSTART;TZID=Asia/Dubai:${d}T${tm}`, 'DURATION:PT20M', 'SUMMARY:Family doctor visit (Falaj demo)', 'DESCRIPTION:Demo only. Synthetic data.', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })); a.download = 'visit.ics'; a.click();
+  });
+  // family helper
+  on('faminvite', () => {
+    const name = $('#fn').value.trim(), rel = $('#fr').value.trim(), phone = normaliseUaeMobile($('#fp').value), via = pick('via');
+    famErr = !name ? t.needName : !phone ? t.badPhone : !$('#fc').checked ? t.needConsent : '';
+    if (famErr) { render(); return; }
+    const helper = { name, relation: rel, phone, via };
+    if (act(() => { c.familyHelper = { ...helper, token: familyToken(c.id, helper), at: new Date().toISOString(), accepted: false, revoked: false }; logEvent(c, 'family', P, `Invited ${name} as family helper (appointments only)`); }, t.invited(name))) render();
+  });
+  on('famstop', () => { if (act(() => { c.familyHelper = { ...c.familyHelper, revoked: true, accepted: false, revokedAt: new Date().toISOString() }; logEvent(c, 'family', P, 'Stopped sharing with the family helper'); }, t.stopped)) render(); });
+  // sheets
+  if (sheet) {
+    const close = () => { sheet = null; sheetErr = ''; render(); };
+    on('sh-x', close); $('#scrim').onclick = (e) => { if (e.target.id === 'scrim') close(); };
+    $('#sheet').onkeydown = (e) => { if (e.key === 'Escape') close(); };
+    const done = (fn, msg) => { if (act(fn, msg)) { sheet = null; sheetErr = ''; render(); } };
+    on('do-book', () => { const [day, time] = (pick('slot') || '|').split('|'); done(() => {
+      if (c.stage === 'understood') advance(state, c.id, 'booked', P, `Booked in the app: ${day} ${time}.`); else logEvent(c, 'rebooked', P, `Moved the visit to ${day} ${time}.`);
+      c.slot = { day, time }; c.hold = null;
+    }, t.booked); });
+    on('do-hard', () => done(() => setBarrier(state, c.id, pick('bar'), P), t.saved));
+    on('do-how', () => done(() => setChannel(state, c.id, pick('ch'), P), t.saved));
+    const sh = $('#sheet'); if (sh && !sh.contains(document.activeElement)) sh.focus();
+  }
+  // the AI call
+  on('answer', () => { call = { phase: 'ring', n: 0 }; render(); $('#caccept').focus(); });
+  on('cdecline', () => { call = null; act(() => logEvent(c, 'call_attempt', { type: 'system', name: 'Falaj care line (AI call, simulated)' }, 'Declined. Falaj tries again outside working hours.'), lang === 'ar' ? 'سنحاول مرة أخرى لاحقاً.' : 'Falaj will try again later.'); render(); });
+  on('caccept', () => {
+    const { lines } = callLines(c, lang);
+    const fast = new URLSearchParams(location.search).get('fast') === '1' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    call = { phase: 'live', n: 1 }; render();
+    const fin = () => { clearInterval(callTimer); call = { phase: 'done', n: lines.length }; render(); $('#cclose').focus(); };
+    if (fast) fin(); else callTimer = setInterval(() => { if (call.n + 1 >= lines.length) fin(); else { call.n++; render(); } }, 1400);
+  });
+  on('cclose', () => {
+    const { hold } = callLines(c, lang); call = null;
+    act(() => {
+      logEvent(c, 'contact', { type: 'system', name: 'Falaj care line (AI call, simulated)' }, `AI call. Visit held: ${hold.day} ${hold.time}, to be confirmed by the nurse.`);
+      c.hold = hold;
+      requestNurse(state, c.id, P, 'Asked "Is it something bad?" during the Falaj call');
+    }, lang === 'ar' ? 'تم. سيتصل بك الممرض اليوم.' : 'Done. Your nurse will call you today.');
+    render();
+  });
+}
+if (new URLSearchParams(location.search).get('reset') === '1') { resetState(); state = loadState(); }
+render();
+</script>
+</body>
+</html>

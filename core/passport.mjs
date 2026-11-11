@@ -112,7 +112,7 @@ export function passportHtml(c, opts = {}) {
   const who = `${parts[0] || ''}${parts.length > 1 ? ' ' + parts[parts.length - 1][0] + '.' : ''}`;
   const prog = progOf(c);
   const sub = [prog && (lang === 'ar' && prog.nameAr ? prog.nameAr : prog.name), c.referral && c.referral.to].filter(Boolean).join(' · ');
-  const ownerName = opts.owner || ((opts.staff || []).find((s) => s.id === c.owner) || {}).name || '';
+  const ownerName = opts.owner || (((opts.staff || []).find((s) => s.id === c.owner) || {}).name || '').replace(/\s*\(coordinator\)/, '');
   const nextStage = STAGES[STAGES.indexOf(c.stage) + 1];
   const next = opts.next || (closed ? '' : t.nextOf[nextStage] || '');
   const stamps = ms.map(([st], i) => `<li class="${st}${fresh.has(i) ? ' new' : ''}"><span class="cp-s">${st === 'done' ? CHECK : st === 'na' ? '–' : i + 1}</span>${t.short[i]}</li>`).join('');
