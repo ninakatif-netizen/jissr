@@ -4,76 +4,64 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Falaj · فلج</title>
-<meta name="description" content="Falaj: one app for the screening-to-care loop, for patients and for the care team. Synthetic demo.">
-<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Falaj: one app for the screening-to-care loop, for patients and for the care team. One result, one Care Passport. Synthetic demo.">
+<meta name="theme-color" content="#f6f2ea">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Falaj">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="app-shell.css">
+<link rel="stylesheet" href="ios.css">
 <style>
-.hero{text-align:center;padding:34px 6px 10px}
-.hero .mark{color:var(--hero);display:inline-flex}
-.hero h1{font-size:34px;margin:12px 0 4px}
-.hero h1 span{font-family:var(--text);font-weight:500;color:var(--accent-d);margin-inline-start:8px}
-.hero p{color:var(--muted);margin:0 auto;max-width:28ch}
-.hero .insp{font-size:12.5px;font-style:italic;margin-top:10px}
-.pick{display:flex;align-items:center;gap:14px;width:100%;text-align:start;font:inherit;color:inherit;cursor:pointer;border-radius:22px;padding:18px;margin:12px 0 0;border:1px solid var(--line);background:var(--card)}
-.pick.navy{border:0;background:var(--hero);color:#fff}
-.pick.navy b{color:#fff}.pick.navy>.ico:last-child{color:var(--hero-acc)}
-.pick b{display:block;font-size:18px;font-family:var(--display);font-weight:600}
-.pick span.t{flex:1}
-.pick small{display:block;font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.4}
-.pick.navy small{color:var(--on-hero-2)}
-.pick>.ico:last-child{color:var(--chev);flex:none}
-.roles2{margin-top:6px}
-.roles2 .pick{padding:14px 16px;border-radius:18px;margin-top:8px}
-.roles2 .pick b{font-size:16px}
-.cont{display:block;text-align:center;margin:16px 0 0;font-weight:600}
-.foot2{text-align:center;font-size:12.5px;color:var(--muted);margin:22px 0 0}
+.hero{text-align:center;padding:34px 8px 6px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.hero h1{margin:6px 0 0;font-size:40px}
+.hero h1 span{font-weight:500;color:var(--muted);margin-inline-start:8px;font-size:30px}
+.hero p{margin:0;color:var(--ink2);font-size:17px;line-height:1.45;max-width:30ch}
+.pick{display:flex;align-items:center;gap:14px;width:100%;text-align:start;text-decoration:none;color:var(--ink);background:var(--card);border-radius:18px;padding:18px;min-height:84px}
+.pick.navy{background:var(--fill);color:#fff}
+.pick.navy small{color:#d7d0c3}
+.pick b{display:block;font-size:19px}
+.pick small{display:block;font-size:14px;color:var(--muted);margin-top:3px;line-height:1.4}
+.pick .t{flex:1}
+.pick::after{content:"›";font-size:26px;opacity:.7}
+.pick .ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;flex:none;background:rgba(231,223,207,.18)}
+.pick:not(.navy) .ic{background:var(--line)}
 </style>
-<link rel="stylesheet" href="theme.css">
 </head>
 <body>
-<div class="demo" style="justify-content:space-between;padding:8px 16px;font-size:13px"><span>Demo with synthetic data. Not medical advice.</span><a href="index.html">About the project</a></div>
-<div class="device">
-  <div class="screen"><main class="wrap" id="app"></main></div>
+<div class="stage">
+  <div class="phone">
+    <div class="inner" tabindex="0" role="region" aria-label="Falaj">
+      <main id="app" tabindex="-1">
+        <div class="hero">
+          <svg width="68" height="52" viewBox="0 0 34 26" aria-hidden="true"><path d="M2 20c6 0 8-12 15-12s9 12 15 12" fill="none" stroke="#0b6fa8" stroke-width="3" stroke-linecap="round"/><path d="M27 9V3M24 5l3-2 3 2" fill="none" stroke="#1a7f52" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <h1>Falaj<span lang="ar">فلج</span></h1>
+          <p>One result. One passport. One continuous journey.</p>
+        </div>
+        <div class="group"><div class="gh" style="text-align:center">Who are you? <span lang="ar">من أنت؟</span></div>
+          <div class="btns">
+            <a class="pick navy" href="me.html" id="pat"><span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="t"><b>I am a patient</b><small>My next step, my Care Passport, my result in plain words. English and العربية.</small></span></a>
+            <a class="pick" href="team.html" id="care"><span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span class="t"><b>I work in care</b><small>Nurse, care coordinator, family doctor or specialist: who needs you, and the one thing to do.</small></span></a>
+          </div></div>
+        <p id="cont" style="text-align:center;margin:0"></p>
+        <div class="group"><ul class="list">
+          <li><a class="prow" href="loop.html"><span class="t"><b>See it in 3 moments</b><small>A guided story: Priya, from her result to care.</small></span></a></li>
+          <li><a class="prow" href="index.html"><span class="t"><b>About Falaj</b><small>The idea, the Care Passport, the safety rules.</small></span></a></li></ul></div>
+        <p class="demo-note">Demo with synthetic data. Not medical advice. Choosing who you are is not a sign-in.</p>
+      </main>
+    </div>
+  </div>
 </div>
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
-import { ic, logo } from './core/ui.mjs';
-import { CARE_ROLES, roleView } from './core/roles.mjs';
+import { loadState } from './core/store.mjs';
 registerSW();
-const app = document.getElementById('app');
-let showRoles = new URLSearchParams(location.search).has('care');
-let last = null; try { last = localStorage.getItem('jissr.lastApp'); } catch { }
-function render() {
-  const lastRole = last && last.startsWith('care:') ? roleView(last.slice(5)) : null;
-  app.innerHTML = `<div class="view">
-    <div class="hero"><span class="mark">${logo(64)}</span><h1>Falaj<span>فلج</span></h1><p>From a screening result to the right care. Nobody left behind.</p><p class="insp">Our mark is a falaj, the water channels of the oases of Al Ain (UNESCO World Heritage).</p></div>
-    ${!showRoles ? `
-      <p class="sec" style="text-align:center;margin-top:22px">Who are you? <span lang="ar">من أنت؟</span></p>
-      <button class="pick navy" data-go="patient.html?p=C-001"><span class="gtile">${ic('home', 24)}</span><span class="t"><b>I am a patient</b><small>Understand my result, book, talk to a nurse. English and العربية.</small></span>${ic('next', 20)}</button>
-      <button class="pick" id="care"><span class="gtile">${ic('doctor', 24)}</span><span class="t"><b>I work in care</b><small>Nurse, family doctor, hospital specialist, clinical lead.</small></span>${ic('next', 20)}</button>
-      ${lastRole ? `<a class="cont" href="care.html?role=${lastRole.id}">Continue as ${lastRole.title}</a>` : last === 'patient' ? `<a class="cont" href="patient.html">Continue as patient</a>` : ''}`
-    : `
-      <div class="bar2"><button class="backbtn" id="back" aria-label="Back">${ic('back', 20)}</button><h1>Your role</h1></div>
-      <p class="sub2">Each role sees its own part of the same case.</p>
-      <div class="roles2">${CARE_ROLES.map((id) => roleView(id)).map((r) => `<button class="pick" data-go="care.html?role=${r.id}" data-role="${r.id}"><span class="gtile">${ic(r.icon, 22)}</span><span class="t"><b>${r.title}</b><small><b style="font-size:13px;font-family:var(--text);color:var(--accent-d);display:inline">${r.org}.</b> ${r.part}</small></span>${ic('next', 18)}</button>`).join('')}</div>
-      <p class="foot2">Lab and programme manager views are on the <a href="roles.html">desktop dashboard</a>.<br>Demo: choosing a role is not a login.</p>`}
-    ${!showRoles ? `<p class="foot2">Synthetic demo. Not medical advice.</p>` : ''}
-  </div>`;
-  app.querySelectorAll('[data-go]').forEach((b) => b.onclick = () => {
-    try { localStorage.setItem('jissr.lastApp', b.dataset.role ? 'care:' + b.dataset.role : 'patient'); } catch { }
-    location.href = b.dataset.go;
-  });
-  const c = document.getElementById('care'); if (c) c.onclick = () => { showRoles = true; render(); };
-  const k = document.getElementById('back'); if (k) k.onclick = () => { showRoles = false; render(); };
-}
-render();
+const get = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+const st = loadState(), as = get('falaj.team.as'), p = get('falaj.me.p');
+const s = as && st.staff.find((x) => x.id === as), c = p && st.cases.find((x) => x.id === p);
+const links = [s && `<a class="back" style="align-self:center" href="team.html?as=${s.id}">Continue as ${s.name.replace(/\s*\(coordinator\)/, '')}</a>`, c && `<a class="back" style="align-self:center" href="me.html?p=${c.id}">Continue as ${c.patient.name.split(' ')[0]}</a>`].filter(Boolean);
+document.getElementById('cont').innerHTML = links.join(' · ');
 </script>
 </body>
 </html>

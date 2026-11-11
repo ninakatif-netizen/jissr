@@ -102,7 +102,8 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   const q = await ph.newPage(); watch(q, 'care app');
   await q.goto(BASE + 'app.html'); await q.waitForTimeout(250);
   ok(/I am a patient/.test(await q.innerText('body')) && /I work in care/.test(await q.innerText('body')), 'the app opens on "who are you?": patient or care team');
-  await q.click('#care'); await q.click('[data-role=specialist]'); await q.waitForTimeout(500);
+  ok((await q.getAttribute('#pat', 'href')) === 'me.html' && (await q.getAttribute('#care', 'href')) === 'team.html', 'the start screen opens the new patient and care team apps');
+  await q.goto(BASE + 'care.html?role=specialist'); await q.waitForTimeout(500);
   ok(/Handshakes for you/i.test(await q.innerText('#app')) && await q.locator('.tab').count() === 4, 'the care team app has its own tabs and the specialist sees the handshakes offered to them');
   await q.click('.citem:has-text("Handshake") >> nth=0'); await q.waitForTimeout(250);
   await q.fill('#rnote', 'Accepted, clinic slot this week'); await q.click('#racc'); await q.waitForTimeout(250);

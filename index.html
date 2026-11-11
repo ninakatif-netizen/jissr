@@ -43,7 +43,8 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
     <h1>One result. One passport. One continuous journey.</h1>
     <p class="lead">For centuries, the falaj made sure water reached where life depended on it. Falaj brings that principle to healthcare: every actionable screening result gets a Care Passport, with a responsible person at each step, until a doctor confirms the patient received care.</p>
     <div class="row cta">
-      <a class="btn accent" href="loop.html" id="b0"></a>
+      <a class="btn accent" href="app.html" id="bapp"></a>
+      <a class="btn ghost" href="loop.html" id="b0"></a>
       <a class="btn ghost" href="animation/index.html" id="b1"></a>
     </div>
     <div id="hero-art" style="position:absolute;inset-inline-end:-150px;top:10px;color:var(--brand);pointer-events:none"></div>
@@ -90,12 +91,12 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
   </section>
 
   <details class="card team">
-    <summary><h2 style="display:inline">For the jury and the care team</h2></summary>
-    <p class="muted">The full prototype behind the three moments: the patient app, the care team's app, where results get lost, and the safety tests.</p>
+    <summary><h2 style="display:inline">Everything in Falaj</h2></summary>
+    <p class="muted">The full app for patients and the care team, where results get lost, the safety tests, and the plan for a pilot.</p>
     <div class="tiles">
       <a class="tile" href="patient.html?p=C-040&fresh=1&tour=0" id="b3"><div class="card"><span data-ic="next" data-s="26"></span><h3>Guided tour</h3><p class="muted">3 minutes through the full app, following Priya.</p></div></a>
-      <a class="tile" href="patient.html"><div class="card"><span data-ic="phone" data-s="26"></span><h3>Patient app</h3><p class="muted">The result in plain words, the next step, booking, a family helper.</p></div></a>
-      <a class="tile" href="care.html?role=nurse"><div class="card"><span data-ic="doctor" data-s="26"></span><h3>Care team</h3><p class="muted">Every case with an owner and a deadline; referrals that must be accepted.</p></div></a>
+      <a class="tile" href="me.html"><div class="card"><span data-ic="phone" data-s="26"></span><h3>Patient app</h3><p class="muted">The next step, the Care Passport, the AI call, the result in plain words, a family helper.</p></div></a>
+      <a class="tile" href="team.html"><div class="card"><span data-ic="doctor" data-s="26"></span><h3>Care team app</h3><p class="muted">Nurse, family doctor, specialist: who needs you, why, and the one thing to do.</p></div></a>
       <a class="tile" href="map.html"><div class="card"><span data-ic="pin" data-s="26"></span><h3>Where results get lost</h3><p class="muted">Open and late cases, place by place.</p></div></a>
       <a class="tile" href="trust.html"><div class="card"><span data-ic="shield" data-s="26"></span><h3>Try to break it</h3><p class="muted">Run every safety rule live.</p></div></a>
       <a class="tile" href="metrics.html"><div class="card"><span data-ic="chart" data-s="26"></span><h3>Measures</h3><p class="muted">Is the loop closing? Time to each step.</p></div></a>
@@ -164,6 +165,7 @@ import { isoDay } from './core/rules.mjs';
 document.getElementById('brand').innerHTML = wordmark();
 document.querySelectorAll('[data-ic]').forEach((el) => { el.innerHTML = ic(el.dataset.ic, +el.dataset.s || 22); el.style.cssText = 'display:block;color:var(--accent-d);margin-bottom:8px'; });
 document.getElementById('b1').innerHTML = ic('wave', 18) + ' Watch the 50-second story';
+document.getElementById('bapp').innerHTML = ic('phone', 18) + ' Open the app';
 document.getElementById('b0').innerHTML = ic('next', 18) + ' See it in 3 moments';
 if (innerWidth > 1240) document.getElementById('hero-art').innerHTML = falajScene({ width: 300, opacity: 0.85 });
 </script>
