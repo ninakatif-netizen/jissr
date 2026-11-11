@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Falaj: check a proof of care</title>
-<meta name="description" content="Check a Falaj proof of care: the steps of care and their dates, never the result. Synthetic data only.">
+<title>Falaj: check a Care Passport</title>
+<meta name="description" content="Check a Falaj Care Passport: the journey of care, who did each step and when, never the result. Synthetic data only.">
 <meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
@@ -30,8 +30,8 @@
 <div class="demo"><span>Prototype · synthetic data · the check runs on the demo data in this browser</span><a href="index.html">Home</a></div>
 <main class="vwrap">
   <div class="brand" id="brand"></div>
-  <h1 style="margin:0;font-size:34px;letter-spacing:-.03em">Check a proof of care</h1>
-  <p class="vnote">A patient can share this receipt with a new doctor, an insurer or the Department of Health. It shows the steps of care and their dates, never the result.</p>
+  <h1 style="margin:0;font-size:34px;letter-spacing:-.03em">Check a Care Passport</h1>
+  <p class="vnote">A patient can share their Care Passport with a new doctor, an insurer or the Department of Health. It shows the journey of care, who did each step and when. Never the result.</p>
   <div id="out"></div>
   <form class="vcard vform" id="f">
     <label for="cid">Case reference</label><input id="cid" placeholder="C-012" autocomplete="off">
@@ -46,8 +46,9 @@ import { wordmark, ic } from './core/ui.mjs';
 import { loadState } from './core/store.mjs';
 import { verifyProof } from './core/proof.mjs';
 import { progOf } from './core/programmes.mjs';
+import { passportHtml } from './core/passport.mjs';
 registerSW();
-document.getElementById('brand').innerHTML = wordmark() + '<span class="sub">Proof of care</span>';
+document.getElementById('brand').innerHTML = wordmark() + '<span class="sub">Care Passport</span>';
 const STEP = { notified: 'Told the result', understood: 'Understood the result (teach-back)', booked: 'Visit booked', attended: 'Seen by a clinician', confirmed: 'Confirmatory test done', referred: 'Specialist referral decided', care_plan: 'Care plan agreed', closed: 'Case closed by a clinician, with evidence' };
 const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 const fmt = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
@@ -56,8 +57,8 @@ function check(id, code) {
   const r = verifyProof(state, id, code), out = document.getElementById('out');
   if (!id) { out.innerHTML = ''; return; }
   out.innerHTML = r.ok
-    ? `<section class="vcard" aria-live="polite"><div class="vhead ok"><span class="badge">${ic('check', 26)}</span><span><b>Valid proof of care</b>${esc(r.who)} · ${esc(progOf({ programme: r.programme }).name)} · ${esc(code.toUpperCase())}</span></div>
-       <ol class="vl">${r.steps.map((s) => `<li>${ic('check', 18)}<span><b>${STEP[s.step] || s.step}</b><small>${fmt(s.day)} · ${esc(s.by)}</small></span></li>`).join('')}</ol></section>`
+    ? `<section class="vcard" aria-live="polite"><div class="vhead ok"><span class="badge">${ic('check', 26)}</span><span><b>Valid Care Passport</b>${esc(r.who)} · ${esc(progOf({ programme: r.programme }).name)} · ${esc(code.toUpperCase())}</span></div>
+       <div style="padding:14px">${passportHtml(state.cases.find((x) => x.id === id), { staff: state.staff })}</div></section>`
     : `<section class="vcard" aria-live="polite"><div class="vhead no"><span class="badge">${ic('close', 24)}</span><span><b>Not verified</b>${esc(r.why)}</span></div></section>`;
 }
 const q = new URLSearchParams(location.search);

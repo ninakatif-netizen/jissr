@@ -3,6 +3,13 @@
 Future Health Challenge 2026, challenge 05: closing the screening-to-care loop.
 Live demo: https://jissr-three.vercel.app/loop.html ("See it in 3 moments" on the home page).
 
+## The opening slide
+
+> For centuries, the falaj made sure water reached where life depended on it. Today, we bring that
+> principle to healthcare: every actionable screening result gets a clear pathway to care.
+
+**Falaj · The Care Passport.** One result. One passport. One continuous journey.
+
 ## The one sentence
 
 **Falaj makes sure every abnormal screening result ends in a confirmed visit with a doctor.**

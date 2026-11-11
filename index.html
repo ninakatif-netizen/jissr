@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Falaj: closing the screening-to-care loop</title>
-<meta name="description" content="Falaj: every abnormal screening result ends in a confirmed visit with a doctor. Call, hand over, close. Synthetic data only.">
+<title>Falaj: the Care Passport</title>
+<meta name="description" content="Falaj turns every actionable screening result into a Care Passport that follows the patient until a doctor confirms care. Synthetic data only.">
 <meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
@@ -23,10 +23,13 @@ ul.clean li{margin:6px 0}
 ol.num{padding-inline-start:22px} ol.num li{margin:10px 0}
 ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-d)}
 .why-falaj .wf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}.why-falaj .wf div{background:var(--card2);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}.why-falaj .wf b{font-size:15px}.why-falaj .wf span{font-size:14px;color:var(--ink-2)}
-.moments{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+.moments{display:grid;grid-template-columns:1fr;gap:14px;margin:18px 0}
+@media (min-width:760px){.moments{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .mn{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#0b6fa8;color:#fff;font-weight:700;margin-bottom:8px}
 .team summary{cursor:pointer;min-height:44px}
 .team .tiles{margin-top:12px}
+.ps-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,380px);gap:28px;align-items:start}
+@media (max-width:820px){.ps-grid{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="theme.css">
 </head>
@@ -36,9 +39,9 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
   <div class="top"><div class="brand" id="brand"></div></div>
 
   <div class="hero" style="position:relative">
-    <div class="kicker">Closing the screening-to-care loop</div>
-    <h1>No abnormal result left without an owner.</h1>
-    <p class="lead">Falaj makes sure every abnormal screening result ends in a confirmed visit with a doctor. An AI assistant calls the patient and books the visit, doctors hand the case to each other, and the loop closes only when the doctor confirms the consultation.</p>
+    <div class="kicker">Falaj · The Care Passport</div>
+    <h1>One result. One passport. One continuous journey.</h1>
+    <p class="lead">For centuries, the falaj made sure water reached where life depended on it. Falaj brings that principle to healthcare: every actionable screening result gets a Care Passport, with a responsible person at each step, until a doctor confirms the patient received care.</p>
     <div class="row cta">
       <a class="btn accent" href="loop.html" id="b0"></a>
       <a class="btn ghost" href="animation/index.html" id="b1"></a>
@@ -52,9 +55,38 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
     <a class="tile" href="loop.html"><div class="card"><span class="mn">3</span><h3>Close</h3><p class="muted">In the consultation, a voice note becomes the clinical note, with the patient's consent. The doctor confirms, and the loop closes with proof.</p></div></a>
   </div>
 
+  <section class="card passport-sec">
+    <div class="ps-grid">
+      <div>
+        <h2>The Care Passport</h2>
+        <p class="muted">Not another medical records app. A record of the next steps, who is responsible, the referrals, and the care that was confirmed. The patient opens it from a link; no new app to install.</p>
+        <ol class="num">
+          <li><b>Result communicated.</b> A person reached the patient, not just a message sent.</li>
+          <li><b>Understanding confirmed.</b> The patient explains the next step back, in their own words.</li>
+          <li><b>Referral accepted.</b> The receiving team takes responsibility. Until then, the sender keeps it.</li>
+          <li><b>Care delivered.</b> The visit, test or treatment is documented. A booking does not count.</li>
+          <li><b>Loop closed.</b> A clinician confirms the follow-up, or documents another valid decision.</li>
+        </ol>
+        <p class="muted">Each stamp is pressed only by the person who did the step. If progress stops, Falaj alerts the care team. The passport never shows the result.</p>
+      </div>
+      <div id="sample-passport"></div>
+    </div>
+  </section>
+
   <section class="card why-falaj">
-    <h2>Why the name Falaj</h2>
-    <p class="muted">For about 3,000 years the aflaj carried water from a mother well to every palm garden of the oases, and a named keeper made sure each plot got its turn. Falaj does the same for a screening result: it starts at the lab, it has a keeper at every moment, and it must reach the palm: the patient, in care.</p>
+    <h2>Why Falaj</h2>
+    <p class="muted">The aflaj carried water through connected channels to every palm garden of the oases, kept clear by the community, with a fair turn for each family. In 2020, UNESCO inscribed the aflaj, shared by the UAE and Oman, on its list of Intangible Cultural Heritage. The idea maps onto care, one to one:</p>
+    <div class="scroll" style="max-height:none"><table class="tbl" style="margin-top:8px">
+      <thead><tr><th>The falaj</th><th>Falaj, for care</th></tr></thead>
+      <tbody>
+        <tr><td>The water source</td><td>The screening result</td></tr>
+        <tr><td>The connected channels</td><td>Referrals and care pathways</td></tr>
+        <tr><td>Sharing the water fairly</td><td>Coordinating care, so nobody is skipped</td></tr>
+        <tr><td>The community that keeps it flowing</td><td>The responsible clinicians and care teams</td></tr>
+        <tr><td>Water reaching the oasis</td><td>The patient receiving the right care</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px"><b>Water sustains life. Continuity sustains care.</b> Detecting a problem is only the beginning; making sure care follows is what makes the difference.</p>
   </section>
 
   <details class="card team">
@@ -121,6 +153,14 @@ import { registerSW } from './core/pwa.mjs';
 registerSW();
 import { ic, wordmark } from './core/ui.mjs';
 import { falajScene } from './core/art.mjs';
+import { passportHtml } from './core/passport.mjs';
+import { buildState } from './core/data.mjs';
+import { isoDay } from './core/rules.mjs';
+{ // a sample passport from the synthetic demo data: a case closed with evidence
+  const demo = buildState(isoDay(Date.now())); const byStaff = (x) => (x.events || []).some((e) => e.type === 'understood' && e.role !== 'system' && e.role !== 'patient');
+  const c = demo.cases.find((x) => x.stage === 'closed' && byStaff(x)) || demo.cases.find((x) => x.stage === 'closed');
+  if (c) document.getElementById('sample-passport').innerHTML = passportHtml(c, { staff: demo.staff });
+}
 document.getElementById('brand').innerHTML = wordmark();
 document.querySelectorAll('[data-ic]').forEach((el) => { el.innerHTML = ic(el.dataset.ic, +el.dataset.s || 22); el.style.cssText = 'display:block;color:var(--accent-d);margin-bottom:8px'; });
 document.getElementById('b1').innerHTML = ic('wave', 18) + ' Watch the 50-second story';

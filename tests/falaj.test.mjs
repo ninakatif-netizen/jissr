@@ -127,3 +127,25 @@ test('family helper: UAE mobiles only, a link without the number, and never the 
   c.familyHelper = { ...helper, token: familyToken(c.id, helper), revoked: true };
   assert.equal(familyStatus(state, c.id, 'Aisha', c.familyHelper.token).ok, false, 'stopped sharing means no access');
 });
+
+import { milestones, passportHtml, passportId } from '../core/passport.mjs';
+import { advance, logEvent, closeCase } from '../core/cases.mjs';
+test('Care Passport: stamps only for recorded steps, by the right person, never the result', () => {
+  const state = buildState('2026-11-11');
+  const c = state.cases.find((x) => x.id === 'C-040');
+  assert.equal(passportId(c), 'FLJ-2026-0040');
+  assert.deepEqual(milestones(c).map(([s]) => s), ['todo', 'todo', 'todo', 'todo', 'todo'], 'a message sent is not "result communicated"');
+  logEvent(c, 'contact', { type: 'system', name: 'Falaj care line' }, 'AI call');
+  assert.equal(milestones(c)[0][0], 'todo', 'the AI call alone does not stamp "result communicated"');
+  const nurse = { type: 'staff', ...state.staff.find((x) => x.id === 'n2') };
+  logEvent(c, 'contact', nurse, 'Result explained by phone');
+  advance(state, 'C-040', 'understood', nurse, 'Teach-back done');
+  const m = milestones(c);
+  assert.equal(m[0][0], 'done'); assert.equal(m[1][0], 'done'); assert.equal(m[1][1].by, nurse.name);
+  advance(state, 'C-040', 'booked', { type: 'patient', name: 'Priya' }, 'Booked');
+  assert.equal(milestones(c)[3][0], 'todo', 'a booking is not care delivered');
+  const html = passportHtml(c, { staff: state.staff });
+  assert.ok(!/BI-RADS|suspicious|biopsy advised/i.test(html), 'the passport never shows the result');
+  const closed = state.cases.find((x) => x.stage === 'closed');
+  assert.equal(milestones(closed)[4][0], 'done');
+});

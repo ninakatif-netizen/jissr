@@ -187,8 +187,8 @@ import { loadState, saveState } from './core/store.mjs';
 import { buildState } from './core/data.mjs';
 import { addDays } from './core/rules.mjs';
 import { advance, skipStage, sendReferral, respondReferral, closeCase, requestNurse, logEvent, nextStageOf } from './core/cases.mjs';
-import { proofCode, proofUrl } from './core/proof.mjs';
-import { qrSvg } from './core/qr.mjs';
+import { proofUrl } from './core/proof.mjs';
+import { passportHtml, milestones } from './core/passport.mjs';
 registerSW();
 
 // ---- The story runs on Priya's real demo case. A week of care is compressed into a minute. ----
@@ -247,13 +247,13 @@ const ASIDE = [
   ['Moment 1 of 3 · The nurse', 'A person checks she understood.', `${NURSE_NAME}'s list says who needs a call and why. Priya explains the next step back in her own words. Only then is the visit confirmed.`, 'The rule', 'The AI routes people to the right human. It never replaces one.'],
   ['Moment 2 of 3 · The hand over', 'Nothing falls between two doctors.', `${GP_NAME} sees Priya and refers her. Watch the Care Passport: the owner changes only when the breast clinic accepts.`, 'The rule', 'The sender stays responsible until the specialist accepts. No reply in 2 days raises an alarm.'],
   ['Moment 3 of 3 · The close', 'The loop closes in the consultation.', `With Priya's consent, ${SPEC_NAME} dictates. The words become a draft note the doctor reviews, then confirms.`, 'The rule', 'A booked appointment is not care. Only a confirmed consultation closes the loop.'],
-  ['Loop closed', 'One Care Passport, from result to care.', "It travelled with Priya across four phones. Every step is in her real case: the nurse's list, her app and the passport.", 'Try it', 'Scan the QR code with a phone. It shows the journey and who did each step, never the result.'],
+  ['Loop closed', 'One result. One passport. One journey.', 'The passport travelled with Priya across four phones. Each stamp was pressed by the person who did the step: the nurse, the family doctor, the specialist.', 'Try it', 'Scan the QR code with a phone. It shows the journey and who did each step, never the result.'],
 ];
 
 const init = () => ({ step: 0, call: 'ring', n: 0, nurse: 'idle', share: { r: true, a: true, l: true, h: false }, hand: 'list', consent: false, rec: 'idle', m: 0, sheet: false });
 const q = new URLSearchParams(location.search);
 const FAST = q.get('fast') === '1' || matchMedia('(prefers-reduced-motion: reduce)').matches;
-let S = init(), timer = null, lastOwner = '';
+let S = init(), timer = null;
 const $ = (s) => document.querySelector(s);
 const set = (patch, focus) => { S = { ...S, ...patch }; render(focus); };
 const say = (t) => { $('#say').textContent = t; };
@@ -274,7 +274,8 @@ function callEnded() {
 }
 function nurseCalled() {
   act((n) => {
-    advance(state, ID, 'understood', NURSE, 'Phone call with an interpreter line in Malayalam. Teach-back: Priya explained the next step in her own words.');
+    logEvent(C(), 'contact', NURSE, 'Result explained by phone, with a Malayalam interpreter line.');
+    advance(state, ID, 'understood', NURSE, 'Teach-back: Priya explained the next step in her own words.');
     advance(state, ID, 'booked', PATIENT, `Booked by phone during the Falaj call: family doctor, ${fmt(GP_DAY)} 9:30. Confirmed by ${NURSE_NAME}.`);
     C().slot = { day: GP_DAY, time: '09:30' };
     if (C().nurseRequest) C().nurseRequest.done = true;
@@ -310,12 +311,13 @@ function passport() {
   if (s === 1 || S.call === 'done') return ['nurse', 'Check Priya understood', 'Visit held', 'amber'];
   return ['nurse', 'Reach Priya', 'Not reached', 'amber'];
 }
+let lastDone = null;   // which stamps were already there, so a new one is pressed in with a small animation
 function passCard() {
-  const [o, next, st, tone] = passport(), [ini, , col, label] = PEOPLE[o];
-  const moved = lastOwner && lastOwner !== o; lastOwner = o;
-  return `<section class="pass" aria-label="Care Passport"><div class="t"><span>Care Passport · Priya</span><span class="st ${tone}">${st}</span></div>
-    <div class="o${moved ? ' pop' : ''}"><span class="av" style="background:${col};box-shadow:0 0 0 2px rgba(255,255,255,.7)" aria-hidden="true">${ini}</span><span>Owner: <b>${label}</b></span></div>
-    <div class="n">Next: ${next}</div></section>`;
+  const [o, next, st, tone] = passport();
+  const done = milestones(C()).map(([x]) => x === 'done');
+  const fresh = lastDone ? done.map((d, i) => (d && !lastDone[i] ? i : -1)).filter((i) => i >= 0) : [];
+  lastDone = done;
+  return passportHtml(C(), { compact: true, owner: PEOPLE[o][3], next, status: st, tone, fresh });
 }
 
 // ---- small pieces ----
@@ -388,16 +390,13 @@ function screenClose() {
     ${mic}${dict}${ready}</div>`;
 }
 function screenDone() {
-  const c = C(), code = proofCode(c), url = proofUrl(c, location.origin);
+  const c = C(), url = proofUrl(c, location.origin);
   const days = Math.round((Date.parse(SPEC_DAY) - Date.parse(c.resultDay)) / 864e5);
-  const pick = [['contact', 'Called by Falaj'], ['understood', 'Understood, with the nurse'], ['attended', 'Seen by the family doctor'], ['referral_accepted', 'Referral accepted'], ['closed', 'Consultation confirmed']];
-  const steps = pick.map(([t, l]) => [l, c.events.find((e) => e.type === t)]).filter(([, e]) => e);
+  lastDone = milestones(c).map(([x]) => x === 'done');
   return `<div class="pop" style="display:flex;flex-direction:column;gap:18px"><div class="done"><span class="palm"><svg width="46" height="46" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 44V22" stroke="#7a5a2a" stroke-width="3" stroke-linecap="round"/><path d="M24 22c-3-7-11-9-17-6 6 0 11 2 17 6zM24 22c3-7 11-9 17-6-6 0-11 2-17 6zM24 22c-5-4-6-11-3-16 0 6 1 11 3 16zM24 22c5-4 6-11 3-16 0 6-1 11-3 16z" fill="var(--ok)"/><path d="M6 44c6-3 12-3 18 0s12 3 18 0" fill="none" stroke="var(--tint)" stroke-width="3" stroke-linecap="round"/></svg></span>
     <h1>Loop closed</h1><p>Priya reached a specialist ${days} days after her result, and a doctor confirmed it.</p></div>
-    ${passCard()}
-    <div class="card proof">${qrSvg(url, { size: 124, label: 'Care Passport ' + code })}<span><b>Passport code</b><code dir="ltr">${code}</code><small>Scan to check the journey. It never shows the result.</small><a href="${url.replace(location.origin + '/', '')}" id="openproof">Open the passport</a></span></div>
-    <details class="more"><summary>See every step</summary><ul class="list">${steps.map(([l, e]) => `<li class="row" style="justify-content:flex-start">${icCheck()}<span style="flex:1;white-space:normal">${l}</span><span class="v" style="font-size:15px">${fmt(e.at.slice(0, 10))}</span></li>`).join('')}</ul></details>
-    <div class="group"><div class="gh">The same case, everywhere</div><ul class="list links"><li class="row"><a href="care.html?role=nurse&as=${NURSE.id}">In ${NURSE_NAME}'s care app</a></li><li class="row"><a href="patient.html?p=${ID}&nosplash=1">In Priya's app</a></li></ul></div></div>`;
+    ${passportHtml(c, { qr: true, staff: state.staff, link: url.replace(location.origin + '/', ''), fresh: [4] })}
+    <div class="group"><div class="gh">The same passport, everywhere</div><ul class="list links"><li class="row"><a href="care.html?role=nurse&as=${NURSE.id}">In ${NURSE_NAME}'s care app</a></li><li class="row"><a href="patient.html?p=${ID}&view=proof&nosplash=1">In Priya's app</a></li></ul></div></div>`;
 }
 function sheetHtml() {
   return `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t" tabindex="-1" id="sheet">
@@ -427,7 +426,7 @@ function render(focusId) {
     : S.hand === 'sent' ? ['Accept as the breast clinic (demo)', () => { if (referralAccepted()) { set({ hand: 'accepted' }, 'next'); say(`Accepted by ${SPEC_NAME}. The Care Passport moves to the breast clinic.`); } }]
     : [`Next: ${SPEC_NAME}'s phone`, () => go(3)];
   if (S.step === 3 && S.rec === 'done') p = ['Review and confirm', () => set({ sheet: true })];
-  if (done) p = ['Replay the demo', () => { stop(); freshCase(); lastOwner = ''; S = init(); go(0); }];
+  if (done) p = ['Replay the demo', () => { stop(); freshCase(); lastDone = null; S = init(); go(0); }];
   $('#foot').innerHTML = p ? `<button class="primary" id="next">${p[0]}</button>` : '';
   $('#foot').hidden = !p;
   if (p) $('#next').onclick = p[1];

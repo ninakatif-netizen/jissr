@@ -127,9 +127,9 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   { const g = await browser.newPage(); await g.goto(BASE + 'patient.html?p=C-012&nosplash=1&fresh=1'); await g.click('#uaep'); await g.waitForSelector('.uaep .qr');
     await g.click('#uaep-ok'); await g.waitForTimeout(400);
     ok(!(await g.$('.otp .d')), 'signing in with UAE PASS (simulated) opens the app');
-    await g.goto(BASE + 'patient.html?p=C-012&view=proof&nosplash=1'); await g.waitForSelector('.proof-c .qr');
-    const code = await g.innerText('.proof-c b'); await g.goto(BASE + 'verify.html?c=C-012&code=' + code); await g.waitForSelector('#out section');
-    ok(/Valid proof of care/.test(await g.innerText('#out')), 'the code on the receipt checks out on the verify page'); await g.close(); }
+    await g.goto(BASE + 'patient.html?p=C-012&view=proof&nosplash=1'); await g.waitForSelector('.cp-q .qr');
+    const code = await g.innerText('.cp-q code'); await g.goto(BASE + 'verify.html?c=C-012&code=' + code); await g.waitForSelector('#out section');
+    ok(/Valid Care Passport/.test(await g.innerText('#out')), 'the code on the Care Passport checks out on the verify page'); await g.close(); }
   // family helper: the patient invites by number, the helper accepts on their own screen, never sees a result
   { const g = await browser.newPage(); await g.goto(BASE + 'patient.html?p=C-004&view=family&nosplash=1&fresh=1');
     if (await g.$('.otp .d')) { const d = await g.$$('.otp .d'); for (let i = 0; i < 4; i++) await d[i].fill('2026'[i]); await g.waitForSelector('#fn'); }
@@ -196,15 +196,15 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     ok(/Held/.test(call) && /will call today/.test(call) && !/\d+(\.\d+)?%/.test(call), 'the call holds the visit, hands worry to the nurse, never gives a result');
     await l.click('#next'); ok(/Call today/i.test(await l.innerText('#main')), 'the nurse sees Priya flagged: call today');
     await l.click('#callp'); ok(/understood/i.test(await l.innerText('#main')), 'the nurse checks understanding before the visit is confirmed');
-    await l.click('#next'); ok(/Owner:.*Mariam/s.test(await l.innerText('.pass')), 'the Care Passport shows the family doctor as owner');
+    await l.click('#next'); ok(/Responsible:.*Mariam/s.test(await l.innerText('main .cp')), 'the Care Passport shows the family doctor as owner');
     await l.click('#openp'); await l.click('#next'); ok(/Waiting for the breast clinic/.test(await l.innerText('#main')), 'the GP stays responsible until the specialist accepts');
-    await l.click('#next'); ok(/Accepted by/.test(await l.innerText('#main')) && /Owner:.*Noura/s.test(await l.innerText('.pass')), 'the specialist accepts, and the Care Passport moves to them');
+    await l.click('#next'); ok(/Accepted by/.test(await l.innerText('#main')) && /Responsible:.*Noura/s.test(await l.innerText('main .cp')), 'the specialist accepts, and the Care Passport moves to them');
     await l.click('#next'); ok((await l.getAttribute('#rec', 'aria-disabled')) === 'true', 'no recording without the patient\'s consent');
     await l.click('#consent'); await l.click('#rec'); await l.waitForSelector('#next');
     await l.click('#next'); ok(/Clinical note/i.test(await l.innerText('#sheet')), 'the voice note becomes a draft clinical note, reviewed in a sheet');
-    await l.click('#confirm'); ok(/Loop closed/.test(await l.innerText('#main')) && !!(await l.$('#main svg.qr')), 'confirming closes the loop and shows a proof QR');
+    await l.click('#confirm'); ok(/Loop closed/.test(await l.innerText('#main')) && !!(await l.$('#main .cp-q svg.qr')) && (await l.$$('#main .cp-stamps li.done')).length === 5, 'confirming closes the loop: five stamps and a Care Passport QR');
     await l.click('#openproof'); await l.waitForTimeout(400);
-    ok(/Valid proof of care/.test(await l.innerText('body')), 'the proof from the three moments verifies');
+    const vt = await l.innerText('body'); ok(/Valid Care Passport/.test(vt) && /Loop closed/i.test(vt) && !/BI-RADS|\d+(\.\d+)?%/.test(vt), 'the Care Passport from the three moments verifies, without the result');
     await l.close(); }
   ok((await s.getAttribute('#b3', 'href')).includes('tour=0'), 'the home page offers the guided tour');
   ok((await s.getAttribute('#b3', 'href')).includes('C-040'), 'the tour follows one story: Priya, BI-RADS 4');
