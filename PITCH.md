@@ -33,6 +33,17 @@ journey across those organisations. **Falaj is a Care Passport for a multilingua
 
 Do not say: "we invented closed-loop care", "AI replaces navigators", or any figure not in this list.
 
+## Before / with Falaj (no invented numbers)
+
+| Before | With Falaj |
+|---|---|
+| The result leaves as a letter or portal message, often in a language the patient does not read | The Intake agent reads the report, a person confirms the result, rules set an owner and a deadline the same day |
+| Nobody is named as responsible | The Outreach agent calls in the patient's language; a nurse checks understanding |
+| A referral waits for days unnoticed | The sender stays responsible until acceptance; the Referral agent chases after 2 days |
+| Nobody knows if the patient was seen | The loop closes only when a doctor confirms care, and the sender is told |
+
+Figures: only the two published trials above. Falaj itself has not been measured; that is what a pilot is for.
+
 ## The one sentence
 
 **Falaj makes sure every abnormal screening result ends in a confirmed visit with a doctor.**

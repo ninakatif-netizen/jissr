@@ -31,11 +31,11 @@
 import { registerSW } from './core/pwa.mjs';
 import { loadState, saveState, resetState } from './core/store.mjs';
 import { isOverdue, mustCall, slotsFor, addDays } from './core/rules.mjs';
-import { advance, skipStage, sendReferral, respondReferral, completeReferral, closeCase, logContact, logEvent, nextStageOf } from './core/cases.mjs';
+import { advance, skipStage, sendReferral, respondReferral, completeReferral, closeCase, logContact, logEvent, nextStageOf, createCase } from './core/cases.mjs';
 import { progOf, resultText, targetsFor } from './core/programmes.mjs';
 import { passportHtml } from './core/passport.mjs';
 import { flowOf, flowSvg, levelOf, CHANNELS } from './core/flow.mjs';
-import { runAgents, agentSummary, AGENTS } from './core/agents.mjs';
+import { runAgents, agentSummary, AGENTS, readDocument, SAMPLE_DOCUMENTS } from './core/agents.mjs';
 import { proofUrl } from './core/proof.mjs';
 registerSW();
 
@@ -178,7 +178,7 @@ function flowRow(c, act) {
 function agentsCard(s) {
   const a = agentSummary(scopeCases(s), TODAY);
   const stat = (n, l) => `<div><b>${n}</b><span>${l}</span></div>`;
-  return `<section class="card agents" aria-labelledby="ag-t"><div class="top"><h2 id="ag-t">The agents today</h2><button class="light" id="runagents">Run the agents (demo)</button></div>
+  return `<section class="card agents" aria-labelledby="ag-t"><div class="top"><h2 id="ag-t">The agents today</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="light" id="newdoc">New document</button><button class="light" id="runagents">Run the agents (demo)</button></span></div>
     <div class="agrid">${stat(a.calls, `calls made${a.calls ? `, ${a.answered} answered` : ''}`)}${stat(a.confirmed, 'visits confirmed by YES')}${stat(a.reminders + a.missed, 'reminders and missed visits')}${stat(a.chased + a.status, 'referrals chased or reported')}${stat(a.preauth, 'pre-approvals')}${stat(a.flagged, 'passed to a person')}</div>
     ${a.items.length ? `<details class="more"><summary>Every action (${a.items.length})</summary><ul class="timeline">${a.items.slice().reverse().map(({ c, e }) => `<li><span><b>${esc(first(c))} · ${esc(AGENTS[e.agent].name)}</b><small>${esc(e.note)}</small></span></li>`).join('')}</ul></details>` : ''}
     <p class="gf" style="padding:0">Agents move the next step forward and log everything. They never confirm understanding, record a visit, accept a referral or close a loop. Patient replies are simulated.</p></section>`;
@@ -302,6 +302,61 @@ function wireSheet(s, c) {
   on('do-report', () => done(() => completeReferral(state, c.id, s, DICT[c.programme || 'hba1c'].join(' ')), 'Report sent back to the family doctor.'));
 }
 
+// ---- intake: a document arrives; the agent reads it; a person confirms the result; the checklist runs ----
+let intake = null;
+const LANGS = { en: 'English', ar: 'Arabic', ur: 'Urdu', hi: 'Hindi', tl: 'Tagalog', bn: 'Bengali', ml: 'Malayalam' };
+const resultLabel = (f) => (f.programme === 'mammo' ? `BI-RADS ${f.birads ?? '?'}` : f.programme === 'fit' ? `FIT ${f.fit ?? '?'}` : f.programme === 'hba1c' ? `HbA1c ${f.value ?? '?'}%` : 'Not found');
+function intakeHtml(s) {
+  const wrap = (title, body) => `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="in-t" tabindex="-1" id="sheet"><span class="grab" aria-hidden="true"></span><h2 id="in-t">${title}</h2>${body}${intake.err ? `<p class="err" role="alert">${esc(intake.err)}</p>` : ''}<button class="wide ghost" id="in-x">${intake.step === 'done' ? 'Close' : 'Cancel'}</button></div></div>`;
+  if (intake.step === 'pick') return wrap('New document', `<p>A lab report or a referral letter has arrived. The Intake agent reads it; a person confirms the result.</p>
+    <fieldset class="choice"><legend class="sr">Document</legend>${SAMPLE_DOCUMENTS.map((d, i) => `<label><input type="radio" name="doc" value="${i}"${intake.doc === i ? ' checked' : ''}>${esc(d.title)}</label>`).join('')}<label><input type="radio" name="doc" value="paste"${intake.doc === 'paste' ? ' checked' : ''}>Paste a document</label></fieldset>
+    ${intake.doc === 'paste' ? `<div class="field"><label for="in-paste">The document</label><textarea id="in-paste">${esc(intake.text || '')}</textarea></div>` : ''}
+    <button class="wide go" id="in-read">Read it</button><p class="demo-note">Synthetic documents only. Never paste real patient data.</p>`);
+  if (intake.step === 'review') {
+    const f = intake.f, miss = (k) => f.missing.includes(k);
+    const row = (k, label, val) => `<li class="row"${miss(k) ? ' style="background:var(--warn-l)"' : ''}><span>${label}</span><span class="v">${miss(k) ? '<b style="color:var(--warn-ink)">Not found</b>' : esc(val)}</span></li>`;
+    return wrap('Check what the agent read', `<pre class="card" tabindex="0" aria-label="The document" style="white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace;margin:0;max-height:150px;overflow:auto">${esc(intake.text)}</pre>
+      <ul class="list">${row('name', 'Patient', f.name)}${row('age', 'Age', f.age)}${miss('language') ? `<li class="row" style="background:var(--warn-l)"><label for="in-lang">Language</label><select id="in-lang" style="font:inherit;min-height:40px">${Object.entries(LANGS).map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select></li>` : row('language', 'Language', LANGS[f.language])}${row('programme', 'Test', { mammo: 'Mammogram', fit: 'Bowel test (FIT)', hba1c: 'HbA1c' }[f.programme])}${row('from', 'From', f.from)}</ul>
+      <div class="hl"><div class="top"><b>Result: ${esc(resultLabel(f))}</b><span class="st amber">A person confirms</span></div>
+        <p class="q">The agent never guesses a result. Check it against the document: a misread value would change the urgency.</p>
+        <label style="display:flex;gap:12px;align-items:center;font-size:15px"><input type="checkbox" id="in-ok" style="width:22px;height:22px;accent-color:var(--go)">I checked the result against the document</label></div>
+      <button class="wide go" id="in-create">Create the case</button>`);
+  }
+  const c = state.cases.find((x) => x.id === intake.created), o = c && staffOf(c.owner);
+  const ticks = [`Care Passport created · ${c.id}`, `Owner set by the rules: ${o ? cleanName(o.name) : 'the care team'} · follow up by ${fmt(c.due)}`, `Acknowledgment sent to ${intake.f.from || 'the sender'}`, `Outreach agent will call in ${LANGS[c.patient.language]}`, 'The patient books after a person checks understanding'];
+  return wrap('The workflow ran', `<ol class="ticks">${ticks.map((x, i) => `<li style="animation-delay:${i * 0.25}s"><span aria-hidden="true">✓</span>${esc(x)}</li>`).join('')}</ol><button class="wide" id="in-open">Open ${esc(c.patient.name.split(' ')[0])}'s case</button>`);
+}
+function wireIntake(s) {
+  const on = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = fn; };
+  const close = () => { intake = null; render(); };
+  on('in-x', close); $('#scrim').onclick = (e) => { if (e.target.id === 'scrim') close(); };
+  $('#sheet').onkeydown = (e) => { if (e.key === 'Escape') close(); };
+  document.querySelectorAll('input[name=doc]').forEach((r) => r.onchange = () => { intake.doc = r.value === 'paste' ? 'paste' : +r.value; render(); });
+  on('in-read', () => {
+    const text = intake.doc === 'paste' ? ($('#in-paste') || {}).value || '' : SAMPLE_DOCUMENTS[intake.doc].text;
+    if (!text.trim()) { intake.err = 'Paste a document first.'; render(); return; }
+    intake = { ...intake, text, f: readDocument(text), step: 'review', err: '' }; render();
+  });
+  on('in-create', () => {
+    const f = intake.f;
+    if (!$('#in-ok').checked) { intake.err = 'Please confirm the result against the document first.'; render(); return; }
+    const language = f.language || ($('#in-lang') || {}).value;
+    try {
+      const agent = { type: 'system', name: 'Falaj agent · Intake' };
+      const c = createCase(state, agent, { name: f.name, age: f.age, language, today: TODAY, programme: f.programme || 'hba1c', value: f.value, result: f.fit, birads: f.birads });
+      c.events[0].by = `Read by the Intake agent; result confirmed by ${cleanName(s.name)}`;
+      const at = new Date().toISOString();
+      logEvent(c, 'agent', agent, `Read the document from ${f.from || 'the sender'}. Result confirmed by ${cleanName(s.name)}.`, at, { agent: 'intake', kind: 'read', day: TODAY });
+      logEvent(c, 'agent', agent, `Acknowledgment sent to ${f.from || 'the sender'}: received, owner assigned.`, at, { agent: 'intake', kind: 'ack', day: TODAY });
+      logEvent(c, 'agent', agent, `Outreach scheduled: call in ${LANGS[language]}.`, at, { agent: 'intake', kind: 'scheduled', day: TODAY });
+      saveState(state);
+      intake = { ...intake, created: c.id, step: 'done', err: '' }; render(); toast('Case created. The water enters the falaj.');
+    } catch (e) { intake.err = e.message; render(); }
+  });
+  on('in-open', () => { const id = intake.created; intake = null; nav({ c: id }); });
+  const sh = $('#sheet'); if (sh && !sh.contains(document.activeElement)) sh.focus();
+}
+
 // ---- render ----
 function render() {
   state = loadState();
@@ -315,12 +370,13 @@ function render() {
     $('#tabs').hidden = false;
     $('#tabs').innerHTML = `<a href="?as=${s.id}" data-tab="attention"${!c && p.tab !== 'patients' ? ' aria-current="page"' : ''}>${icon.water}Falaj${n ? `<span class="badge" aria-label="${n} to do">${n}</span>` : ''}</a><a href="?as=${s.id}&tab=patients" data-tab="patients"${!c && p.tab === 'patients' ? ' aria-current="page"' : ''}>${icon.list}Patients</a>`;
   }
-  $('#sheetroot').innerHTML = sheet && s && c ? sheetHtml(actorOf(s), c) : '';
-  ['#bar', '#main', '#tabs'].forEach((x) => { $(x).inert = !!(sheet && c); });
+  $('#sheetroot').innerHTML = intake && s ? intakeHtml(s) : sheet && s && c ? sheetHtml(actorOf(s), c) : '';
+  ['#bar', '#main', '#tabs'].forEach((x) => { $(x).inert = !!((sheet && c) || (intake && s)); });
   // wiring
   document.querySelectorAll('[data-case]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ c: a.dataset.case }); });
   document.querySelectorAll('[data-as]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ as: a.dataset.as, c: '', tab: 'attention' }); });
   document.querySelectorAll('[data-tab]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ c: '', tab: a.dataset.tab }); });
+  const nd = $('#newdoc'); if (nd) nd.onclick = () => { intake = { step: 'pick', doc: 0, err: '' }; render(); };
   const ra = $('#runagents'); if (ra) ra.onclick = () => { const out = runAgents(state, TODAY); saveState(state); const acts = out.filter((x) => x.kind !== 'flag').length, fl = out.length - acts; toast(out.length ? `The agents took ${acts} actions${fl ? ` and passed ${fl} to a person` : ''}.` : 'Nothing new for the agents today.'); render(); const x = $('#runagents'); if (x) x.focus(); };
   document.querySelectorAll('[data-flow]').forEach((b) => b.onclick = () => { flowSel = b.dataset.flow; render(); const x = document.querySelector(`[data-flow="${flowSel}"]`); if (x) x.focus(); });
   document.querySelectorAll('[data-scope]').forEach((b) => b.onclick = () => { scope = b.dataset.scope; render(); const x = document.querySelector(`[data-scope="${scope}"]`); if (x) x.focus(); });
@@ -334,6 +390,7 @@ function render() {
     if (id === 'accept') return void (act(() => respondReferral(state, c.id, a, { accept: true, note: 'Accepted.' }), 'Accepted. You are now responsible. Passport stamped.') && render());
     sheet = { kind: id }; sheetErr = ''; render();
   });
+  if (intake && s) wireIntake(s);
   if (sheet && s && c) { wireSheet(actorOf(s), c); const sh = $('#sheet'); if (sh && !sh.contains(document.activeElement)) sh.focus(); }
 }
 if (new URLSearchParams(location.search).get('reset') === '1') { resetState(); state = loadState(); }

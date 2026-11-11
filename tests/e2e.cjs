@@ -221,6 +221,11 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await f.click('[data-scope="all"]'); await f.click('#runagents'); await f.waitForTimeout(300);
     const ag = await f.innerText('.agents');
     ok(/calls made/.test(ag) && /never confirm understanding/.test(ag) && (await f.$$('.agents .timeline li')).length > 0, 'the agents run, show every action, and say what they never do');
+    await f.click('#newdoc'); await f.click('#in-read'); await f.click('#in-create');
+    ok(/confirm the result/i.test(await f.innerText('#sheet')), 'the Intake agent will not create a case until a person confirms the result');
+    await f.check('#in-ok'); await f.click('#in-create'); await f.waitForSelector('.ticks');
+    ok(/Care Passport created/.test(await f.innerText('.ticks')) && /Acknowledgment sent/.test(await f.innerText('.ticks')), 'a document becomes a case: passport, owner, acknowledgment, outreach');
+    await f.click('#in-open'); ok(/Meera Pillai/.test(await f.innerText('main')), 'the new case opens with its Care Passport');
     await f.goto(BASE + 'pathways.html'); await f.click('[data-node="1"]');
     ok(/may never/i.test(await f.innerText('.panel')) && /result or a diagnosis/.test(await f.innerText('.panel')), 'the channel map says what the AI may never do');
     await f.close(); }

@@ -13,6 +13,7 @@ import { addDays, slotsFor, mustCall, REFERRAL_REPLY_DAYS, daysBetween } from '.
 import { advance, logEvent, requestNurse } from './cases.mjs';
 
 export const AGENTS = {
+  intake: { name: 'Intake', does: 'Reads a lab report or a referral letter, fills in the case, acknowledges the sender and starts the outreach.', never: 'Guess or change a result: a person confirms it against the document.' },
   outreach: { name: 'Outreach', does: 'Calls patients nobody has reached, in their language; retries outside working hours; holds a visit; passes worry to the nurse.', never: 'Talk about the result or a diagnosis.' },
   booking: { name: 'Booking', does: 'Asks the patient to confirm the held time, reminds the day before, offers a new time after a missed visit.', never: 'Record that a visit happened.' },
   referral: { name: 'Referral', does: 'Chases a referral not accepted in time, alerts the sender, tells the referring doctor the status.', never: 'Accept or decline a referral for anyone.' },
@@ -101,3 +102,29 @@ export function agentSummary(cases, day) {
     items: ev.sort((a, b) => a.e.at.localeCompare(b.e.at)),
   };
 }
+
+// ---- Intake: read a document (a lab report or a referral letter). Deterministic patterns for the demo; in a pilot a
+// language model or the lab feed (Malaffi) would fill these fields. Anything not found is left empty for a person.
+const LANG_CODE = { english: 'en', arabic: 'ar', urdu: 'ur', hindi: 'hi', tagalog: 'tl', filipino: 'tl', bengali: 'bn', bangla: 'bn', malayalam: 'ml' };
+export function readDocument(text) {
+  const t = String(text || ''), get = (re) => { const m = t.match(re); return m ? m[1].trim() : null; };
+  const programme = /mammogra|bi-?rads/i.test(t) ? 'mammo' : /\bFIT\b|faecal|fecal|stool/i.test(t) ? 'fit' : /hba1c/i.test(t) ? 'hba1c' : null;
+  const lang = get(/language\s*:?\s*([A-Za-z]+)/i);
+  const f = {
+    name: get(/patient\s*(?:name)?\s*:\s*([^\n·|,]+)/i),
+    age: get(/age\s*:?\s*(\d{2,3})/i),
+    language: lang ? LANG_CODE[lang.toLowerCase()] || null : null,
+    programme,
+    from: get(/(?:referring clinic|from|sender)\s*:\s*([^\n]+)/i),
+    birads: programme === 'mammo' ? get(/bi-?rads\s*(\d)/i) : null,
+    fit: programme === 'fit' ? (/positive/i.test(t) ? 'positive' : /negative/i.test(t) ? 'negative' : null) : null,
+    value: programme === 'hba1c' ? get(/hba1c[^\d\n]{0,20}(\d{1,2}(?:\.\d)?)\s*%/i) : null,
+  };
+  f.missing = ['name', 'age', 'language', 'programme', 'from'].filter((k) => !f[k]).concat(programme === 'mammo' && !f.birads ? ['birads'] : programme === 'fit' && !f.fit ? ['fit'] : programme === 'hba1c' && !f.value ? ['value'] : []);
+  return f;
+}
+export const SAMPLE_DOCUMENTS = [
+  { title: 'Mammogram report', text: 'DEMO RADIOLOGY CENTRE · Screening mammogram report\nPatient: Meera Pillai\nAge: 52\nPreferred language: Malayalam\nImpression: BI-RADS 4. Suspicious abnormality, tissue sampling advised.\nReferring clinic: Family clinic (private network)' },
+  { title: 'Bowel screening (FIT)', text: 'DEMO COMMUNITY LAB · Faecal immunochemical test (FIT)\nPatient: Omar Haddad\nAge: 61\nPreferred language: Arabic\nResult: POSITIVE\nFrom: Demo community lab' },
+  { title: 'HbA1c result', text: 'DEMO LAB · Glycated haemoglobin\nPatient: Joy Santos\nAge: 45\nPreferred language: Tagalog\nHbA1c: 8.9 %\nFrom: Demo community lab' },
+];

@@ -174,3 +174,12 @@ test('Falaj agents move things forward but never take a clinical decision', () =
   const s = agentSummary(state.cases, '2026-11-11');
   assert.ok(s.calls > 0 && s.items.length >= s.calls);
 });
+
+import { readDocument } from '../core/agents.mjs';
+test('Intake agent reads a document and leaves anything it cannot find for a person', () => {
+  const f = readDocument('Screening mammogram report\nPatient: Test Person\nAge: 50\nImpression: BI-RADS 4');
+  assert.equal(f.programme, 'mammo'); assert.equal(f.birads, '4'); assert.equal(f.name, 'Test Person');
+  assert.ok(f.missing.includes('language') && f.missing.includes('from'), 'missing fields are listed, not guessed');
+  const g = readDocument('HbA1c result for Patient: Someone\nAge: 40');
+  assert.ok(g.missing.includes('value'), 'no number is invented when the result is not in the document');
+});
