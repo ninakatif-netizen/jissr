@@ -196,12 +196,13 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     ok(/Held/.test(call) && /will call today/.test(call) && !/\d+(\.\d+)?%/.test(call), 'the call holds the visit, hands worry to the nurse, never gives a result');
     await l.click('#next'); ok(/Call today/i.test(await l.innerText('#main')), 'the nurse sees Priya flagged: call today');
     await l.click('#callp'); ok(/understood/i.test(await l.innerText('#main')), 'the nurse checks understanding before the visit is confirmed');
-    await l.click('#next'); await l.click('#next'); ok(/Waiting for the breast clinic/.test(await l.innerText('#main')), 'the GP stays responsible until the specialist accepts');
-    await l.click('#next'); ok(/Accepted by/.test(await l.innerText('#main')), 'the specialist accepts the case');
+    await l.click('#next'); ok(/Owner:.*Mariam/s.test(await l.innerText('.pass')), 'the Care Passport shows the family doctor as owner');
+    await l.click('#openp'); await l.click('#next'); ok(/Waiting for the breast clinic/.test(await l.innerText('#main')), 'the GP stays responsible until the specialist accepts');
+    await l.click('#next'); ok(/Accepted by/.test(await l.innerText('#main')) && /Owner:.*Noura/s.test(await l.innerText('.pass')), 'the specialist accepts, and the Care Passport moves to them');
     await l.click('#next'); ok((await l.getAttribute('#rec', 'aria-disabled')) === 'true', 'no recording without the patient\'s consent');
     await l.click('#consent'); await l.click('#rec'); await l.waitForSelector('#next');
-    ok(/Clinical note/i.test(await l.innerText('#main')), 'the voice note becomes a draft clinical note');
-    await l.click('#next'); ok(/Loop closed/.test(await l.innerText('#main')) && !!(await l.$('#main svg.qr')), 'confirming closes the loop and shows a proof QR');
+    await l.click('#next'); ok(/Clinical note/i.test(await l.innerText('#sheet')), 'the voice note becomes a draft clinical note, reviewed in a sheet');
+    await l.click('#confirm'); ok(/Loop closed/.test(await l.innerText('#main')) && !!(await l.$('#main svg.qr')), 'confirming closes the loop and shows a proof QR');
     await l.click('#openproof'); await l.waitForTimeout(400);
     ok(/Valid proof of care/.test(await l.innerText('body')), 'the proof from the three moments verifies');
     await l.close(); }

@@ -31,7 +31,7 @@ two doctors."
 
 **2:05 · Moment 3, the close (35 s)**
 "In the consultation, with Priya's consent, Dr Noura dictates. The words become a draft note she checks
-and confirms. Only then is the loop closed, with a proof of care: scan the QR, it shows every step and who
+and confirms. Only then is the loop closed. Her Care Passport travelled with her the whole way: scan the QR, it shows every step and who
 did it, never the result. The audio is deleted; only the confirmed note is kept."
 
 **2:40 · Why we can be trusted (15 s)**
