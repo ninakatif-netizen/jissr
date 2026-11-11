@@ -34,6 +34,30 @@
 .langs button[aria-pressed=true]{color:var(--ink);background:var(--line)}
 .fam-q{display:flex;gap:14px;align-items:center}
 .fam-q .qr{flex:none;border-radius:6px}
+.appt{display:flex;background:var(--card);border-radius:16px;overflow:hidden;min-height:84px}
+.appt .d{background:var(--fill);color:#fff;width:80px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;font-weight:600}
+.appt .d b{font-size:30px;line-height:1}
+.appt.held .d{background:var(--warn-l);color:var(--warn-ink)}
+.appt .i{padding:12px 14px;display:flex;flex-direction:column;gap:2px;font-size:15px}
+.appt .i b{font-size:17px}.appt .i small{color:var(--muted);font-size:13px}
+.chan2{list-style:none;margin:0;padding:0}
+.chan2 li{position:relative;padding:0 0 18px;padding-inline-start:46px;min-height:44px}
+.chan2 li::before{content:"";position:absolute;inset-inline-start:15px;top:32px;bottom:0;width:4px;border-radius:2px;background:repeating-linear-gradient(180deg,var(--off) 0 6px,transparent 6px 11px)}
+.chan2 li.done::before{background:linear-gradient(180deg,var(--tint),#36b5e8,var(--tint));background-size:100% 40px;animation:wtr 2.4s linear infinite}
+.chan2 li:last-child::before{display:none}
+@keyframes wtr{to{background-position:0 40px}}
+.chan2 .node{position:absolute;inset-inline-start:2px;top:0;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:2px dashed var(--off);background:var(--bg);color:var(--muted);font-weight:700;font-size:13px}
+.chan2 li.done .node{background:var(--tint);border:0;color:#fff}
+.chan2 li.now .node{border:2.5px solid var(--tint);color:var(--tint);animation:wpulse 1.8s ease-out infinite}
+@keyframes wpulse{0%{box-shadow:0 0 0 0 rgba(11,111,168,.35)}100%{box-shadow:0 0 0 12px rgba(11,111,168,0)}}
+.chan2 b{display:block;font-size:17px;padding-top:4px}
+.chan2 li:not(.done):not(.now) b{color:var(--muted);font-weight:600}
+.chan2 small{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.chan2 .nowcard{margin-top:10px}
+.msgs .b a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--tint)}
+.msgs .b.ai{display:flex;flex-direction:column;gap:4px}
+.msgs .b .tr{color:var(--muted);font-size:13px}.msgs .b .w{color:var(--muted);font-size:12px}
+@media (prefers-reduced-motion:reduce){.chan2 li.done::before,.chan2 li.now .node{animation:none}}
 </style>
 </head>
 <body>
@@ -58,9 +82,10 @@ import { registerSW } from './core/pwa.mjs';
 import { loadState, saveState, resetState } from './core/store.mjs';
 import { mustCall, slotsFor } from './core/rules.mjs';
 import { advance, requestNurse, setBarrier, setChannel, logEvent } from './core/cases.mjs';
-import { explanation, barrierText } from './core/templates.mjs';
+import { explanation, barrierText, firstMessage } from './core/templates.mjs';
 import { passportHtml, milestones } from './core/passport.mjs';
 import { qrSvg } from './core/qr.mjs';
+import { proofCode, proofUrl } from './core/proof.mjs';
 import { normaliseUaeMobile, maskPhone, familyToken, familyUrl, inviteText } from './core/family.mjs';
 registerSW();
 
@@ -74,7 +99,10 @@ const store = { get: (k) => { try { return localStorage.getItem(k); } catch { re
 const T = {
   en: {
     who: 'Who are you?', whoSub: 'Pick a patient to open their app. In the demo there is no sign-in.', team: 'Open the care team app instead',
-    hello: (n) => `Hello ${n}`, tabs: ['Home', 'Journey', 'Passport', 'Family'], next: 'Your next step',
+    hello: (n) => `Hello ${n}`, tabs: ['Steps', 'Messages', 'Passport', 'Family'], next: 'Your next step', nextSteps: 'Your next steps', apptT: 'Family doctor visit', heldT: 'Held for you', place: 'Falaj demo clinic',
+    steps: { told: 'Hear about your result', understood: 'Say the next step in your own words', booked: 'Book your visit', seen: 'See your doctor', accepted: (to) => `${to} accepts you`, closed: 'Your care is confirmed' },
+    msgT: 'Messages', msgX: (ch) => `What Falaj sent you by ${ch}.`, openSteps: 'Open my steps', translated: 'In English:', callLog: 'Call from the Falaj care line', nurseLog: (n) => `Call with ${n}`,
+    mBooked: (d) => `Your visit with your family doctor is on ${d}. Reply YES to confirm.`, mYes: 'YES', mConfirmed: 'Thank you, your visit is confirmed. A reminder comes the day before.', mAccepted: (to) => `${to} has accepted your referral. They will contact you for an appointment.`, mClosed: 'Your care is confirmed. Your Care Passport is complete.',
     jT: 'My care journey', jX: 'Every step of your care, who did it, and what comes next.', notYet2: 'Not yet', nextUp: 'Next', reread: 'Read my result again', backHome: '‹ Home',
     ms: ['Result communicated', 'Understanding confirmed', 'Referral accepted', 'Care delivered', 'Loop closed'], na: 'Not needed for you',
     msX: ['Someone from your care team talked with you about your result.', 'You explained the next step in your own words.', 'A specialist team accepted to take care of the next step.', 'The visit, test or treatment you needed took place.', 'A doctor confirmed your follow-up is complete.'],
@@ -109,7 +137,10 @@ const T = {
   },
   ar: {
     who: 'من أنت؟', whoSub: 'اختر مريضاً لفتح تطبيقه. لا يوجد تسجيل دخول في النسخة التجريبية.', team: 'فتح تطبيق فريق الرعاية',
-    hello: (n) => `مرحباً ${n}`, tabs: ['الرئيسية', 'رحلتي', 'الجواز', 'العائلة'], next: 'خطوتك التالية',
+    hello: (n) => `مرحباً ${n}`, tabs: ['خطواتي', 'الرسائل', 'الجواز', 'العائلة'], next: 'خطوتك التالية', nextSteps: 'خطواتك التالية', apptT: 'زيارة طبيب الأسرة', heldT: 'محجوز لك', place: 'عيادة فلج التجريبية',
+    steps: { told: 'معرفة نتيجتك', understood: 'قول الخطوة التالية بكلماتك', booked: 'حجز موعدك', seen: 'زيارة طبيبك', accepted: (to) => `قبول ${to} لتحويلك`, closed: 'تأكيد رعايتك' },
+    msgT: 'الرسائل', msgX: (ch) => `ما أرسله لك فلج عبر ${ch}.`, openSteps: 'فتح خطواتي', translated: 'بالعربية:', callLog: 'مكالمة من خط الرعاية في فلج', nurseLog: (n) => `مكالمة مع ${n}`,
+    mBooked: (d) => `موعدك مع طبيب الأسرة في ${d}. أرسل «نعم» للتأكيد.`, mYes: 'نعم', mConfirmed: 'شكراً لك، تم تأكيد موعدك. يصلك تذكير قبل الموعد بيوم.', mAccepted: (to) => `قبلت ${to} تحويلك، وستتواصل معك لتحديد موعد.`, mClosed: 'تم تأكيد رعايتك. جواز الرعاية مكتمل.',
     jT: 'رحلة رعايتي', jX: 'كل خطوة في رعايتك، ومن قام بها، وما الخطوة التالية.', notYet2: 'لم يتم بعد', nextUp: 'التالي', reread: 'قراءة نتيجتي مرة أخرى', backHome: '‹ الرئيسية',
     ms: ['إبلاغ النتيجة', 'تأكيد الفهم', 'قبول الإحالة', 'تقديم الرعاية', 'إغلاق الحلقة'], na: 'غير مطلوب في حالتك',
     msX: ['تحدث معك شخص من فريق الرعاية عن نتيجتك.', 'شرحت الخطوة التالية بكلماتك.', 'قبل فريق أخصائي تولي الخطوة التالية.', 'تمت الزيارة أو الفحص أو العلاج الذي احتجته.', 'أكد طبيب اكتمال متابعتك.'],
@@ -178,6 +209,7 @@ const I = {
   home: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
   doc: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
   pass: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  chat: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
   route: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="19" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 5H15a3.5 3.5 0 0 1 0 7H9a3.5 3.5 0 0 0 0 7h6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   fam: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="9" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20a6 6 0 0 1 12 0M14 20a4.5 4.5 0 0 1 8 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   phone: (f = '#fff', s = 30) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" fill="${f}"/></svg>`,
@@ -205,14 +237,50 @@ function nextCard(c, t, lang) {
   if (c.stage === 'care_plan') return `<div class="card status wait"><span><b>${t.planT}</b><span>${t.planX}</span></span></div>`;
   return `<div class="card status wait"><span><b>${t.seenT}</b><span>${t.seenX}</span></span></div>`;
 }
+const byWho = (e, lang) => (e.role === 'patient' ? (lang === 'ar' ? 'أنت' : 'You') : String(e.by || '').replace(/\s*\(coordinator\)/, ''));
+const IDX = ['result', 'notified', 'understood', 'booked', 'attended', 'confirmed', 'referred', 'care_plan', 'closed'];
+function patientSteps(c, t) {
+  const i = IDX.indexOf(c.stage), ms = milestones(c), r = c.referral;
+  const ev = (type) => [...(c.events || [])].reverse().find((e) => e.type === type);
+  const list = [
+    ['told', t.steps.told, ms[0][0] === 'done', ms[0][1]],
+    ['understood', t.steps.understood, i >= 2, ev('understood')],
+    ['booked', t.steps.booked, i >= 3, ev('booked')],
+    ['seen', t.steps.seen, i >= 4, ev('attended')],
+  ];
+  if (r) list.push(['accepted', t.steps.accepted(r.to), ['accepted', 'completed'].includes(r.status), ev('referral_accepted')]);
+  list.push(['closed', t.steps.closed, c.stage === 'closed', ev('closed')]);
+  return list;
+}
+function apptCard(c, t, lang) {
+  const x = c.slot || c.hold; if (!x || c.stage === 'closed' || IDX.indexOf(c.stage) >= 4) return '';
+  const d = new Date(x.day + 'T00:00:00Z');
+  return `<div class="appt${c.slot ? '' : ' held'}"><span class="d"><b>${d.getUTCDate()}</b>${d.toLocaleDateString(lang === 'ar' ? 'ar-AE' : 'en-GB', { month: 'short', timeZone: 'UTC' })}</span><span class="i"><b>${t.apptT}</b><span>${fmt(x.day, lang, true)} · ${x.time}</span><small>${c.slot ? t.place : t.heldT}</small></span></div>`;
+}
 function homeScreen(c, t, lang) {
-  return `<div class="head"><h1>${t.hello(esc(c.patient.name.split(' ')[0]))}</h1><p class="ctx">${fmt(TODAY, lang, true)}</p></div>
-    ${nextCard(c, t, lang)}
-    ${passportHtml(c, { compact: true, lang, staff: state.staff })}
+  const steps = patientSteps(c, t), now = steps.findIndex(([, , done]) => !done);
+  return `<div class="head"><h1>${t.hello(esc(c.patient.name.split(' ')[0]))}</h1><p class="ctx">${c.stage === 'closed' ? t.doneT : t.nextSteps} · ${fmt(TODAY, lang, true)}</p></div>
+    ${apptCard(c, t, lang)}
+    <ol class="chan2" aria-label="${t.nextSteps}">${steps.map(([k, label, done, e], i) => `<li class="${done ? 'done' : i === now ? 'now' : ''}"${i === now ? ' aria-current="step"' : ''}><span class="node" aria-hidden="true">${done ? '✓' : i + 1}</span><b>${esc(label)}</b>${done && e ? `<small>${esc(byWho(e, lang))} · ${fmt(e.at.slice(0, 10), lang)}</small>` : ''}${i === now ? `<div class="nowcard">${nextCard(c, t, lang)}</div>` : ''}</li>`).join('')}</ol>
+    ${now < 0 ? nextCard(c, t, lang) : ''}
     <div class="group"><div class="gh">${t.help}</div><ul class="list">
       <li><button class="prow" id="talk"><span class="t"><b>${t.talk}</b>${c.nurseRequest && !c.nurseRequest.done ? `<small>${t.asked}</small>` : ''}</span></button></li>
       <li><button class="prow" id="hard"><span class="t"><b>${t.hard}</b>${c.barrier && c.barrier !== 'none' ? `<small>${t.bars[c.barrier]}</small>` : ''}</span></button></li>
       <li><button class="prow" id="how"><span class="t"><b>${t.how}</b><small>${t.chs[c.channel || 'app']}</small></span></button></li></ul></div>`;
+}
+function messagesScreen(c, t, lang) {
+  const ch = t.chs[c.channel && c.channel !== 'app' ? c.channel : 'whatsapp'], nurse = nurseName(c), out = [];
+  const fm = firstMessage(c.patient.language), mine = firstMessage(lang);
+  for (const e of c.events || []) {
+    const when = fmt(e.at.slice(0, 10), lang);
+    if (e.type === 'notified') out.push(`<li><span class="b ai"><span lang="${c.patient.language}" dir="${fm.dir}">${esc(fm.text)}</span>${c.patient.language !== lang ? `<small class="tr">${t.translated} ${esc(mine.text)}</small>` : ''}<a href="?p=${c.id}" data-tab="home">${t.openSteps}</a><small class="w">${when}</small></span></li>`);
+    else if (e.type === 'contact' && e.role === 'system') out.push(`<li><span class="b sys">${I.phone('currentColor', 14)} ${t.callLog} · ${when}</span></li>`);
+    else if (e.type === 'contact') out.push(`<li><span class="b sys">${I.phone('currentColor', 14)} ${t.nurseLog(esc(nurse))} · ${when}</span></li>`);
+    else if (e.type === 'booked' && c.slot) out.push(`<li><span class="b ai">${esc(t.mBooked(`${fmt(c.slot.day, lang, true)} · ${c.slot.time}`))}<small class="w">${when}</small></span></li><li><span class="b me">${t.mYes}</span></li><li><span class="b ai">${t.mConfirmed}</span></li>`);
+    else if (e.type === 'referral_accepted' && c.referral) out.push(`<li><span class="b ai">${esc(t.mAccepted(c.referral.to))}<small class="w">${when}</small></span></li>`);
+    else if (e.type === 'closed') out.push(`<li><span class="b ai">${t.mClosed}<a href="?p=${c.id}&tab=passport" data-tab="passport">${t.seePass}</a><small class="w">${when}</small></span></li>`);
+  }
+  return `<div class="head"><h1>${t.msgT}</h1><p class="ctx">${t.msgX(ch)}</p></div><ol class="chat msgs" aria-label="${t.msgT}">${out.join('')}</ol>`;
 }
 function resultScreen(c, t, lang) {
   const head = `<button class="back" data-tab="home">${t.backHome}</button><div class="head"><h1>${t.resultT}</h1><p class="ctx">${TEST[lang][c.programme || 'hba1c']}</p></div>`;
@@ -226,7 +294,11 @@ function resultScreen(c, t, lang) {
 }
 function passportScreen(c, t, lang) {
   const now = Date.now(), active = (c.shares || []).filter((x) => !x.stopped && (!x.until || Date.parse(x.until) > now));
-  return `<div class="head"><h1>${t.passT}</h1><p class="ctx">${t.passX}</p></div>${passportHtml(c, { lang, staff: state.staff, qr: true, link: true })}
+  const steps = patientSteps(c, t), cur = steps.findIndex(([, , done]) => !done);
+  const proof = c.stage === 'closed' ? (() => { const url = proofUrl(c, location.origin); return `<div class="card fam-q">${qrSvg(url, { size: 116, label: t.passT })}<span><b style="display:block;font-size:13px;color:var(--muted);text-transform:uppercase">${lang === 'ar' ? 'رمز التحقق' : 'Check code'}</b><code dir="ltr" style="display:block;font:600 16px ui-monospace,Menlo,monospace;margin:2px 0 6px">${proofCode(c)}</code><a class="back" href="${esc(url.replace(location.origin + '/', ''))}" id="openproof">${lang === 'ar' ? 'فتح الجواز' : 'Open the passport'}</a></span></div>`; })() : '';
+  return `<div class="head"><h1>${t.passT}</h1><p class="ctx">${t.passX}</p></div>
+    <ol class="chan2" aria-label="${t.passT}">${steps.map(([k, label, done, e], i) => `<li class="${done ? 'done' : i === cur ? 'now' : ''}"><span class="node" aria-hidden="true">${done ? '✓' : i + 1}</span><b>${esc(label)}</b><small>${done && e ? `${esc(byWho(e, lang))} · ${fmt(e.at.slice(0, 10), lang, true)}` : i === cur ? t.nextUp : t.notYet2}</small></li>`).join('')}</ol>
+    ${proof}
     <button class="wide" id="share">${t.shareB}</button>
     ${active.length ? `<div class="group"><div class="gh">${t.shActive}</div>${active.map((x) => { const url = shareUrl(c, x); return `<div class="card fam-q">${qrSvg(url, { size: 104, label: t.shTo[x.to] })}<span style="flex:1"><b style="display:block;font-size:17px">${t.shTo[x.to]}</b><small style="display:block;color:var(--muted);font-size:14px;line-height:1.4">${x.items.map((k) => t.shItems[k].replace(/ \(.*\)$/, '')).join(' · ')}<br>${x.until ? t.shUntil(fmt(x.until.slice(0, 10), lang, true)) : t.shUntilStop}</small><span style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><a class="light" style="display:inline-flex;align-items:center;text-decoration:none" href="${esc(url.replace(location.origin + '/', ''))}">${t.shOpen}</a><button class="light" data-unshare="${x.id}">${t.shStop}</button></span></span></div>`; }).join('')}<div class="gf">${t.shDemo}</div></div>` : ''}`;
 }
@@ -238,7 +310,7 @@ function journeyScreen(c, t, lang) {
     ${!toldByPerson(c) ? `<a class="prow card" style="padding:12px 16px" href="?p=${c.id}&tab=result" data-tab="result"><span class="t"><b>${t.reread}</b><small>${TEST[lang][c.programme || 'hba1c']}</small></span></a>` : ''}
     <ol class="list" style="list-style:none" aria-label="${t.jT}">${ms.map(([st, e], i) => {
       const mark = st === 'done' ? '<span class="st green">✓</span>' : st === 'na' ? `<span class="st grey">${t.na}</span>` : i === firstTodo ? `<span class="st amber">${t.nextUp}</span>` : `<span class="st grey">${t.notYet2}</span>`;
-      const meta = st === 'done' ? `${esc(e.by)} · ${fmt(e.at.slice(0, 10), lang, true)}` : i === firstTodo && who ? `${who}` : '';
+      const meta = st === 'done' ? `${esc(byWho(e, lang))} · ${fmt(e.at.slice(0, 10), lang, true)}` : i === firstTodo && who ? `${who}` : '';
       return `<li class="row" style="align-items:flex-start;flex-direction:column;gap:4px;${st === 'todo' && i !== firstTodo ? 'opacity:.75' : ''}"><span style="display:flex;justify-content:space-between;width:100%;gap:10px;align-items:center"><b style="font-size:17px">${i + 1}. ${t.ms[i]}</b>${mark}</span><span style="font-size:15px;color:var(--ink2);line-height:1.4">${t.msX[i]}</span>${meta ? `<small style="font-size:13px;color:var(--muted)">${meta}</small>` : ''}</li>`;
     }).join('')}</ol>`;
 }
@@ -316,10 +388,10 @@ function render() {
   if (!c) { $('#main').innerHTML = pickScreen(t, lang); $('#tabs').hidden = true; }
   else {
     store.set('falaj.me.p', c.id);
-    const tabs = ['home', 'journey', 'passport', 'family'];
-    $('#main').innerHTML = ({ home: homeScreen, journey: journeyScreen, result: resultScreen, passport: passportScreen, family: familyScreen }[p.tab] || homeScreen)(c, t, lang);
+    const tabs = ['home', 'messages', 'passport', 'family'];
+    $('#main').innerHTML = ({ home: homeScreen, messages: messagesScreen, journey: passportScreen, result: resultScreen, passport: passportScreen, family: familyScreen }[p.tab] || homeScreen)(c, t, lang);
     $('#tabs').hidden = false;
-    $('#tabs').innerHTML = tabs.map((k, i) => `<a href="?p=${c.id}&tab=${k}" data-tab="${k}"${p.tab === k ? ' aria-current="page"' : ''}>${[I.home, I.route, I.pass, I.fam][i]}${t.tabs[i]}</a>`).join('');
+    $('#tabs').innerHTML = tabs.map((k, i) => `<a href="?p=${c.id}&tab=${k}" data-tab="${k}"${p.tab === k ? ' aria-current="page"' : ''}>${[I.route, I.chat, I.pass, I.fam][i]}${t.tabs[i]}</a>`).join('');
   }
   $('#sheetroot').innerHTML = sheet && c ? sheetHtml(c, t, lang) : '';
   $('#callroot').innerHTML = call && c ? callHtml(c, t, lang) : '';

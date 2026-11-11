@@ -197,11 +197,13 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await m.goto(BASE + 'team.html?as=n2'); ok(/Asked to talk to a nurse/.test(await m.innerText('main')), 'the nurse sees that the patient asked for a call');
     await m.goto(BASE + 'team.html?as=n2&c=C-040'); await m.click('[data-act="call"]'); await m.click('[data-call="understood"]'); await m.waitForTimeout(200);
     await m.goto(BASE + 'me.html?fast=1&p=C-040'); await m.click('#book'); await m.click('#do-book'); await m.waitForTimeout(200);
-    ok(/Your visit/.test(await m.innerText('main')) && (await m.$$('main .cp-stamps li.done')).length === 2, 'the patient books the held time; the passport shows two stamps');
+    ok(/Your visit/.test(await m.innerText('main')) && (await m.$$('main .chan2 li.done')).length === 3, 'the patient books the held time; three steps are done, and a booking is not care');
     await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=family'); await m.fill('#fn', 'Anu'); await m.fill('#fp', '12345'); await m.check('#fc'); await m.click('#faminvite');
     ok(/UAE mobile/.test(await m.innerText('main')), 'the family invitation needs a UAE mobile number');
-    await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=journey');
-    ok(/My care journey/.test(await m.innerText('main')) && /Nurse Peter/.test(await m.innerText('main')), 'the journey shows each step and who did it');
+    await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=passport');
+    ok(/Nurse Peter/.test(await m.innerText('main')), 'the passport shows each step and who did it');
+    await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=messages');
+    ok(/Reply YES/.test(await m.innerText('main')) && /In English/.test(await m.innerText('main')), 'messages arrive in the patient\'s language, with a translation');
     await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=passport'); await m.click('#share'); await m.click('#do-share'); await m.waitForSelector('[data-unshare]');
     const shareHref = await m.getAttribute('main a.light[href*="&s="]', 'href');
     await m.goto(BASE + shareHref); await m.waitForSelector('#out section');
