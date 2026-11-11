@@ -246,7 +246,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await t.click('#cs'); await t.click('#dictate'); await t.click('#do-consult'); await t.waitForTimeout(300);
     ok(!!(await t.$('main .wf-n[data-node="k11"].done')) && /Loop closed/.test(await t.innerText('main')), 'the clinic confirms the consultation: the loop-closed box fills');
     await t.click('[data-act="add"]'); await t.fill('#add-t', 'Ultrasound'); await t.fill('#add-v', 'Finding as written in the report'); await t.click('#do-add'); await t.waitForTimeout(200);
-    ok(/Lab · Ultrasound/.test(await t.innerText('main .wf')), 'a lab added appears as a new box in the patient\'s falaj');
+    ok(/Lab added\s*Ultrasound/.test(await t.innerText('main .wf')), 'a lab added appears as a new box in the patient\'s falaj');
     await t.goto(BASE + 'team.html?reset=1'); await t.close(); }
   await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);
   ok((await s.getAttribute('#b0', 'href')) === 'loop.html', 'the home page leads to the three moments');
