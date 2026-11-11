@@ -345,7 +345,7 @@ export function journeyStep(c) {
 // Some results must be told by a person, by phone or face to face, never by a message alone.
 export function mustCall(c) {
   if (!c || c.stage === 'closed') return null;
-  if (c.programme === 'mammo' && ['birads4', 'birads5'].includes(c.band)) return 'Suspicious mammogram: tell her in person or by phone, never by message alone.';
+  if (c.programme === 'mammo' && ['birads4', 'birads5'].includes(c.band)) return 'Suspicious mammogram: tell the patient in person or by phone, never by message alone.';
   if ((!c.programme || c.programme === 'hba1c') && c.urgency === 'urgent') return 'HbA1c in the urgent band: call the same day and ask about symptoms.';
   return null;
 }

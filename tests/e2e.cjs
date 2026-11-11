@@ -187,6 +187,23 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await shot(s, '09-care-team');
 
   // ---------- tour + measures ----------
+  // the full care team app: nurse calls and books, family doctor refers, the clinic accepts and closes, on one patient
+  { const t = await browser.newPage(); await t.goto(BASE + 'team.html?reset=1'); await t.click('[data-as="n2"]');
+    const cid = await t.getAttribute('.hl a.wide', 'data-case'); await t.click('.hl a.wide');
+    await t.click('[data-act="call"]'); ok(!!(await t.$('[data-call="understood"]')), 'a nurse can confirm understanding after a call');
+    await t.click('[data-call="understood"]'); await t.waitForSelector('[data-act="book"]');
+    await t.click('[data-act="book"]'); await t.click('#do-book'); await t.waitForSelector('main .card.status');
+    ok(/Visit booked/.test(await t.innerText('main')) && (await t.$$('main .cp-stamps li.done')).length === 2, 'the nurse books; the passport has two stamps, a booking is not care');
+    await t.goto(BASE + `team.html?as=d1&c=${cid}`); await t.click('[data-act="attended"]'); await t.waitForSelector('[data-act="refer"]');
+    await t.click('[data-act="refer"]'); const to = await t.getAttribute('input[name=to]:checked', 'value'); await t.click('#do-refer'); await t.waitForTimeout(200);
+    ok(/You stay responsible/.test(await t.innerText('main')), 'the family doctor stays responsible until the referral is accepted');
+    const spec = await t.evaluate((org) => JSON.parse(localStorage.getItem('jissr.demo.v4')).staff.find((x) => x.org === org).id, to);
+    await t.goto(BASE + `team.html?as=${spec}`); ok(/Referral waiting/.test(await t.innerText('main')), 'the specialist sees the referral first');
+    await t.click('.hl a.wide'); await t.click('[data-act="accept"]'); await t.waitForSelector('[data-act="consult"]');
+    await t.click('[data-act="consult"]'); ok((await t.getAttribute('#dictate', 'aria-disabled')) === 'true' && !(await t.$('#do-consult')), 'no voice note without consent');
+    await t.click('#cs'); await t.click('#dictate'); await t.click('#do-consult'); await t.waitForTimeout(300);
+    ok((await t.$$('main .cp-stamps li.done')).length === 5 && /Loop closed/.test(await t.innerText('main')), 'the clinic confirms the consultation: five stamps, loop closed');
+    await t.goto(BASE + 'team.html?reset=1'); await t.close(); }
   await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);
   ok((await s.getAttribute('#b0', 'href')) === 'loop.html', 'the home page leads to the three moments');
   // the three moments, on Priya's real case: call, nurse, hand over, close, then the proof verifies

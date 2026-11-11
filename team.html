@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Falaj care team</title>
+<meta name="description" content="The Falaj care team app: who needs you, why, and the one thing to do. Every patient has a Care Passport. Synthetic data only.">
+<meta name="theme-color" content="#f6f2ea">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="ios.css">
+</head>
+<body>
+<div class="stage">
+  <div class="phone" id="phone">
+    <div class="inner" id="inner" tabindex="0" role="region" aria-label="Care team app">
+      <header class="bar" id="bar"></header>
+      <main id="main" tabindex="-1"></main>
+      <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+    </div>
+    <div id="sheetroot"></div>
+  </div>
+</div>
+<p class="sr" aria-live="polite" id="say"></p>
+
+<script type="module">
+// THE CARE TEAM APP. One question on every screen: which patient needs me, why, and what is the one thing to do?
+// Every action goes through the rules engine (core/cases.mjs): who may record what, in which order.
+// Picking a person is a demo, not a sign-in.
+import { registerSW } from './core/pwa.mjs';
+import { loadState, saveState, resetState } from './core/store.mjs';
+import { isOverdue, mustCall, slotsFor, addDays } from './core/rules.mjs';
+import { advance, skipStage, sendReferral, respondReferral, completeReferral, closeCase, logContact, logEvent, nextStageOf } from './core/cases.mjs';
+import { progOf, resultText, targetsFor } from './core/programmes.mjs';
+import { passportHtml } from './core/passport.mjs';
+import { proofUrl } from './core/proof.mjs';
+registerSW();
+
+let state = loadState();
+const TODAY = state.today;
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+const fmt = (d, long) => new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', long ? { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' } : { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+const say = (t) => { $('#say').textContent = t; };
+const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* blocked */ } } };
+const LANG = { ar: 'Arabic', en: 'English', ur: 'Urdu', hi: 'Hindi', tl: 'Tagalog', bn: 'Bengali', ml: 'Malayalam' };
+const SHORT = { hba1c: 'HbA1c', fit: 'Bowel test (FIT)', mammo: 'Mammogram' };
+const COLORS = { nurse: '#8a5412', coordinator: '#6b5a2e', gp: '#1a7f52', spec: '#6b3fa0' };
+
+// ---- who am I ----
+const staffOf = (id) => state.staff.find((s) => s.id === id);
+const isGP = (s) => s && s.role === 'clinician' && s.org === 'Primary care clinic';
+const isSpec = (s) => s && s.role === 'clinician' && !isGP(s);
+const kindOf = (s) => (isGP(s) ? 'gp' : isSpec(s) ? 'spec' : s.role);
+const roleLabel = (s) => (isGP(s) ? 'Family doctor' : isSpec(s) ? `Specialist · ${s.org}` : s.role === 'nurse' ? 'Nurse navigator' : 'Care coordinator');
+const cleanName = (n) => n.replace(/\s*\(coordinator\)/, '');
+const initials = (n) => cleanName(n).replace(/^(Nurse|Dr)\s+/, '').split(' ').map((w) => w[0]).slice(0, 2).join('');
+const actorOf = (s) => ({ type: 'staff', ...s });
+const first = (c) => c.patient.name.split(' ')[0];
+
+// ---- navigation: everything lives in the URL, so Back works like in any app ----
+function params() { const q = new URLSearchParams(location.search); return { as: q.get('as') || store.get('falaj.team.as') || '', c: q.get('c') || '', tab: q.get('tab') || 'attention' }; }
+function nav(p, push = true) {
+  const cur = params(), next = { ...cur, ...p };
+  const q = new URLSearchParams(); if (next.as) q.set('as', next.as); if (next.c) q.set('c', next.c); if (next.tab && next.tab !== 'attention') q.set('tab', next.tab);
+  const url = location.pathname + (q.toString() ? '?' + q : '');
+  if (push) history.pushState(null, '', url); else history.replaceState(null, '', url);
+  sheet = null; render(); $('#inner').scrollTop = 0; scrollTo({ top: 0 }); $('#main').focus({ preventScroll: true });
+}
+addEventListener('popstate', () => { sheet = null; render(); });
+
+// ---- what needs each person: reason + the one action, most urgent first ----
+function tasksFor(s) {
+  const open = state.cases.filter((c) => c.stage !== 'closed'), out = [], waiting = [];
+  const T = (c, reason, action, pri) => out.push({ c, reason, action, pri, late: isOverdue(c, TODAY) });
+  if (s.role === 'nurse' || s.role === 'coordinator') {
+    for (const c of open.filter((x) => x.owner === s.id)) {
+      if (c.nurseRequest && !c.nurseRequest.done) T(c, 'Asked to talk to a nurse', 'Call today', 0);
+      else if (['result', 'notified'].includes(c.stage)) T(c, mustCall(c) ? 'Not reached yet · must be told by a person' : 'Not reached yet', 'Call', mustCall(c) ? 1 : 2);
+      else if (c.stage === 'understood') T(c, 'Understood · no visit booked', 'Book the visit', 3);
+      else if (c.stage === 'booked' && c.slot && c.slot.day <= TODAY) T(c, `Visit was due ${fmt(c.slot.day)}`, 'Confirm the visit', 3);
+      else if (c.stage === 'booked') waiting.push({ c, reason: c.slot ? `Visit ${fmt(c.slot.day)} · ${c.slot.time}` : 'Visit booked' });
+      else waiting.push({ c, reason: c.referral ? `With ${c.referral.to}` : 'With the family doctor' });
+    }
+  }
+  if (isGP(s)) {
+    for (const c of open) {
+      const r = c.referral;
+      if (c.stage === 'booked' && c.slot && c.slot.day <= TODAY) T(c, `Visit was due ${fmt(c.slot.day)}`, 'Record the visit', 3);
+      else if (['attended', 'confirmed'].includes(c.stage) && !r) T(c, 'Seen · next step to decide', 'Decide', 1);
+      else if (r && r.status === 'rejected') T(c, `Referral declined by ${r.to}`, 'Refer again', 0);
+      else if (r && r.status === 'completed' && c.stage === 'referred') T(c, `Report back from ${r.to}`, 'Agree the plan', 1);
+      else if (c.stage === 'care_plan') T(c, 'Plan agreed · loop still open', 'Close with evidence', 2);
+      else if (r && r.status === 'sent') waiting.push({ c, reason: `Waiting for ${r.to} to accept · you stay responsible` });
+      else if (r && r.status === 'accepted') waiting.push({ c, reason: `Accepted by ${r.to}` });
+    }
+  }
+  if (isSpec(s)) {
+    for (const c of open.filter((x) => x.referral && x.referral.to === s.org)) {
+      if (c.referral.status === 'sent') T(c, 'Referral waiting for your answer', 'Accept or decline', 0);
+      else if (c.referral.status === 'accepted') T(c, 'Accepted · consultation to confirm', 'Consultation', 1);
+    }
+  }
+  out.sort((a, b) => a.pri - b.pri || (b.late - a.late) || (a.c.due || '').localeCompare(b.c.due || ''));
+  return { tasks: out, waiting };
+}
+function casesFor(s) {
+  if (s.role === 'nurse' || s.role === 'coordinator') return state.cases.filter((c) => c.owner === s.id);
+  if (isGP(s)) return state.cases.filter((c) => ['booked', 'attended', 'confirmed', 'referred', 'care_plan', 'closed'].includes(c.stage) && (c.stage !== 'booked' || (c.slot && c.slot.day <= addDays(TODAY, 7))));
+  return state.cases.filter((c) => c.referral && c.referral.to === s.org);
+}
+
+// ---- the one action on a case, for this person, by the rules ----
+function actionFor(s, c) {
+  const r = c.referral, n = first(c);
+  if (c.stage === 'closed') return { info: ['ok', 'Loop closed', `Closed by ${c.closed ? c.closed.by : 'a clinician'}. The Care Passport is complete.`] };
+  if ((s.role === 'nurse' || s.role === 'coordinator') && c.owner === s.id) {
+    if (c.nurseRequest && !c.nurseRequest.done) return { title: `Call ${n} today`, text: `${n} asked to talk to a nurse.`, btns: [['call', `Call ${n}`, 'go']] };
+    if (['result', 'notified'].includes(c.stage)) return { title: `Call ${n}`, text: mustCall(c) || `${n} has not been reached yet. Explain the result and check they understood.`, btns: [['call', `Call ${n}`, 'go']] };
+    if (c.stage === 'understood') return { title: 'Book the visit', text: `${n} understood. Help to choose a time.`, btns: [['book', 'Choose a time']] };
+    if (c.stage === 'booked') return c.slot && c.slot.day <= TODAY ? { title: 'Did the visit happen?', text: `Visit was due ${fmt(c.slot.day)}, ${c.slot.time}.`, btns: [['attended', 'Yes, the visit happened'], ['call', `No: call ${n}`, 'ghost']] }
+      : { info: ['wait', 'Visit booked', c.slot ? `${fmt(c.slot.day, true)} at ${c.slot.time}. A reminder goes the day before.` : 'A reminder goes the day before.'] };
+  }
+  if (isGP(s)) {
+    if (c.stage === 'booked') return { title: 'Record the visit', text: c.slot ? `Visit ${fmt(c.slot.day)}, ${c.slot.time}.` : '', btns: [['attended', `${n} was seen`]] };
+    if (['attended', 'confirmed'].includes(c.stage) && !r) return { title: 'Decide the next step', text: `${n} was seen. Refer, or record that no referral is needed.`, btns: [['refer', 'Refer to a specialist'], ...(c.stage === 'attended' ? [['confirmed', 'Confirmatory test done', 'ghost']] : []), ['noref', 'No referral needed', 'ghost']] };
+    if (r && r.status === 'rejected') return { title: 'Refer again', text: `${r.to} declined: ${r.note || ''}`, btns: [['refer', 'Refer again']] };
+    if (r && r.status === 'sent') return { info: ['wait', `Waiting for ${r.to}`, `Sent ${fmt(r.sentAt.slice(0, 10))}. You stay responsible until they accept.`] };
+    if (r && r.status === 'accepted') return { info: ['wait', `With ${r.to}`, 'They own the case now. You will get their report.'] };
+    if (r && r.status === 'completed' && c.stage === 'referred') return { title: 'Agree the plan', text: `Report back: ${r.report || ''}`, btns: [['plan', 'Agree the plan with ' + n]] };
+    if (c.stage === 'care_plan') return { title: 'Close the loop', text: 'Write what was seen, decided and booked.', btns: [['close', 'Close with evidence', 'go']] };
+  }
+  if (isSpec(s) && r && r.to === s.org) {
+    if (r.status === 'sent') return { title: 'Accept this referral?', text: `${r.reason}${r.shared ? ` · Shared by ${n}: ${r.shared.join(', ')}` : ''}`, btns: [['accept', 'Accept: we take responsibility', 'go'], ['decline', 'Decline', 'ghost']] };
+    if (r.status === 'accepted') return { title: 'Consultation', text: `${n} is with you. Confirm the consultation to close the loop, or report back to the family doctor.`, btns: [['consult', 'Start consultation']] };
+  }
+  const o = staffOf(c.owner);
+  return { info: ['wait', 'Nothing for you here', `${o ? cleanName(o.name) : 'The care team'} is responsible. Next: ${nextStageOf(c) || ''}.`] };
+}
+
+// ---- doing it: every action is a rule-checked engine call, then saved ----
+function act(fn, msg) {
+  try { fn(); saveState(state); toast(msg); return true; }
+  catch (e) { sheetErr = e.message; render(); return false; }
+}
+let toastT = null;
+function toast(msg) { say(msg); const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; document.body.appendChild(el); clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 2200); }
+
+const EVENT = { result: 'Result from the lab', notified: 'Message sent', contact: 'Talked with the patient', call_attempt: 'Call attempt', understood: 'Understanding confirmed', booked: 'Visit booked', attended: 'Seen', confirmed: 'Confirmatory test', referred: 'Referred', referral_accepted: 'Referral accepted', referral_rejected: 'Referral declined', referral_completed: 'Report back', care_plan: 'Plan agreed', closed: 'Loop closed', nurse_requested: 'Asked for a nurse', barrier: 'Said what makes it hard', channel: 'Chose how to be contacted', confidence: 'Confidence', owner: 'Owner changed' };
+
+// ---- screens ----
+const icon = {
+  list: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  bell: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  person: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+};
+const logo = '<svg width="26" height="20" viewBox="0 0 34 26" aria-hidden="true"><path d="M2 20c6 0 8-12 15-12s9 12 15 12" fill="none" stroke="#0b6fa8" stroke-width="3" stroke-linecap="round"/><path d="M27 9V3M24 5l3-2 3 2" fill="none" stroke="#1a7f52" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const avatar = (s, lg) => `<span class="av${lg ? ' lg' : ''}" style="background:${COLORS[kindOf(s)]}" aria-hidden="true">${initials(s.name)}</span>`;
+const taskRow = (t) => `<li><a class="prow" href="?as=${params().as}&c=${t.c.id}" data-case="${t.c.id}"><span class="t"><b>${esc(first(t.c))}, ${t.c.patient.age}</b><small>${SHORT[t.c.programme || 'hba1c']} · ${esc(t.reason)}</small><small style="color:var(--ink);font-weight:600">${esc(t.action)}</small></span>${t.late ? '<span class="st amber">Overdue</span>' : ''}</a></li>`;
+
+function pickScreen() {
+  const groups = [['Nurses', (s) => s.role === 'nurse'], ['Care coordinators', (s) => s.role === 'coordinator'], ['Family doctors', isGP], ['Specialists', isSpec]];
+  return `<div class="head"><h1>Who are you?</h1><p class="ctx">Pick a person to open their app. In the demo there is no sign-in.</p></div>
+    ${groups.map(([g, f]) => `<div class="group"><div class="gh">${g}</div><ul class="list">${state.staff.filter(f).map((s) => { const n = tasksFor(s).tasks.length; return `<li><a class="prow" href="?as=${s.id}" data-as="${s.id}">${avatar(s, true)}<span class="t"><b>${esc(cleanName(s.name))}</b><small>${esc(roleLabel(s))}</small></span>${n ? `<span class="st amber">${n} to do</span>` : ''}</a></li>`; }).join('')}</ul></div>`).join('')}
+    <p class="demo-note">Synthetic patients only. <a href="me.html" style="color:var(--tint)">Open the patient app instead</a></p>`;
+}
+function attentionScreen(s) {
+  const { tasks, waiting } = tasksFor(s);
+  const top = tasks[0];
+  return `<div class="head"><p class="who">${avatar(s)}${esc(cleanName(s.name))} · ${esc(roleLabel(s))}</p><h1>Needs your attention</h1><p class="ctx">${fmt(TODAY, true)} · ${tasks.length ? `${tasks.length} ${tasks.length === 1 ? 'patient' : 'patients'}` : 'all clear'}</p></div>
+    ${top ? `<div class="hl"><div class="top"><b>${esc(first(top.c))}, ${top.c.patient.age} · ${LANG[top.c.patient.language] || ''}</b><span class="st amber">${top.late ? 'Overdue' : 'First'}</span></div>
+      <p class="q">${SHORT[top.c.programme || 'hba1c']} · ${esc(top.reason)}</p><a class="wide" href="?as=${s.id}&c=${top.c.id}" data-case="${top.c.id}">${esc(top.action)}</a></div>` : `<div class="card empty"><b>Nothing needs you right now</b>New results, referrals and reports appear here, most urgent first.</div>`}
+    ${tasks.length > 1 ? `<div class="group"><div class="gh">Then</div><ul class="list">${tasks.slice(1).map(taskRow).join('')}</ul></div>` : ''}
+    ${waiting.length ? `<div class="group"><div class="gh">Waiting on others</div><ul class="list">${waiting.slice(0, 6).map((w) => `<li><a class="prow" href="?as=${s.id}&c=${w.c.id}" data-case="${w.c.id}"><span class="t"><b>${esc(first(w.c))}, ${w.c.patient.age}</b><small>${esc(w.reason)}</small></span></a></li>`).join('')}</ul></div>` : ''}`;
+}
+function patientsScreen(s) {
+  const list = casesFor(s);
+  return `<div class="head"><p class="who">${avatar(s)}${esc(cleanName(s.name))}</p><h1>Patients</h1><p class="ctx">${list.length} with a Care Passport you can see</p></div>
+    <label class="sr" for="find">Find a patient</label><input class="search" id="find" type="search" placeholder="Find a patient" autocomplete="off" value="${esc(findText)}">
+    <ul class="list" id="plist">${list.filter((c) => !findText || c.patient.name.toLowerCase().includes(findText.toLowerCase())).map((c) => {
+      const tone = c.stage === 'closed' ? ['green', 'Loop closed'] : isOverdue(c, TODAY) ? ['amber', 'Overdue'] : ['grey', 'In progress'];
+      return `<li><a class="prow" href="?as=${s.id}&c=${c.id}" data-case="${c.id}"><span class="t"><b>${esc(c.patient.name)}, ${c.patient.age}</b><small>${SHORT[c.programme || 'hba1c']} · ${esc(EVENT[c.stage] || c.stage)}</small></span><span class="st ${tone[0]}">${tone[1]}</span></a></li>`;
+    }).join('') || '<li class="empty">No patients yet.</li>'}</ul>`;
+}
+function caseScreen(s, c) {
+  const a = actionFor(s, c), owner = staffOf(c.owner);
+  const action = a.info
+    ? `<div class="card status ${a.info[0]}"><span><b>${esc(a.info[1])}</b><span>${esc(a.info[2])}</span></span></div>`
+    : `<div class="hl"><div class="top"><b>${esc(a.title)}</b><span class="st amber">Your action</span></div>${a.text ? `<p class="q">${esc(a.text)}</p>` : ''}<div class="btns">${a.btns.map(([id, label, kind]) => `<button class="wide ${kind || ''}" data-act="${id}">${esc(label)}</button>`).join('')}</div></div>`;
+  const events = [...c.events].reverse();
+  return `<button class="back" id="back">‹ ${params().tab === 'patients' ? 'Patients' : 'Needs your attention'}</button>
+    <div class="head"><h1>${esc(c.patient.name)}</h1><p class="ctx">${c.patient.age} · speaks ${LANG[c.patient.language] || c.patient.language}${c.channel ? ` · prefers ${esc({ app: 'the app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'a phone call' }[c.channel] || c.channel)}` : ''}</p></div>
+    ${action}
+    <div class="group"><div class="gh">Result (staff only)</div><ul class="list"><li class="row"><span>${esc(progOf(c).name)}</span><span class="v">${esc(resultText(c))}</span></li>${c.due ? `<li class="row"><span>Follow up by</span><span class="v">${fmt(c.due)}</span></li>` : ''}</ul></div>
+    ${passportHtml(c, { staff: state.staff, qr: true, link: proofUrl(c, location.origin).replace(location.origin + '/', '') })}
+    <details class="more"><summary>Timeline (${events.length})</summary><ul class="timeline">${events.map((e) => `<li><span><b>${esc(EVENT[e.type] || e.type)}</b><small>${esc(e.by)}${e.note ? ' · ' + esc(e.note) : ''}</small></span><span class="d">${fmt(e.at.slice(0, 10))}</span></li>`).join('')}</ul></details>
+    ${owner ? `<p class="demo-note">Owner: ${esc(cleanName(owner.name))}</p>` : ''}`;
+}
+
+// ---- sheets ----
+let sheet = null, sheetErr = '', findText = '';
+const DICT = {
+  mammo: ['Seen today for the screening finding.', 'Ultrasound-guided core biopsy done, no complications.', 'Results in five days. Follow-up visit booked at the clinic.'],
+  fit: ['Seen today after a positive FIT.', 'Colonoscopy done. Findings explained.', 'Results reviewed with the patient. Follow-up booked.'],
+  hba1c: ['Seen today for the raised HbA1c.', 'Repeat test and examination done.', 'Treatment plan agreed with the patient. Review booked.'],
+};
+function sheetHtml(s, c) {
+  const k = sheet.kind, n = first(c), err = sheetErr ? `<p class="err" role="alert">${esc(sheetErr)}</p>` : '';
+  const wrap = (title, body) => `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t" tabindex="-1" id="sheet"><span class="grab" aria-hidden="true"></span><h2 id="sh-t">${title}</h2>${body}${err}<button class="wide ghost" id="sh-x">Cancel</button></div></div>`;
+  if (k === 'call') return wrap(`Call ${esc(n)}`, `<p>Calling ${esc(c.patient.name)} in ${LANG[c.patient.language] || 'their language'}${c.patient.language !== 'en' && c.patient.language !== 'ar' ? ', with an interpreter line' : ''}. Calls are simulated in the demo.</p>
+    <p><b>Never</b> read out a diagnosis. Explain the next step, then ask ${esc(n)} to say it back in their own words.</p>
+    <div class="btns">${s.role === 'nurse' ? `<button class="wide go" data-call="understood">Understood: said it back in own words</button>` : ''}
+    <button class="wide" data-call="reached">Reached: still needs help</button><button class="wide ghost" data-call="none">No answer</button></div>
+    ${s.role !== 'nurse' ? '<p>Only a nurse or a doctor can confirm understanding.</p>' : ''}`);
+  if (k === 'book') return wrap('Choose a time', `<p>Times that suit ${esc(n)}${c.barrier === 'time_shift' ? ' (early or evening, around shifts)' : ''}. The visit is with the family doctor.</p>
+    <fieldset class="choice"><legend class="sr">Times</legend>${slotsFor({ band: c.band, barrier: c.barrier }, TODAY).map((x, i) => `<label><input type="radio" name="slot" value="${x.day}|${x.time}"${i === 0 ? ' checked' : ''}>${fmt(x.day, true)} · ${x.time}</label>`).join('')}</fieldset>
+    <button class="wide go" id="do-book">Book this time</button>`);
+  if (k === 'refer') return wrap(`Refer ${esc(n)}`, `<fieldset class="choice"><legend class="gh" style="padding:0 4px 6px">To</legend>${targetsFor(c).map((t, i) => `<label><input type="radio" name="to" value="${esc(t)}"${i === 0 ? ' checked' : ''}>${esc(t)}</label>`).join('')}</fieldset>
+    <div class="field"><label for="why">Reason</label><textarea id="why">${esc(c.programme === 'mammo' ? 'Screening finding: breast assessment and biopsy.' : c.programme === 'fit' ? 'Positive FIT: colonoscopy.' : 'Raised HbA1c: specialist review.')}</textarea></div>
+    <div class="group"><div class="gh">What ${esc(n)} chose to share</div><ul class="list">${[['r', 'Screening result', true], ['a', 'Appointments', true], ['l', 'Preferred language', true], ['h', 'Other medical history', false]].map(([key, l, on]) => `<li class="row sw"><span id="s-${key}-l">${l}</span><button class="switch" data-share="${l}" role="switch" aria-checked="${sheet.share ? sheet.share.includes(l) : on}" aria-labelledby="s-${key}-l"><span></span></button></li>`).join('')}</ul></div>
+    <p>You stay responsible until they accept. No answer in 2 days raises an alert.</p><button class="wide go" id="do-refer">Send referral</button>`);
+  if (k === 'decline') return wrap('Decline the referral', `<p>The family doctor stays responsible and is told why.</p>
+    <fieldset class="choice">${['Not the right service: please refer to another clinic.', 'Missing information: please send the imaging report.', 'Can be managed in primary care: advice sent.'].map((t, i) => `<label><input type="radio" name="dec" value="${esc(t)}"${i === 0 ? ' checked' : ''}>${esc(t)}</label>`).join('')}</fieldset>
+    <button class="wide" id="do-decline">Decline</button>`);
+  if (k === 'noref') return wrap('No referral needed', `<fieldset class="choice">${['Managed in primary care.', 'Repeat test normal: routine follow-up.'].map((t, i) => `<label><input type="radio" name="nr" value="${esc(t)}"${i === 0 ? ' checked' : ''}>${esc(t)}</label>`).join('')}</fieldset><button class="wide" id="do-noref">Confirm</button>`);
+  if (k === 'plan') return wrap(`Plan agreed with ${esc(n)}`, `<fieldset class="choice"><label><input type="radio" name="plan" value="treatment" checked>Treatment started</label><label><input type="radio" name="plan" value="surveillance">Regular check-ups and lifestyle plan</label></fieldset><button class="wide go" id="do-plan">Record the plan</button>`);
+  if (k === 'close') return wrap('Close the loop', `<p>Only a clinician closes a loop, with written evidence.</p><div class="field"><label for="ev">Evidence</label><textarea id="ev">${esc(`Seen. ${c.plan && c.plan.kind === 'surveillance' ? 'Regular check-ups agreed' : 'Treatment started'}. Next review booked.`)}</textarea></div><button class="wide go" id="do-close">Close with evidence</button>`);
+  if (k === 'consult') {
+    const lines = (DICT[c.programme || 'hba1c']).slice(0, sheet.m || 0);
+    return wrap(`Consultation · ${esc(n)}`, `<ul class="list"><li class="row sw"><span id="cs-l">${esc(n)} agrees to a voice note</span><button class="switch" id="cs" role="switch" aria-checked="${!!sheet.consent}" aria-labelledby="cs-l"><span></span></button></li></ul>
+      <p>The audio becomes a written note, then it is deleted.</p>
+      ${!sheet.m ? `<button class="wide" id="dictate" aria-disabled="${!sheet.consent}">Dictate the note</button>` : `<ul class="list">${lines.map((l) => `<li class="row" style="font-size:15px;justify-content:flex-start">“${esc(l)}”</li>`).join('')}</ul>`}
+      ${sheet.m >= 3 ? `<p><b>Draft note ready.</b> Check it, then:</p><button class="wide go" id="do-consult">Confirm consultation · close the loop</button><button class="wide" id="do-report">Report back to the family doctor instead</button>` : ''}`);
+  }
+  return '';
+}
+function wireSheet(s, c) {
+  const on = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = fn; };
+  const close = () => { sheet = null; sheetErr = ''; render(); };
+  on('sh-x', close); $('#scrim').onclick = (e) => { if (e.target.id === 'scrim') close(); };
+  $('#sheet').onkeydown = (e) => { if (e.key === 'Escape') close(); };
+  const done = (fn, msg) => { if (act(fn, msg)) { sheet = null; sheetErr = ''; state = loadState(); render(); } };
+  const pick = (name) => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
+  document.querySelectorAll('[data-call]').forEach((b) => b.onclick = () => {
+    const v = b.dataset.call;
+    if (v === 'understood') done(() => { logContact(state, c.id, s, 'Result explained by phone.'); advance(state, c.id, 'understood', s, 'Teach-back: said the next step back in their own words.'); }, 'Understanding confirmed. Passport stamped.');
+    if (v === 'reached') done(() => logContact(state, c.id, s, 'Reached. Needs more explanation; follow-up call planned.'), 'Call logged.');
+    if (v === 'none') done(() => logEvent(c, 'call_attempt', s, 'No answer. Falaj tries again outside working hours.'), 'No answer logged. Falaj will try again.');
+  });
+  on('do-book', () => { const [day, time] = (pick('slot') || '|').split('|'); done(() => { advance(state, c.id, 'booked', s, `Visit booked: ${fmt(day)} ${time}.`); c.slot = { day, time }; }, 'Visit booked. Reminder set for the day before.'); });
+  document.querySelectorAll('[data-share]').forEach((b) => b.onclick = () => {
+    const cur = sheet.share || ['Screening result', 'Appointments', 'Preferred language']; const l = b.dataset.share;
+    sheet.share = cur.includes(l) ? cur.filter((x) => x !== l) : [...cur, l]; render(); document.querySelector(`[data-share="${l}"]`).focus();
+  });
+  on('do-refer', () => { const to = pick('to'), why = $('#why').value; done(() => {
+    if (nextStageOf(c) === 'confirmed') skipStage(state, c.id, 'confirmed', s, 'The confirmatory test is done by the specialist.');
+    sendReferral(state, c.id, s, { to, reason: why }); c.referral.shared = sheet.share || ['Screening result', 'Appointments', 'Preferred language'];
+  }, `Referral sent to ${to}. You stay responsible until they accept.`); });
+  on('do-decline', () => done(() => respondReferral(state, c.id, s, { accept: false, note: pick('dec') }), 'Declined. The family doctor is told why.'));
+  on('do-noref', () => done(() => {
+    const why = pick('nr');
+    if (nextStageOf(c) === 'confirmed') skipStage(state, c.id, 'confirmed', s, why);
+    skipStage(state, c.id, 'referred', s, why);
+  }, 'Recorded: no referral needed.'));
+  on('do-plan', () => done(() => advance(state, c.id, 'care_plan', s, 'Plan agreed with the patient.', undefined, { planKind: pick('plan') }), 'Plan recorded.'));
+  on('do-close', () => done(() => closeCase(state, c.id, s, { type: 'care_plan_agreed', evidence: $('#ev').value }), 'Loop closed. Care Passport complete.'));
+  on('cs', () => { sheet.consent = !sheet.consent; render(); $('#cs').focus(); });
+  on('dictate', () => { if (!sheet.consent) { sheetErr = 'Turn on consent first.'; render(); return; } sheetErr = ''; sheet.m = 3; render(); });
+  on('do-consult', () => done(() => closeCase(state, c.id, s, { type: 'transferred_care', evidence: DICT[c.programme || 'hba1c'].join(' ') }), 'Consultation confirmed. Loop closed.'));
+  on('do-report', () => done(() => completeReferral(state, c.id, s, DICT[c.programme || 'hba1c'].join(' ')), 'Report sent back to the family doctor.'));
+}
+
+// ---- render ----
+function render() {
+  state = loadState();
+  const p = params(), s = staffOf(p.as), c = p.c ? state.cases.find((x) => x.id === p.c) : null;
+  $('#bar').innerHTML = `<a class="brand" href="index.html" aria-label="Falaj home">${logo} Falaj</a>${s ? `<button class="light" id="switch">Switch person</button>` : '<span class="chip">Care team · demo</span>'}`;
+  if (!s) { $('#main').innerHTML = pickScreen(); $('#tabs').hidden = true; }
+  else {
+    store.set('falaj.team.as', s.id);
+    $('#main').innerHTML = c ? caseScreen(actorOf(s), c) : p.tab === 'patients' ? patientsScreen(s) : attentionScreen(s);
+    const n = tasksFor(s).tasks.length;
+    $('#tabs').hidden = false;
+    $('#tabs').innerHTML = `<a href="?as=${s.id}" data-tab="attention"${!c && p.tab !== 'patients' ? ' aria-current="page"' : ''}>${icon.bell}Attention${n ? `<span class="badge" aria-label="${n} to do">${n}</span>` : ''}</a><a href="?as=${s.id}&tab=patients" data-tab="patients"${!c && p.tab === 'patients' ? ' aria-current="page"' : ''}>${icon.list}Patients</a>`;
+  }
+  $('#sheetroot').innerHTML = sheet && s && c ? sheetHtml(actorOf(s), c) : '';
+  ['#bar', '#main', '#tabs'].forEach((x) => { $(x).inert = !!(sheet && c); });
+  // wiring
+  document.querySelectorAll('[data-case]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ c: a.dataset.case }); });
+  document.querySelectorAll('[data-as]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ as: a.dataset.as, c: '', tab: 'attention' }); });
+  document.querySelectorAll('[data-tab]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ c: '', tab: a.dataset.tab }); });
+  const sw = $('#switch'); if (sw) sw.onclick = () => { store.set('falaj.team.as', ''); history.pushState(null, '', location.pathname + '?as='); sheet = null; render(); };
+  const bk = $('#back'); if (bk) bk.onclick = () => nav({ c: '' });
+  const f = $('#find'); if (f) f.oninput = () => { findText = f.value; const pos = f.selectionStart; render(); const g = $('#find'); g.focus(); g.setSelectionRange(pos, pos); };
+  document.querySelectorAll('[data-act]').forEach((b) => b.onclick = () => {
+    const id = b.dataset.act, a = actorOf(s);
+    if (id === 'attended') return void (act(() => advance(state, c.id, 'attended', a, 'Seen.'), 'Visit recorded.') && render());
+    if (id === 'confirmed') return void (act(() => advance(state, c.id, 'confirmed', a, 'Confirmatory test done.'), 'Test recorded.') && render());
+    if (id === 'accept') return void (act(() => respondReferral(state, c.id, a, { accept: true, note: 'Accepted.' }), 'Accepted. You are now responsible. Passport stamped.') && render());
+    sheet = { kind: id }; sheetErr = ''; render();
+  });
+  if (sheet && s && c) { wireSheet(actorOf(s), c); const sh = $('#sheet'); if (sh && !sh.contains(document.activeElement)) sh.focus(); }
+}
+if (new URLSearchParams(location.search).get('reset') === '1') { resetState(); state = loadState(); }
+render();
+</script>
+</body>
+</html>
