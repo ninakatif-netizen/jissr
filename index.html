@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Falaj: closing the screening-to-care loop</title>
-<meta name="description" content="Prototype: helping people with an abnormal HbA1c understand it, book care, and not get lost. Synthetic data only.">
+<meta name="description" content="Falaj: every abnormal screening result ends in a confirmed visit with a doctor. Call, hand over, close. Synthetic data only.">
 <meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
@@ -23,6 +23,10 @@ ul.clean li{margin:6px 0}
 ol.num{padding-inline-start:22px} ol.num li{margin:10px 0}
 ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-d)}
 .why-falaj .wf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}.why-falaj .wf div{background:var(--card2);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}.why-falaj .wf b{font-size:15px}.why-falaj .wf span{font-size:14px;color:var(--ink-2)}
+.moments{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:18px 0}
+.mn{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#0b6fa8;color:#fff;font-weight:700;margin-bottom:8px}
+.team summary{cursor:pointer;min-height:44px}
+.team .tiles{margin-top:12px}
 </style>
 <link rel="stylesheet" href="theme.css">
 </head>
@@ -33,46 +37,39 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
 
   <div class="hero" style="position:relative">
     <div class="kicker">Closing the screening-to-care loop</div>
-    <h1>No abnormal result left behind.</h1>
-    <p class="lead">Three screening programmes, one engine: abnormal HbA1c (diabetes), positive FIT (bowel cancer) and suspicious mammograms (BI-RADS 0, 4 and 5). Falaj helps the patient understand the result in plain English or Arabic (with a first message in seven languages), get past what is stopping them, and reach care. It gives the care team a list where every case has an owner, a due date and an honest status, and where a case can only be closed by a clinician with evidence.</p>
+    <h1>No abnormal result left without an owner.</h1>
+    <p class="lead">Falaj makes sure every abnormal screening result ends in a confirmed visit with a doctor. An AI assistant calls the patient and books the visit, doctors hand the case to each other, and the loop closes only when the doctor confirms the consultation.</p>
     <div class="row cta">
-      <a class="btn" href="animation/index.html" id="b1"></a>
-      <a class="btn ghost" href="app.html" id="b2"></a>
-      <a class="btn accent" href="patient.html?p=C-040&fresh=1&tour=0" id="b3"></a>
+      <a class="btn accent" href="loop.html" id="b0"></a>
+      <a class="btn ghost" href="animation/index.html" id="b1"></a>
     </div>
     <div id="hero-art" style="position:absolute;inset-inline-end:-150px;top:10px;color:var(--brand);pointer-events:none"></div>
   </div>
 
-  <div class="arch-band" aria-label="The journey of every case">
-    <h3 style="margin:0 0 4px">Every case follows one journey</h3>
-    <div class="flow" id="flow"></div>
-  </div>
-
-  <div class="tiles">
-    <a class="tile" href="animation/index.html"><div class="card"><span data-ic="wave" data-s="26"></span><h3>The story</h3><p class="muted">50 seconds: Fatima and the lab result nobody had time to explain.</p></div></a>
-    <a class="tile" href="patient.html"><div class="card"><span data-ic="phone" data-s="26"></span><h3>Patient app</h3><p class="muted">Result in plain words (English / العربية), a guided path, booking, reminders, talk to a nurse.</p></div></a>
-    <a class="tile" href="roles.html"><div class="card"><span data-ic="users" data-s="26"></span><h3>Who are you?</h3><p class="muted">One case, many organisations: lab, nurse, family doctor, hospital specialist, clinical lead, programme manager. Each sees their own part.</p></div></a>
-    <a class="tile" href="staff.html"><div class="card"><span data-ic="doctor" data-s="26"></span><h3>Care team</h3><p class="muted">Every case from result to documented closure: owners, service levels, escalation, referrals, clinician-only closing.</p></div></a>
-    <a class="tile" href="impact.html"><div class="card"><span data-ic="chart" data-s="26"></span><h3>Impact</h3><p class="muted">Why this matters: sourced figures on diabetes in the UAE and on lost follow-up, plus a scenario calculator.</p></div></a>
-    <a class="tile" href="pilot.html"><div class="card"><span data-ic="plan" data-s="26"></span><h3>Path to pilot</h3><p class="muted">A 90-day pilot plan, success criteria, deployment architecture, business model and risks.</p></div></a>
-    <a class="tile" href="trust.html"><div class="card"><span data-ic="shield" data-s="26"></span><h3>Try to break it</h3><p class="muted">Run every safety rule live, then try to make the AI close a case or a case disappear.</p></div></a>
-    <a class="tile" href="map.html"><div class="card"><span data-ic="pin" data-s="26"></span><h3>Living map</h3><p class="muted">Where in the Emirates results stop before reaching care: open and late cases per place, the biggest leak, who drops out.</p></div></a>
-    <a class="tile" href="metrics.html"><div class="card"><span data-ic="chart" data-s="26"></span><h3>Measures</h3><p class="muted">Is the loop closing? Time to each step, where cases get stuck, referral outcomes, patient confidence.</p></div></a>
+  <div class="moments">
+    <a class="tile" href="loop.html"><div class="card"><span class="mn">1</span><h3>Call</h3><p class="muted">The result arrives. An AI assistant calls the patient in their language and books the visit. It never discusses the result; worry goes straight to a nurse.</p></div></a>
+    <a class="tile" href="loop.html"><div class="card"><span class="mn">2</span><h3>Hand over</h3><p class="muted">The family doctor refers, and stays responsible until the specialist accepts. The patient chooses what is shared. Nothing falls between two doctors.</p></div></a>
+    <a class="tile" href="loop.html"><div class="card"><span class="mn">3</span><h3>Close</h3><p class="muted">In the consultation, a voice note becomes the clinical note, with the patient's consent. The doctor confirms, and the loop closes with proof.</p></div></a>
   </div>
 
   <section class="card why-falaj">
     <h2>Why the name Falaj</h2>
-    <p class="muted">For about 3,000 years, since the Iron Age, the aflaj carried water by gravity from a mother well, through tunnels and open channels, to every palm garden of the oases. A named distributor gave each farmer a fair, timed share, and the whole community kept the channel clear. The Al Ain Oasis, where some channels still flow, is a UNESCO World Heritage site. A screening result needs the same thing: to reach every person, on time, with someone in charge.</p>
-    <div class="wf">
-      <div><b>Umm al falaj · the mother well</b><span>The laboratory result: where the water starts.</span></div>
-      <div><b>The channel</b><span>The care path. Water flows by itself unless something blocks it.</span></div>
-      <div><b>Thuqboor · the access shafts</b><span>Deadlines and checkpoints: where the team sees a blockage and clears it, before it becomes a leak.</span></div>
-      <div><b>Arif al falaj · the water distributor</b><span>One named person who owns each case and gives each patient their turn.</span></div>
-      <div><b>A fair share for every plot</b><span>The <a href="map.html">living map</a> shows who drops out, so no community is left without water.</span></div>
-      <div><b>The palm</b><span>Care in place, with a proof the patient keeps.</span></div>
-    </div>
+    <p class="muted">For about 3,000 years the aflaj carried water from a mother well to every palm garden of the oases, and a named keeper made sure each plot got its turn. Falaj does the same for a screening result: it starts at the lab, it has a keeper at every moment, and it must reach the palm: the patient, in care.</p>
   </section>
 
+  <details class="card team">
+    <summary><h2 style="display:inline">For the jury and the care team</h2></summary>
+    <p class="muted">The full prototype behind the three moments: the patient app, the care team's app, where results get lost, and the safety tests.</p>
+    <div class="tiles">
+      <a class="tile" href="patient.html?p=C-040&fresh=1&tour=0" id="b3"><div class="card"><span data-ic="next" data-s="26"></span><h3>Guided tour</h3><p class="muted">3 minutes through the full app, following Priya.</p></div></a>
+      <a class="tile" href="patient.html"><div class="card"><span data-ic="phone" data-s="26"></span><h3>Patient app</h3><p class="muted">The result in plain words, the next step, booking, a family helper.</p></div></a>
+      <a class="tile" href="care.html?role=nurse"><div class="card"><span data-ic="doctor" data-s="26"></span><h3>Care team</h3><p class="muted">Every case with an owner and a deadline; referrals that must be accepted.</p></div></a>
+      <a class="tile" href="map.html"><div class="card"><span data-ic="pin" data-s="26"></span><h3>Where results get lost</h3><p class="muted">Open and late cases, place by place.</p></div></a>
+      <a class="tile" href="trust.html"><div class="card"><span data-ic="shield" data-s="26"></span><h3>Try to break it</h3><p class="muted">Run every safety rule live.</p></div></a>
+      <a class="tile" href="metrics.html"><div class="card"><span data-ic="chart" data-s="26"></span><h3>Measures</h3><p class="muted">Is the loop closing? Time to each step.</p></div></a>
+      <a class="tile" href="pilot.html"><div class="card"><span data-ic="plan" data-s="26"></span><h3>Path to pilot</h3><p class="muted">90 days, success criteria, costs and risks.</p></div></a>
+      <a class="tile" href="impact.html"><div class="card"><span data-ic="chart" data-s="26"></span><h3>Impact</h3><p class="muted">Sourced figures on lost follow-up.</p></div></a>
+    </div>
   <section class="card">
     <h2>How Falaj answers the challenge</h2>
     <ol class="num">
@@ -104,6 +101,8 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
     </ul>
   </section>
 
+  </details>
+
   <section class="card">
     <h2>What this prototype is not (yet)</h2>
     <ul class="clean">
@@ -124,12 +123,9 @@ import { ic, wordmark } from './core/ui.mjs';
 import { falajScene } from './core/art.mjs';
 document.getElementById('brand').innerHTML = wordmark();
 document.querySelectorAll('[data-ic]').forEach((el) => { el.innerHTML = ic(el.dataset.ic, +el.dataset.s || 22); el.style.cssText = 'display:block;color:var(--accent-d);margin-bottom:8px'; });
-document.getElementById('b1').innerHTML = ic('wave', 18) + ' Watch the story';
-document.getElementById('b2').innerHTML = ic('phone', 18) + ' Open the app';
-document.getElementById('b3').innerHTML = ic('next', 18) + ' Take the 3-minute guided tour';
+document.getElementById('b1').innerHTML = ic('wave', 18) + ' Watch the 50-second story';
+document.getElementById('b0').innerHTML = ic('next', 18) + ' See it in 3 moments';
 if (innerWidth > 1240) document.getElementById('hero-art').innerHTML = falajScene({ width: 300, opacity: 0.85 });
-const steps = ['Result', 'Notified', 'Understood', 'Booked', 'Seen', 'Confirmed', 'Referred', 'Plan', 'Closed with evidence'];
-document.getElementById('flow').innerHTML = steps.map((s) => `<span>${s}</span>`).join('<i aria-hidden="true">›</i>');
 </script>
 </body>
 </html>
