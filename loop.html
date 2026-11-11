@@ -114,9 +114,9 @@ h1{margin:6px 0 0;font-size:34px;line-height:1.12;font-weight:700;letter-spacing
 .dict{display:flex;flex-direction:column;gap:8px;margin:0;list-style:none}
 .dict.card{padding:14px 16px}
 .dict li{font-size:15px;line-height:1.45;color:var(--ink2)}
-.done{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:18px 8px 0}
-.done .palm{width:84px;height:84px;border-radius:50%;background:var(--ok-l);display:grid;place-items:center;margin-bottom:6px}
-.done p{margin:0;font-size:17px;line-height:1.4;color:var(--ink2)}
+.closedhero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:18px 8px 0}
+.closedhero .palm{width:84px;height:84px;border-radius:50%;background:var(--ok-l);display:grid;place-items:center;margin-bottom:6px}
+.closedhero p{margin:0;font-size:17px;line-height:1.4;color:var(--ink2)}
 .proof{display:flex;gap:14px;align-items:center}
 .proof .qr{border-radius:8px;flex:none}
 .proof b{display:block;font-size:13px;color:var(--muted);font-weight:600;text-transform:uppercase}
@@ -404,7 +404,7 @@ function screenDone() {
   const c = C(), url = proofUrl(c, location.origin);
   const days = Math.round((Date.parse(SPEC_DAY) - Date.parse(c.resultDay)) / 864e5);
   lastDone = milestones(c).map(([x]) => x === 'done');
-  return `<div class="pop" style="display:flex;flex-direction:column;gap:18px"><div class="done"><span class="palm"><svg width="46" height="46" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 44V22" stroke="#7a5a2a" stroke-width="3" stroke-linecap="round"/><path d="M24 22c-3-7-11-9-17-6 6 0 11 2 17 6zM24 22c3-7 11-9 17-6-6 0-11 2-17 6zM24 22c-5-4-6-11-3-16 0 6 1 11 3 16zM24 22c5-4 6-11 3-16 0 6-1 11-3 16z" fill="var(--ok)"/><path d="M6 44c6-3 12-3 18 0s12 3 18 0" fill="none" stroke="var(--tint)" stroke-width="3" stroke-linecap="round"/></svg></span>
+  return `<div class="pop" style="display:flex;flex-direction:column;gap:18px"><div class="closedhero"><span class="palm"><svg width="46" height="46" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 44V22" stroke="#7a5a2a" stroke-width="3" stroke-linecap="round"/><path d="M24 22c-3-7-11-9-17-6 6 0 11 2 17 6zM24 22c3-7 11-9 17-6-6 0-11 2-17 6zM24 22c-5-4-6-11-3-16 0 6 1 11 3 16zM24 22c5-4 6-11 3-16 0 6-1 11-3 16z" fill="var(--ok)"/><path d="M6 44c6-3 12-3 18 0s12 3 18 0" fill="none" stroke="var(--tint)" stroke-width="3" stroke-linecap="round"/></svg></span>
     <h1>Loop closed</h1><p>Priya reached a specialist ${days} days after her result, and a doctor confirmed it.</p></div>
     ${passportHtml(c, { qr: true, staff: state.staff, link: url.replace(location.origin + '/', ''), fresh: [4] })}
     <div class="group"><div class="gh">The same passport, everywhere</div><ul class="list links"><li class="row"><a href="care.html?role=nurse&as=${NURSE.id}">In ${NURSE_NAME}'s care app</a></li><li class="row"><a href="patient.html?p=${ID}&view=proof&nosplash=1">In Priya's app</a></li></ul></div></div>`;

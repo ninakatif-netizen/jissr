@@ -53,73 +53,59 @@ export function milestones(c, lang = 'en') {
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 const fmtDay = (d, lang) => new Date(d + 'T00:00:00Z').toLocaleDateString(lang === 'ar' ? 'ar-AE' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
 const CHECK = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4 4 9-9.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const CHANNEL = '<svg class="cp-wave" viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 C 60 40, 80 14, 140 14 S 220 46, 280 30 S 360 12, 400 22" fill="none" stroke="currentColor" stroke-width="2"/><path d="M0 50 C 70 50, 90 26, 150 26 S 230 56, 290 40 S 370 24, 400 32" fill="none" stroke="currentColor" stroke-width="1"/></svg>';
-
-const EMBLEM = '<svg width="54" height="54" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="24" cy="24" r="18.5" fill="none" stroke="currentColor" stroke-width=".8"/><path d="M24 36V22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M24 22c-2-5-8-6-12-4 4 0 8 1 12 4zM24 22c2-5 8-6 12-4-4 0-8 1-12 4zM24 22c-3-3-4-8-2-11 0 4 1 8 2 11zM24 22c3-3 4-8 2-11 0 4-1 8-2 11z" fill="currentColor"/><path d="M11 37c4-2 9-2 13 0s9 2 13 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 let cssDone = false;
 function ensureCss() {
   if (cssDone || typeof document === 'undefined') return; cssDone = true;
   const st = document.createElement('style');
+  // The water-channel look: a light card; each milestone a node on a channel that fills with water when done.
   st.textContent = `
-.cp{position:relative;overflow:hidden;background:#0a1f2e;color:#fff;border-radius:20px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:12px;font-family:-apple-system,"SF Pro Text",system-ui,"Helvetica Neue",Arial,sans-serif;text-align:start}
-.cp-wave{position:absolute;inset-inline:0;top:6px;width:100%;height:60px;color:rgba(231,223,207,.13);pointer-events:none}
-.cp > :not(.cp-wave){position:relative}
+.cp{background:var(--card,#fff);color:var(--ink,#0a1f2e);border:1px solid var(--line,#e6dfd2);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;font-family:-apple-system,"SF Pro Text",system-ui,"Helvetica Neue",Arial,sans-serif;text-align:start}
 .cp-t{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.cp-brand{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#e7dfcf}
+.cp-brand{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted,#56616b)}
 .cp-st{font-size:12px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap}
 .cp-st.amber{background:#fbefdd;color:#7a4a0c}.cp-st.green{background:#e3f4ec;color:#0f5a3a}
-.cp-name{font-size:22px;font-weight:700;line-height:1.15;margin:0}
-.cp-sub{font-size:14px;color:#d7d0c3;margin:2px 0 0}
-.cp-id{font:600 13px ui-monospace,"SF Mono",Menlo,monospace;color:#e7dfcf;letter-spacing:.5px}
-.cp-stamps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:2px 0 0;padding:0;list-style:none}
-.cp-stamps li{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:11px;line-height:1.2;color:#d7d0c3}
-.cp-s{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;border:2px dashed rgba(231,223,207,.45);color:rgba(231,223,207,.75);font-weight:700;font-size:14px}
-.cp-stamps li.done .cp-s{border:2px solid #e7dfcf;background:#e7dfcf;color:#0a1f2e;box-shadow:inset 0 0 0 3px #e7dfcf,inset 0 0 0 4.5px #0a1f2e}
-.cp-stamps li.done{color:#fff;font-weight:600}
-.cp-stamps li.na .cp-s{border-style:solid;border-color:rgba(231,223,207,.3);color:rgba(231,223,207,.75)}
+.cp-name{font-size:20px;font-weight:700;line-height:1.2;margin:0}
+.cp-sub{font-size:14px;color:var(--muted,#56616b);margin:2px 0 0}
+.cp-id{font:600 12px ui-monospace,"SF Mono",Menlo,monospace;color:var(--muted,#56616b);letter-spacing:.4px}
+.cp-stamps{list-style:none;margin:0;padding:0}
+.cp-stamps li{position:relative;padding-inline-start:42px;padding-bottom:16px;min-height:30px;font-size:15px;line-height:1.35;color:var(--muted,#56616b)}
+.cp-stamps li::before{content:"";position:absolute;inset-inline-start:13px;top:28px;bottom:0;width:4px;border-radius:2px;background:repeating-linear-gradient(180deg,#cbc3b4 0 5px,transparent 5px 10px)}
+.cp-stamps li.done::before{background:linear-gradient(180deg,#0b6fa8,#36b5e8,#0b6fa8);background-size:100% 36px;animation:cpw 2.4s linear infinite}
+.cp-stamps li:last-child{padding-bottom:0}.cp-stamps li:last-child::before{display:none}
+@keyframes cpw{to{background-position:0 36px}}
+.cp-s{position:absolute;inset-inline-start:0;top:0;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:2px dashed #b9ae98;color:#6b5a2e;font-weight:700;font-size:12px;background:var(--card,#fff)}
+.cp-s svg{width:16px;height:16px}
+.cp-stamps li.done{color:var(--ink,#0a1f2e)}
+.cp-stamps li.done .cp-s{background:#0b6fa8;border:0;color:#fff}
+.cp-stamps li.na .cp-s{border-style:solid;border-color:#cbc3b4;color:#6b5a2e}
+.cp-stamps b{display:block;font-weight:600;padding-top:5px}
+.cp-stamps small{display:block;font-size:13px;color:var(--muted,#56616b)}
 .cp-stamps li.new .cp-s{animation:cpstamp .55s cubic-bezier(.2,.8,.2,1) both}
-@keyframes cpstamp{0%{transform:scale(1.7);opacity:0}55%{transform:scale(.9);opacity:1}100%{transform:none}}
-.cp-o{display:flex;flex-direction:column;gap:3px;font-size:14px;color:#d7d0c3;border-top:1px solid rgba(231,223,207,.18);padding-top:10px}
-.cp-o b{color:#fff;font-weight:600}
-.cp-ev{margin:0;padding:10px 0 0;list-style:none;border-top:1px solid rgba(231,223,207,.18);display:flex;flex-direction:column;gap:8px}
-.cp-ev li{display:flex;gap:10px;font-size:14px;line-height:1.35;color:#d7d0c3}
-.cp-ev li b{display:block;color:#fff;font-weight:600}
-.cp-ev .k{flex:none;color:#e7dfcf;margin-top:1px}
-.cp-q{display:flex;gap:14px;align-items:center;background:#f6f2ea;color:#0a1f2e;border-radius:14px;padding:12px}
+@keyframes cpstamp{0%{transform:scale(1.6);opacity:0}55%{transform:scale(.9);opacity:1}100%{transform:none}}
+.cp-o{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(--ink2,#2c3e4c);border-top:1px solid var(--line,#e6dfd2);padding-top:10px}
+.cp-o b{color:var(--ink,#0a1f2e);font-weight:600}
+.cp-q{display:flex;gap:14px;align-items:center;background:var(--bg,#f6f2ea);color:var(--ink,#0a1f2e);border-radius:14px;padding:12px}
 .cp-q .qr{border-radius:6px;flex:none}
-.cp-q b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:#56616b}
+.cp-q b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted,#56616b)}
 .cp-q code{display:block;font:600 16px ui-monospace,"SF Mono",Menlo,monospace;margin:2px 0 4px}
-.cp-q small{display:block;font-size:13px;line-height:1.35;color:#2c3e4c}
-.cp-q a{display:inline-flex;align-items:center;min-height:44px;font-size:15px;font-weight:600;color:#0b5e8f}
-.cp-illus{font-size:12px;color:#c9c1b2;margin:0}
-.cp.compact{padding:12px 14px;gap:10px;border-radius:16px}
-.cp.compact .cp-s{width:34px;height:34px;font-size:12px}
-.cp.compact .cp-s svg{width:16px;height:16px}
-.cp.compact .cp-stamps li{font-size:11px;gap:4px}
-.cp.compact .cp-o{padding-top:8px}
-.cp-serif{font-family:ui-serif,"New York","Iowan Old Style",Georgia,"Times New Roman",serif}
-.cp.book{background:none;padding:0;gap:0;color:#0a1f2e;box-shadow:0 12px 30px rgba(10,31,46,.18)}
-.cp-cover{position:relative;overflow:hidden;background:#0a1f2e;color:#fff;padding:18px 18px 16px;display:flex;flex-direction:column;gap:10px}
-.cp-cover > :not(.cp-wave):not(.cp-emb){position:relative}
-.cp-title{font-size:28px;font-weight:600;line-height:1.1;margin:2px 0 0;color:#e7dfcf;letter-spacing:.2px}
-.cp-emb{position:absolute;inset-inline-end:16px;top:48px;z-index:0;color:#c9a96e;opacity:.9}
-.cp-page{background:#f3ecdc;color:#0a1f2e;padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px;background-image:repeating-linear-gradient(180deg,transparent 0 29px,rgba(10,31,46,.045) 29px 30px)}
-.cp-page h3{margin:0;font-size:18px;font-weight:600;color:#5c4a22}
-.book .cp-stamps li{color:#2c3e4c}
-.book .cp-s{border:2px dashed #b3a27c;color:#5c4a22}
-.book .cp-stamps li.done{color:#0a1f2e}
-.book .cp-stamps li.done .cp-s{border:2.5px solid #0a1f2e;background:transparent;color:#0a1f2e;box-shadow:inset 0 0 0 3px #f3ecdc,inset 0 0 0 4.5px #0a1f2e;transform:rotate(var(--r,0deg))}
-.book .cp-stamps li.na .cp-s{border:2px solid #cbbfa4;color:#5c4a22}
-.book .cp-o{color:#2c3e4c;border-top-color:#d9cdb3}.book .cp-o b{color:#0a1f2e}
-.book .cp-ev{border-top-color:#d9cdb3}.book .cp-ev li{color:#2c3e4c}.book .cp-ev li b{color:#0a1f2e}.book .cp-ev .k{color:#1a7f52}
-.book .cp-q{background:#fff}
-.book .cp-illus{color:#56616b}
-@media (prefers-reduced-motion:reduce){.cp-stamps li.new .cp-s{animation:none}}`;
+.cp-q small{display:block;font-size:13px;line-height:1.35;color:var(--ink2,#2c3e4c)}
+.cp-q a{display:inline-flex;align-items:center;min-height:44px;font-size:15px;font-weight:600;color:var(--tint,#0b5e8f)}
+.cp-illus{font-size:12px;color:var(--muted,#56616b);margin:0}
+.cp.compact{padding:12px 14px;gap:10px}
+.cp.compact .cp-stamps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.cp.compact .cp-stamps li{padding:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;font-size:11px;line-height:1.2}
+.cp.compact .cp-stamps li::before{inset-inline-start:calc(50% + 15px);top:13px;bottom:auto;width:calc(100% - 30px);height:4px;background:repeating-linear-gradient(90deg,#cbc3b4 0 5px,transparent 5px 10px)}
+.cp.compact .cp-stamps li.done::before{background:linear-gradient(90deg,#0b6fa8,#36b5e8,#0b6fa8);background-size:36px 100%;animation:cpwh 2.4s linear infinite}
+[dir=rtl] .cp.compact .cp-stamps li.done::before{animation-direction:reverse}
+@keyframes cpwh{to{background-position:36px 0}}
+.cp.compact .cp-s{position:static}
+.cp.compact .cp-stamps li.done{font-weight:600}
+@media (prefers-reduced-motion:reduce){.cp-stamps li.new .cp-s,.cp-stamps li.done::before{animation:none}}`;
   document.head.appendChild(st);
 }
 
-// passportHtml(c, opts): the card. opts: lang, staff (to name the owner), compact, qr, origin, link (href of the QR link),
-// fresh (indexes of milestones just stamped, to animate), and story overrides: owner, next, status, tone.
+// passportHtml(c, opts): the Care Passport. opts: lang, staff (to name the owner), compact, qr, origin, link (href of the
+// QR link), fresh (indexes of milestones just reached, to animate), hideOwner, and story overrides: owner, next, status, tone.
 export function passportHtml(c, opts = {}) {
   ensureCss();
   const lang = opts.lang === 'ar' ? 'ar' : 'en', t = L[lang];
@@ -134,27 +120,19 @@ export function passportHtml(c, opts = {}) {
   const nextStage = STAGES[STAGES.indexOf(c.stage) + 1];
   const next = opts.next || (closed ? '' : t.nextOf[nextStage] || '');
   const label = ms.map(([st], i) => `${t.m[i]}: ${st === 'done' ? '✓' : st === 'na' ? t.notNeeded : t.waiting}`).join('; ');
-  const ROT = [-5, 3, -2, 4, -3];
-  const stampList = `<ol class="cp-stamps" aria-label="${esc(label)}">${ms.map(([st], i) => `<li class="${st}${fresh.has(i) ? ' new' : ''}" style="--r:${ROT[i]}deg"><span class="cp-s">${st === 'done' ? CHECK : st === 'na' ? '–' : i + 1}</span>${t.short[i]}</li>`).join('')}</ol>`;
   const ownerNext = !opts.hideOwner && (ownerName || next) ? `<div class="cp-o">${ownerName ? `<span>${t.owner}: <b>${esc(ownerName)}</b></span>` : ''}${next ? `<span>${t.next}: <b>${esc(next)}</b></span>` : ''}</div>` : '';
+  const node = (st, i) => `<span class="cp-s" aria-hidden="true">${st === 'done' ? CHECK : st === 'na' ? '–' : i + 1}</span>`;
   if (opts.compact) {
-    return `<section class="cp compact" aria-label="${esc(t.brand)}">${CHANNEL}
-      <div class="cp-t"><span class="cp-brand">${esc(t.brand)}</span><span class="cp-st ${tone}">${esc(status)}</span></div>${stampList}${ownerNext}</section>`;
+    return `<section class="cp compact" aria-label="${esc(t.brand)}"><div class="cp-t"><span class="cp-brand">${esc(t.brand)}</span><span class="cp-st ${tone}">${esc(status)}</span></div>
+      <ol class="cp-stamps" aria-label="${esc(label)}">${ms.map(([st], i) => `<li class="${st}${fresh.has(i) ? ' new' : ''}">${node(st, i)}${t.short[i]}</li>`).join('')}</ol>${ownerNext}</section>`;
   }
-  const done = ms.map(([st, e], i) => [st, e, i]).filter(([st]) => st === 'done');
-  let h = `<section class="cp book" aria-label="${esc(t.brand)}">
-    <div class="cp-cover">${CHANNEL}<span class="cp-emb" aria-hidden="true">${EMBLEM}</span>
-      <div class="cp-t"><span class="cp-brand">Falaj · فلج</span><span class="cp-st ${tone}">${esc(status)}</span></div>
-      <p class="cp-title cp-serif">${esc(t.title)}</p>
-      <div><p class="cp-name"><bdi>${esc(who)}</bdi></p><p class="cp-sub">${esc(sub)}</p></div>
-      <div class="cp-id" dir="ltr">${t.id} ${passportId(c)}</div>
-    </div>
-    <div class="cp-page"><h3 class="cp-serif">${esc(t.pageT)}</h3>${stampList}${ownerNext}`;
-  if (done.length) h += `<ul class="cp-ev" aria-label="${t.recorded}">${done.map(([, e, i]) => `<li><span class="k">${CHECK}</span><span><b>${t.m[i]}</b>${esc(e.by)} · ${fmtDay(e.at.slice(0, 10), lang)}</span></li>`).join('')}</ul>`;
+  let h = `<section class="cp" aria-label="${esc(t.brand)}"><div class="cp-t"><span class="cp-brand">${esc(t.brand)}</span><span class="cp-st ${tone}">${esc(status)}</span></div>
+    <div><p class="cp-name"><bdi>${esc(who)}</bdi></p><p class="cp-sub">${esc(sub)}</p><div class="cp-id" dir="ltr">${t.id} ${passportId(c)}</div></div>
+    <ol class="cp-stamps" aria-label="${esc(label)}">${ms.map(([st, e], i) => `<li class="${st}${fresh.has(i) ? ' new' : ''}">${node(st, i)}<b>${t.m[i]}</b><small>${st === 'done' ? `${esc(e.by)} · ${fmtDay(e.at.slice(0, 10), lang)}` : st === 'na' ? t.notNeeded : t.waiting}</small></li>`).join('')}</ol>${ownerNext}`;
   if (opts.qr && closed) {
     const code = proofCode(c), url = proofUrl(c, opts.origin || (typeof location !== 'undefined' ? location.origin : ''));
     h += `<div class="cp-q">${qrSvg(url, { size: 112, label: `${t.brand} ${code}` })}<span><b>${t.code}</b><code dir="ltr">${code}</code><small>${t.scan}</small>${opts.link ? `<a href="${esc(opts.link === true ? url : opts.link)}" id="openproof">${t.open}</a>` : ''}</span></div>
       <p class="cp-illus">${t.illus}</p>`;
   }
-  return h + '</div></section>';
+  return h + '</section>';
 }
