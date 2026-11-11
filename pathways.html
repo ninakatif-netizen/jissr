@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Falaj channel map</title>
+<meta name="description" content="The Falaj channel map: each screening pathway as a chain of steps, who may act, the deadline, and what the AI may and may not do. Read from the rules engine. Synthetic data only.">
+<meta name="theme-color" content="#f6f2ea">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="ios.css">
+<style>
+body{background:var(--bg)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;z-index:3}
+.top .t{display:flex;align-items:center;gap:12px}
+.top h1{font-size:20px;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 20px 40px;display:flex;flex-direction:column;gap:16px}
+.pmap{display:grid;grid-template-columns:1fr;gap:16px;align-items:start}
+@media (min-width:900px){.pmap{grid-template-columns:minmax(0,1fr) 380px}.panel{position:sticky;top:76px}}
+.canvas{background-color:var(--card);background-image:radial-gradient(var(--off) 1px,transparent 1.2px);background-size:18px 18px;border-radius:18px;padding:22px 16px 26px;border:1px solid var(--line)}
+.nodes{list-style:none;margin:0 auto;padding:0;max-width:440px;display:flex;flex-direction:column}
+.nodes li{position:relative;padding-bottom:34px}
+.nodes li:last-child{padding-bottom:0}
+.nodes li:not(:last-child)::after{content:"";position:absolute;left:50%;bottom:4px;height:26px;width:4px;margin-left:-2px;border-radius:2px;background:linear-gradient(180deg,var(--tint),#36b5e8,var(--tint));background-size:100% 26px;animation:wtr 1.6s linear infinite}
+@keyframes wtr{to{background-position:0 26px}}
+.node{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:start;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;color:var(--ink);cursor:pointer;box-shadow:0 2px 8px rgba(10,31,46,.06);border-top:4px solid var(--c,var(--fill))}
+.node[aria-pressed=true]{border-color:var(--fill);box-shadow:0 0 0 3px rgba(11,111,168,.18)}
+.node .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--line);color:var(--ink)}
+.node b{display:block;font-size:16px}
+.node small{display:block;font-size:13px;color:var(--muted);margin-top:2px;line-height:1.35}
+.node .due{margin-inline-start:auto;flex:none;font-size:12px;font-weight:700;padding:4px 8px;border-radius:99px;background:var(--line);color:var(--ink2);white-space:nowrap}
+.node .ai{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;background:#e3eff7;color:#0b5e8f;margin-inline-start:6px;vertical-align:2px}
+.leaknote{position:absolute;inset-inline-end:-6px;bottom:6px;font-size:11px;color:var(--warn-ink);font-weight:600}
+.panel{display:flex;flex-direction:column;gap:12px}
+.panel .card h2{font-size:22px;margin:0 0 4px}
+.panel ul{margin:6px 0 0;padding-inline-start:18px}
+.panel li{margin:4px 0;font-size:15px;line-height:1.4}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:15px;margin-top:8px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;font-weight:600}
+.may{color:var(--ok-ink)}.never{color:var(--bad)}
+@media (prefers-reduced-motion:reduce){.nodes li::after{animation:none}}
+</style>
+</head>
+<body>
+<header class="top"><span class="t"><a class="brand" href="index.html" aria-label="Falaj home"><svg width="26" height="20" viewBox="0 0 34 26" aria-hidden="true"><path d="M2 20c6 0 8-12 15-12s9 12 15 12" fill="none" stroke="#0b6fa8" stroke-width="3" stroke-linecap="round"/><path d="M27 9V3M24 5l3-2 3 2" fill="none" stroke="#1a7f52" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1>Channel map</h1></span><span class="chip">Read from the rules · demo</span></header>
+<main class="wrap" id="main" tabindex="-1"></main>
+<script type="module">
+// THE CHANNEL MAP: each screening pathway as the chain of channels it flows through. Read-only.
+// Deadlines, who may act and the hand-over rules are read from the rules engine, not typed here twice.
+import { registerSW } from './core/pwa.mjs';
+import { loadState } from './core/store.mjs';
+import { SLA, PROGRAMME_SLA, REFERRAL_REPLY_DAYS, NURSE_CALLBACK_DAYS } from './core/rules.mjs';
+import { PROGRAMMES } from './core/programmes.mjs';
+import { flowOf, CHANNELS } from './core/flow.mjs';
+registerSW();
+const $ = (s) => document.querySelector(s);
+const state = loadState();
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+const ROLE = { system: '#7a8794', ai: '#0b6fa8', nurse: '#8a5412', patient: '#2c3e4c', gp: '#1a7f52', spec: '#6b3fa0', clinician: '#1a7f52' };
+const IC = {
+  lab: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  ai: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4zM18 15l.9 2.1L21 18l-2.1.9L18 21l-.9-2.1L15 18l2.1-.9z" fill="currentColor"/></svg>',
+  phone: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  cal: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 10h16M9 3v4M15 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  doc: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  hand: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h12M12 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  mic: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  palm: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22V11M12 11c-1.5-3.5-5.5-4-8-3 3 0 5.5 1 8 3zM12 11c1.5-3.5 5.5-4 8-3-3 0-5.5 1-8 3zM12 11c-2.5-2-3-5.5-1.5-8 0 3 .5 5.5 1.5 8zM12 11c2.5-2 3-5.5 1.5-8 0 3-.5 5.5-1.5 8z" fill="currentColor"/></svg>',
+};
+const PROGS = [
+  ['mammo', 'Mammogram', 'BI-RADS 4: an area that needs a closer look', PROGRAMME_SLA.mammo],
+  ['fit', 'Bowel test', 'Positive FIT: hidden blood found', PROGRAMME_SLA.fit],
+  ['hba1c', 'Diabetes', 'HbA1c in the diabetes range (priority)', SLA.priority],
+];
+function nodesFor(id, sla) {
+  const p = PROGRAMMES[id], person = id === 'mammo';
+  return [
+    { k: 'results', ic: 'lab', role: 'system', t: 'Result arrives', who: 'Lab system', due: 'Day 0', sub: 'Rules set the urgency, the deadline and the owner.',
+      may: ['Set urgency and deadlines from fixed rules', `Assign an owner: ${person ? 'a nurse navigator for a suspicious mammogram' : 'a care coordinator, or a nurse if urgent'}`], never: ['Wait for someone to notice'], leak: null },
+    { k: 'reached', ic: 'ai', ai: true, role: 'ai', t: 'Falaj call', who: 'AI voice assistant · the patient’s language', due: `By day ${sla.notified}`, sub: 'Reaches the patient, holds a visit, passes worry to a nurse.',
+      may: ['Call in the patient’s language, outside working hours if needed', 'Hold a visit time', 'Flag worry to the nurse the same day'], never: ['Talk about the result or a diagnosis', 'Decide, refer or close anything'], leak: `No answer twice → the owner calls in person` },
+    { k: 'understood', ic: 'phone', role: 'nurse', t: 'Nurse call and teach-back', who: 'Nurse navigator', due: `By day ${sla.understood}`, sub: person ? 'Must be told by a person: never by a message alone.' : 'The patient says the next step back in their own words.',
+      may: ['Explain the result', 'Confirm understanding (teach-back)', `Call back within ${NURSE_CALLBACK_DAYS} day when the patient asks`], never: ['A coordinator cannot confirm understanding'], leak: 'Not understood → another call, an interpreter, or a family helper' },
+    { k: 'booked', ic: 'cal', role: 'patient', t: 'Booking', who: 'The patient, a nurse or a coordinator', due: `By day ${sla.booked}`, sub: 'Times fit the patient: early or evening for shift workers.',
+      may: ['Book or move the visit', 'Send a reminder the day before'], never: ['A booking is not care: the loop stays open'], leak: 'No booking by the deadline → the owner is alerted' },
+    { k: 'seen', ic: 'doc', role: 'gp', t: 'Visit: family doctor', who: 'Family doctor', due: `By day ${sla.attended}`, sub: 'Seen, then decides: refer, test, or no referral needed.',
+      may: ['Record the visit', 'Refer, or record why no referral is needed'], never: ['Skip a step without a written reason'], leak: 'Visit missed → the nurse calls and rebooks' },
+    { k: 'next', ic: 'hand', role: 'gp', t: 'Hand over', who: `Family doctor → ${p.referralTargets.join(' or ')}`, due: `Accept within ${REFERRAL_REPLY_DAYS} days`, sub: 'The sender stays responsible until the receiving team accepts.',
+      may: ['Send what the patient chose to share', 'Accept, or decline with a reason'], never: ['Leave a referral without an owner'], leak: `No answer in ${REFERRAL_REPLY_DAYS} days → the sender is alerted` },
+    { k: 'consult', ic: 'mic', role: 'spec', t: 'Consultation', who: 'Specialist', due: 'At the visit', sub: 'Voice note only with consent; a draft note the doctor checks.',
+      may: ['Turn a consented voice note into a draft note', 'Confirm the consultation, or report back to the family doctor'], never: ['Record without consent', 'Keep the audio after the note'], leak: null },
+    { k: 'closed', ic: 'palm', role: 'clinician', t: 'Loop closed', who: 'A clinician only', due: 'With written evidence', sub: 'The Care Passport is complete. The patient keeps the proof.',
+      may: ['Close as plan agreed, care transferred, or informed refusal'], never: ['The AI can never close a loop', 'Close without evidence'], leak: null },
+  ];
+}
+let prog = new URLSearchParams(location.search).get('p') || 'mammo', sel = 1;
+function render() {
+  const [id, name, ex, sla] = PROGS.find((x) => x[0] === prog) || PROGS[0];
+  const nodes = nodesFor(id, sla), n = nodes[sel] || nodes[0];
+  const fl = flowOf(state.cases.filter((c) => (c.programme || 'hba1c') === id), state.today);
+  const chIdx = CHANNELS.findIndex((c) => c.k === n.k), here = chIdx > 0 && fl.leaks[chIdx - 1] ? fl.leaks[chIdx - 1] : null;
+  $('#main').innerHTML = `<div class="head"><h1 style="margin:0">How each result flows to care</h1><p class="ctx">Every pathway, step by step: who may act, by when, and what the AI may and may not do. Read from the same rules the app runs on.</p></div>
+    <div class="seg" role="group" aria-label="Pathway" style="max-width:520px">${PROGS.map(([k, l]) => `<button data-prog="${k}" aria-pressed="${k === id}">${l}</button>`).join('')}</div>
+    <div class="pmap">
+      <div class="canvas"><p class="gh" style="text-align:center;margin:0 0 14px">${esc(ex)}</p>
+        <ol class="nodes" aria-label="${esc(name)} pathway">${nodes.map((x, i) => `<li><button class="node" data-node="${i}" aria-pressed="${i === sel}" style="--c:${ROLE[x.role]}"><span class="ic" aria-hidden="true">${IC[x.ic]}</span><span><b>${esc(x.t)}${x.ai ? '<span class="ai">AI</span>' : ''}</b><small>${esc(x.who)}</small></span><span class="due">${esc(x.due)}</span></button>${x.leak ? `<span class="leaknote" aria-hidden="true">↳ leak</span>` : ''}</li>`).join('')}</ol></div>
+      <aside class="panel" aria-live="polite">
+        <div class="card"><p class="who" style="margin-bottom:6px"><span class="av" style="background:${ROLE[n.role]}" aria-hidden="true"></span>${esc(n.who)}</p><h2>${esc(n.t)}</h2><p class="q" style="margin:0;color:var(--ink2);font-size:15px;line-height:1.45">${esc(n.sub)}</p>
+          <dl class="kv"><dt>Deadline</dt><dd>${esc(n.due)}</dd>${here ? `<dt>Waiting here now</dt><dd>${here.cases.length} ${here.cases.length === 1 ? 'patient' : 'patients'}${here.late ? `, <span style="color:var(--warn-ink)">${here.late} overdue</span>` : ''}</dd>` : ''}</dl></div>
+        <div class="card"><b class="may">${n.ai ? 'The AI may' : 'May'}</b><ul>${n.may.map((m) => `<li>${esc(m)}</li>`).join('')}</ul>
+          <b class="never" style="display:block;margin-top:10px">${n.ai ? 'The AI may never' : 'Never'}</b><ul>${n.never.map((m) => `<li>${esc(m)}</li>`).join('')}</ul></div>
+        ${n.leak ? `<div class="card status wait"><span><b>If the water stops here</b><span>${esc(n.leak)}</span></span></div>` : ''}
+        <a class="wide" href="team.html">See the patients in the care team app</a>
+      </aside>
+    </div>
+    <p class="demo-note">Deadlines are proposals for clinical review (see the clinical review page). Synthetic data only.</p>`;
+  document.querySelectorAll('[data-prog]').forEach((b) => b.onclick = () => { prog = b.dataset.prog; sel = 1; history.replaceState(null, '', '?p=' + prog); render(); document.querySelector(`[data-prog="${prog}"]`).focus(); });
+  document.querySelectorAll('[data-node]').forEach((b) => b.onclick = () => { sel = +b.dataset.node; render(); document.querySelector(`[data-node="${sel}"]`).focus(); });
+}
+render();
+</script>
+</body>
+</html>

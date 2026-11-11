@@ -213,6 +213,14 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await m.goto(BASE + shareHref); await m.waitForSelector('#out section');
     ok(/Link not valid/.test(await m.innerText('#out')), 'when the patient stops sharing, the link stops working');
     await m.goto(BASE + 'me.html?reset=1&p=&lang=en'); await m.close(); }
+  // the Falaj flow and the channel map
+  { const f = await browser.newPage(); await f.goto(BASE + 'team.html?reset=1&as=n2');
+    ok(!!(await f.$('.flowbox svg')) && /Needs you/.test(await f.innerText('.chips')), 'the care team app opens on the Falaj flow');
+    await f.click('[data-scope="all"]'); await f.click('[data-flow]:not([data-flow="needs"])');
+    ok(/where the water stops/i.test(await f.innerText('main')) && (await f.$$('main .prog')).length > 0, 'a leak shows the patients stopped there, with their progress');
+    await f.goto(BASE + 'pathways.html'); await f.click('[data-node="1"]');
+    ok(/may never/i.test(await f.innerText('.panel')) && /result or a diagnosis/.test(await f.innerText('.panel')), 'the channel map says what the AI may never do');
+    await f.close(); }
   // the full care team app: nurse calls and books, family doctor refers, the clinic accepts and closes, on one patient
   { const t = await browser.newPage(); await t.goto(BASE + 'team.html?reset=1'); await t.click('[data-as="n2"]');
     const cid = await t.getAttribute('.hl a.wide', 'data-case'); await t.click('.hl a.wide');
