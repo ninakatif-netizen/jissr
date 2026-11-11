@@ -189,17 +189,21 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   // ---------- tour + measures ----------
   await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);
   ok((await s.getAttribute('#b0', 'href')) === 'loop.html', 'the home page leads to the three moments');
-  // the three moments: call, hand over, close (fast mode skips the typing animation)
+  // the three moments, on Priya's real case: call, nurse, hand over, close, then the proof verifies
   { const l = await browser.newPage(); await l.goto(BASE + 'loop.html?fast=1');
     await l.click('#answer'); await l.waitForSelector('.chat li');
     const call = await l.innerText('#main');
-    ok(/Booked/.test(call) && /Nurse Huda will call/.test(call) && !/\d+(\.\d+)?%/.test(call), 'the call books the visit, hands worry to the nurse, never gives a result');
-    await l.click('#next'); ok(/Waiting for the breast clinic/.test(await l.innerText('#main')), 'the GP stays responsible until the specialist accepts');
+    ok(/Held/.test(call) && /will call today/.test(call) && !/\d+(\.\d+)?%/.test(call), 'the call holds the visit, hands worry to the nurse, never gives a result');
+    await l.click('#next'); ok(/Call today/i.test(await l.innerText('#main')), 'the nurse sees Priya flagged: call today');
+    await l.click('#callp'); ok(/understood/i.test(await l.innerText('#main')), 'the nurse checks understanding before the visit is confirmed');
+    await l.click('#next'); await l.click('#next'); ok(/Waiting for the breast clinic/.test(await l.innerText('#main')), 'the GP stays responsible until the specialist accepts');
     await l.click('#next'); ok(/Accepted by/.test(await l.innerText('#main')), 'the specialist accepts the case');
     await l.click('#next'); ok((await l.getAttribute('#rec', 'aria-disabled')) === 'true', 'no recording without the patient\'s consent');
     await l.click('#consent'); await l.click('#rec'); await l.waitForSelector('#next');
     ok(/Clinical note/i.test(await l.innerText('#main')), 'the voice note becomes a draft clinical note');
-    await l.click('#next'); ok(/Loop closed/.test(await l.innerText('#main')), 'confirming the consultation closes the loop');
+    await l.click('#next'); ok(/Loop closed/.test(await l.innerText('#main')) && !!(await l.$('#main svg.qr')), 'confirming closes the loop and shows a proof QR');
+    await l.click('#openproof'); await l.waitForTimeout(400);
+    ok(/Valid proof of care/.test(await l.innerText('body')), 'the proof from the three moments verifies');
     await l.close(); }
   ok((await s.getAttribute('#b3', 'href')).includes('tour=0'), 'the home page offers the guided tour');
   ok((await s.getAttribute('#b3', 'href')).includes('C-040'), 'the tour follows one story: Priya, BI-RADS 4');

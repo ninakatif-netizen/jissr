@@ -4,31 +4,52 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Falaj: call, hand over, close</title>
-<meta name="description" content="Falaj in three moments: an AI call books the visit, doctors hand over the case, and the loop closes only when the consultation is confirmed. Synthetic data only.">
+<meta name="description" content="Falaj in three moments: an AI call holds the visit, the nurse checks understanding, doctors hand over the case, and the loop closes only when the consultation is confirmed. Synthetic data only.">
 <meta name="theme-color" content="#f2f2f7">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <style>
-/* iOS-native look: the phone's own font, grouped lists, large titles, switches. One idea per screen. */
-:root{--fill:#0b6fa8;--fill-go:#1a7f52;--bg:#f2f2f7;--card:#fff;--ink:#1c1c1e;--ink2:#3a3a3c;--muted:#5d5d62;--line:#e5e5ea;--tint:#0b6fa8;--tint-l:#e3eff7;--ok:#1a7f52;--ok-l:#e3f4ec;--ok-ink:#0f5a3a;--bad:#c4271b;--warn-l:#fbefdd;--warn-ink:#7a4a0c;--off:#c4c4c8}
-@media (prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--ink:#f2f2f7;--ink2:#d1d1d6;--muted:#a1a1a8;--line:#38383a;--tint:#4aa8e0;--tint-l:#10293a;--ok:#34a46e;--ok-l:#12301f;--ok-ink:#9be0bd;--bad:#ff5b4f;--warn-l:#3a2c12;--warn-ink:#f2c46e;--off:#48484a}}
+/* iOS-native look: the phone's own font, grouped lists, large titles, switches. One idea per screen.
+   Every step changes Priya's real demo case (C-040), so the nurse's list, her app and the proof all follow. */
+:root{--fill:#0b6fa8;--fill-go:#1a7f52;--bg:#f2f2f7;--card:#fff;--ink:#1c1c1e;--ink2:#3a3a3c;--muted:#5d5d62;--line:#e5e5ea;--tint:#0b6fa8;--tint-l:#e3eff7;--ok:#1a7f52;--ok-l:#e3f4ec;--ok-ink:#0f5a3a;--bad:#c4271b;--warn:#8a5412;--warn-l:#fbefdd;--warn-ink:#7a4a0c;--off:#c4c4c8;--desk:#e9e9ee}
+@media (prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--ink:#f2f2f7;--ink2:#d1d1d6;--muted:#a1a1a8;--line:#38383a;--tint:#4aa8e0;--tint-l:#10293a;--ok:#34a46e;--ok-l:#12301f;--ok-ink:#9be0bd;--bad:#ff5b4f;--warn:#f2c46e;--warn-l:#3a2c12;--warn-ink:#f2c46e;--off:#48484a;--desk:#111114}}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"SF Pro Text",system-ui,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
-.app{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.aside{display:none}
+.phone{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;background:var(--bg)}
+/* On a laptop (the jury's screen): the phone on the right, the moment explained on the left */
+@media (min-width:980px){
+  body{background:var(--desk)}
+  .stage{max-width:1120px;margin:0 auto;min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:72px;align-items:center;padding:32px 40px}
+  .aside{display:flex;flex-direction:column;gap:18px;max-width:520px}
+  .aside .k{font-size:15px;font-weight:600;color:var(--tint)}
+  .aside h2{margin:0;font-size:52px;line-height:1.04;font-weight:800;letter-spacing:-.5px}
+  .aside p{margin:0;font-size:20px;line-height:1.45;color:var(--ink2)}
+  .aside .rule{display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:16px;padding:16px 18px;font-size:16px;line-height:1.45}
+  .aside .rule b{display:block;margin-bottom:2px}
+  .aside .dots{display:flex;gap:8px}
+  .aside .dots span{width:28px;height:6px;border-radius:3px;background:var(--off)}
+  .aside .dots span.on{background:var(--tint)}
+  .phone{width:400px;height:min(844px,calc(100vh - 64px));min-height:0;margin:0;border-radius:48px;border:10px solid #1c1c1e;box-shadow:0 30px 80px rgba(0,0,0,.18);overflow-y:auto;overflow-x:hidden;display:block}
+  .phone > .inner{min-height:100%;display:flex;flex-direction:column}
+}
+.inner{display:flex;flex-direction:column;min-height:inherit;flex:1 1 auto}
 .bar{position:sticky;top:0;z-index:2;padding:calc(14px + env(safe-area-inset-top)) 20px 10px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:14px}
 .brandrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.brand{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:17px;color:var(--ink);text-decoration:none}
+.brand{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:17px;color:var(--ink);text-decoration:none;min-height:44px}
 .chip{font-size:12px;font-weight:600;color:var(--muted);background:var(--line);padding:5px 10px;border-radius:99px}
 .segs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0;padding:0;list-style:none}
 .segs li{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:var(--muted)}
 .segs li[aria-current=step]{color:var(--ink)}
 .track{display:block;height:5px;border-radius:3px;background:var(--off);overflow:hidden}
 .fill{display:block;height:100%;border-radius:3px;background:var(--tint);transition:width .7s cubic-bezier(.2,.8,.2,1),background-color .4s}
-main{flex:1 1 auto;padding:6px 16px 24px;display:flex;flex-direction:column;gap:18px}
-.eyebrow{font-size:13px;font-weight:600;color:var(--muted);margin:0;text-transform:uppercase;letter-spacing:.2px}
-h1{margin:2px 0 0;font-size:34px;line-height:1.12;font-weight:700;letter-spacing:.2px}
+main{flex:1 1 auto;padding:6px 16px 24px;display:flex;flex-direction:column;gap:18px;outline:none}
+.who{display:flex;align-items:center;gap:8px;margin:0;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.2px}
+.av{width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font-size:11px;font-weight:700;letter-spacing:0;flex:none}
+h1{margin:6px 0 0;font-size:34px;line-height:1.12;font-weight:700;letter-spacing:.2px}
 .head{padding:0 4px}
+.ctx{margin:4px 0 0;font-size:15px;color:var(--muted)}
 .group{display:flex;flex-direction:column;gap:6px}
 .gh,.gf{padding:0 16px;font-size:13px;line-height:1.4;color:var(--muted)}
 .gh{text-transform:uppercase}
@@ -36,23 +57,25 @@ h1{margin:2px 0 0;font-size:34px;line-height:1.12;font-weight:700;letter-spacing
 .row{position:relative;min-height:44px;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:17px}
 .row+.row::before{content:"";position:absolute;inset-inline-start:16px;inset-inline-end:0;top:0;height:1px;background:var(--line)}
 .row .v{color:var(--muted);text-align:end}
+.row > span:first-child{white-space:nowrap}
+.row .v.ok{color:var(--ok);font-weight:600}
 .row.sw{padding-block:7px}
 .card{background:var(--card);border-radius:14px;padding:14px 16px}
 .switch{width:51px;height:31px;flex:none;border:0;border-radius:99px;padding:2px;background:var(--off);cursor:pointer;display:flex;justify-content:flex-start;transition:background-color .2s}
-.switch[aria-checked=true]{background:var(--ok);justify-content:flex-end}
+.switch[aria-checked=true]{background:var(--fill-go);justify-content:flex-end}
 .switch span{width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2)}
-.ringcard{background:var(--card);border-radius:20px;padding:34px 20px 28px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
-.avatar{width:84px;height:84px;border-radius:50%;background:var(--ok);display:grid;place-items:center;margin-bottom:10px}
-.ringcard .who{font-size:24px;font-weight:600}
-.calls{display:flex;gap:64px;margin-top:26px}
+.ringcard{background:var(--card);border-radius:20px;padding:30px 20px 26px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.avatar{width:84px;height:84px;border-radius:50%;background:var(--fill-go);display:grid;place-items:center;margin-bottom:10px}
+.ringcard .name{font-size:24px;font-weight:600}
+.calls{display:flex;gap:64px;margin-top:24px}
 .calls div{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 .round{width:68px;height:68px;border-radius:50%;border:0;display:grid;place-items:center;cursor:pointer}
 .round.red{background:#c4271b}.round.green{background:var(--fill-go)}.round.blue{background:var(--fill);width:76px;height:76px}
 .round[aria-disabled=true]{background:var(--off);cursor:not-allowed}
 .callhead{display:flex;align-items:center;gap:12px;padding:12px 14px}
-.callhead .a{width:40px;height:40px;border-radius:50%;background:var(--ok);display:grid;place-items:center;flex:none}
+.callhead .a{width:40px;height:40px;border-radius:50%;background:var(--fill-go);display:grid;place-items:center;flex:none}
 .callhead b{display:block;font-size:15px}.callhead small{font-size:13px;color:var(--muted)}
-.tag{margin-inline-start:auto;font-size:12px;font-weight:700;padding:4px 9px;border-radius:99px;background:#c4271b;color:#fff}
+.tag{margin-inline-start:auto;font-size:12px;font-weight:700;padding:4px 9px;border-radius:99px;background:#c4271b;color:#fff;flex:none}
 .tag.ended{background:var(--line);color:var(--ink2)}
 .chat{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
 .chat li{display:flex}
@@ -60,26 +83,37 @@ h1{margin:2px 0 0;font-size:34px;line-height:1.12;font-weight:700;letter-spacing
 .b.ai{background:var(--card);border-radius:18px 18px 18px 6px}
 .b.me{margin-inline-start:auto;background:var(--fill);color:#fff;border-radius:18px 18px 6px 18px}
 .b.sys{margin-inline:auto;display:inline-flex;align-items:center;gap:6px;background:var(--warn-l);color:var(--warn-ink);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:600}
-[dir=rtl] .b.ai{border-radius:18px 18px 6px 18px}[dir=rtl] .b.me{border-radius:18px 18px 18px 6px}
+.flag{border:1.5px solid var(--warn);display:flex;flex-direction:column;gap:10px}
+.flag .top{display:flex;align-items:center;gap:10px}
+.flag .pill{font-size:12px;font-weight:700;color:var(--warn-ink);background:var(--warn-l);padding:4px 9px;border-radius:99px}
+.flag .q{font-size:15px;line-height:1.4;color:var(--ink2);margin:0}
+.wide{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;border:0;border-radius:14px;background:var(--fill-go);color:#fff;font:inherit;font-size:17px;font-weight:600;cursor:pointer}
 .status{display:flex;gap:12px;align-items:flex-start}
 .status b{display:block;font-size:17px;margin-bottom:3px}.status span{font-size:15px;line-height:1.4;color:var(--ink2)}
-.status.ok{background:var(--ok-l)}.status.ok b{color:var(--ok-ink)}.status.ok span{color:var(--ok-ink)}
+.status.ok{background:var(--ok-l)}.status.ok b,.status.ok span{color:var(--ok-ink)}
 .mic{display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0;font-size:15px;color:var(--muted)}
 .mic.live{color:var(--bad);font-weight:600}
 .round.stop{background:#c4271b;width:76px;height:76px}
 .round.stop span{width:24px;height:24px;border-radius:5px;background:#fff}
-.dict{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.dict{display:flex;flex-direction:column;gap:8px;margin:0;list-style:none}
 .dict.card{padding:14px 16px}
 .dict li{font-size:15px;line-height:1.45;color:var(--ink2)}
-.done{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:26px 8px 4px}
+.done{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:22px 8px 4px}
 .done .palm{width:88px;height:88px;border-radius:50%;background:var(--ok-l);display:grid;place-items:center;margin-bottom:6px}
 .done p{margin:0;font-size:17px;line-height:1.4;color:var(--ink2)}
+.proof{display:flex;gap:14px;align-items:center}
+.proof .qr{border-radius:8px;flex:none}
+.proof b{display:block;font-size:13px;color:var(--muted);font-weight:600;text-transform:uppercase}
+.proof code{display:block;font:600 17px ui-monospace,"SF Mono",Menlo,monospace;margin:2px 0 6px}
+.proof small{display:block;font-size:13px;line-height:1.4;color:var(--muted)}
+.proof a{display:inline-flex;align-items:center;min-height:44px;font-size:15px;font-weight:600;color:var(--tint)}
+.links{margin:0;padding:0;list-style:none}
+.links a{display:flex;align-items:center;justify-content:space-between;color:var(--ink);text-decoration:none}
+.links a::after{content:"›";color:var(--muted);font-size:22px}
 .foot{padding:10px 16px calc(18px + env(safe-area-inset-bottom));position:sticky;bottom:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 .primary{display:block;width:100%;min-height:52px;border:0;border-radius:14px;background:var(--fill);color:#fff;font:inherit;font-size:17px;font-weight:600;cursor:pointer}
 .primary.go{background:var(--fill-go)}
 .light{min-height:44px;padding:0 16px;border:0;border-radius:10px;background:var(--tint-l);color:var(--tint);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
-.more{text-align:center;font-size:13px;color:var(--muted);padding:6px 0 0}
-.more a{color:var(--tint)}
 p.note{margin:0;padding:0 16px;font-size:13px;line-height:1.4;color:var(--muted)}
 button{-webkit-tap-highlight-color:transparent;transition:opacity .12s,transform .12s}
 button:active{opacity:.75;transform:scale(.98)}
@@ -90,48 +124,101 @@ button:focus-visible,a:focus-visible{outline:3px solid #36b5e8;outline-offset:2p
 @keyframes ring{0%{box-shadow:0 0 0 0 rgba(26,127,82,.45)}100%{box-shadow:0 0 0 26px rgba(26,127,82,0)}}
 .rec{animation:rec 1.2s ease-out infinite}
 @keyframes rec{0%{box-shadow:0 0 0 0 rgba(196,39,27,.4)}100%{box-shadow:0 0 0 22px rgba(196,39,27,0)}}
-@media (prefers-reduced-motion:reduce){.pop,.ring,.rec{animation:none}.fill,.switch,button{transition:none}}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.32s}
+@media (prefers-reduced-motion:reduce){.pop,.ring,.rec{animation:none}.fill,.switch,button{transition:none}::view-transition-old(root),::view-transition-new(root){animation:none}}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="bar">
-    <div class="brandrow">
-      <a class="brand" href="index.html" aria-label="Falaj home">
-        <svg width="26" height="20" viewBox="0 0 34 26" aria-hidden="true"><path d="M2 20c6 0 8-12 15-12s9 12 15 12" fill="none" stroke="#0b6fa8" stroke-width="3" stroke-linecap="round"/><path d="M27 9V3M24 5l3-2 3 2" fill="none" stroke="#1a7f52" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Falaj
-      </a>
-      <span class="chip">Demo · synthetic · call simulated</span>
+<div class="stage">
+  <aside class="aside" id="aside" aria-hidden="true"></aside>
+  <div class="phone" id="phone">
+    <div class="inner">
+      <header class="bar">
+        <div class="brandrow">
+          <a class="brand" href="index.html" aria-label="Falaj home">
+            <svg width="26" height="20" viewBox="0 0 34 26" aria-hidden="true"><path d="M2 20c6 0 8-12 15-12s9 12 15 12" fill="none" stroke="#0b6fa8" stroke-width="3" stroke-linecap="round"/><path d="M27 9V3M24 5l3-2 3 2" fill="none" stroke="#1a7f52" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Falaj
+          </a>
+          <span class="chip">Demo · synthetic · call simulated</span>
+        </div>
+        <ol class="segs" id="segs" aria-label="The three moments"></ol>
+      </header>
+      <main id="main" tabindex="-1"></main>
+      <div class="foot" id="foot"></div>
     </div>
-    <ol class="segs" id="segs" aria-label="The three moments"></ol>
-  </header>
-  <main id="main" tabindex="-1"></main>
-  <div class="foot" id="foot"></div>
+  </div>
 </div>
 <p class="sr" aria-live="polite" id="say"></p>
 
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
+import { loadState, saveState } from './core/store.mjs';
+import { buildState } from './core/data.mjs';
+import { addDays } from './core/rules.mjs';
+import { advance, skipStage, sendReferral, respondReferral, closeCase, requestNurse, logEvent } from './core/cases.mjs';
+import { proofCode, proofUrl } from './core/proof.mjs';
+import { qrSvg } from './core/qr.mjs';
 registerSW();
 
-// The whole idea in three moments. Synthetic story: Priya, 47, mammogram BI-RADS 4, speaks Malayalam.
+// ---- The story runs on Priya's real demo case. A week of care is compressed into a minute. ----
+const ID = 'C-040';
+let state = loadState();
+const TODAY = state.today;
+const GP_DAY = addDays(TODAY, 1), SPEC_DAY = addDays(TODAY, 8);
+const fmt = (d, long) => new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', long ? { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' } : { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+const staff = (id) => ({ type: 'staff', ...state.staff.find((s) => s.id === id) });
+const NURSE = staff('n2'), GP = staff('d1'), SPEC = staff('e4');
+const PATIENT = { type: 'patient', name: 'Priya Raman (patient)' };
+const AICALL = { type: 'system', name: 'Falaj care line (AI call, simulated)' };
+const first = (n) => n.replace(/^(Nurse|Dr)\s+/, '').split(' ')[0];
+const NURSE_NAME = 'Nurse ' + first(NURSE.name), GP_NAME = 'Dr ' + first(GP.name), SPEC_NAME = 'Dr ' + first(SPEC.name);
+const PEOPLE = {
+  priya: ['PR', "Priya's phone", '#0b6fa8'],
+  nurse: [initials(NURSE.name), `${NURSE_NAME}'s phone · care team`, '#8a5412'],
+  gp: [initials(GP.name), `${GP_NAME}'s phone · family doctor`, '#1a7f52'],
+  spec: [initials(SPEC.name), `${SPEC_NAME}'s phone · breast clinic`, '#6b3fa0'],
+};
+function initials(n) { return n.replace(/^(Nurse|Dr)\s+/, '').split(' ').map((w) => w[0]).slice(0, 2).join(''); }
+
+function freshCase() {   // Priya's case as the demo data has it: the result is out, nobody has reached her
+  const fresh = buildState(TODAY).cases.find((x) => x.id === ID);
+  state.cases = state.cases.map((x) => (x.id === ID ? fresh : x));
+  saveState(state);
+}
+const C = () => state.cases.find((x) => x.id === ID);
+const at = (day, hm) => `${day}T${hm}:00.000Z`;
+const stamp = (from, day, hm) => { C().events.slice(from).forEach((e) => { e.at = at(day, hm); }); };  // compressed demo time
+function act(fn) {
+  try { const n = C().events.length; fn(n); saveState(state); return true; }
+  catch (e) { say('Could not record this step: ' + e.message); console.error(e); return false; }
+}
+
 const LINES = [
-  ['ai', 'Hello Priya. This is the Falaj care line, an automated assistant working with Nurse Huda.'],
-  ['ai', 'Your mammogram result is ready. The next step is a short appointment at the breast clinic.'],
+  ['ai', `Hello Priya. This is the Falaj care line, an automated assistant working with ${NURSE_NAME}.`],
+  ['ai', 'Your mammogram result is ready. The next step is a visit with your family doctor.'],
   ['me', 'Is it something bad?'],
-  ['sys', 'Worry heard: Nurse Huda will call today'],
-  ['ai', 'I cannot talk about results. Nurse Huda will call you today to explain. Shall I book the appointment now?'],
+  ['sys', `Worry heard: ${NURSE_NAME} will call today`],
+  ['ai', `I cannot talk about results. ${NURSE_NAME} will call you today to explain. Shall I hold a visit for you?`],
   ['me', 'Yes. A morning, please. I work afternoons.'],
-  ['ai', 'Booked: Thursday 19 November at 9:30. You will get a reminder the day before.'],
+  ['ai', `Held: ${fmt(GP_DAY, true)} at 9:30 with ${GP_NAME}. ${NURSE_NAME} will confirm it with you today.`],
 ];
 const DICT = [
   'Priya, 47, seen today for a BI-RADS 4 finding, left breast.',
   'Ultrasound-guided core biopsy done, no complications.',
-  'Results in five days. Follow-up visit on 26 November.',
+  'Results in five days. Follow-up visit at the breast clinic booked.',
 ];
-const SHARE = [['r', 'Screening result'], ['a', 'Appointment'], ['l', 'Preferred language'], ['h', 'Other medical history']];
-const init = () => ({ step: 0, call: 'ring', n: 0, share: { r: true, a: true, l: true, h: false }, accepted: false, consent: false, rec: 'idle', m: 0 });
+const SHARE = [['r', 'Screening result'], ['a', 'Appointments'], ['l', 'Preferred language'], ['h', 'Other medical history']];
+const ASIDE = [
+  ['Moment 1 of 3 · The call', 'Nobody reached Priya. Falaj calls.', `The result has waited ${daysSinceResult()} days. Instead of a letter, an AI assistant calls Priya in Malayalam and holds a visit around her work.`, 'The rule', 'The AI never discusses a result. Worry goes to a person, the same day.'],
+  ['Moment 1 of 3 · The nurse', 'A person checks she understood.', `${NURSE_NAME} sees who to call first. Priya explains the next step back in her own words. Only then is the visit confirmed.`, 'The rule', 'The AI routes people to the right human. It never replaces one.'],
+  ['Moment 2 of 3 · The hand over', 'Nothing falls between two doctors.', `${GP_NAME} sees Priya and refers her to the breast clinic. Priya chose what is shared.`, 'The rule', 'The sender stays responsible until the specialist accepts. No reply in 2 days raises an alarm.'],
+  ['Moment 3 of 3 · The close', 'The loop closes in the consultation.', `With Priya's consent, ${SPEC_NAME} dictates. The words become a draft note the doctor checks, then confirms.`, 'The rule', 'Only a doctor closes the loop. The audio is deleted; the note is kept.'],
+  ['Loop closed', 'Proof, not a promise.', "Every step is in Priya's real case: the nurse's list, her app and the proof of care.", 'Try it', 'Scan the QR code with a phone. It shows the steps and who did them, never the result.'],
+];
+function daysSinceResult() { const c = state.cases.find((x) => x.id === ID); return c ? Math.round((Date.parse(TODAY) - Date.parse(c.resultDay)) / 864e5) : 3; }
+
+const init = () => ({ step: 0, call: 'ring', n: 0, nurse: 'idle', share: { r: true, a: true, l: true, h: false }, hand: 'seen', consent: false, rec: 'idle', m: 0 });
 const q = new URLSearchParams(location.search);
 const FAST = q.get('fast') === '1' || matchMedia('(prefers-reduced-motion: reduce)').matches;
 let S = init(), timer = null;
@@ -145,67 +232,139 @@ function tick(key, max, done) {
   timer = setInterval(() => { const v = S[key] + 1; if (v >= max) { stop(); set({ [key]: v, ...done }); } else set({ [key]: v }); }, 1500);
 }
 
-const icPhone = (fill = '#fff', s = 30) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" fill="${fill}"/></svg>`;
-const icCheck = (s = 22) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10" fill="var(--ok)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const sw = (id, on, label) => `<li class="row sw"><span id="${id}-l">${label}</span><button class="switch" id="${id}" role="switch" aria-checked="${on}" aria-labelledby="${id}-l"><span></span></button></li>`;
-const row = (k, v) => `<li class="row"><span>${k}</span><span class="v">${v}</span></li>`;
-const head = (who, title) => `<div class="head"><p class="eyebrow">${who}</p><h1>${title}</h1></div>`;
+// ---- what each tap records in the case ----
+function callEnded() {
+  act((n) => {
+    logEvent(C(), 'contact', AICALL, `AI call in Malayalam. Visit held with the family doctor, ${fmt(GP_DAY)} 9:30, to be confirmed by the nurse.`);
+    requestNurse(state, ID, PATIENT, 'Asked "Is it something bad?" during the Falaj call');
+    stamp(n, TODAY, '09:05');
+  });
+}
+function nurseCalled() {
+  act((n) => {
+    advance(state, ID, 'understood', NURSE, 'Phone call with an interpreter line in Malayalam. Teach-back: Priya explained the next step in her own words.');
+    advance(state, ID, 'booked', PATIENT, `Booked by phone during the Falaj call: family doctor, ${fmt(GP_DAY)} 9:30. Confirmed by ${NURSE_NAME}.`);
+    C().slot = { day: GP_DAY, time: '09:30' };
+    if (C().nurseRequest) C().nurseRequest.done = true;
+    stamp(n, TODAY, '11:20');
+  });
+}
+function referralSent() {
+  return act((n) => {
+    advance(state, ID, 'attended', GP, 'Seen by the family doctor.');
+    skipStage(state, ID, 'confirmed', GP, 'The biopsy is done at the breast clinic.');
+    sendReferral(state, ID, GP, { to: 'Breast clinic', reason: 'BI-RADS 4 finding: breast assessment and biopsy.' });
+    C().referral.shared = SHARE.filter(([k]) => S.share[k]).map(([, l]) => l);
+    stamp(n, GP_DAY, '09:50');
+  });
+}
+function referralAccepted() {
+  return act((n) => {
+    respondReferral(state, ID, SPEC, { accept: true, note: `Biopsy visit booked for ${fmt(SPEC_DAY)}.` });
+    stamp(n, GP_DAY, '14:10');
+  });
+}
+function consultationConfirmed() {
+  return act((n) => {
+    closeCase(state, ID, SPEC, { type: 'transferred_care', evidence: DICT.join(' ') });
+    C().closed.at = at(SPEC_DAY, '09:55');
+    stamp(n, SPEC_DAY, '09:55');
+  });
+}
 
+// ---- small pieces ----
+const icPhone = (fill = '#fff', s = 30) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" fill="${fill}"/></svg>`;
+const icPhoneLine = (s = 38) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+const icCheck = (s = 22) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10" fill="var(--ok)"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const icClock = `<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="9" fill="none" stroke="var(--warn)" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="var(--warn)" stroke-width="2" stroke-linecap="round"/></svg>`;
+const sw = (id, on, label) => `<li class="row sw"><span id="${id}-l">${label}</span><button class="switch" id="${id}" role="switch" aria-checked="${on}" aria-labelledby="${id}-l"><span></span></button></li>`;
+const row = (k, v, cls = '') => `<li class="row"><span>${k}</span><span class="v ${cls}">${v}</span></li>`;
+const head = (p, title, ctx) => { const [ini, label, col] = PEOPLE[p]; return `<div class="head"><p class="who"><span class="av" style="background:${col}" aria-hidden="true">${ini}</span>${label}</p><h1>${title}</h1>${ctx ? `<p class="ctx">${ctx}</p>` : ''}</div>`; };
+
+// ---- the screens ----
 function screenCall() {
-  let h = head("Priya's phone", 'The call');
-  if (S.call === 'ring') return h + `<div class="ringcard pop"><span class="avatar ring">${icPhone('none', 38).replace('fill="none"', 'fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"')}</span>
-    <div class="who">Falaj care line</div><div style="font-size:15px;color:var(--muted)">Calling in Malayalam, for Nurse Huda</div>
+  let h = head('priya', 'The call', `Day ${daysSinceResult()} after the result. The letter is still unopened.`);
+  if (S.call === 'ring') return h + `<div class="ringcard pop"><span class="avatar ring">${icPhoneLine()}</span>
+    <div class="name">Falaj care line</div><div style="font-size:15px;color:var(--muted)">Calling in Malayalam, for ${NURSE_NAME}</div>
     <div class="calls"><div><button class="round red" id="decline" aria-label="Decline the call"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14c5-5 13-5 18 0l-2 3-4-1v-3a10 10 0 0 0-6 0v3l-4 1z" fill="#fff"/></svg></button>Decline</div>
-    <div><button class="round green" id="answer" aria-label="Accept the call">${icPhone()}</button>Accept</div></div></div>
-    <p class="note">Priya's mammogram needs a closer look. Instead of a letter she may never open, Falaj calls her, in her own language, at a time that suits her.</p>`;
+    <div><button class="round green" id="answer" aria-label="Accept the call">${icPhone()}</button>Accept</div></div></div>`;
   if (S.call === 'missed') return h + `<div class="card pop"><div style="font-size:17px;font-weight:600;margin-bottom:6px">No answer</div>
-    <div style="font-size:15px;line-height:1.4;color:var(--ink2)">Falaj tries again tomorrow at 6 pm, outside her working hours. After two missed calls, Nurse Huda is told and calls herself.</div>
+    <div style="font-size:15px;line-height:1.4;color:var(--ink2)">Falaj tries again tomorrow at 6 pm, outside her working hours. After two missed calls, ${NURSE_NAME} is told and calls in person.</div>
     <button class="light" id="retry" style="margin-top:12px">Try the call again</button></div>`;
   h += `<div class="card callhead"><span class="a">${icPhone('#fff', 20)}</span><span><b>Falaj care line</b><small>Spoken in Malayalam · transcript in English</small></span><span class="tag${S.call === 'done' ? ' ended' : ''}">${S.call === 'done' ? 'Ended' : 'Live'}</span></div>
     <ol class="chat" aria-label="Call transcript">${LINES.slice(0, S.n).map(([k, t], i) => `<li class="${i === S.n - 1 ? 'pop' : ''}"><span class="b ${k}">${k === 'sys' ? '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8v5M12 16v.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : `<span class="sr">${k === 'ai' ? 'Assistant: ' : 'Priya: '}</span>`}${t}</span></li>`).join('')}</ol>`;
-  if (S.call === 'done') h += `<div class="group pop"><div class="gh">Booked during the call</div><ul class="list">${row('When', 'Thu 19 Nov · 9:30')}${row('Where', 'Breast clinic')}${row('Reminder', 'The day before')}</ul>
-    <div class="gf">The assistant never discusses the result or a diagnosis. When Priya sounds worried, it hands over to Nurse Huda.</div></div>`;
+  if (S.call === 'done') h += `<div class="group pop"><div class="gh">Held during the call</div><ul class="list">${row('When', `${fmt(GP_DAY)} · 9:30`)}${row('With', `${GP_NAME}, family doctor`)}${row('Confirmed by', `${NURSE_NAME}, today`)}</ul>
+    <div class="gf">The assistant never discusses the result or a diagnosis.</div></div>`;
   return h;
 }
+function screenNurse() {
+  const others = state.cases.filter((c) => c.owner === NURSE.id && c.id !== ID && c.stage !== 'closed').slice(0, 3);
+  const call = S.nurse === 'idle'
+    ? `<button class="wide" id="callp">${icPhone('#fff', 20)} Call Priya</button>`
+    : S.nurse === 'calling'
+      ? `<div class="mic live"><span>Calling Priya, with a Malayalam interpreter line…</span></div>`
+      : `<div class="card status ok pop">${icCheck(24)}<span><b>Priya understood. Visit confirmed.</b><span>In her own words: “They need a closer look. It does not mean it is cancer. I see my doctor on ${fmt(GP_DAY, true).split(' ')[0]}.”</span></span></div>`;
+  return `<div class="pop" style="display:flex;flex-direction:column;gap:18px">${head('nurse', 'Today')}
+    <div class="card flag"><div class="top"><span class="pill">Call today</span><b style="font-size:17px">Priya, 47 · Malayalam</b></div>
+      <p class="q">Worried during the Falaj call: “Is it something bad?”</p>
+      <ul class="list" style="background:transparent;border-radius:0;margin:0 -16px">${row('Mammogram', 'BI-RADS 4')}${row('Visit held', `${fmt(GP_DAY)} · 9:30`)}</ul>
+      ${call}</div>
+    <div class="group"><div class="gh">Also on your list</div><ul class="list">${others.map((c) => row(`${c.patient.name.split(' ')[0]}, ${c.patient.age}`, { hba1c: 'HbA1c', fit: 'Bowel test (FIT)', mammo: 'Mammogram' }[c.programme || 'hba1c'])).join('')}</ul>
+    <div class="gf">The full list, with deadlines, is in the care team app.</div></div></div>`;
+}
 function screenHand() {
-  return `<div class="pop" style="display:flex;flex-direction:column;gap:18px">${head("Dr Mariam's phone · family doctor", 'Referral')}
-    <div class="group"><div class="gh">Patient</div><ul class="list">${row('Priya, 47', 'Malayalam')}${row('Mammogram', 'BI-RADS 4')}${row('To', 'Breast clinic')}</ul></div>
+  const status = S.hand === 'seen'
+    ? `<div class="card status">${icClock}<span><b>Refer to the breast clinic</b><span>You stay responsible until they accept. If nobody accepts within 2 days, Falaj alerts you.</span></span></div>`
+    : S.hand === 'sent'
+      ? `<div class="card status pop" id="hs">${icClock}<span><b>Waiting for the breast clinic</b><span>Sent ${fmt(GP_DAY)}, 9:50. You are still responsible for Priya.</span></span></div>`
+      : `<div class="card status ok pop" id="hs">${icCheck(24)}<span><b>Accepted by ${SPEC_NAME}</b><span>The breast clinic now owns Priya's case. Biopsy visit: ${fmt(SPEC_DAY)}.</span></span></div>`;
+  return `<div class="pop" style="display:flex;flex-direction:column;gap:18px">${head('gp', 'Referral', `${fmt(GP_DAY, true)}`)}
+    <div class="group"><div class="gh">Patient</div><ul class="list">${row('Priya, 47', 'Seen today', 'ok')}${row('Mammogram', 'BI-RADS 4')}${row('Biopsy', 'At the breast clinic')}</ul></div>
     <div class="group"><div class="gh">What Priya chose to share</div><ul class="list">${SHARE.map(([k, l]) => sw('sh-' + k, S.share[k], l)).join('')}</ul><div class="gf">Priya can change this at any time, from her phone.</div></div>
-    ${S.accepted
-      ? `<div class="card status ok pop" id="hs">${icCheck(24)}<span><b>Accepted by Dr Layla Haddad</b><span>The breast clinic now owns Priya's case. Nothing falls between two doctors.</span></span></div>`
-      : `<div class="card status" id="hs"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="9" fill="none" stroke="#8a5412" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="#8a5412" stroke-width="2" stroke-linecap="round"/></svg><span><b>Waiting for the breast clinic</b><span>You stay responsible until they accept. If nobody accepts within 2 days, Falaj alerts you.</span></span></div>`}</div>`;
+    ${status}</div>`;
 }
 function screenClose() {
   let mic = '';
   if (S.rec === 'idle') mic = `<div class="mic"><button class="round blue" id="rec" aria-disabled="${!S.consent}" aria-label="Start the voice note" aria-describedby="rec-h"><svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></button><span id="rec-h">${S.consent ? 'Tap to dictate the note' : 'Turn on consent to record'}</span></div>`;
   if (S.rec === 'live') mic = `<div class="mic live"><button class="round stop rec" id="stoprec" aria-label="Stop the voice note"><span></span></button>Listening…</div>`;
   const dict = S.m ? `<ol class="dict card" aria-label="What the doctor said">${DICT.slice(0, S.m).map((t, i) => `<li class="${i === S.m - 1 ? 'pop' : ''}">“${t}”</li>`).join('')}</ol>` : '';
-  const note = S.rec === 'done' ? `<div class="group pop"><div class="gh">Clinical note · draft, check before confirming</div><ul class="list">${row('Seen', '19 Nov, 9:40')}${row('Done', 'Core biopsy, left breast')}${row('Next', 'Results visit 26 Nov')}${row('Owner', 'Breast clinic')}</ul></div>` : '';
-  return `<div class="pop" style="display:flex;flex-direction:column;gap:18px">${head("Dr Layla's phone · breast clinic", 'Consultation')}
-    <div class="group"><ul class="list"><li class="row"><span>Priya, 47</span><span class="v" style="color:var(--ok);font-weight:600">Checked in · 9:30</span></li>${sw('consent', S.consent, 'Priya agrees to a voice note')}</ul><div class="gf">The audio becomes a written note, then it is deleted.</div></div>
+  const note = S.rec === 'done' ? `<div class="group pop"><div class="gh">Clinical note · draft, check before confirming</div><ul class="list">${row('Seen', `${fmt(SPEC_DAY)}, 9:40`)}${row('Done', 'Core biopsy, left breast')}${row('Next', 'Results in 5 days')}${row('Owner', 'Breast clinic')}</ul></div>` : '';
+  return `<div class="pop" style="display:flex;flex-direction:column;gap:18px">${head('spec', 'Consultation', `${fmt(SPEC_DAY, true)}`)}
+    <div class="group"><ul class="list">${row('Priya, 47', 'Checked in · 9:30', 'ok')}${sw('consent', S.consent, 'Priya agrees to a voice note')}</ul><div class="gf">The audio becomes a written note, then it is deleted.</div></div>
     ${mic}${dict}${note}</div>`;
 }
 function screenDone() {
+  const c = C(), code = proofCode(c), url = proofUrl(c, location.origin);
+  const days = Math.round((Date.parse(SPEC_DAY) - Date.parse(c.resultDay)) / 864e5);
+  const pick = [['contact', 'Called by Falaj'], ['understood', 'Understood, with the nurse'], ['attended', 'Seen by the family doctor'], ['referral_accepted', 'Referral accepted'], ['closed', 'Consultation confirmed']];
+  const steps = pick.map(([t, l]) => [l, c.events.find((e) => e.type === t)]).filter(([, e]) => e);
   return `<div class="pop" style="display:flex;flex-direction:column;gap:18px"><div class="done"><span class="palm"><svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 44V22" stroke="#7a5a2a" stroke-width="3" stroke-linecap="round"/><path d="M24 22c-3-7-11-9-17-6 6 0 11 2 17 6zM24 22c3-7 11-9 17-6-6 0-11 2-17 6zM24 22c-5-4-6-11-3-16 0 6 1 11 3 16zM24 22c5-4 6-11 3-16 0 6-1 11-3 16z" fill="var(--ok)"/><path d="M6 44c6-3 12-3 18 0s12 3 18 0" fill="none" stroke="var(--tint)" stroke-width="3" stroke-linecap="round"/></svg></span>
-    <h1>Loop closed</h1><p>Priya reached a specialist 8 days after her result, and a doctor confirmed it.</p></div>
-    <div class="group"><div class="gh">Proof of care</div><ul class="list">${[['Called and booked', '11 Nov'], ['Referral accepted', '11 Nov'], ['Seen, note confirmed', '19 Nov']].map(([a, b]) => `<li class="row" style="justify-content:flex-start">${icCheck()}<span style="flex:1">${a}</span><span class="v" style="font-size:15px">${b}</span></li>`).join('')}</ul>
+    <h1>Loop closed</h1><p>Priya reached a specialist ${days} days after her result, and a doctor confirmed it.</p></div>
+    <div class="group"><div class="gh">Proof of care</div><div class="card proof">${qrSvg(url, { size: 128, label: 'Proof of care ' + code })}<span><b>Proof code</b><code dir="ltr">${code}</code><small>Scan to check it. It shows the steps, never the result.</small><a href="${url.replace(location.origin + '/', '')}" id="openproof">Open the proof</a></span></div></div>
+    <div class="group"><div class="gh">The steps</div><ul class="list">${steps.map(([l, e]) => `<li class="row" style="justify-content:flex-start">${icCheck()}<span style="flex:1">${l}</span><span class="v" style="font-size:15px">${fmt(e.at.slice(0, 10))}</span></li>`).join('')}</ul>
     <div class="gf">The voice recording was deleted. Only the confirmed note is kept.</div></div>
-    <p class="more">For the jury: <a href="care.html?role=nurse">the care team's app</a> · <a href="map.html">where results get lost</a> · <a href="trust.html">try to break it</a></p></div>`;
+    <div class="group"><div class="gh">See it everywhere</div><ul class="list links"><li class="row"><a href="care.html?role=nurse&as=${NURSE.id}" style="flex:1;min-height:22px">In ${NURSE_NAME}'s care app</a></li><li class="row"><a href="patient.html?p=${ID}&nosplash=1" style="flex:1;min-height:22px">In Priya's app</a></li></ul></div></div>`;
 }
 
+const SCREENS = [screenCall, screenNurse, screenHand, screenClose, screenDone];
 function render(focusId) {
-  const done = S.step === 3;
-  const prog = [{ ring: 12, missed: 12, live: 55, done: 100 }[S.call], S.accepted ? 100 : 45, S.rec === 'done' ? 85 : S.rec === 'live' ? 55 : 20];
+  const done = S.step === 4, seg = [0, 0, 1, 2, 3][S.step];
+  const prog = [S.step === 1 ? (S.nurse === 'done' ? 100 : 75) : { ring: 10, missed: 10, live: 40, done: 60 }[S.call], { seen: 25, sent: 60, accepted: 100 }[S.hand], S.rec === 'done' ? 85 : S.rec === 'live' ? 55 : 20];
   $('#segs').innerHTML = ['Call', 'Hand over', 'Close'].map((l, i) => {
-    const w = done || i < S.step ? 100 : i === S.step ? prog[i] : 0;
-    return `<li${i === S.step ? ' aria-current="step"' : ''}>${l}<span class="track"><span class="fill" style="width:${w}%;${done ? 'background:var(--ok)' : ''}"></span></span></li>`;
+    const w = done || i < seg ? 100 : i === seg ? prog[i] : 0;
+    return `<li${i === seg && !done ? ' aria-current="step"' : ''}>${l}<span class="track"><span class="fill" style="width:${w}%;${done ? 'background:var(--ok)' : ''}"></span></span></li>`;
   }).join('');
-  $('#main').innerHTML = [screenCall, screenHand, screenClose, screenDone][S.step]();
+  const a = ASIDE[S.step];
+  $('#aside').innerHTML = `<div class="dots">${[0, 1, 2].map((i) => `<span class="${done || i <= seg ? 'on' : ''}"></span>`).join('')}</div><div class="k">${a[0]}</div><h2>${a[1]}</h2><p>${a[2]}</p><div class="rule">${icCheck(24)}<span><b>${a[3]}</b>${a[4]}</span></div>`;
+  $('#main').innerHTML = SCREENS[S.step]();
   let p = null;
-  if (S.step === 0 && S.call === 'done') p = ['Next: the doctors hand over', () => go(1)];
-  if (S.step === 1) p = S.accepted ? ['Next: the consultation', () => go(2)] : ['Accept as the breast clinic (demo)', () => { set({ accepted: true }, 'next'); say('Accepted by the breast clinic. They now own the case.'); }];
-  if (S.step === 2 && S.rec === 'done') p = ['Confirm consultation', () => { go(3); say('Loop closed.'); }, 'go'];
-  if (done) p = ['Replay the demo', () => { stop(); S = init(); render(); $('#main').focus(); }];
+  if (S.step === 0 && S.call === 'done') p = [`Next: ${NURSE_NAME}'s phone`, () => go(1)];
+  if (S.step === 1 && S.nurse === 'done') p = [`Next: ${GP_NAME}'s phone`, () => go(2)];
+  if (S.step === 2) p = S.hand === 'seen' ? ['Send referral to the breast clinic', () => { if (referralSent()) { set({ hand: 'sent' }, 'next'); say('Referral sent. You stay responsible until it is accepted.'); } }]
+    : S.hand === 'sent' ? ['Accept as the breast clinic (demo)', () => { if (referralAccepted()) { set({ hand: 'accepted' }, 'next'); say(`Accepted by ${SPEC_NAME}.`); } }]
+    : [`Next: ${SPEC_NAME}'s phone`, () => go(3)];
+  if (S.step === 3 && S.rec === 'done') p = ['Confirm consultation', () => { if (consultationConfirmed()) { go(4); say('Loop closed.'); } }, 'go'];
+  if (done) p = ['Replay the demo', () => { stop(); freshCase(); S = init(); go(0); }];
   $('#foot').innerHTML = p ? `<button class="primary ${p[2] || ''}" id="next">${p[0]}</button>` : '';
   $('#foot').hidden = !p;
   if (p) $('#next').onclick = p[1];
@@ -213,13 +372,22 @@ function render(focusId) {
   on('answer', () => { set({ call: 'live', n: 1 }); tick('n', LINES.length, { call: 'done' }); });
   on('decline', () => set({ call: 'missed' }, 'retry'));
   on('retry', () => set({ call: 'ring' }, 'answer'));
+  on('callp', () => { set({ nurse: 'calling' }); const fin = () => { nurseCalled(); set({ nurse: 'done' }, 'next'); say('Priya understood. Visit confirmed.'); }; FAST ? fin() : setTimeout(fin, 1800); });
   SHARE.forEach(([k]) => on('sh-' + k, () => set({ share: { ...S.share, [k]: !S.share[k] } }, 'sh-' + k)));
   on('consent', () => set({ consent: !S.consent }, 'consent'));
   on('rec', () => { if (!S.consent) { say('Turn on consent first.'); return; } set({ rec: 'live', m: 1 }, 'stoprec'); tick('m', DICT.length, { rec: 'done' }); });
   on('stoprec', () => { stop(); set({ rec: 'done', m: DICT.length }, 'next'); });
   if (focusId) { const el = document.getElementById(focusId); if (el) el.focus(); }
 }
-function go(step) { stop(); S = { ...S, step }; render(); scrollTo({ top: 0 }); $('#main').focus({ preventScroll: true }); }
+function go(step) {
+  stop();
+  const swap = () => { S = { ...S, step }; render(); $('#phone').scrollTop = 0; scrollTo({ top: 0 }); $('#main').focus({ preventScroll: true }); };
+  if (CALL_ENDED_HOOK[step]) CALL_ENDED_HOOK[step]();
+  if (document.startViewTransition && !FAST) document.startViewTransition(swap); else swap();
+}
+const CALL_ENDED_HOOK = { 1: callEnded };   // leaving the call writes it into the case
+
+freshCase();
 render();
 </script>
 </body>

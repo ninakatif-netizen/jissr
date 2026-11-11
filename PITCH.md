@@ -18,18 +18,21 @@ Many people never open it, never book, or get lost between two doctors. And nobo
 **0:25 · The idea (15 s)**
 Say the one sentence. "Three moments: call, hand over, close."
 
-**0:40 · Moment 1, the call (50 s)**
-Priya's phone rings. "Priya, 47, speaks Malayalam. Her mammogram needs a closer look. Instead of a letter,
-Falaj calls her in her language. She asks 'is it something bad?' The assistant never talks about results:
-it tells her Nurse Huda will call today, and books her visit around her work."
+**0:40 · Moment 1, the call and the nurse (55 s)**
+Priya's phone rings. "Priya, 47, speaks Malayalam. Her mammogram needs a closer look, and her letter has
+waited 3 days. Falaj calls her in her language. She asks 'is it something bad?' The assistant never talks
+about results: it holds a visit around her work, and flags her to Nurse Peter. Nurse Peter calls the same
+day, and Priya explains the next step back in her own words. Only then is the visit confirmed."
 
-**1:30 · Moment 2, the hand over (35 s)**
-"Her family doctor refers her. Priya chose what is shared. The doctor stays responsible until the breast
-clinic accepts, and if nobody accepts in 2 days, Falaj raises the alarm. Nothing falls between two doctors."
+**1:35 · Moment 2, the hand over (30 s)**
+"Dr Mariam, her family doctor, sees her and refers her. Priya chose what is shared. Dr Mariam stays
+responsible until the breast clinic accepts; no answer in 2 days raises an alarm. Nothing falls between
+two doctors."
 
 **2:05 · Moment 3, the close (35 s)**
-"In the consultation, with Priya's consent, the doctor dictates. The words become a draft note, the doctor
-checks it and confirms. Only then is the loop closed. The audio is deleted; only the confirmed note is kept."
+"In the consultation, with Priya's consent, Dr Noura dictates. The words become a draft note she checks
+and confirms. Only then is the loop closed, with a proof of care: scan the QR, it shows every step and who
+did it, never the result. The audio is deleted; only the confirmed note is kept."
 
 **2:40 · Why we can be trusted (15 s)**
 "The AI only talks and writes. Rules and people decide: who owns the case, the deadlines, and the closing."
