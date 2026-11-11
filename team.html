@@ -34,6 +34,7 @@ import { isOverdue, mustCall, slotsFor, addDays } from './core/rules.mjs';
 import { advance, skipStage, sendReferral, respondReferral, completeReferral, closeCase, logContact, logEvent, nextStageOf, createCase } from './core/cases.mjs';
 import { progOf, resultText, targetsFor } from './core/programmes.mjs';
 import { channelHtml } from './core/channel.mjs';
+import { workflowHtml } from './core/workflow.mjs';
 import { flowOf, flowSvg, levelOf, CHANNELS } from './core/flow.mjs';
 import { runAgents, agentSummary, AGENTS, readDocument, SAMPLE_DOCUMENTS } from './core/agents.mjs';
 registerSW();
@@ -222,14 +223,15 @@ function caseScreen(s, c) {
   return `<button class="back" id="back">‹ ${params().tab === 'patients' ? 'Patients' : 'The Falaj'}</button>
     <div class="head"><h1>${esc(c.patient.name)}</h1><p class="ctx">${c.patient.age} · speaks ${LANG[c.patient.language] || c.patient.language}${c.channel ? ` · prefers ${esc({ app: 'the app', sms: 'SMS', whatsapp: 'WhatsApp', phone: 'a phone call' }[c.channel] || c.channel)}` : ''}</p></div>
     ${action}
-    <div class="group"><div class="gh">Result (staff only)</div><ul class="list"><li class="row"><span>${esc(progOf(c).name)}</span><span class="v">${esc(resultText(c))}</span></li>${c.due ? `<li class="row"><span>Follow up by</span><span class="v">${fmt(c.due)}</span></li>` : ''}</ul></div>
-    ${channelHtml(c, { staff: state.staff, today: TODAY, title: 'Where the water is' })}
+    <div class="group"><div class="gh">${esc(first(c))}'s falaj</div>${(() => { const r = workflowHtml(c, { staff: state.staff, today: TODAY, resultText: resultText(c), selected: shaftSel }); const n = r.nodes.find((x) => x.id === shaftSel); return r.html + (n ? `<div class="card status ${n.late ? 'wait' : n.done ? 'ok' : ''}" aria-live="polite"><span><b>${esc(n.label)}</b><span>${n.done ? esc([n.who, n.day ? fmt(n.day.slice(0, 10)) : ''].filter(Boolean).join(' · ')) : n.late ? 'Overdue' : n.now ? 'This is where the water is now.' : 'Still to come.'}${n.note ? `<br>${esc(n.note)}` : ''}${n.rule ? `<br><small style="color:var(--muted)">${esc(n.rule)}</small>` : ''}</span></span></div>` : ''); })()}</div>
+    <button class="wide ghost" data-act="add">+ Add to the falaj</button>
     <details class="more"><summary>Timeline (${events.length})</summary><ul class="timeline">${events.map((e) => `<li><span><b>${esc(EVENT[e.type] || e.type)}</b><small>${esc(e.by)}${e.note ? ' · ' + esc(e.note) : ''}</small></span><span class="d">${fmt(e.at.slice(0, 10))}</span></li>`).join('')}</ul></details>
 `;
 }
 
 // ---- sheets ----
 let sheet = null, sheetErr = '', findText = '';
+let shaftSel = null, freshShaft = null;   // the shaft shown in detail; a shaft just added (the water grows to it)
 const DICT = {
   mammo: ['Seen today for the screening finding.', 'Ultrasound-guided core biopsy done, no complications.', 'Results in five days. Follow-up visit booked at the clinic.'],
   fit: ['Seen today after a positive FIT.', 'Colonoscopy done. Findings explained.', 'Results reviewed with the patient. Follow-up booked.'],
@@ -238,6 +240,10 @@ const DICT = {
 function sheetHtml(s, c) {
   const k = sheet.kind, n = first(c), err = sheetErr ? `<p class="err" role="alert">${esc(sheetErr)}</p>` : '';
   const wrap = (title, body) => `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t" tabindex="-1" id="sheet"><span class="grab" aria-hidden="true"></span><h2 id="sh-t">${title}</h2>${body}${err}<button class="wide ghost" id="sh-x">Cancel</button></div></div>`;
+  if (k === 'add') return wrap(`Add to ${esc(n)}'s falaj`, `<fieldset class="choice"><legend class="sr">What</legend><label><input type="radio" name="addk" value="lab"${sheet.addk !== 'note' ? ' checked' : ''}>A lab result</label><label><input type="radio" name="addk" value="note"${sheet.addk === 'note' ? ' checked' : ''}>A consultation note</label></fieldset>
+    <div class="field"><label for="add-t">${sheet.addk === 'note' ? 'Who and where' : 'Test'}</label><input id="add-t" autocomplete="off" placeholder="${sheet.addk === 'note' ? 'Breast clinic, Dr Noura' : 'Ultrasound, left breast'}"></div>
+    <div class="field"><label for="add-v">${sheet.addk === 'note' ? 'Note' : 'Result or finding'}</label><textarea id="add-v" placeholder="${sheet.addk === 'note' ? 'Seen, plan discussed, next visit booked' : 'Finding as written in the report'}"></textarea></div>
+    <p>It appears in the falaj and the timeline. It does not move the case on: only the steps above do.</p><button class="wide go" id="do-add">Add</button>`);
   if (k === 'call') return wrap(`Call ${esc(n)}`, `<p>Calling ${esc(c.patient.name)} in ${LANG[c.patient.language] || 'their language'}${c.patient.language !== 'en' && c.patient.language !== 'ar' ? ', with an interpreter line' : ''}. Calls are simulated in the demo.</p>
     <p><b>Never</b> read out a diagnosis. Explain the next step, then ask ${esc(n)} to say it back in their own words.</p>
     <div class="btns">${s.role === 'nurse' ? `<button class="wide go" data-call="understood">Understood: said it back in own words</button>` : ''}
@@ -293,6 +299,12 @@ function wireSheet(s, c) {
     if (nextStageOf(c) === 'confirmed') skipStage(state, c.id, 'confirmed', s, why);
     skipStage(state, c.id, 'referred', s, why);
   }, 'Recorded: no referral needed.'));
+  document.querySelectorAll('input[name=addk]').forEach((r) => r.onchange = () => { sheet.addk = r.value; render(); });
+  on('do-add', () => {
+    const t = $('#add-t').value.trim(), v = $('#add-v').value.trim();
+    if (t.length < 2 || v.length < 3) { sheetErr = 'Write what it is and the finding or note.'; render(); return; }
+    done(() => { logEvent(c, sheet.addk === 'note' ? 'consult_note' : 'lab_added', s, `${t}: ${v}`); freshShaft = 'last'; }, 'Added to the falaj.');
+  });
   on('do-plan', () => done(() => advance(state, c.id, 'care_plan', s, 'Plan agreed with the patient.', undefined, { planKind: pick('plan') }), 'Plan recorded.'));
   on('do-close', () => done(() => closeCase(state, c.id, s, { type: 'care_plan_agreed', evidence: $('#ev').value }), 'Loop closed. The water reached the palm.'));
   on('cs', () => { sheet.consent = !sheet.consent; render(); $('#cs').focus(); });
@@ -367,6 +379,7 @@ function wireIntake(s) {
 // ---- render ----
 function render() {
   state = loadState();
+  const wantFresh = freshShaft === 'last';
   const p = params(), s = staffOf(p.as), c = p.c ? state.cases.find((x) => x.id === p.c) : null;
   $('#bar').innerHTML = `<a class="brand" href="index.html" aria-label="Falaj home">${logo} Falaj</a>${s ? `<button class="light" id="switch">Switch person</button>` : '<span class="chip">Care team · demo</span>'}`;
   if (!s) { $('#main').innerHTML = pickScreen(); $('#tabs').hidden = true; }
@@ -389,14 +402,17 @@ function render() {
   const sw = $('#switch'); if (sw) sw.onclick = () => { store.set('falaj.team.as', ''); history.pushState(null, '', location.pathname + '?as='); sheet = null; render(); };
   const bk = $('#back'); if (bk) bk.onclick = () => nav({ c: '' });
   const f = $('#find'); if (f) f.oninput = () => { findText = f.value; const pos = f.selectionStart; render(); const g = $('#find'); g.focus(); g.setSelectionRange(pos, pos); };
+  document.querySelectorAll('.wf-n[data-node]').forEach((b) => b.onclick = () => { const i = b.dataset.node; shaftSel = shaftSel === i ? null : i; const sc = document.querySelector('.wf-wrap'); const keep = sc ? [sc.scrollLeft, sc.scrollTop] : null; render(); const w = document.querySelector('.wf-wrap'); if (w && keep) { w.scrollLeft = keep[0]; w.scrollTop = keep[1]; } const x = document.querySelector(`.wf-n[data-node="${i}"]`); if (x) x.focus({ preventScroll: true }); });
   document.querySelectorAll('[data-act]').forEach((b) => b.onclick = () => {
     const id = b.dataset.act, a = actorOf(s);
     if (id === 'attended') return void (act(() => advance(state, c.id, 'attended', a, 'Seen.'), 'Visit recorded.') && render());
     if (id === 'confirmed') return void (act(() => advance(state, c.id, 'confirmed', a, 'Confirmatory test done.'), 'Test recorded.') && render());
+    if (id === 'add') { sheet = { kind: 'add', addk: 'lab' }; sheetErr = ''; render(); return; }
     if (id === 'accept') return void (act(() => respondReferral(state, c.id, a, { accept: true, note: 'Accepted.' }), 'Accepted. You are now the keeper.') && render());
     sheet = { kind: id }; sheetErr = ''; render();
   });
   if (intake && s) wireIntake(s);
+  if (wantFresh) { freshShaft = null; }
   if (sheet && s && c) { wireSheet(actorOf(s), c); const sh = $('#sheet'); if (sh && !sh.contains(document.activeElement)) sh.focus(); }
 }
 if (new URLSearchParams(location.search).get('reset') === '1') { resetState(); state = loadState(); }

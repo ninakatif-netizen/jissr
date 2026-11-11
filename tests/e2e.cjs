@@ -235,7 +235,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await t.click('[data-act="call"]'); ok(!!(await t.$('[data-call="understood"]')), 'a nurse can confirm understanding after a call');
     await t.click('[data-call="understood"]'); await t.waitForSelector('[data-act="book"]');
     await t.click('[data-act="book"]'); await t.click('#do-book'); await t.waitForSelector('main .card.status');
-    ok(/Visit booked/.test(await t.innerText('main')) && (await t.$$('main .wc-steps li.done')).length === 4, 'the nurse books: the water reaches Booked, and a booking is not care');
+    ok(/Visit booked/.test(await t.innerText('main')) && !!(await t.$('main .wf-n[data-node="p4"].done')) && !!(await t.$('main .wf-n[data-node="k11"].todo')), 'the nurse books: the booking box fills, the loop is still to come: a booking is not care');
     await t.goto(BASE + `team.html?as=d1&c=${cid}`); await t.click('[data-act="attended"]'); await t.waitForSelector('[data-act="refer"]');
     await t.click('[data-act="refer"]'); const to = await t.getAttribute('input[name=to]:checked', 'value'); await t.click('#do-refer'); await t.waitForTimeout(200);
     ok(/You stay responsible/.test(await t.innerText('main')), 'the family doctor stays responsible until the referral is accepted');
@@ -244,7 +244,9 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await t.click('.hl a.wide'); await t.click('[data-act="accept"]'); await t.waitForSelector('[data-act="consult"]');
     await t.click('[data-act="consult"]'); ok((await t.getAttribute('#dictate', 'aria-disabled')) === 'true' && !(await t.$('#do-consult')), 'no voice note without consent');
     await t.click('#cs'); await t.click('#dictate'); await t.click('#do-consult'); await t.waitForTimeout(300);
-    ok((await t.$$('main .wc-steps li.done')).length === 7 && /Loop closed/.test(await t.innerText('main')), 'the clinic confirms the consultation: the water reaches the palm');
+    ok(!!(await t.$('main .wf-n[data-node="k11"].done')) && /Loop closed/.test(await t.innerText('main')), 'the clinic confirms the consultation: the loop-closed box fills');
+    await t.click('[data-act="add"]'); await t.fill('#add-t', 'Ultrasound'); await t.fill('#add-v', 'Finding as written in the report'); await t.click('#do-add'); await t.waitForTimeout(200);
+    ok(/Lab · Ultrasound/.test(await t.innerText('main .wf')), 'a lab added appears as a new box in the patient\'s falaj');
     await t.goto(BASE + 'team.html?reset=1'); await t.close(); }
   await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);
   ok((await s.getAttribute('#b0', 'href')) === 'loop.html', 'the home page leads to the three moments');
