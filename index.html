@@ -45,7 +45,7 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
     <h1>See where every abnormal result is, and where the water stops.</h1>
     <p class="lead">Falaj shows a care team every patient with an abnormal screening result as water flowing to care: reached, understood, booked, seen, referred, closed. You see who is stuck and the one thing to do. Agents call, remind and chase; people decide.</p>
     <div class="row cta">
-      <a class="btn accent" href="team.html" id="bapp"></a>
+      <a class="btn accent" href="app.html" id="bapp"></a>
       <a class="btn ghost" href="loop.html" id="b0"></a>
     </div>
     <div id="hero-art" style="position:absolute;inset-inline-end:-150px;top:10px;color:var(--brand);pointer-events:none"></div>
@@ -70,7 +70,7 @@ import { buildState } from './core/data.mjs';
 import { isoDay } from './core/rules.mjs';
 document.getElementById('brand').innerHTML = wordmark();
 document.querySelectorAll('[data-ic]').forEach((el) => { el.innerHTML = ic(el.dataset.ic, +el.dataset.s || 22); el.style.cssText = 'display:block;color:var(--accent-d);margin-bottom:8px'; });
-document.getElementById('bapp').innerHTML = ic('doctor', 18) + ' Open Falaj';
+document.getElementById('bapp').innerHTML = ic('doctor', 18) + ' Open the app';
 document.getElementById('b0').innerHTML = ic('next', 18) + ' Watch the story';
 if (innerWidth > 1240) document.getElementById('hero-art').innerHTML = falajScene({ width: 300, opacity: 0.85 });
 </script>

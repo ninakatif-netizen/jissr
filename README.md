@@ -61,3 +61,9 @@ Never commit keys.
 
 ## Before real use
 Clinician review of thresholds, follow-up windows and all Arabic text; real sign-in (e.g. Microsoft Entra ID); UAE health-data compliance (DoH, ADHICS), Malaffi integration and consent management.
+
+## The app (app.html)
+
+Splash (water runs through the workflow to the palm, with a chime made in the browser), demo sign-in, the patient's Falaj Health ID and QR code, an assistant that organises appointments, reminders, documents and questions (and can call the patient in the app), and a lookup for doctors: Health ID **and** name open the patient's care map across places. Every opening is shown to the patient. All records and facilities are invented.
+
+Natural voice for the call (Vercel environment variables only): `CARTESIA_API_KEY`, `CARTESIA_VOICE_ID`, optional `CARTESIA_VOICE_ID_AR`, `CARTESIA_MODEL` (default `sonic-3`), `CARTESIA_VERSION`. Without them, the phone's own voice is used. The assistant uses the same AI keys as the explanation (see `api/_jissr-ai.js`); without a key it answers with rules. Rules alone decide results questions (never answered), emergencies (998) and every action.

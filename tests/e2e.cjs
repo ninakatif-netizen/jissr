@@ -100,9 +100,36 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   // ONE APP, TWO SIDES: start screen, then the care team app on a phone
   const ph = await browser.newContext({ ...devices['iPhone 13'], storageState: await desk.storageState() });
   const q = await ph.newPage(); watch(q, 'care app');
-  await q.goto(BASE + 'app.html'); await q.waitForTimeout(250);
-  ok(/I am a patient/.test(await q.innerText('body')) && /I work in care/.test(await q.innerText('body')), 'the app opens on "who are you?": patient or care team');
-  ok((await q.getAttribute('#pat', 'href')) === 'me.html' && (await q.getAttribute('#care', 'href')) === 'team.html', 'the start screen opens the new patient and care team apps');
+  // THE APP: splash, sign in, the patient's Health ID and QR, the assistant and its call, the doctor's lookup and care map
+  await q.goto(BASE + 'app.html?splash=1'); await q.evaluate(() => { localStorage.removeItem('falaj.app.user'); });
+  await q.goto(BASE + 'app.html?splash=1');
+  ok(await q.isVisible('#splash') && await q.locator('#splash .sp-palm').count() === 1, 'the app opens on the splash: water through the workflow to the palm');
+  await q.waitForFunction(() => document.getElementById('splash').hidden || !document.getElementById('sp-go').hidden, null, { timeout: 8000 });
+  if (await q.isVisible('#sp-go')) await q.click('#sp-go');
+  await q.waitForSelector('#t-pat', { timeout: 8000 });
+  ok(/Sign in/.test(await q.innerText('#app')) && /I work in care/.test(await q.innerText('#app')), 'after the splash: sign in as a patient or as care');
+  await q.click('[data-pat="C-040"]'); await q.waitForSelector('#hid');
+  const hid = await q.innerText('#hid');
+  ok(/^FLJ-\d{4}-0040$/.test(hid) && await q.locator('.idcard svg.qr').count() === 1, 'the patient sees their Health ID and a QR code');
+  await q.click('#chatbtn'); await q.waitForSelector('#chat.chat');
+  await q.click('[data-chip="What does my result mean?"]'); await q.waitForSelector('#chat li.ai .src');
+  ok(/cannot tell you about results/.test(await q.innerText('#chat')), 'the assistant never gives results');
+  await q.click('#chat li.ai:last-child [data-act="nurse"]'); await q.waitForTimeout(200);
+  ok(/nurse .*will call you/i.test(await q.innerText('#chat')), 'the assistant can ask a nurse to call');
+  await q.click('.back'); await q.waitForSelector('#callme'); await q.click('#callme');
+  ok(/is calling you/.test(await q.innerText('#layer')), 'Call me: Falaj calls in the app');
+  await q.click('#acc'); await q.waitForSelector('.call .cap');
+  ok(/automated voice, not a nurse/.test(await q.innerText('.call .cap')), 'the call says it is an automated voice, with captions');
+  await q.click('[data-o="next"]'); await q.click('[data-o="bye"]'); await q.waitForSelector('#done', { timeout: 8000 }); await q.click('#done');
+  await q.click('#out'); await q.waitForSelector('#t-care'); await q.click('#t-care'); await q.click('[data-staff="d1"]'); await q.waitForSelector('#fid');
+  await q.fill('#fid', hid); await q.fill('#fname', 'Priya Nair'); await q.click('#open'); await q.waitForTimeout(150);
+  ok(/No patient matches/.test(await q.innerText('#ferr')), 'a doctor with the right ID but the wrong name sees nothing');
+  await q.fill('#fname', 'Priya Raman'); await q.click('#open'); await q.waitForSelector('.cm');
+  ok(await q.locator('.cm-dot').count() >= 4 && await q.locator('.hist li').count() >= 6 && await q.locator('.wf-n').count() > 5, 'ID and name open the care map: every place, the history and the falaj');
+  await q.click('.cm-dot[data-fac="imD"]'); await q.waitForTimeout(150);
+  ok(await q.locator('.hist li').count() === 1, 'tapping a place shows only its records');
+  await q.click('#out'); await q.waitForSelector('#t-pat'); await q.click('#t-pat'); await q.click('[data-pat="C-040"]'); await q.waitForSelector('#hid');
+  ok(/Dr Mariam Al Hosani/.test(await q.innerText('#app')), 'the patient sees which doctor opened their file');
   await q.goto(BASE + 'care.html?role=specialist'); await q.waitForTimeout(500);
   ok(/Handshakes for you/i.test(await q.innerText('#app')) && await q.locator('.tab').count() === 4, 'the care team app has its own tabs and the specialist sees the handshakes offered to them');
   await q.click('.citem:has-text("Handshake") >> nth=0'); await q.waitForTimeout(250);
@@ -265,7 +292,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await l.click('#next'); ok(/Clinical note/i.test(await l.innerText('#sheet')), 'the voice note becomes a draft clinical note, reviewed in a sheet');
     await l.click('#confirm'); ok(/Loop closed/.test(await l.innerText('#main')) && (await l.$$('#main .wc-steps li.done')).length === 7, 'confirming closes the loop: the water reaches the palm');
     await l.close(); }
-  ok((await s.getAttribute('#bapp', 'href')) === 'team.html', 'the home page opens the care team app first');
+  ok((await s.getAttribute('#bapp', 'href')) === 'app.html', 'the home page opens the app');
   await s.goto(BASE + 'jury.html'); await s.waitForTimeout(200);
   ok((await s.getAttribute('#b3', 'href')) === 'loop.html' && !(await s.$('a[href="map.html"]')), 'the jury page leads to the story, and the removed parts are not linked');
   await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);

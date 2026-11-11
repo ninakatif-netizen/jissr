@@ -389,6 +389,7 @@ function sideNav(s, p, c) {
     <div class="sme">${avatar(s, true)}<span><b>${esc(cleanName(s.name))}</b><small>${esc(roleLabel(s))}</small></span></div>
     <a href="?as=${s.id}" data-tab="attention"${cur('attention')}>${icon.water}<span>The Falaj</span>${n ? `<span class="sc" aria-label="${n} to do">${n}</span>` : ''}</a>
     <a href="?as=${s.id}&tab=patients" data-tab="patients"${cur('patients')}>${icon.list}<span>Patients</span></a>
+    <a href="app.html?as=${s.id}&nosplash=1#find" id="side-find">${icon.list}<span>Find by Health ID</span></a>
     <button id="side-agents">${icon.bell}<span>Agents and documents</span></button>
     <span class="sgap"></span>
     <a href="loop.html">Watch the story</a><a href="jury.html">For the jury</a>
