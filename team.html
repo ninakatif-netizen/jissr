@@ -175,35 +175,35 @@ function flowRow(c, act) {
   return `<li><a class="prow" href="?as=${params().as}&c=${c.id}" data-case="${c.id}"><span class="t"><b>${esc(first(c))}, ${c.patient.age}</b><small>${SHORT[c.programme || 'hba1c']} · ${esc(EVENT[last.type] || last.type)} · ${fmt(last.at.slice(0, 10))}</small>
     <span class="prog" role="img" aria-label="${pct}% of the way"><span style="width:${pct}%"></span></span>${act ? `<small style="color:var(--ink);font-weight:600">${esc(act)}</small>` : ''}</span>${c.stage === 'closed' ? '<span class="st green">Closed</span>' : late ? '<span class="st amber">Overdue</span>' : '<span class="st grey">On time</span>'}</a></li>`;
 }
-function agentsCard(s) {
+// The agents, in one line: what they did overnight. The + opens the rest (new document, run them, every action).
+function agentLine(s) {
   const a = agentSummary(scopeCases(s), TODAY);
-  const stat = (n, l) => `<div><b>${n}</b><span>${l}</span></div>`;
-  return `<section class="card agents" aria-labelledby="ag-t"><div class="top"><h2 id="ag-t">The agents today</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="light" id="newdoc">New document</button><button class="light" id="runagents">Run the agents (demo)</button></span></div>
-    <div class="agrid">${stat(a.calls, `calls made${a.calls ? `, ${a.answered} answered` : ''}`)}${stat(a.confirmed, 'visits confirmed by YES')}${stat(a.reminders + a.missed, 'reminders and missed visits')}${stat(a.chased + a.status, 'referrals chased or reported')}${stat(a.preauth, 'pre-approvals')}${stat(a.flagged, 'passed to a person')}</div>
-    ${a.items.length ? `<details class="more"><summary>Every action (${a.items.length})</summary><ul class="timeline">${a.items.slice().reverse().map(({ c, e }) => `<li><span><b>${esc(first(c))} · ${esc(AGENTS[e.agent].name)}</b><small>${esc(e.note)}</small></span></li>`).join('')}</ul></details>` : ''}
-    <p class="gf" style="padding:0">Agents move the next step forward and log everything. They never confirm understanding, record a visit, accept a referral or close a loop. Patient replies are simulated.</p></section>`;
+  const txt = a.items.length
+    ? `Overnight, Falaj made ${a.calls} ${a.calls === 1 ? 'call' : 'calls'}${a.confirmed ? `, confirmed ${a.confirmed} ${a.confirmed === 1 ? 'visit' : 'visits'}` : ''}${a.chased ? `, chased ${a.chased} ${a.chased === 1 ? 'referral' : 'referrals'}` : ''}, and passed ${a.flagged} to a person.`
+    : 'The Falaj agents have not run today.';
+  return `<div class="agline"><span>${txt}</span><button id="agents-more" aria-label="Agents and new documents" aria-haspopup="dialog">+</button></div>`;
 }
+// THE FALAJ: one channel per row, as wide as the patients who reached it; tap a channel to see who stopped there.
 function attentionScreen(s) {
   const { tasks, waiting } = tasksFor(s);
   const fl = flowOf(scopeCases(s), TODAY), sel = flowSel === 'needs' ? null : +flowSel, top = tasks[0];
-  const lateAll = fl.leaks.reduce((n, l) => n + l.late, 0);
-  const chips = `<div class="chips" role="group" aria-label="Show patients">
-    <button class="chipb" data-flow="needs" aria-pressed="${sel === null}">Needs you · ${tasks.length}</button>
-    ${fl.leaks.filter((l) => l.cases.length).map((l) => `<button class="chipb${l.late ? ' late' : ''}" data-flow="${l.i}" aria-pressed="${sel === l.i}">${esc(l.label)} · ${l.cases.length}${l.late ? ` (${l.late} overdue)` : ''}</button>`).join('')}</div>`;
-  let body;
-  if (sel === null) {
-    body = `${top ? `<div class="hl"><div class="top"><b>${esc(first(top.c))}, ${top.c.patient.age} · ${LANG[top.c.patient.language] || ''}</b><span class="st amber">${top.late ? 'Overdue' : 'First'}</span></div>
-      <p class="q">${SHORT[top.c.programme || 'hba1c']} · ${esc(top.reason)}</p><a class="wide" href="?as=${s.id}&c=${top.c.id}" data-case="${top.c.id}">${esc(top.action)}</a></div>` : `<div class="card empty"><b>Nothing needs you right now</b>New results, referrals and reports appear here, most urgent first.</div>`}
-      ${tasks.length > 1 ? `<div class="group"><div class="gh">Then</div><ul class="list">${tasks.slice(1).map(taskRow).join('')}</ul></div>` : ''}
-      ${waiting.length ? `<div class="group"><div class="gh">Waiting on others</div><ul class="list">${waiting.slice(0, 6).map((w) => `<li><a class="prow" href="?as=${s.id}&c=${w.c.id}" data-case="${w.c.id}"><span class="t"><b>${esc(first(w.c))}, ${w.c.patient.age}</b><small>${esc(w.reason)}</small></span></a></li>`).join('')}</ul></div>` : ''}`;
-  } else {
-    const lk = fl.leaks[sel], list = lk ? lk.cases.slice().sort((a, b) => isOverdue(b, TODAY) - isOverdue(a, TODAY)) : [];
-    body = `<div class="group"><div class="gh">${esc(lk ? lk.label : '')} · where the water stops</div><ul class="list">${list.map((c) => flowRow(c, lk.act)).join('') || '<li class="empty">Nobody here.</li>'}</ul></div>`;
-  }
-  return `<div class="head"><p class="who">${avatar(s)}${esc(cleanName(s.name))} · ${esc(roleLabel(s))}</p><h1>The Falaj</h1><p class="ctx">${fmt(TODAY, true)} · ${fl.total} patients · ${fl.counts[fl.counts.length - 1]} loops closed${lateAll ? ` · <b style="color:var(--warn-ink)">${lateAll} overdue</b>` : ''}</p></div>
+  const lateAll = fl.leaks.reduce((n, l) => n + l.late, 0), max = Math.max(1, fl.total);
+  const rows = CHANNELS.map((ch, i) => {
+    const lk = fl.leaks[i], w = Math.round((fl.counts[i] / max) * 100), last = i === CHANNELS.length - 1;
+    const inner = `<span class="lbl">${esc(ch.label)}</span><span class="bar${last ? ' end' : ''}"><span style="width:${w}%"></span></span><b>${fl.counts[i]}</b>${lk && lk.cases.length ? `<span class="stop${lk.late ? ' late' : ''}">${lk.cases.length} stopped here${lk.late ? `, ${lk.late} overdue` : ''}</span>` : ''}`;
+    const open = sel === i && lk;
+    const list = open ? `<ul class="list stopped" aria-label="Stopped after ${esc(ch.label)}">${lk.cases.slice().sort((x, y) => isOverdue(y, TODAY) - isOverdue(x, TODAY)).map((c) => flowRow(c, lk.act)).join('')}</ul>` : '';
+    return `<li>${lk && lk.cases.length ? `<button class="ch" data-flow="${i}" aria-expanded="${!!open}">${inner}</button>` : `<div class="ch">${inner}</div>`}${list}</li>`;
+  }).join('');
+  return `<div class="head"><p class="who">${avatar(s)}${esc(cleanName(s.name))} · ${esc(roleLabel(s))}</p><h1>The Falaj</h1><p class="ctx">${fl.total} patients · ${fl.counts[fl.counts.length - 1]} loops closed${lateAll ? ` · <b style="color:var(--warn-ink)">${lateAll} overdue</b>` : ''}</p></div>
     <div class="seg" role="group" aria-label="Whose patients"><button data-scope="mine" aria-pressed="${scope === 'mine'}">Mine</button><button data-scope="all" aria-pressed="${scope === 'all'}">Everyone</button></div>
-    <div class="flowbox" role="img" aria-label="The flow of patients from result to loop closed. The same numbers are in the buttons below.">${flowSvg(fl, { selected: sel })}</div>
-    ${agentsCard(s)}${chips}${body}`;
+    <ol class="falaj" aria-label="The falaj: patients from result to loop closed. Tap a channel to see who stopped there.">${rows}</ol>
+    ${agentLine(s)}
+    <div class="group"><div class="gh">Needs you · ${tasks.length}</div>
+    ${top ? `<div class="hl"><div class="top"><b>${esc(first(top.c))}, ${top.c.patient.age} · ${LANG[top.c.patient.language] || ''}</b><span class="st amber">${top.late ? 'Overdue' : 'First'}</span></div>
+      <p class="q">${SHORT[top.c.programme || 'hba1c']} · ${esc(top.reason)}</p><a class="wide" href="?as=${s.id}&c=${top.c.id}" data-case="${top.c.id}">${esc(top.action)}</a></div>` : `<div class="card empty"><b>Nothing needs you right now</b>New results, referrals and reports appear here, most urgent first.</div>`}
+    ${tasks.length > 1 ? `<ul class="list">${tasks.slice(1).map(taskRow).join('')}</ul>` : ''}</div>
+    ${waiting.length ? `<details class="more"><summary>Waiting on others (${waiting.length})</summary><ul class="list">${waiting.map((w) => `<li><a class="prow" href="?as=${s.id}&c=${w.c.id}" data-case="${w.c.id}"><span class="t"><b>${esc(first(w.c))}, ${w.c.patient.age}</b><small>${esc(w.reason)}</small></span></a></li>`).join('')}</ul></details>` : ''}`;
 }
 function patientsScreen(s) {
   const list = casesFor(s);
@@ -307,7 +307,13 @@ let intake = null;
 const LANGS = { en: 'English', ar: 'Arabic', ur: 'Urdu', hi: 'Hindi', tl: 'Tagalog', bn: 'Bengali', ml: 'Malayalam' };
 const resultLabel = (f) => (f.programme === 'mammo' ? `BI-RADS ${f.birads ?? '?'}` : f.programme === 'fit' ? `FIT ${f.fit ?? '?'}` : f.programme === 'hba1c' ? `HbA1c ${f.value ?? '?'}%` : 'Not found');
 function intakeHtml(s) {
-  const wrap = (title, body) => `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="in-t" tabindex="-1" id="sheet"><span class="grab" aria-hidden="true"></span><h2 id="in-t">${title}</h2>${body}${intake.err ? `<p class="err" role="alert">${esc(intake.err)}</p>` : ''}<button class="wide ghost" id="in-x">${intake.step === 'done' ? 'Close' : 'Cancel'}</button></div></div>`;
+  const wrap = (title, body) => `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="in-t" tabindex="-1" id="sheet"><span class="grab" aria-hidden="true"></span><h2 id="in-t">${title}</h2>${body}${intake.err ? `<p class="err" role="alert">${esc(intake.err)}</p>` : ''}<button class="wide ghost" id="in-x">${['done', 'menu'].includes(intake.step) ? 'Close' : 'Cancel'}</button></div></div>`;
+  if (intake.step === 'menu') {
+    const ag = agentSummary(scopeCases(s), TODAY);
+    return wrap('Falaj agents', `<p>Agents move the next step forward and log everything. They never confirm understanding, record a visit, accept a referral or close a loop. Patient replies are simulated.</p>
+      <div class="btns"><button class="wide go" id="newdoc">Receive a document</button><button class="wide" id="runagents">Run the agents now (demo)</button></div>
+      ${ag.items.length ? `<details class="more"><summary>Every action today (${ag.items.length})</summary><ul class="timeline">${ag.items.slice().reverse().map(({ c, e }) => `<li><span><b>${esc(first(c))} · ${esc(AGENTS[e.agent].name)}</b><small>${esc(e.note)}</small></span></li>`).join('')}</ul></details>` : ''}`);
+  }
   if (intake.step === 'pick') return wrap('New document', `<p>A lab report or a referral letter has arrived. The Intake agent reads it; a person confirms the result.</p>
     <fieldset class="choice"><legend class="sr">Document</legend>${SAMPLE_DOCUMENTS.map((d, i) => `<label><input type="radio" name="doc" value="${i}"${intake.doc === i ? ' checked' : ''}>${esc(d.title)}</label>`).join('')}<label><input type="radio" name="doc" value="paste"${intake.doc === 'paste' ? ' checked' : ''}>Paste a document</label></fieldset>
     ${intake.doc === 'paste' ? `<div class="field"><label for="in-paste">The document</label><textarea id="in-paste">${esc(intake.text || '')}</textarea></div>` : ''}
@@ -332,6 +338,8 @@ function wireIntake(s) {
   on('in-x', close); $('#scrim').onclick = (e) => { if (e.target.id === 'scrim') close(); };
   $('#sheet').onkeydown = (e) => { if (e.key === 'Escape') close(); };
   document.querySelectorAll('input[name=doc]').forEach((r) => r.onchange = () => { intake.doc = r.value === 'paste' ? 'paste' : +r.value; render(); });
+  on('newdoc', () => { intake = { step: 'pick', doc: 0, err: '' }; render(); });
+  on('runagents', () => { const out = runAgents(state, TODAY); saveState(state); const acts = out.filter((x) => x.kind !== 'flag').length, fl = out.length - acts; intake = null; render(); toast(out.length ? `The agents took ${acts} actions${fl ? ` and passed ${fl} to a person` : ''}.` : 'Nothing new for the agents today.'); });
   on('in-read', () => {
     const text = intake.doc === 'paste' ? ($('#in-paste') || {}).value || '' : SAMPLE_DOCUMENTS[intake.doc].text;
     if (!text.trim()) { intake.err = 'Paste a document first.'; render(); return; }
@@ -376,9 +384,8 @@ function render() {
   document.querySelectorAll('[data-case]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ c: a.dataset.case }); });
   document.querySelectorAll('[data-as]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ as: a.dataset.as, c: '', tab: 'attention' }); });
   document.querySelectorAll('[data-tab]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ c: '', tab: a.dataset.tab }); });
-  const nd = $('#newdoc'); if (nd) nd.onclick = () => { intake = { step: 'pick', doc: 0, err: '' }; render(); };
-  const ra = $('#runagents'); if (ra) ra.onclick = () => { const out = runAgents(state, TODAY); saveState(state); const acts = out.filter((x) => x.kind !== 'flag').length, fl = out.length - acts; toast(out.length ? `The agents took ${acts} actions${fl ? ` and passed ${fl} to a person` : ''}.` : 'Nothing new for the agents today.'); render(); const x = $('#runagents'); if (x) x.focus(); };
-  document.querySelectorAll('[data-flow]').forEach((b) => b.onclick = () => { flowSel = b.dataset.flow; render(); const x = document.querySelector(`[data-flow="${flowSel}"]`); if (x) x.focus(); });
+  const am = $('#agents-more'); if (am) am.onclick = () => { intake = { step: 'menu', err: '' }; render(); };
+  document.querySelectorAll('[data-flow]').forEach((b) => b.onclick = () => { flowSel = flowSel === b.dataset.flow ? 'needs' : b.dataset.flow; render(); const x = document.querySelector(`[data-flow="${flowSel}"]`); if (x) x.focus(); });
   document.querySelectorAll('[data-scope]').forEach((b) => b.onclick = () => { scope = b.dataset.scope; render(); const x = document.querySelector(`[data-scope="${scope}"]`); if (x) x.focus(); });
   const sw = $('#switch'); if (sw) sw.onclick = () => { store.set('falaj.team.as', ''); history.pushState(null, '', location.pathname + '?as='); sheet = null; render(); };
   const bk = $('#back'); if (bk) bk.onclick = () => nav({ c: '' });

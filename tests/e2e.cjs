@@ -215,13 +215,13 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await m.goto(BASE + 'me.html?reset=1&p=&lang=en'); await m.close(); }
   // the Falaj flow and the channel map
   { const f = await browser.newPage(); await f.goto(BASE + 'team.html?reset=1&as=n2');
-    ok(!!(await f.$('.flowbox svg')) && /Needs you/.test(await f.innerText('.chips')), 'the care team app opens on the Falaj flow');
-    await f.click('[data-scope="all"]'); await f.click('[data-flow]:not([data-flow="needs"])');
-    ok(/where the water stops/i.test(await f.innerText('main')) && (await f.$$('main .prog')).length > 0, 'a leak shows the patients stopped there, with their progress');
-    await f.click('[data-scope="all"]'); await f.click('#runagents'); await f.waitForTimeout(300);
-    const ag = await f.innerText('.agents');
-    ok(/calls made/.test(ag) && /never confirm understanding/.test(ag) && (await f.$$('.agents .timeline li')).length > 0, 'the agents run, show every action, and say what they never do');
-    await f.click('#newdoc'); await f.click('#in-read'); await f.click('#in-create');
+    ok(!!(await f.$('ol.falaj')) && /Needs you/i.test(await f.innerText('main')), 'the care team app opens on the falaj, then what needs you');
+    await f.click('[data-scope="all"]'); await f.click('button.ch[data-flow]');
+    ok(/stopped here/i.test(await f.innerText('main')) && (await f.$$('main .stopped .prog')).length > 0, 'tapping a channel shows who stopped there, right under it, with their progress');
+    await f.click('#agents-more'); ok(/never confirm understanding/.test(await f.innerText('#sheet')), 'the agents say what they never do');
+    await f.click('#runagents'); await f.waitForTimeout(300);
+    ok(/Overnight, Falaj made \d+ call/.test(await f.innerText('.agline')), 'after a run, one line says what the agents did');
+    await f.click('#agents-more'); await f.click('#newdoc'); await f.click('#in-read'); await f.click('#in-create');
     ok(/confirm the result/i.test(await f.innerText('#sheet')), 'the Intake agent will not create a case until a person confirms the result');
     await f.check('#in-ok'); await f.click('#in-create'); await f.waitForSelector('.ticks');
     ok(/Care Passport created/.test(await f.innerText('.ticks')) && /Acknowledgment sent/.test(await f.innerText('.ticks')), 'a document becomes a case: passport, owner, acknowledgment, outreach');
@@ -265,8 +265,10 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await l.click('#openproof'); await l.waitForSelector('#out section .cp');
     const vt = await l.innerText('body'); ok(/Valid Care Passport/.test(vt) && /Loop closed/i.test(vt) && !/BI-RADS|\d+(\.\d+)?%/.test(vt), 'the Care Passport from the three moments verifies, without the result');
     await l.close(); }
-  ok((await s.getAttribute('#b3', 'href')).includes('tour=0'), 'the home page offers the guided tour');
-  ok((await s.getAttribute('#b3', 'href')).includes('C-040'), 'the tour follows one story: Priya, BI-RADS 4');
+  ok((await s.getAttribute('#bapp', 'href')) === 'team.html', 'the home page opens the care team app first');
+  await s.goto(BASE + 'jury.html'); await s.waitForTimeout(200);
+  ok((await s.getAttribute('#b3', 'href')).includes('tour=0') && (await s.getAttribute('#b3', 'href')).includes('C-040'), 'the jury page keeps the guided tour of Priya');
+  await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);
   await s.goto(BASE + 'care.html?role=specialist&tour=3'); await s.waitForSelector('.tour');
   ok(/step 4 of 8/i.test(await s.innerText('.tour')) && /handshake/i.test(await s.innerText('.tour')), 'the tour card shows on each step, in the care team app too');
   await s.click('.tour .nx');

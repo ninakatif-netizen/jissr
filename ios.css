@@ -136,3 +136,25 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,t
 .ticks li{display:flex;gap:10px;align-items:flex-start;background:var(--card);border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.4;animation:pop .4s cubic-bezier(.2,.8,.2,1) both}
 .ticks li span{flex:none;width:24px;height:24px;border-radius:50%;background:var(--tint);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700}
 @media (prefers-reduced-motion:reduce){.ticks li{animation:none}}
+/* the falaj, as tappable channels (care team home) */
+.falaj{list-style:none;margin:0;padding:6px 8px;background:var(--card);border-radius:16px}
+.falaj > li{position:relative}
+.falaj > li + li > .ch::before{content:"";position:absolute;inset-inline-start:calc(96px + 18px);top:-5px;height:10px;width:3px;border-radius:2px;background:#36b5e8;opacity:.6}
+.falaj .ch{position:relative;display:grid;grid-template-columns:96px 1fr auto;align-items:center;column-gap:10px;row-gap:2px;width:100%;min-height:48px;background:none;border:0;font:inherit;color:var(--ink);text-align:start;padding:8px 8px;border-radius:10px}
+.falaj button.ch{cursor:pointer}
+.falaj button.ch:hover{background:var(--bg)}
+.falaj .ch[aria-expanded=true]{background:var(--warn-l)}
+.falaj .lbl{font-size:14px;font-weight:600}
+.falaj .bar{height:14px;background:var(--line);border-radius:7px;overflow:hidden}
+.falaj .bar span{display:block;height:100%;min-width:4px;border-radius:7px;background:linear-gradient(90deg,#0b6fa8,#36b5e8,#0b6fa8);background-size:80px 100%;animation:flowx 2.2s linear infinite}
+.falaj .bar.end span{background:var(--go);animation:none}
+[dir=rtl] .falaj .bar span{animation-direction:reverse}
+@keyframes flowx{to{background-position:80px 0}}
+.falaj .ch b{font-size:17px;min-width:28px;text-align:end}
+.falaj .stop{grid-column:2 / 4;font-size:13px;font-weight:600;color:var(--muted)}
+.falaj .stop.late{color:var(--warn-ink)}
+.falaj .stopped{margin:4px 0 10px;border:1px solid var(--line)}
+.agline{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:10px 10px 10px 14px;font-size:14px;line-height:1.4;color:var(--ink2)}
+.agline span{flex:1}
+.agline button{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--fill);color:#fff;font-size:26px;line-height:1;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.falaj .bar span{animation:none}}
