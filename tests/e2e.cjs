@@ -200,6 +200,16 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     ok(/Your visit/.test(await m.innerText('main')) && (await m.$$('main .cp-stamps li.done')).length === 2, 'the patient books the held time; the passport shows two stamps');
     await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=family'); await m.fill('#fn', 'Anu'); await m.fill('#fp', '12345'); await m.check('#fc'); await m.click('#faminvite');
     ok(/UAE mobile/.test(await m.innerText('main')), 'the family invitation needs a UAE mobile number');
+    await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=journey');
+    ok(/My care journey/.test(await m.innerText('main')) && /Nurse Peter/.test(await m.innerText('main')), 'the journey shows each step and who did it');
+    await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=passport'); await m.click('#share'); await m.click('#do-share'); await m.waitForSelector('[data-unshare]');
+    const shareHref = await m.getAttribute('main a.light[href*="&s="]', 'href');
+    await m.goto(BASE + shareHref); await m.waitForSelector('#out section');
+    const sv = await m.innerText('#out');
+    ok(/Shared Care Passport/.test(sv) && /Malayalam/.test(sv) && !/BI-RADS|biopsy|\d+(\.\d+)?%/i.test(sv), 'a shared passport opens for the new doctor, with what the patient chose, never the result');
+    await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=passport'); await m.click('[data-unshare]'); await m.waitForTimeout(200);
+    await m.goto(BASE + shareHref); await m.waitForSelector('#out section');
+    ok(/Link not valid/.test(await m.innerText('#out')), 'when the patient stops sharing, the link stops working');
     await m.goto(BASE + 'me.html?reset=1&p=&lang=en'); await m.close(); }
   // the full care team app: nurse calls and books, family doctor refers, the clinic accepts and closes, on one patient
   { const t = await browser.newPage(); await t.goto(BASE + 'team.html?reset=1'); await t.click('[data-as="n2"]');

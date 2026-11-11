@@ -64,7 +64,17 @@ function check(id, code) {
 const q = new URLSearchParams(location.search);
 document.getElementById('cid').value = q.get('c') || '';
 document.getElementById('code').value = q.get('code') || '';
-check(q.get('c'), q.get('code'));
+// A share link from the patient (?s=): their Care Passport while care is still in progress, only what they chose.
+function checkShare(id, sid) {
+  const out = document.getElementById('out'), c = state.cases.find((x) => x.id === id);
+  const x = c && (c.shares || []).find((y) => y.id === sid);
+  const okShare = x && !x.stopped && (!x.until || Date.parse(x.until) > Date.now());
+  if (!okShare) { out.innerHTML = `<section class="vcard" aria-live="polite"><div class="vhead no"><span class="badge">${ic('close', 24)}</span><span><b>Link not valid</b>This share link was stopped by the patient or has expired.</span></div></section>`; return; }
+  const extra = [x.items.includes('appts') && c.slot ? `Next appointment: ${fmt(c.slot.day)} · ${esc(c.slot.time)}` : '', x.items.includes('lang') ? `Preferred language: ${esc({ ar: 'Arabic', en: 'English', ur: 'Urdu', hi: 'Hindi', tl: 'Tagalog', bn: 'Bengali', ml: 'Malayalam' }[c.patient.language] || c.patient.language)}` : ''].filter(Boolean);
+  out.innerHTML = `<section class="vcard" aria-live="polite"><div class="vhead ok"><span class="badge">${ic('check', 26)}</span><span><b>Shared Care Passport</b>Shared by the patient${x.until ? ` until ${fmt(x.until.slice(0, 10))}` : ''}. Never the result.</span></div>
+    <div style="padding:14px">${passportHtml(c, { staff: state.staff, hideOwner: !x.items.includes('team') })}${extra.length ? `<ul class="vl">${extra.map((e) => `<li>${ic('check', 18)}<span>${e}</span></li>`).join('')}</ul>` : ''}</div></section>`;
+}
+if (q.get('s')) checkShare(q.get('c'), q.get('s')); else check(q.get('c'), q.get('code'));
 document.getElementById('f').onsubmit = (e) => { e.preventDefault(); check(document.getElementById('cid').value.trim(), document.getElementById('code').value.trim()); };
 </script>
 </body>

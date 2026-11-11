@@ -9,7 +9,7 @@ import { qrSvg } from './qr.mjs';
 
 const L = {
   en: {
-    brand: 'Falaj · Care Passport', id: 'Passport ID', progress: 'In progress', closed: 'Loop closed',
+    brand: 'Falaj · Care Passport', title: 'Care Passport', pageT: 'Milestones of care', id: 'Passport ID', progress: 'In progress', closed: 'Loop closed',
     owner: 'Responsible', next: 'Next', recorded: 'Recorded by', waiting: 'Not yet', notNeeded: 'Not needed',
     m: ['Result communicated', 'Understanding confirmed', 'Referral accepted', 'Care delivered', 'Loop closed'],
     short: ['Result told', 'Understood', 'Referral accepted', 'Care delivered', 'Loop closed'],
@@ -18,7 +18,7 @@ const L = {
     nextOf: { understood: 'Confirm the patient understood', booked: 'Book the visit', attended: 'Doctor’s visit', confirmed: 'Confirmatory test', referred: 'Referral to a specialist', care_plan: 'Agree the care plan', closed: 'Close the loop, with evidence' },
   },
   ar: {
-    brand: 'فلج · جواز الرعاية', id: 'رقم الجواز', progress: 'قيد التقدم', closed: 'اكتملت الحلقة',
+    brand: 'فلج · جواز الرعاية', title: 'جواز الرعاية', pageT: 'محطات الرعاية', id: 'رقم الجواز', progress: 'قيد التقدم', closed: 'اكتملت الحلقة',
     owner: 'المسؤول', next: 'التالي', recorded: 'سُجّل بواسطة', waiting: 'لم يتم بعد', notNeeded: 'غير مطلوب',
     m: ['إبلاغ النتيجة', 'تأكيد الفهم', 'قبول الإحالة', 'تقديم الرعاية', 'إغلاق الحلقة'],
     short: ['إبلاغ النتيجة', 'تأكيد الفهم', 'قبول الإحالة', 'تقديم الرعاية', 'إغلاق الحلقة'],
@@ -55,6 +55,7 @@ const fmtDay = (d, lang) => new Date(d + 'T00:00:00Z').toLocaleDateString(lang =
 const CHECK = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4 4 9-9.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const CHANNEL = '<svg class="cp-wave" viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 C 60 40, 80 14, 140 14 S 220 46, 280 30 S 360 12, 400 22" fill="none" stroke="currentColor" stroke-width="2"/><path d="M0 50 C 70 50, 90 26, 150 26 S 230 56, 290 40 S 370 24, 400 32" fill="none" stroke="currentColor" stroke-width="1"/></svg>';
 
+const EMBLEM = '<svg width="54" height="54" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="24" cy="24" r="18.5" fill="none" stroke="currentColor" stroke-width=".8"/><path d="M24 36V22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M24 22c-2-5-8-6-12-4 4 0 8 1 12 4zM24 22c2-5 8-6 12-4-4 0-8 1-12 4zM24 22c-3-3-4-8-2-11 0 4 1 8 2 11zM24 22c3-3 4-8 2-11 0 4-1 8-2 11z" fill="currentColor"/><path d="M11 37c4-2 9-2 13 0s9 2 13 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 let cssDone = false;
 function ensureCss() {
   if (cssDone || typeof document === 'undefined') return; cssDone = true;
@@ -96,6 +97,23 @@ function ensureCss() {
 .cp.compact .cp-s svg{width:16px;height:16px}
 .cp.compact .cp-stamps li{font-size:11px;gap:4px}
 .cp.compact .cp-o{padding-top:8px}
+.cp-serif{font-family:ui-serif,"New York","Iowan Old Style",Georgia,"Times New Roman",serif}
+.cp.book{background:none;padding:0;gap:0;color:#0a1f2e;box-shadow:0 12px 30px rgba(10,31,46,.18)}
+.cp-cover{position:relative;overflow:hidden;background:#0a1f2e;color:#fff;padding:18px 18px 16px;display:flex;flex-direction:column;gap:10px}
+.cp-cover > :not(.cp-wave):not(.cp-emb){position:relative}
+.cp-title{font-size:28px;font-weight:600;line-height:1.1;margin:2px 0 0;color:#e7dfcf;letter-spacing:.2px}
+.cp-emb{position:absolute;inset-inline-end:16px;top:48px;z-index:0;color:#c9a96e;opacity:.9}
+.cp-page{background:#f3ecdc;color:#0a1f2e;padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px;background-image:repeating-linear-gradient(180deg,transparent 0 29px,rgba(10,31,46,.045) 29px 30px)}
+.cp-page h3{margin:0;font-size:18px;font-weight:600;color:#5c4a22}
+.book .cp-stamps li{color:#2c3e4c}
+.book .cp-s{border:2px dashed #b3a27c;color:#5c4a22}
+.book .cp-stamps li.done{color:#0a1f2e}
+.book .cp-stamps li.done .cp-s{border:2.5px solid #0a1f2e;background:transparent;color:#0a1f2e;box-shadow:inset 0 0 0 3px #f3ecdc,inset 0 0 0 4.5px #0a1f2e;transform:rotate(var(--r,0deg))}
+.book .cp-stamps li.na .cp-s{border:2px solid #cbbfa4;color:#5c4a22}
+.book .cp-o{color:#2c3e4c;border-top-color:#d9cdb3}.book .cp-o b{color:#0a1f2e}
+.book .cp-ev{border-top-color:#d9cdb3}.book .cp-ev li{color:#2c3e4c}.book .cp-ev li b{color:#0a1f2e}.book .cp-ev .k{color:#1a7f52}
+.book .cp-q{background:#fff}
+.book .cp-illus{color:#56616b}
 @media (prefers-reduced-motion:reduce){.cp-stamps li.new .cp-s{animation:none}}`;
   document.head.appendChild(st);
 }
@@ -115,21 +133,28 @@ export function passportHtml(c, opts = {}) {
   const ownerName = opts.owner || (((opts.staff || []).find((s) => s.id === c.owner) || {}).name || '').replace(/\s*\(coordinator\)/, '');
   const nextStage = STAGES[STAGES.indexOf(c.stage) + 1];
   const next = opts.next || (closed ? '' : t.nextOf[nextStage] || '');
-  const stamps = ms.map(([st], i) => `<li class="${st}${fresh.has(i) ? ' new' : ''}"><span class="cp-s">${st === 'done' ? CHECK : st === 'na' ? '–' : i + 1}</span>${t.short[i]}</li>`).join('');
   const label = ms.map(([st], i) => `${t.m[i]}: ${st === 'done' ? '✓' : st === 'na' ? t.notNeeded : t.waiting}`).join('; ');
-  let h = `<section class="cp${opts.compact ? ' compact' : ''}" aria-label="${esc(t.brand)}">${CHANNEL}
-    <div class="cp-t"><span class="cp-brand">${esc(t.brand)}</span><span class="cp-st ${tone}">${esc(status)}</span></div>`;
-  if (!opts.compact) h += `<div><p class="cp-name"><bdi>${esc(who)}</bdi></p><p class="cp-sub">${esc(sub)}</p></div><div class="cp-id" dir="ltr">${t.id} ${passportId(c)}</div>`;
-  h += `<ol class="cp-stamps" aria-label="${esc(label)}">${stamps}</ol>`;
-  if (ownerName || next) h += `<div class="cp-o">${ownerName ? `<span>${t.owner}: <b>${esc(ownerName)}</b></span>` : ''}${next ? `<span>${t.next}: <b>${esc(next)}</b></span>` : ''}</div>`;
-  if (!opts.compact) {
-    const done = ms.map(([st, e], i) => [st, e, i]).filter(([st]) => st === 'done');
-    if (done.length) h += `<ul class="cp-ev" aria-label="${t.recorded}">${done.map(([, e, i]) => `<li><span class="k">${CHECK}</span><span><b>${t.m[i]}</b>${esc(e.by)} · ${fmtDay(e.at.slice(0, 10), lang)}</span></li>`).join('')}</ul>`;
+  const ROT = [-5, 3, -2, 4, -3];
+  const stampList = `<ol class="cp-stamps" aria-label="${esc(label)}">${ms.map(([st], i) => `<li class="${st}${fresh.has(i) ? ' new' : ''}" style="--r:${ROT[i]}deg"><span class="cp-s">${st === 'done' ? CHECK : st === 'na' ? '–' : i + 1}</span>${t.short[i]}</li>`).join('')}</ol>`;
+  const ownerNext = !opts.hideOwner && (ownerName || next) ? `<div class="cp-o">${ownerName ? `<span>${t.owner}: <b>${esc(ownerName)}</b></span>` : ''}${next ? `<span>${t.next}: <b>${esc(next)}</b></span>` : ''}</div>` : '';
+  if (opts.compact) {
+    return `<section class="cp compact" aria-label="${esc(t.brand)}">${CHANNEL}
+      <div class="cp-t"><span class="cp-brand">${esc(t.brand)}</span><span class="cp-st ${tone}">${esc(status)}</span></div>${stampList}${ownerNext}</section>`;
   }
+  const done = ms.map(([st, e], i) => [st, e, i]).filter(([st]) => st === 'done');
+  let h = `<section class="cp book" aria-label="${esc(t.brand)}">
+    <div class="cp-cover">${CHANNEL}<span class="cp-emb" aria-hidden="true">${EMBLEM}</span>
+      <div class="cp-t"><span class="cp-brand">Falaj · فلج</span><span class="cp-st ${tone}">${esc(status)}</span></div>
+      <p class="cp-title cp-serif">${esc(t.title)}</p>
+      <div><p class="cp-name"><bdi>${esc(who)}</bdi></p><p class="cp-sub">${esc(sub)}</p></div>
+      <div class="cp-id" dir="ltr">${t.id} ${passportId(c)}</div>
+    </div>
+    <div class="cp-page"><h3 class="cp-serif">${esc(t.pageT)}</h3>${stampList}${ownerNext}`;
+  if (done.length) h += `<ul class="cp-ev" aria-label="${t.recorded}">${done.map(([, e, i]) => `<li><span class="k">${CHECK}</span><span><b>${t.m[i]}</b>${esc(e.by)} · ${fmtDay(e.at.slice(0, 10), lang)}</span></li>`).join('')}</ul>`;
   if (opts.qr && closed) {
     const code = proofCode(c), url = proofUrl(c, opts.origin || (typeof location !== 'undefined' ? location.origin : ''));
     h += `<div class="cp-q">${qrSvg(url, { size: 112, label: `${t.brand} ${code}` })}<span><b>${t.code}</b><code dir="ltr">${code}</code><small>${t.scan}</small>${opts.link ? `<a href="${esc(opts.link === true ? url : opts.link)}" id="openproof">${t.open}</a>` : ''}</span></div>
       <p class="cp-illus">${t.illus}</p>`;
   }
-  return h + '</section>';
+  return h + '</div></section>';
 }

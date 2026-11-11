@@ -135,6 +135,11 @@ details.more .list{border-radius:0;border-top:1px solid var(--line)}
 .foot{padding:10px 16px calc(18px + env(safe-area-inset-bottom));position:sticky;bottom:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 .primary{display:block;width:100%;min-height:52px;border:0;border-radius:14px;background:var(--fill);color:#fff;font:inherit;font-size:17px;font-weight:600;cursor:pointer}
 .light{min-height:44px;padding:0 16px;border:0;border-radius:10px;background:var(--line);color:var(--ink);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.xorg{display:flex;flex-direction:column;gap:6px}
+.xorg .xo{display:flex;align-items:center;gap:10px}
+.xorg .xo b{display:block;font-size:17px}.xorg .xo small{display:block;font-size:13px;color:var(--muted)}
+.xorg .xa{display:flex;align-items:center;gap:8px;color:var(--warn);font-size:13px;font-weight:700;padding-inline-start:2px}
+.xorg .xt{margin:6px 0 0;font-size:14px;line-height:1.45;color:var(--ink2)}
 .back{align-self:flex-start;min-height:44px;padding:0 4px;border:0;background:none;color:var(--tint);font:inherit;font-size:17px;cursor:pointer}
 /* the sheet: the draft note, only when the doctor asks to review it */
 .scrim{position:fixed;inset:0;z-index:10;background:rgba(10,31,46,.4);display:flex;align-items:flex-end;animation:fade .2s both}
@@ -245,7 +250,7 @@ const SHARE = [['r', 'Screening result'], ['a', 'Appointments'], ['l', 'Preferre
 const ASIDE = [
   ['Moment 1 of 3 · The call', 'Nobody reached Priya. Falaj calls.', `The result has waited ${daysSinceResult()} days. Instead of a letter, an AI assistant calls Priya in Malayalam and holds a visit around her work.`, 'The rule', 'The AI never discusses a result. Worry goes to a person, the same day.'],
   ['Moment 1 of 3 · The nurse', 'A person checks she understood.', `${NURSE_NAME}'s list says who needs a call and why. Priya explains the next step back in her own words. Only then is the visit confirmed.`, 'The rule', 'The AI routes people to the right human. It never replaces one.'],
-  ['Moment 2 of 3 · The hand over', 'Nothing falls between two doctors.', `${GP_NAME} sees Priya and refers her. Watch the Care Passport: the owner changes only when the breast clinic accepts.`, 'The rule', 'The sender stays responsible until the specialist accepts. No reply in 2 days raises an alarm.'],
+  ['Moment 2 of 3 · The hand over', 'Two organisations. One passport.', `${GP_NAME}, in a private family clinic, refers Priya to a public hospital's breast clinic: another organisation, another record system. A single-hospital tool loses her here. The Care Passport goes with her, and the owner changes only when the clinic accepts.`, 'The rule', 'The sender stays responsible until the specialist accepts. No reply in 2 days raises an alarm.'],
   ['Moment 3 of 3 · The close', 'The loop closes in the consultation.', `With Priya's consent, ${SPEC_NAME} dictates. The words become a draft note the doctor reviews, then confirms.`, 'The rule', 'A booked appointment is not care. Only a confirmed consultation closes the loop.'],
   ['Loop closed', 'One result. One passport. One journey.', 'The passport travelled with Priya across four phones. Each stamp was pressed by the person who did the step: the nurse, the family doctor, the specialist.', 'Try it', 'Scan the QR code with a phone. It shows the journey and who did each step, never the result.'],
 ];
@@ -376,6 +381,12 @@ function screenHand() {
       ? `<div class="card status pop" id="hs">${icClock}<span><b>Waiting for the breast clinic</b><span>Sent ${fmt(GP_DAY)}, 9:50. You are still responsible for Priya.</span></span></div>`
       : `<div class="card status ok pop" id="hs">${icCheck(24)}<span><b>Accepted by ${SPEC_NAME}</b><span>The breast clinic now owns Priya's case.</span></span></div>`;
   return `<div class="pop" style="display:flex;flex-direction:column;gap:18px">${S.hand === 'seen' ? '<button class="back" id="backlist">‹ Needs your attention</button>' : ''}${head('gp', 'Referral', 'Priya, 47 · Mammogram, BI-RADS 4')}${passCard()}
+    <section class="card xorg" aria-label="The hand over">
+      <div class="xo"><span class="av" style="background:#1a7f52" aria-hidden="true">MA</span><span><b>Family clinic</b><small>Private network · ${GP_NAME}</small></span></div>
+      <div class="xa" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 4v16M6 14l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>${S.hand === 'accepted' ? 'Passport handed over' : 'Passport travels'}</span></div>
+      <div class="xo"><span class="av" style="background:#6b3fa0" aria-hidden="true">NA</span><span><b>Breast clinic</b><small>Public hospital · ${SPEC_NAME}</small></span></div>
+      <p class="xt">Two organisations, two record systems. What travels with Priya: her language (Malayalam), what she chose to share, and the name of the person responsible. Her records stay where they are.</p>
+    </section>
     <div class="group"><div class="gh">What Priya chose to share</div><ul class="list">${SHARE.map(([k, l]) => sw('sh-' + k, S.share[k], l)).join('')}</ul><div class="gf">Priya can change this at any time, from her phone.</div></div>
     ${status}</div>`;
 }

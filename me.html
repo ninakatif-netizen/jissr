@@ -59,7 +59,7 @@ import { loadState, saveState, resetState } from './core/store.mjs';
 import { mustCall, slotsFor } from './core/rules.mjs';
 import { advance, requestNurse, setBarrier, setChannel, logEvent } from './core/cases.mjs';
 import { explanation, barrierText } from './core/templates.mjs';
-import { passportHtml } from './core/passport.mjs';
+import { passportHtml, milestones } from './core/passport.mjs';
 import { qrSvg } from './core/qr.mjs';
 import { normaliseUaeMobile, maskPhone, familyToken, familyUrl, inviteText } from './core/family.mjs';
 registerSW();
@@ -74,7 +74,14 @@ const store = { get: (k) => { try { return localStorage.getItem(k); } catch { re
 const T = {
   en: {
     who: 'Who are you?', whoSub: 'Pick a patient to open their app. In the demo there is no sign-in.', team: 'Open the care team app instead',
-    hello: (n) => `Hello ${n}`, tabs: ['Home', 'My result', 'Passport', 'Family'], next: 'Your next step',
+    hello: (n) => `Hello ${n}`, tabs: ['Home', 'Journey', 'Passport', 'Family'], next: 'Your next step',
+    jT: 'My care journey', jX: 'Every step of your care, who did it, and what comes next.', notYet2: 'Not yet', nextUp: 'Next', reread: 'Read my result again', backHome: '‹ Home',
+    ms: ['Result communicated', 'Understanding confirmed', 'Referral accepted', 'Care delivered', 'Loop closed'], na: 'Not needed for you',
+    msX: ['Someone from your care team talked with you about your result.', 'You explained the next step in your own words.', 'A specialist team accepted to take care of the next step.', 'The visit, test or treatment you needed took place.', 'A doctor confirmed your follow-up is complete.'],
+    shareB: 'Share my passport', shareT: 'Share my passport', shWho: 'With whom', shWhat: 'What they will see', shLong: 'For how long', shCreate: 'Create a share link',
+    shTo: { doctor: 'A new doctor or clinic', insurer: 'My insurer', person: 'Someone I choose' }, shItems: { journey: 'My care journey (always)', team: 'Who is responsible, and the next step', appts: 'My appointments', lang: 'My preferred language' },
+    shNever: 'My result: never shared', shFor: { day: '24 hours', week: '7 days', open: 'Until I stop it' }, shActive: 'Shared now', shUntil: (d) => `until ${d}`, shUntilStop: 'until you stop it', shStop: 'Stop', shStopped: 'Stopped. The link no longer works.', shMade: 'Share link created.', shOpen: 'Open the link (demo)',
+    shDemo: 'Demo: the link works on this device. In a pilot the Falaj service issues it, checks who opens it, and lets it expire.',
     callT: 'Falaj will call you', callX: (nurse) => `About your new screening result, in your language. You can answer now. ${nurse} is your nurse.`, answer: 'Answer the call (demo)',
     nurseT: (nurse) => `${nurse} will call you today`, nurseX: 'Some results are best explained by a person. Keep your phone close.', callMe: 'Call me now', asked: 'Asked: the nurse will call you',
     readT: 'Read your result', readX: 'It takes a minute. Plain words, and a nurse is there if you need one.', readB: 'Read my result',
@@ -102,7 +109,14 @@ const T = {
   },
   ar: {
     who: 'من أنت؟', whoSub: 'اختر مريضاً لفتح تطبيقه. لا يوجد تسجيل دخول في النسخة التجريبية.', team: 'فتح تطبيق فريق الرعاية',
-    hello: (n) => `مرحباً ${n}`, tabs: ['الرئيسية', 'نتيجتي', 'الجواز', 'العائلة'], next: 'خطوتك التالية',
+    hello: (n) => `مرحباً ${n}`, tabs: ['الرئيسية', 'رحلتي', 'الجواز', 'العائلة'], next: 'خطوتك التالية',
+    jT: 'رحلة رعايتي', jX: 'كل خطوة في رعايتك، ومن قام بها، وما الخطوة التالية.', notYet2: 'لم يتم بعد', nextUp: 'التالي', reread: 'قراءة نتيجتي مرة أخرى', backHome: '‹ الرئيسية',
+    ms: ['إبلاغ النتيجة', 'تأكيد الفهم', 'قبول الإحالة', 'تقديم الرعاية', 'إغلاق الحلقة'], na: 'غير مطلوب في حالتك',
+    msX: ['تحدث معك شخص من فريق الرعاية عن نتيجتك.', 'شرحت الخطوة التالية بكلماتك.', 'قبل فريق أخصائي تولي الخطوة التالية.', 'تمت الزيارة أو الفحص أو العلاج الذي احتجته.', 'أكد طبيب اكتمال متابعتك.'],
+    shareB: 'مشاركة جوازي', shareT: 'مشاركة جواز الرعاية', shWho: 'مع من', shWhat: 'ما الذي سيرونه', shLong: 'لأي مدة', shCreate: 'إنشاء رابط مشاركة',
+    shTo: { doctor: 'طبيب أو عيادة جديدة', insurer: 'شركة التأمين', person: 'شخص أختاره' }, shItems: { journey: 'رحلة رعايتي (دائماً)', team: 'المسؤول عن رعايتي والخطوة التالية', appts: 'مواعيدي', lang: 'لغتي المفضلة' },
+    shNever: 'نتيجتي: لا تُشارك أبداً', shFor: { day: '24 ساعة', week: '7 أيام', open: 'حتى أوقفها' }, shActive: 'تتم المشاركة الآن', shUntil: (d) => `حتى ${d}`, shUntilStop: 'حتى توقفها', shStop: 'إيقاف', shStopped: 'تم الإيقاف. لم يعد الرابط يعمل.', shMade: 'تم إنشاء رابط المشاركة.', shOpen: 'فتح الرابط (تجريبي)',
+    shDemo: 'نسخة تجريبية: يعمل الرابط على هذا الجهاز. في التجربة الفعلية تصدره خدمة فلج وتتحقق ممن يفتحه وتنهي صلاحيته.',
     callT: 'سيتصل بك فلج', callX: (nurse) => `بخصوص نتيجة الفحص الجديدة، بلغتك. يمكنك الرد الآن. ${nurse} هو الممرض المسؤول عنك.`, answer: 'الرد على المكالمة (تجريبي)',
     nurseT: (nurse) => `سيتصل بك ${nurse} اليوم`, nurseX: 'بعض النتائج من الأفضل أن يشرحها شخص. أبقِ هاتفك قريباً.', callMe: 'اتصلوا بي الآن', asked: 'تم الطلب: سيتصل بك الممرض',
     readT: 'اقرأ نتيجتك', readX: 'دقيقة واحدة. بكلمات بسيطة، والممرض متاح عند الحاجة.', readB: 'قراءة نتيجتي',
@@ -144,6 +158,7 @@ function nav(p, push = true) {
 addEventListener('popstate', () => { sheet = null; render(); });
 
 let sheet = null, sheetErr = '', tb = null, famErr = '', call = null, callTimer = null;
+let shareDraft = { to: 'doctor', items: ['journey', 'team', 'lang'], for: 'week' };
 const PAT = (c) => ({ type: 'patient', name: `${c.patient.name} (patient)` });
 const staffOf = (id) => state.staff.find((s) => s.id === id);
 const nurseName = (c) => { const o = staffOf(c.owner); return o ? o.name.replace(/\s*\(coordinator\)/, '').replace(/^(Nurse)\s+(\S+).*/, '$1 $2') : 'your nurse'; };
@@ -163,6 +178,7 @@ const I = {
   home: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
   doc: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
   pass: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  route: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="19" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 5H15a3.5 3.5 0 0 1 0 7H9a3.5 3.5 0 0 0 0 7h6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   fam: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="9" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20a6 6 0 0 1 12 0M14 20a4.5 4.5 0 0 1 8 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   phone: (f = '#fff', s = 30) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" fill="${f}"/></svg>`,
 };
@@ -199,7 +215,7 @@ function homeScreen(c, t, lang) {
       <li><button class="prow" id="how"><span class="t"><b>${t.how}</b><small>${t.chs[c.channel || 'app']}</small></span></button></li></ul></div>`;
 }
 function resultScreen(c, t, lang) {
-  const head = `<div class="head"><h1>${t.resultT}</h1><p class="ctx">${TEST[lang][c.programme || 'hba1c']}</p></div>`;
+  const head = `<button class="back" data-tab="home">${t.backHome}</button><div class="head"><h1>${t.resultT}</h1><p class="ctx">${TEST[lang][c.programme || 'hba1c']}</p></div>`;
   if (toldByPerson(c)) return head + `<div class="card status wait"><span><b>${t.nurseT(nurseName(c))}</b><span>${t.notYet}</span></span></div>${c.nurseRequest && !c.nurseRequest.done ? '' : `<button class="wide" id="callme">${t.callMe}</button>`}`;
   const text = explanation({ band: c.band, value: c.value, lang }) || t.notDiag;
   const needTb = ['result', 'notified'].includes(c.stage);
@@ -209,7 +225,22 @@ function resultScreen(c, t, lang) {
       <button class="wide" id="tbcheck">${t.check}</button>` : ''}`;
 }
 function passportScreen(c, t, lang) {
-  return `<div class="head"><h1>${t.passT}</h1><p class="ctx">${t.passX}</p></div>${passportHtml(c, { lang, staff: state.staff, qr: true, link: true })}`;
+  const now = Date.now(), active = (c.shares || []).filter((x) => !x.stopped && (!x.until || Date.parse(x.until) > now));
+  return `<div class="head"><h1>${t.passT}</h1><p class="ctx">${t.passX}</p></div>${passportHtml(c, { lang, staff: state.staff, qr: true, link: true })}
+    <button class="wide" id="share">${t.shareB}</button>
+    ${active.length ? `<div class="group"><div class="gh">${t.shActive}</div>${active.map((x) => { const url = shareUrl(c, x); return `<div class="card fam-q">${qrSvg(url, { size: 104, label: t.shTo[x.to] })}<span style="flex:1"><b style="display:block;font-size:17px">${t.shTo[x.to]}</b><small style="display:block;color:var(--muted);font-size:14px;line-height:1.4">${x.items.map((k) => t.shItems[k].replace(/ \(.*\)$/, '')).join(' · ')}<br>${x.until ? t.shUntil(fmt(x.until.slice(0, 10), lang, true)) : t.shUntilStop}</small><span style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><a class="light" style="display:inline-flex;align-items:center;text-decoration:none" href="${esc(url.replace(location.origin + '/', ''))}">${t.shOpen}</a><button class="light" data-unshare="${x.id}">${t.shStop}</button></span></span></div>`; }).join('')}<div class="gf">${t.shDemo}</div></div>` : ''}`;
+}
+const shareUrl = (c, x) => `${location.origin}/verify.html?c=${encodeURIComponent(c.id)}&s=${x.id}`;
+function journeyScreen(c, t, lang) {
+  const ms = milestones(c, lang), firstTodo = ms.findIndex(([st]) => st === 'todo');
+  const o = staffOf(c.owner), who = o ? o.name.replace(/\s*\(coordinator\)/, '') : '';
+  return `<div class="head"><h1>${t.jT}</h1><p class="ctx">${t.jX}</p></div>
+    ${!toldByPerson(c) ? `<a class="prow card" style="padding:12px 16px" href="?p=${c.id}&tab=result" data-tab="result"><span class="t"><b>${t.reread}</b><small>${TEST[lang][c.programme || 'hba1c']}</small></span></a>` : ''}
+    <ol class="list" style="list-style:none" aria-label="${t.jT}">${ms.map(([st, e], i) => {
+      const mark = st === 'done' ? '<span class="st green">✓</span>' : st === 'na' ? `<span class="st grey">${t.na}</span>` : i === firstTodo ? `<span class="st amber">${t.nextUp}</span>` : `<span class="st grey">${t.notYet2}</span>`;
+      const meta = st === 'done' ? `${esc(e.by)} · ${fmt(e.at.slice(0, 10), lang, true)}` : i === firstTodo && who ? `${who}` : '';
+      return `<li class="row" style="align-items:flex-start;flex-direction:column;gap:4px;${st === 'todo' && i !== firstTodo ? 'opacity:.75' : ''}"><span style="display:flex;justify-content:space-between;width:100%;gap:10px;align-items:center"><b style="font-size:17px">${i + 1}. ${t.ms[i]}</b>${mark}</span><span style="font-size:15px;color:var(--ink2);line-height:1.4">${t.msX[i]}</span>${meta ? `<small style="font-size:13px;color:var(--muted)">${meta}</small>` : ''}</li>`;
+    }).join('')}</ol>`;
 }
 function familyScreen(c, t, lang) {
   const fh = c.familyHelper, head = `<div class="head"><h1>${t.famT}</h1><p class="ctx">${t.famX}</p></div>`;
@@ -236,6 +267,16 @@ function sheetHtml(c, t, lang) {
     if (c.hold && !slots.some((x) => x.day === c.hold.day && x.time === c.hold.time)) slots.unshift(c.hold);
     const cur = c.slot || c.hold || slots[0];
     return wrap(t.slotsT, `${c.barrier && c.barrier !== 'none' ? `<p>${esc(barrierText(c.barrier, lang))}</p>` : ''}<fieldset class="choice"><legend class="sr">${t.slotsT}</legend>${slots.map((x) => `<label><input type="radio" name="slot" value="${x.day}|${x.time}"${cur && x.day === cur.day && x.time === cur.time ? ' checked' : ''}>${fmt(x.day, lang, true)} · ${x.time}</label>`).join('')}</fieldset><button class="wide go" id="do-book">${t.book}</button>`);
+  }
+  if (sheet === 'share') {
+    const it = shareDraft.items;
+    return wrap(t.shareT, `<fieldset class="choice"><legend class="gh" style="padding:0 4px 6px">${t.shWho}</legend>${Object.entries(t.shTo).map(([k, l]) => `<label><input type="radio" name="shto" value="${k}"${shareDraft.to === k ? ' checked' : ''}>${l}</label>`).join('')}</fieldset>
+      <div class="group"><div class="gh">${t.shWhat}</div><ul class="list">
+        <li class="row"><span>${t.shItems.journey}</span><span class="st green">✓</span></li>
+        ${['team', 'appts', 'lang'].map((k) => `<li class="row sw"><span id="shi-${k}-l">${t.shItems[k]}</span><button class="switch" data-shitem="${k}" role="switch" aria-checked="${it.includes(k)}" aria-labelledby="shi-${k}-l"><span></span></button></li>`).join('')}
+        <li class="row"><span>${t.shNever}</span><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></svg></li></ul></div>
+      <fieldset class="choice"><legend class="gh" style="padding:0 4px 6px">${t.shLong}</legend>${Object.entries(t.shFor).map(([k, l]) => `<label><input type="radio" name="shfor" value="${k}"${shareDraft.for === k ? ' checked' : ''}>${l}</label>`).join('')}</fieldset>
+      <button class="wide go" id="do-share">${t.shCreate}</button>`);
   }
   if (sheet === 'hard') return wrap(t.barT, `<fieldset class="choice"><legend class="sr">${t.barT}</legend>${Object.entries(t.bars).map(([k, l]) => `<label><input type="radio" name="bar" value="${k}"${(c.barrier || 'none') === k ? ' checked' : ''}>${l}</label>`).join('')}</fieldset><button class="wide" id="do-hard">${t.save}</button>`);
   if (sheet === 'how') return wrap(t.chT, `<fieldset class="choice"><legend class="sr">${t.chT}</legend>${Object.entries(t.chs).map(([k, l]) => `<label><input type="radio" name="ch" value="${k}"${(c.channel || 'app') === k ? ' checked' : ''}>${l}</label>`).join('')}</fieldset><button class="wide" id="do-how">${t.save}</button>`);
@@ -275,10 +316,10 @@ function render() {
   if (!c) { $('#main').innerHTML = pickScreen(t, lang); $('#tabs').hidden = true; }
   else {
     store.set('falaj.me.p', c.id);
-    const tabs = ['home', 'result', 'passport', 'family'];
-    $('#main').innerHTML = ({ home: homeScreen, result: resultScreen, passport: passportScreen, family: familyScreen }[p.tab] || homeScreen)(c, t, lang);
+    const tabs = ['home', 'journey', 'passport', 'family'];
+    $('#main').innerHTML = ({ home: homeScreen, journey: journeyScreen, result: resultScreen, passport: passportScreen, family: familyScreen }[p.tab] || homeScreen)(c, t, lang);
     $('#tabs').hidden = false;
-    $('#tabs').innerHTML = tabs.map((k, i) => `<a href="?p=${c.id}&tab=${k}" data-tab="${k}"${p.tab === k ? ' aria-current="page"' : ''}>${[I.home, I.doc, I.pass, I.fam][i]}${t.tabs[i]}</a>`).join('');
+    $('#tabs').innerHTML = tabs.map((k, i) => `<a href="?p=${c.id}&tab=${k}" data-tab="${k}"${p.tab === k ? ' aria-current="page"' : ''}>${[I.home, I.route, I.pass, I.fam][i]}${t.tabs[i]}</a>`).join('');
   }
   $('#sheetroot').innerHTML = sheet && c ? sheetHtml(c, t, lang) : '';
   $('#callroot').innerHTML = call && c ? callHtml(c, t, lang) : '';
@@ -298,6 +339,11 @@ function wire(c, t, lang) {
   on('hard', () => { sheet = 'hard'; render(); });
   on('how', () => { sheet = 'how'; render(); });
   on('book', () => { sheet = 'book'; sheetErr = ''; render(); });
+  on('share', () => { sheet = 'share'; sheetErr = ''; shareDraft = { to: 'doctor', items: ['journey', 'team', 'lang'], for: 'week' }; render(); });
+  document.querySelectorAll('[data-unshare]').forEach((b) => b.onclick = () => {
+    const id = b.dataset.unshare;
+    if (act(() => { const x = (c.shares || []).find((y) => y.id === id); if (x) { x.stopped = true; x.stoppedAt = new Date().toISOString(); logEvent(c, 'share_stopped', P, `Stopped sharing with ${x.to}`); } }, t.shStopped)) render();
+  });
   on('tbcheck', () => {
     tb = pick('tb') || null; if (!tb) return;
     if (tb === 'ok') { if (act(() => advance(state, c.id, 'understood', P, 'Teach-back in the app: chose the right next step.'), t.understood)) { tb = null; nav({ tab: 'home' }); } }
@@ -327,6 +373,17 @@ function wire(c, t, lang) {
       if (c.stage === 'understood') advance(state, c.id, 'booked', P, `Booked in the app: ${day} ${time}.`); else logEvent(c, 'rebooked', P, `Moved the visit to ${day} ${time}.`);
       c.slot = { day, time }; c.hold = null;
     }, t.booked); });
+    document.querySelectorAll('[data-shitem]').forEach((b) => b.onclick = () => {
+      const k = b.dataset.shitem; shareDraft.to = pick('shto') || shareDraft.to; shareDraft.for = pick('shfor') || shareDraft.for;
+      shareDraft.items = shareDraft.items.includes(k) ? shareDraft.items.filter((x) => x !== k) : [...shareDraft.items, k];
+      render(); document.querySelector(`[data-shitem="${k}"]`).focus();
+    });
+    on('do-share', () => {
+      const to = pick('shto') || 'doctor', f = pick('shfor') || 'week';
+      const until = f === 'open' ? null : new Date(Date.now() + (f === 'day' ? 1 : 7) * 864e5).toISOString();
+      const id = Array.from(crypto.getRandomValues(new Uint8Array(6)), (x) => x.toString(36).padStart(2, '0')).join('').slice(0, 10).toUpperCase();
+      done(() => { c.shares = [...(c.shares || []), { id, to, items: shareDraft.items, until, at: new Date().toISOString() }]; logEvent(c, 'shared', P, `Shared the Care Passport with ${to} (${shareDraft.items.join(', ')}), never the result`); }, t.shMade);
+    });
     on('do-hard', () => done(() => setBarrier(state, c.id, pick('bar'), P), t.saved));
     on('do-how', () => done(() => setChannel(state, c.id, pick('ch'), P), t.saved));
     const sh = $('#sheet'); if (sh && !sh.contains(document.activeElement)) sh.focus();
