@@ -42,6 +42,15 @@
 @media (prefers-reduced-motion:reduce){#splash *{animation-duration:.01s !important;animation-delay:0s !important}}
 
 /* ---------- app ---------- */
+.lbl2{margin:0;font-size:13px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--muted)}
+.big2{margin:0;font-size:19px;line-height:1.4;color:var(--ink);font-weight:600}
+.visit{flex-direction:row;align-items:center;gap:14px}
+.visit .d{width:52px;height:56px;border-radius:12px;background:var(--brand-l,#e4f2f9);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;flex:none}
+.visit .d b{font-size:22px;line-height:1}
+.visit .t{flex:1;min-width:0}.visit .t b{display:block;font-size:17px}.visit .t small{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.t2{margin:0;font-size:28px}
+.callbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:22px;border:0;background:#1a7f52;color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
+
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:calc(8px + env(safe-area-inset-top))}
 .top .brand svg{flex:none}
 .linkbtn{min-height:44px;padding:0 6px;border:0;background:none;color:var(--tint);font:inherit;font-size:16px;cursor:pointer}
@@ -87,7 +96,7 @@
 .chat .src{font-size:12px;color:var(--muted)}
 .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
 .chips button{flex:none;min-height:40px;padding:0 14px;border-radius:20px;border:0;background:var(--line);color:var(--ink);font:inherit;font-size:15px;cursor:pointer}
-.composer{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0 calc(10px + env(safe-area-inset-bottom));background:var(--bg)}
+.composer{position:sticky;bottom:calc(62px + env(safe-area-inset-bottom));display:flex;gap:8px;padding:10px 0 calc(10px + env(safe-area-inset-bottom));background:var(--bg)}
 .composer input{flex:1;min-width:0;min-height:48px;border-radius:24px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:17px;padding:0 16px}
 .composer button{min-width:48px;min-height:48px;border-radius:24px;border:0;background:#0b6fa8;color:#fff;font:inherit;font-weight:700;cursor:pointer;padding:0 16px}
 .typing{display:inline-flex;gap:4px}.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
@@ -148,6 +157,7 @@
   <div class="phone">
     <div class="inner" tabindex="0" role="region" aria-label="Falaj">
       <main id="app" tabindex="-1"></main>
+      <nav class="tabs" id="tabs" aria-label="Sections" hidden></nav>
     </div>
   </div>
 </div>
@@ -242,11 +252,14 @@ function render() {
   if (q.get('as') && staffOf(q.get('as'))) { store.set('falaj.app.user', { kind: 'staff', id: q.get('as') }); history.replaceState(null, '', location.pathname + location.hash); }   // coming from the care team website
   const u = user(), r = route();
   closeLayer();
+  $('#tabs').hidden = true;
   if (r.k === 'find' && r.v) sess.set('falaj.app.pending', r.v);
   if (!u) return loginScreen(r.k === 'find' || q.has('care') ? 'care' : sess.get('falaj.app.tab') || 'patient');
   if (u.kind === 'patient') {
     const c = caseOf(u.id); if (!c) { store.set('falaj.app.user', null); return render(); }
+    tabs(r.k === 'ask' ? 'ask' : r.k === 'id' ? 'id' : 'me');
     if (r.k === 'ask') return askScreen(c);
+    if (r.k === 'id') return idScreen(c);
     return patientHome(c);
   }
   const s = staffOf(u.id); if (!s) { store.set('falaj.app.user', null); return render(); }
@@ -264,49 +277,61 @@ const DEMO_STAFF = ['d1', 'e4', 'n2'];
 function loginScreen(tab) {
   const pats = DEMO_PATIENTS.map(caseOf).filter(Boolean), staff = DEMO_STAFF.map(staffOf).filter(Boolean);
   paint(`${topBar()}
-    <div class="head"><h1>Sign in</h1><p class="ctx">Welcome to Falaj. Who is signing in?</p></div>
+    <div class="head"><h1>Sign in</h1></div>
     <div class="seg" role="group" aria-label="I am"><button id="t-pat" aria-pressed="${tab === 'patient'}">I am a patient</button><button id="t-care" aria-pressed="${tab === 'care'}">I work in care</button></div>
-    ${tab === 'patient' ? `<div class="group"><div class="gh">Demo patients</div><ul class="list">${pats.map((c) => `<li><button class="prow" data-pat="${c.id}"><span class="av lg" style="background:#0b6fa8">${esc(initials(c.patient.name))}</span><span class="t"><b>${esc(c.patient.name)}</b><small>Health ID ${esc(healthId(c))}</small></span></button></li>`).join('')}</ul></div>`
-      : `<div class="group"><div class="gh">Demo care team</div><ul class="list">${staff.map((s) => `<li><button class="prow" data-staff="${s.id}"><span class="av lg" style="background:#0a1f2e">${esc(initials(s.name))}</span><span class="t"><b>${esc(clean(s.name))}</b><small>${esc(s.org)}</small></span></button></li>`).join('')}</ul></div>
+    ${tab === 'patient' ? `<div class="group"><ul class="list">${pats.map((c) => `<li><button class="prow" data-pat="${c.id}"><span class="av lg" style="background:#0b6fa8">${esc(initials(c.patient.name))}</span><span class="t"><b>${esc(c.patient.name)}</b><small>Health ID ${esc(healthId(c))}</small></span></button></li>`).join('')}</ul></div>`
+      : `<div class="group"><ul class="list">${staff.map((s) => `<li><button class="prow" data-staff="${s.id}"><span class="av lg" style="background:#0a1f2e">${esc(initials(s.name))}</span><span class="t"><b>${esc(clean(s.name))}</b><small>${esc(s.org)}</small></span></button></li>`).join('')}</ul></div>
       ${sess.get('falaj.app.pending') ? `<p class="seen">A patient's QR code was scanned: after you sign in, type their name to open their file.</p>` : ''}`}
-    <p class="hint">Demo sign-in: no password, synthetic people. In a pilot, people sign in with the national digital identity and clinicians with their hospital account.</p>
-    <p class="demo-note">Synthetic data. Not medical advice. <a href="index.html">About Falaj</a> · <a href="jury.html">For the jury</a></p>`);
+    <p class="demo-note">Demo: no password, invented people. In a pilot: the national digital identity.<br><a href="index.html">About Falaj</a> · <a href="jury.html">For the jury</a></p>`);
   $('#t-pat').onclick = () => { sess.set('falaj.app.tab', 'patient'); loginScreen('patient'); };
   $('#t-care').onclick = () => { sess.set('falaj.app.tab', 'care'); loginScreen('care'); };
   document.querySelectorAll('[data-pat]').forEach((b) => { b.onclick = () => { store.set('falaj.app.user', { kind: 'patient', id: b.dataset.pat }); go('me'); }; });
   document.querySelectorAll('[data-staff]').forEach((b) => { b.onclick = () => { store.set('falaj.app.user', { kind: 'staff', id: b.dataset.staff }); go('find'); }; });
 }
 
-// ---------- patient: ID + QR, next step, assistant, organised, who opened my file ----------
+// ---------- patient: three tabs, one thing each: Today, My ID, Ask Falaj ----------
+const TAB_IC = {
+  me: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15c4 0 5-7 9-7s5 7 9 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 19h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  id: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  ask: '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+};
+function tabs(cur) {
+  const t = $('#tabs'); t.hidden = false;
+  t.innerHTML = [['me', 'Today'], ['id', 'My ID'], ['ask', 'Ask Falaj']].map(([k, l]) => `<a href="#${k}" id="tab-${k}"${cur === k ? ' aria-current="page"' : ''}>${TAB_IC[k]}<span>${l}</span></a>`).join('');
+}
 function patientHome(c) {
-  const ctx = contextOf(c), id = healthId(c), link = lookupLink(location.origin, c), a = c.assist || {};
-  const visit = c.slot || c.hold, docs = documentsOf(c);
+  const ctx = contextOf(c), a = c.assist || {}, v = c.slot || c.hold, docs = documentsOf(c), acc = c.access || [];
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   paint(`${topBar(signOutBtn)}
-    <div class="head"><h1>Hello, ${esc(first(c))}</h1></div>
+    <div class="head"><h1>Hello, ${esc(first(c))}</h1><p class="ctx">${esc(today)}</p></div>
+    <section class="card nowcard" aria-labelledby="nx"><p class="lbl2" id="nx">Your next step</p><p class="big2">${esc(nextStep(ctx))}</p><a class="wide" href="me.html?p=${c.id}">Open my steps</a></section>
+    ${v ? `<section class="card visit" aria-label="Your visit"><span class="d"><b>${new Date(v.day + 'T00:00:00Z').getUTCDate()}</b>${esc(new Date(v.day + 'T00:00:00Z').toLocaleDateString('en-GB', { month: 'short', timeZone: 'UTC' }))}</span><span class="t"><b>${c.slot ? 'Your visit' : 'A visit held for you'}</b><small>${esc(fmtDay(v.day))} · ${esc(v.time)} · Family Clinic A</small></span><button class="linkbtn" id="ics">Calendar</button></section>` : ''}
+    <ul class="list">
+      <li><button class="prow" id="o-docs"><span class="t"><b>My documents</b><small>${docs.length} ${docs.length === 1 ? 'document' : 'documents'}, from every clinic</small></span></button></li>
+      <li><button class="prow" id="o-q"><span class="t"><b>Questions for my doctor</b><small>${(a.questions || []).length ? (a.questions || []).length + ' saved' : 'Write them before your visit'}</small></span></button></li>
+      <li><button class="prow" id="o-acc"><span class="t"><b>Who opened my file</b><small>${acc.length ? `${esc(clean(acc[0].by))} · ${esc(fmtDay(acc[0].at))}` : 'No one yet'}</small></span></button></li>
+    </ul>
+    <p class="demo-note">Invented data. Not medical advice.</p>`);
+  bindOut();
+  const ic = $('#ics'); if (ic) ic.onclick = () => ics(c);
+  $('#o-docs').onclick = () => docsSheet(c);
+  $('#o-q').onclick = () => questionSheet(c);
+  $('#o-acc').onclick = () => sheet(`<h2>Who opened my file</h2><p>Every time a doctor or nurse opens your file, it shows here.</p>${acc.length ? `<ul class="list">${acc.slice(0, 10).map((x) => `<li><div class="prow"><span class="t"><b>${esc(clean(x.by))}</b><small>${esc(x.org)} · ${esc(fmtDay(x.at))} at ${esc(time(x.at))}</small></span></div></li>`).join('')}</ul>` : ''}<button class="wide ghost" data-close>Close</button>`);
+}
+function idScreen(c) {
+  const id = healthId(c), link = lookupLink(location.origin, c);
+  paint(`${topBar(signOutBtn)}
     <section class="idcard" aria-labelledby="idl">
       <p class="lbl" id="idl">My Falaj Health ID</p>
       <p class="hid" id="hid">${esc(id)}</p>
-      <div class="qrbox">${qrSvg(link, { size: 220, label: 'QR code of your Health ID, for a doctor to scan' })}</div>
-      <p>Show this to any doctor or nurse. They type your name too, so the code alone never opens your file.</p>
-      <div class="row"><button id="copy">Copy ID</button><button id="share">Share</button></div>
+      <div class="qrbox">${qrSvg(link, { size: 240, label: 'QR code of your Health ID, for a doctor to scan' })}</div>
+      <p>Show this to any doctor or nurse. They also type your name, so the code alone never opens your file.</p>
+      <div class="row"><button id="copy">Copy</button><button id="share">Share</button></div>
     </section>
-    <section class="card nowcard" aria-labelledby="nx"><h2 id="nx">Your next step</h2><p>${esc(nextStep(ctx))}</p><a class="wide ghost" href="me.html?p=${c.id}">Open my steps</a></section>
-    <section class="card ask" aria-labelledby="ak"><h2 id="ak">Ask Falaj</h2><p>Your assistant organises your appointments, reminders and documents, and can call you. It never gives results: your care team does.</p>
-      <div class="btns2"><a class="wide" href="#ask" id="chatbtn">Chat</a><button class="wide ghost" id="callme">Call me</button></div></section>
-    <div class="group"><div class="gh">Organised for you</div><ul class="list">
-      <li><a class="prow" href="me.html?p=${c.id}"><span class="t"><b>Appointments</b><small>${visit ? `${c.slot ? 'Visit' : 'Held for you'}: ${esc(fmtDay(visit.day))} · ${esc(visit.time)}` : 'None yet'}</small></span></a></li>
-      <li><button class="prow" id="o-rem"><span class="t"><b>Reminders</b><small>${(a.reminders || []).length ? (a.reminders || []).map((r) => `${esc(fmtDay(r.day))} · ${esc(r.time)}`).join(', ') : 'None yet'}</small></span></button></li>
-      <li><button class="prow" id="o-docs"><span class="t"><b>Documents</b><small>${docs.length} from ${new Set(docs.map((d) => d.from)).size} ${new Set(docs.map((d) => d.from)).size === 1 ? 'place' : 'places'}</small></span></button></li>
-      <li><button class="prow" id="o-q"><span class="t"><b>Questions for my doctor</b><small>${(a.questions || []).length || 'None yet'}</small></span></button></li></ul></div>
-    <div class="group"><div class="gh">Who opened my file</div><ul class="list">${(c.access || []).length ? c.access.slice(0, 5).map((x) => `<li><div class="prow"><span class="t"><b>${esc(clean(x.by))}</b><small>${esc(x.org)} · ${esc(fmtDay(x.at))} at ${esc(time(x.at))}</small></span></div></li>`).join('') : '<li><div class="prow"><span class="t"><small>No one yet. When a doctor opens your file, you see it here.</small></span></div></li>'}</ul></div>
-    <p class="demo-note">Synthetic data. Not medical advice. Your Health ID is a Falaj number, not your Emirates ID.</p>`);
+    <p class="demo-note">A Falaj number, not your Emirates ID.</p>`);
   bindOut();
   $('#copy').onclick = () => { try { navigator.clipboard.writeText(id).then(() => toast('Health ID copied'), () => toast(id)); } catch { toast(id); } };
   $('#share').onclick = () => { if (navigator.share) navigator.share({ title: 'My Falaj Health ID', text: `My Falaj Health ID: ${id}`, url: link }).catch(() => {}); else { try { navigator.clipboard.writeText(link); toast('Link copied'); } catch { toast(link); } } };
-  $('#callme').onclick = () => startCall(c);
-  $('#o-docs').onclick = () => docsSheet(c);
-  $('#o-q').onclick = () => questionSheet(c);
-  $('#o-rem').onclick = () => { const r = reply('remind me', contextOf(c)); sheet(`<h2>Reminders</h2><p>${esc(r.text)}</p>${r.actions.map((x) => `<button class="wide${x.type === 'ics' ? ' ghost' : ''}" data-act="${x.type}">${esc(x.label)}</button>`).join('')}<button class="wide ghost" data-close>Close</button>`, (b) => doAction(c, b.dataset.act)); };
 }
 
 // ---------- actions the assistant can do (patient-side only) ----------
@@ -366,20 +391,20 @@ function questionSheet(c) {
 // ---------- the assistant (chat) ----------
 let aiOn = null;
 fetch('/api/jissr-assistant').then((r) => (r.ok ? r.json() : {})).then((j) => { aiOn = !!j.ai; const l = $('#ailabel'); if (l) l.textContent = aiLabel(); }).catch(() => { aiOn = false; });
-const aiLabel = () => (aiOn ? 'AI assistant. Rules keep it safe.' : 'Assistant running on rules (no AI key set up yet).');
-const CHIPS = ['What is my next step?', 'When is my appointment?', 'Remind me', 'My documents', 'I am worried', 'What does my result mean?', 'Call me'];
+const aiLabel = () => 'Organises your care. Never gives results.';
+const CHIPS = ['What is my next step?', 'My appointment', 'I am worried', 'What does my result mean?'];
 function askScreen(c) {
   const key = 'falaj.app.chat.' + c.id;
-  const msgs = sess.get(key) || [{ who: 'ai', text: `Hello ${first(c)}, I am Falaj, your assistant. I help you keep your care organised: your next step, appointments, reminders, documents and questions for your doctor. I never give results; a person on your care team does.`, actions: [] }];
+  const msgs = sess.get(key) || [{ who: 'ai', text: `Hello ${first(c)}. I keep your care organised: next step, visits, reminders, documents, questions for your doctor. Results come from your care team, not from me.`, actions: [] }];
   const bubble = (m) => `<li class="${m.who === 'me' ? 'me' : 'ai'}"><span class="b">${esc(m.text)}</span>${m.actions && m.actions.length ? `<span class="acts">${m.actions.map((a) => a.type === 'tel' ? `<a href="${esc(a.href)}">${esc(a.label)}</a>` : a.type === 'info' ? `<span class="src">${esc(a.label)}</span>` : `<button data-act="${a.type}">${esc(a.label)}</button>`).join('')}</span>` : ''}${m.src ? `<span class="src">${m.src === 'ai' ? 'Written by AI, checked by rules' : 'Answered by Falaj rules'}</span>` : ''}</li>`;
-  paint(`<div class="top"><a class="back" href="#me">‹ Home</a><span class="brand">Ask Falaj</span><span style="width:60px"></span></div>
+  paint(`<div class="top"><h1 class="t2">Ask Falaj</h1><button class="callbtn" id="callme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l3 4-2 2c1 2.5 3.5 5 6 6l2-2 4 3-2 4C10 20 4 14 3 5z" fill="currentColor"/></svg>Call me</button></div>
     <p class="hint" id="ailabel">${aiOn === null ? '' : aiLabel()}</p>
     <ul class="chat" id="chat" aria-live="polite">${msgs.map(bubble).join('')}</ul>
     <div class="chips" role="group" aria-label="Suggestions">${CHIPS.map((t) => `<button data-chip="${esc(t)}">${esc(t)}</button>`).join('')}</div>
     <form class="composer" id="compose"><label class="sr" for="msg" style="position:absolute;left:-9999px">Message</label><input id="msg" autocomplete="off" maxlength="400" placeholder="Write to Falaj"><button aria-label="Send">Send</button></form>`);
   const list = $('#chat');
   const bind = () => list.querySelectorAll('[data-act]').forEach((b) => { b.onclick = () => { const said = doAction(c, b.dataset.act); if (said) { msgs.push({ who: 'ai', text: said, actions: [] }); sess.set(key, msgs); list.insertAdjacentHTML('beforeend', bubble(msgs[msgs.length - 1])); } }; });
-  const scroll = () => { const last = list.lastElementChild; if (last) last.scrollIntoView({ block: 'end' }); };
+  const scroll = () => { const last = list.lastElementChild; if (last) last.scrollIntoView({ block: 'end', inline: 'nearest' }); const ch = document.querySelector('.chips'); if (ch) ch.scrollLeft = 0; };
   bind(); scroll();
   async function send(text) {
     text = text.trim(); if (!text) return;
@@ -397,6 +422,7 @@ function askScreen(c) {
     msgs.push({ who: 'ai', ...r }); sess.set(key, msgs.slice(-40));
     list.insertAdjacentHTML('beforeend', bubble(msgs[msgs.length - 1])); bind(); scroll();
   }
+  $('#callme').onclick = () => startCall(c);
   $('#compose').onsubmit = (e) => { e.preventDefault(); const v = $('#msg').value; $('#msg').value = ''; send(v); };
   document.querySelectorAll('[data-chip]').forEach((b) => { b.onclick = () => send(b.dataset.chip); });
 }
@@ -473,18 +499,17 @@ function doctorHome(s) {
   const pending = sess.get('falaj.app.pending') || '', recent = (sess.get('falaj.app.open') || []).map(caseOf).filter(Boolean);
   const demo = caseOf('C-040');
   paint(`${topBar(signOutBtn)}
-    <div class="head"><p class="who">${esc(s.org)}</p><h1>Find a patient</h1><p class="ctx">Type the patient's Health ID and name to see their care in every hospital and clinic, as a map.</p></div>
+    <div class="head"><p class="who">${esc(clean(s.name))} · ${esc(s.org)}</p><h1>Find a patient</h1></div>
     <form class="card" id="findf" novalidate>
       <div class="field"><label for="fid">Health ID</label><input id="fid" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${esc(pending)}" placeholder="FLJ-2026-0000" aria-describedby="ferr"></div>
-      <div class="field"><label for="fname">Patient's first and family name</label><input id="fname" autocomplete="off" spellcheck="false" aria-describedby="ferr"></div>
+      <div class="field"><label for="fname">First and family name</label><input id="fname" autocomplete="off" spellcheck="false" aria-describedby="ferr"></div>
       <p class="err" id="ferr" role="alert"></p>
-      <button class="wide" id="open">Open care history</button>
-      ${'BarcodeDetector' in window ? '<button type="button" class="wide ghost" id="scan">Scan the patient\'s QR code</button>' : '<p class="hint">To scan a patient\'s QR code, use your phone\'s camera: it opens this page with the ID filled in.</p>'}
+      <button class="wide" id="open">Open care map</button>
+      ${'BarcodeDetector' in window ? '<button type="button" class="wide ghost" id="scan">Scan QR code</button>' : ''}
     </form>
-    ${demo ? `<p class="hint">Demo: try <b>${esc(healthId(demo))}</b> with <b>${esc(demo.patient.name)}</b>.</p>` : ''}
-    ${recent.length ? `<div class="group"><div class="gh">Opened this session</div><ul class="list">${recent.map((c) => `<li><a class="prow" href="#map=${c.id}"><span class="t"><b>${esc(c.patient.name)}</b><small>${esc(healthId(c))}</small></span></a></li>`).join('')}</ul></div>` : ''}
-    <div class="group"><ul class="list"><li><a class="prow" href="team.html?as=${s.id}"><span class="t"><b>My worklist</b><small>Every patient you keep, and the one thing to do next.</small></span></a></li></ul></div>
-    <p class="demo-note">Every opening is recorded, and the patient can see who opened their file. Synthetic data.</p>`);
+    ${demo ? `<p class="hint">Demo: <b>${esc(healthId(demo))}</b> · <b>${esc(demo.patient.name)}</b></p>` : ''}
+    ${recent.length ? `<ul class="list">${recent.map((c) => `<li><a class="prow" href="#map=${c.id}"><span class="t"><b>${esc(c.patient.name)}</b><small>${esc(healthId(c))}</small></span></a></li>`).join('')}</ul>` : ''}
+    <p class="demo-note">The patient sees every opening. <a href="team.html?as=${s.id}">My worklist</a></p>`);
   bindOut();
   if (pending) $('#fname').focus();
   $('#findf').onsubmit = (e) => {
@@ -521,25 +546,21 @@ async function scan() {
 }
 
 // ---------- the care map: every place, the water between them, the palm where care is now ----------
-let mapSel = '';
+let mapSel = '', mapView = 'history';
 function mapScreen(s, c) {
   const hist = careHistory(c, state.staff), route = routeOf(hist), last = route[route.length - 1];
-  const opened = (c.access || []).find((x) => x.staffId === s.id);
   const places = [...new Set(route)];
-  const counts = Object.fromEntries(places.map((p) => [p, hist.filter((h) => h.fac === p).length]));
-  const wf = workflowHtml(c, { staff: state.staff, today: TODAY, resultText: resultText(c) }).html;
-  paint(`<div class="top"><a class="back" href="#find">‹ Find a patient</a>${signOutBtn}</div>
-    <div class="pbanner"><span class="av" aria-hidden="true">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><small>${c.patient.age} years · speaks ${esc(LANG[c.patient.language] || c.patient.language)}</small><small>Health ID ${esc(healthId(c))}</small></span></div>
-    ${opened ? `<p class="seen">You opened this file at ${esc(time(opened.at))}. ${esc(first(c))} can see who opened it.</p>` : ''}
-    <div class="group"><div class="gh">Care map · ${places.length} places · ${hist.length} records</div>${careMapHtml(hist, { selected: mapSel })}
-      <p class="gf">Tap a place to see only its records. The water runs in the order ${esc(first(c))} was cared for; the palm is where care is now.</p></div>
-    <section class="card nowcard" aria-labelledby="cn"><h2 id="cn">Care is now at ${esc(FACILITIES[last].name)}</h2><p>${esc(nextStep(contextOf(c)))}</p>
-      <a class="wide ghost" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist</a></section>
-    <div class="group"><div class="gh">This result's falaj</div>${wf}</div>
-    <div class="group"><div class="gh" id="hh">${mapSel ? `Records at ${esc(FACILITIES[mapSel].name)} (${counts[mapSel] || 0})` : 'All records, newest first'}</div>${mapSel ? '<button class="linkbtn" id="allr" style="align-self:flex-start">Show all places</button>' : ''}${historyHtml(hist, { only: mapSel })}</div>
-    <p class="demo-note">Synthetic records and invented facilities. In a pilot, this history comes from the health information exchange, with the patient's consent.</p>`);
+  const wf = mapView === 'falaj' ? workflowHtml(c, { staff: state.staff, today: TODAY, resultText: resultText(c) }).html : '';
+  paint(`<div class="top"><a class="back" href="#find">‹ Find</a>${signOutBtn}</div>
+    <div class="pbanner"><span class="av" aria-hidden="true">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><small>${c.patient.age} · ${esc(LANG[c.patient.language] || c.patient.language)} · ${esc(healthId(c))}</small></span></div>
+    ${careMapHtml(hist, { selected: mapSel })}
+    <section class="card nowcard" aria-labelledby="cn"><p class="lbl2" id="cn">Care is now at ${esc(FACILITIES[last].name)}</p><p class="big2">${esc(nextStep(contextOf(c)))}</p><a class="linkbtn" style="align-self:flex-start;padding:0" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist ›</a></section>
+    <div class="seg" role="group" aria-label="Show"><button data-v="history" aria-pressed="${mapView === 'history'}">History · ${hist.length}</button><button data-v="falaj" aria-pressed="${mapView === 'falaj'}">This result</button></div>
+    ${mapView === 'falaj' ? wf : `${mapSel ? `<button class="linkbtn" id="allr" style="align-self:flex-start;padding:0">${esc(FACILITIES[mapSel].name)} only · show all</button>` : ''}<div id="hh">${historyHtml(hist, { only: mapSel })}</div>`}
+    <p class="demo-note">Invented records and places. ${places.length} places. ${esc(first(c))} sees that you opened this file.</p>`);
   bindOut();
-  document.querySelectorAll('.cm-dot').forEach((b) => { b.onclick = () => { mapSel = mapSel === b.dataset.fac ? '' : b.dataset.fac; mapScreen(s, c); const h = $('#hh'); if (h) h.scrollIntoView({ block: 'start' }); }; });
+  document.querySelectorAll('.cm-dot').forEach((b) => { b.onclick = () => { mapSel = mapSel === b.dataset.fac ? '' : b.dataset.fac; mapView = 'history'; mapScreen(s, c); const h = $('#hh'); if (h) h.scrollIntoView({ block: 'start' }); }; });
+  document.querySelectorAll('[data-v]').forEach((b) => { b.onclick = () => { mapView = b.dataset.v; mapScreen(s, c); }; });
   const all = $('#allr'); if (all) all.onclick = () => { mapSel = ''; mapScreen(s, c); };
 }
 
