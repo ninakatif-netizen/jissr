@@ -35,6 +35,16 @@ journey across those organisations. **Falaj is the care team's falaj for a multi
 
 Do not say: "we invented closed-loop care", "AI replaces navigators", or any figure not in this list.
 
+## From a lab result to a notification (how to explain the automation)
+
+One sentence: "When a result arrives, Falaj's rules decide in seconds what kind of result it is, how fast it must go, who looks after it and how the patient is told. Agents send and chase; a person tells anything serious and makes every decision."
+
+Result arrives (person confirms) → Sorted (rules) → Deadlines set (rules) → Keeper named (rules) → How to tell (rules: serious = a person calls) → Notified (agent, never talks about the result) → Watched until done (rules + people).
+
+Say the example: Priya, BI-RADS 4 → priority, 14 days, keeper Nurse Peter → no text message; the agent calls in Malayalam without the result, holds a slot, asks the nurse to call today → the nurse tells her.
+
+Why not just a notification: reminders alone 22.7% vs usual care 22.9%; outreach 31.0%, outreach + navigation 31.4% (Atlas, JAMA 2023). Shown on the jury page, section "From a lab result to the patient's phone".
+
 ## Before / with Falaj (no invented numbers)
 
 | Before | With Falaj |

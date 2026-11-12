@@ -1,7 +1,7 @@
 // Falaj service worker: lets the app open offline and be installed.
 // Strategy: network first (so new versions show immediately), fall back to the saved copy when offline.
 // Bump VERSION on every release so old saved copies are cleared.
-const VERSION = 'jissr-v64';
+const VERSION = 'jissr-v65';
 const SHELL = [
   '/design/tokens.css', '/design/system.css',
   '/', '/index.html', '/loop.html', '/team.html', '/me.html', '/pathways.html', '/jury.html', '/ios.css', '/patient.html', '/staff.html', '/metrics.html', '/review.html', '/trust.html', '/impact.html', '/pilot.html', '/roles.html', '/map.html', '/verify.html', '/family.html', '/app.html', '/care.html', '/app-shell.css', '/styles.css', '/theme.css', '/manifest.webmanifest',

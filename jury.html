@@ -11,6 +11,22 @@
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
 <style>
+.r2n{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:1fr;gap:22px;counter-reset:r2n}
+.r2n li{position:relative;border-radius:14px;padding:12px 12px 10px;color:#0a1f2e;counter-increment:r2n;display:flex;flex-direction:column;gap:4px}
+.r2n li::before{content:counter(r2n);font-weight:700;font-size:13px;opacity:.7}
+.r2n li b{font-size:16px}.r2n li span{font-size:14px;line-height:1.4}
+.r2n li em{font-style:normal;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-top:auto;padding-top:6px;opacity:.8}
+.r2n .k-t{background:#f6a597}.r2n .k-r{background:#f7e08a}.r2n .k-a{background:#9fd8e3}.r2n .k-p{background:#c9e8d4}
+.r2n li:not(:last-child)::after{content:"";position:absolute;left:50%;bottom:-22px;width:5px;height:22px;margin-left:-2px;background:repeating-linear-gradient(180deg,#0b6fa8 0 6px,#36b5e8 6px 10px);background-size:5px 20px;animation:r2nfv 1s linear infinite}
+@keyframes r2nfv{to{background-position:0 20px}}
+@keyframes r2nfh{to{background-position:20px 0}}
+@media (min-width:980px){
+  .r2n{grid-template-columns:repeat(7,minmax(0,1fr));gap:14px}
+  .r2n li{padding:10px 9px}.r2n li b{font-size:15px}.r2n li span{font-size:13px}.r2n li em{font-size:11px}
+  .r2n li:not(:last-child)::after{left:auto;bottom:auto;inset-inline-end:-14px;top:50%;width:14px;height:5px;margin:-2px 0 0;background:repeating-linear-gradient(90deg,#0b6fa8 0 6px,#36b5e8 6px 10px);background-size:20px 5px;animation-name:r2nfh}
+}
+@media (prefers-reduced-motion:reduce){.r2n li::after{animation:none !important}}
+.r2n-ex{margin-top:14px;border-inline-start:4px solid var(--brand);padding:6px 0 6px 14px}
 .kicker{font-size:15px;color:var(--accent-d);font-weight:600;margin-bottom:10px}
 .cta{margin-top:18px}
 .flow{display:flex;flex-wrap:wrap;gap:6px 4px;align-items:center;margin-top:12px}
@@ -85,6 +101,22 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
         <li>The loop closes only when a doctor confirms care, and the sender is told.</li></ul></div>
     </div>
     <p class="muted" style="margin-top:10px">The only figures we quote are from published trials: reaching patients raised follow-up from about 23% to 31% (JAMA 2023), and phone navigation in the patient's language from 42.1% to 55.1% (Annals of Internal Medicine 2025). Falaj has not been measured yet; a pilot would.</p>
+  </section>
+
+  <section class="card" id="result-to-notification">
+    <h2>From a lab result to the patient's phone, in seconds</h2>
+    <p>When a result arrives, Falaj's rules decide what kind of result it is, how fast it must go, who looks after it and how the patient is told. Agents send and chase; a person tells anything serious and makes every decision.</p>
+    <ol class="r2n" aria-label="The seven steps from a lab result to a notification">
+      <li class="k-t"><b>Result arrives</b><span>From the lab or the health information exchange (FHIR). The Intake agent reads it; a person confirms it.</span><em>System, checked by a person</em></li>
+      <li class="k-r"><b>Sorted</b><span>HbA1c 5.7–6.4 routine, 6.5–9.9 priority, 10+ urgent. BI-RADS 4 priority, 5 urgent. FIT positive: priority.</span><em>Rules</em></li>
+      <li class="k-r"><b>Deadlines set</b><span>Urgent: told the same day, seen in 2 days. Priority: told in 1 day, seen in 14. Proposals for a clinician to confirm.</span><em>Rules</em></li>
+      <li class="k-r"><b>Keeper named</b><span>Urgent: the least busy nurse. Otherwise the least busy coordinator. Never nobody's.</span><em>Rules</em></li>
+      <li class="k-r"><b>How to tell</b><span>Serious result: a person must call, never a message alone. Otherwise a message in the patient's language and channel.</span><em>Rules</em></li>
+      <li class="k-a"><b>Notified</b><span>The Outreach agent sends or calls, holds a visit, retries after hours. It never talks about the result.</span><em>Agent</em></li>
+      <li class="k-p"><b>Watched until done</b><span>Late steps turn amber and alert the keeper. The water moves only when a person records the step.</span><em>Rules + people</em></li>
+    </ol>
+    <p class="r2n-ex"><b>Example.</b> Priya's mammogram comes back BI-RADS 4. Falaj sorts it as priority, with a 14-day deadline, and names Nurse Peter as keeper. Because it is suspicious, it cannot be sent as a text: the agent calls Priya in Malayalam, never mentions the result, holds a visit slot and asks Nurse Peter to call her today. He tells her in person. (Synthetic patient.)</p>
+    <p class="muted" style="margin-top:10px">Why not just a notification: in a randomised trial, automatic reminders alone did no better than usual care (22.7% vs 22.9% at 120 days), while active outreach and navigation reached 31.0% and 31.4% (Atlas et al., JAMA 2023). So Falaj does not stop at the message: an agent calls, and a person follows up.</p>
   </section>
 
   <section class="card">
