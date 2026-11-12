@@ -19,7 +19,7 @@
 <div class="wrap">
   <div class="top"><a class="brand" id="brand" href="index.html" aria-label="Falaj home"></a><nav class="site-nav" aria-label="Main navigation"><a href="index.html" aria-current="page">Home</a><a href="app.html">The app</a><a href="team.html?as=n2">Care team</a><a href="loop.html">The story</a><a href="jury.html">For the jury</a></nav></div>
 
-  <div class="hero" style="position:relative">
+  <div class="hero hero-falaj">
     <div class="hero-copy">
     <div class="kicker">Closing the screening-to-care loop</div>
     <h1>Every abnormal result, all the way to care.</h1>
@@ -29,28 +29,33 @@
       <a class="btn ghost" href="loop.html" id="b0" data-ic="next">Watch the story (3 min)</a>
     </div>
     </div>
-    <div id="hero-art" style="position:absolute;inset-inline-end:-150px;top:10px;color:var(--brand);pointer-events:none"></div>
+    <div id="hero-art" class="scene"></div>
+    <p class="scene-cap">A falaj carries water from the mountain to the palm garden through a tunnel with a line of shafts, each one a place to check the flow. Falaj does the same for a result.</p>
   </div>
 
   <section class="sec" aria-labelledby="h-how">
     <h2 id="h-how">How Falaj closes the loop</h2>
     <p class="lead2">Rules decide in seconds. Agents do the chasing. People make every clinical decision.</p>
-    <div class="grid4">
-      <div class="card step"><span class="n">1</span><h3>A result arrives</h3><p>Rules sort it, set the deadlines and name a keeper. No result is ever nobody's.</p><span class="who">Rules · seconds</span></div>
-      <div class="card step"><span class="n">2</span><h3>The patient is reached</h3><p>An agent calls in the patient's language and holds a visit. Anything serious is told by a nurse, never by text.</p><span class="who">Agent + nurse</span></div>
-      <div class="card step"><span class="n">3</span><h3>Care moves between clinics</h3><p>One Health ID opens the patient's history anywhere. The sender stays responsible until the next team accepts.</p><span class="who">Doctors</span></div>
-      <div class="card step"><span class="n">4</span><h3>The loop closes</h3><p>Only when a doctor confirms care. Every late step turns amber and alerts the keeper.</p><span class="who">A doctor confirms</span></div>
-    </div>
-    <p style="margin-top:12px"><a href="jury.html#result-to-notification">The 7 steps from a lab result to the patient's phone</a></p>
+    <ol class="chan">
+      <li><span class="n">1</span><h3>A result arrives</h3><p>From the lab. A person confirms it; nothing is guessed.</p><span class="who">System + person</span></li>
+      <li><span class="n">2</span><h3>Owner and deadline</h3><p>Rules sort it, set the deadlines and name a keeper. No result is ever nobody's.</p><span class="who">Rules · seconds</span></li>
+      <li><span class="n">3</span><h3>The patient is reached</h3><p>An agent calls in their language and holds a visit. Anything serious is told by a nurse.</p><span class="who">Agent + nurse</span></li>
+      <li><span class="n">4</span><h3>Between clinics</h3><p>One Health ID opens the history anywhere. The sender stays responsible until accepted.</p><span class="who">Doctors</span></li>
+      <li><span class="n">5</span><h3>Care confirmed</h3><p>The loop closes only when a doctor confirms care. Late steps alert the keeper.</p><span class="who">A doctor</span></li>
+    </ol>
+    <p style="margin-top:14px"><a href="jury.html#result-to-notification">The 7 steps from a lab result to the patient's phone</a></p>
   </section>
+
+  <div class="shafts" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 
   <section class="sec" aria-labelledby="h-try">
     <h2 id="h-try">Try it</h2>
     <p class="lead2">Three ways in. Every person and record is invented.</p>
-    <div class="grid3">
-      <div class="card door"><span class="for">Patients and doctors · phone</span><h3>The app</h3>
-        <ul><li>Patients: a Health ID and QR code, next steps, an assistant that organises and can call.</li><li>Doctors: type the ID and the name to open the care map across hospitals.</li></ul>
-        <a class="btn" href="app.html" id="bapp2">Open the app</a></div>
+    <div class="doors">
+      <div class="card door wide-door"><div class="dtxt"><span class="for">Patients and doctors · phone</span><h3>The app</h3>
+        <ul><li>Patients: a Health ID and QR code, a falaj that shows how far their care has come, an assistant that organises and can call.</li><li>Doctors: type the ID and the name to open the care map across hospitals.</li></ul>
+        <a class="btn accent" href="app.html" id="bapp2">Open the app</a></div>
+        <div class="shots"><img src="media/app-today.webp" width="300" height="649" alt="The app's Today screen: the next step, and a falaj line with a growing palm" loading="lazy"><img src="media/app-map.webp" width="300" height="649" alt="The doctor's care map: the places a patient was cared for, joined by water" loading="lazy"></div></div>
       <div class="card door"><span class="for">Nurses and doctors · computer</span><h3>The care team website</h3>
         <ul><li>Every patient as water flowing to care, and where it stops.</li><li>The one thing to do next, and each patient's falaj step by step.</li></ul>
         <a class="btn" href="team.html?as=n2" id="bteam">Open as Nurse Peter</a></div>
@@ -60,12 +65,21 @@
     </div>
   </section>
 
+  <div class="shafts" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+
   <section class="sec" aria-labelledby="h-ev">
     <h2 id="h-ev">Why it works</h2>
     <p class="lead2">Reminders alone are not enough; reaching people is. Falaj is built on what trials show.</p>
-    <div class="evid">
-      <div class="card"><span class="big">23% → 31%</span><p>Follow-up after an abnormal screening result rose when patients were actively reached, while reminders alone did no better than usual care (22.7% vs 22.9%).</p><cite>Atlas et al., JAMA 2023, 120 days</cite></div>
-      <div class="card"><span class="big">42.1% → 55.1%</span><p>Colonoscopy after an abnormal bowel test rose with phone navigation in the patient's own language.</p><cite>Coronado et al., Annals of Internal Medicine 2025</cite></div>
+    <div class="bars" role="img" aria-label="Follow-up within 120 days: 22.9 percent with usual care, 22.7 percent with reminders only, 31.4 percent with outreach and navigation. Colonoscopy after an abnormal bowel test: 42.1 percent with usual care, 55.1 percent with phone navigation in the patient's language.">
+      <div class="bgroup"><p class="bt">Follow-up after an abnormal screening result, at 120 days</p>
+        <div class="bar"><span>Usual care</span><i style="--v:22.9"></i><b>22.9%</b></div>
+        <div class="bar"><span>Reminders only</span><i style="--v:22.7"></i><b>22.7%</b></div>
+        <div class="bar on"><span>Outreach + navigation</span><i style="--v:31.4"></i><b>31.4%</b></div>
+        <cite>Atlas et al., JAMA 2023</cite></div>
+      <div class="bgroup"><p class="bt">Colonoscopy after an abnormal bowel test</p>
+        <div class="bar"><span>Usual care</span><i style="--v:42.1"></i><b>42.1%</b></div>
+        <div class="bar on"><span>Phone navigation, patient's language</span><i style="--v:55.1"></i><b>55.1%</b></div>
+        <cite>Coronado et al., Annals of Internal Medicine 2025</cite></div>
     </div>
     <p class="muted" style="margin-top:10px">Falaj itself has not been measured yet: that is what a pilot is for. <a href="jury.html" id="bjury">Everything for the jury</a></p>
   </section>
@@ -75,11 +89,11 @@
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
 import { ic, wordmark } from './core/ui.mjs';
-import { falajScene } from './core/art.mjs';
+import { falajHero } from './core/art.mjs';
 registerSW();
 document.getElementById('brand').innerHTML = wordmark();
 document.querySelectorAll('[data-ic]').forEach((el) => { el.insertAdjacentHTML('afterbegin', ic(el.dataset.ic, 18) + ' '); });
-const ha = document.getElementById('hero-art'); if (ha && innerWidth > 1240) ha.innerHTML = falajScene({ width: 300, opacity: 0.85 });
+const ha = document.getElementById('hero-art'); if (ha) ha.innerHTML = falajHero();
 </script>
 </body>
 </html>

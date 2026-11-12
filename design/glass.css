@@ -8,9 +8,9 @@
    ===================================================================== */
 body:is([data-falaj-page=app],[data-falaj-page=me]){
   --text:-apple-system,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
-  --display:-apple-system,"SF Pro Display",system-ui,"Segoe UI",Roboto,sans-serif;
+  --display:FalajDisplay,-apple-system,"SF Pro Display",system-ui,"Segoe UI",Roboto,sans-serif;
   --display-ls:-.4px;
-  --g-bg:#f2f2f7;--g-card:#fff;--g-label:#0b1b26;--g-2:#5a6570;--g-sep:rgba(60,60,67,.16);
+  --g-bg:#f5efe4;--g-card:#fff;--g-label:#0b1b26;--g-2:#5a6570;--g-sep:rgba(60,60,67,.16);
   --g-tint:var(--water-600);--g-water:var(--water-400);--g-green:var(--care-ok);--g-orange:var(--care-wait);--g-red:var(--care-late);
   --g-shadow:0 1px 2px rgba(11,27,38,.05),0 8px 24px -12px rgba(11,27,38,.12);
   --bg:var(--g-bg);--app-bg:var(--g-bg);--card:var(--g-card);--ink:var(--g-label);--muted:var(--g-2);--tint:var(--g-tint);--line:var(--g-sep);
@@ -32,7 +32,7 @@ body:is([data-falaj-page=app],[data-falaj-page=me]) :is(button,a.wide,.prow):act
 .nav .linkbtn,.nav .back{color:var(--g-tint);font-size:17px;padding:0}
 .lt{margin:0;padding:0 2px}
 .lt .eyebrow{margin:0;font-size:13px;font-weight:600;letter-spacing:.2px;text-transform:uppercase;color:var(--g-2)}
-.lt h1{margin:2px 0 0;font-size:34px;line-height:1.1;letter-spacing:-.4px;color:var(--g-label)}
+.lt h1{margin:2px 0 0;font-size:36px;line-height:1.08;letter-spacing:-.8px;color:var(--g-label);font-family:var(--display);font-weight:700}
 /* inset grouped list with icon tiles */
 .ig{list-style:none;margin:0;padding:0;background:var(--g-card);border-radius:var(--r-ctl);overflow:hidden;box-shadow:var(--g-shadow);border:0 !important}
 .ig > li{position:relative}
@@ -137,11 +137,11 @@ body:is([data-falaj-page=app],[data-falaj-page=me]) #app:focus,body:is([data-fal
 /* ---------- LIQUID GLASS: a living water background, frosted cards, a floating glass tab bar ---------- */
 body:is([data-falaj-page=app],[data-falaj-page=me]){background:var(--g-bg)}
 body:is([data-falaj-page=app],[data-falaj-page=me]) .phone,body:is([data-falaj-page=app],[data-falaj-page=me]) main,body:is([data-falaj-page=app],[data-falaj-page=me]) .stage{background:transparent !important}
-.bgfx{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:linear-gradient(180deg,#eaf4fb 0%,#f3f6f9 45%,#eef6f2 100%)}
+.bgfx{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:linear-gradient(180deg,#f8f2e7 0%,#f5efe4 50%,#f0f1e4 100%)}
 .bgfx i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.75;will-change:transform}
-.bgfx i:nth-child(1){width:70vmax;height:70vmax;left:-25vmax;top:-30vmax;background:radial-gradient(circle,#7fd0f2 0%,rgba(127,208,242,0) 65%);animation:drift1 18s ease-in-out infinite alternate}
-.bgfx i:nth-child(2){width:60vmax;height:60vmax;right:-25vmax;top:10vmax;background:radial-gradient(circle,#8fe0c0 0%,rgba(143,224,192,0) 65%);animation:drift2 22s ease-in-out infinite alternate}
-.bgfx i:nth-child(3){width:55vmax;height:55vmax;left:-10vmax;bottom:-30vmax;background:radial-gradient(circle,#a9b8ff 0%,rgba(169,184,255,0) 65%);animation:drift3 26s ease-in-out infinite alternate}
+.bgfx i:nth-child(1){width:70vmax;height:70vmax;left:-25vmax;top:-30vmax;background:radial-gradient(circle,#86d2f1 0%,rgba(134,210,241,0) 65%);animation:drift1 18s ease-in-out infinite alternate}
+.bgfx i:nth-child(2){width:60vmax;height:60vmax;right:-25vmax;top:10vmax;background:radial-gradient(circle,#a5dcb4 0%,rgba(165,220,180,0) 65%);animation:drift2 22s ease-in-out infinite alternate}
+.bgfx i:nth-child(3){width:55vmax;height:55vmax;left:-10vmax;bottom:-30vmax;background:radial-gradient(circle,#f3d7a0 0%,rgba(243,215,160,0) 65%);animation:drift3 26s ease-in-out infinite alternate}
 @keyframes drift1{to{transform:translate(18vmax,14vmax) scale(1.1)}}
 @keyframes drift2{to{transform:translate(-16vmax,18vmax) scale(.9)}}
 @keyframes drift3{to{transform:translate(20vmax,-16vmax) scale(1.15)}}

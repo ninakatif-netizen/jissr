@@ -28,6 +28,35 @@ export function trackHtml(items, { label = 'Your care, step by step' } = {}) {
   return `<ol class="trk" aria-label="${esc(label)}">${items.map((x) => `<li class="${x.state}"${x.state === 'now' ? ' aria-current="step"' : ''}><span class="ic" aria-hidden="true">${STEP_ICONS[x.key] || STEP_ICONS.told}</span><span class="lb">${esc(x.label)}</span>${x.state === 'done' ? '<span class="sr">: done</span>' : x.state === 'now' ? '<span class="sr">: now</span>' : ''}</li>`).join('')}</ol>`;
 }
 
+// THE FALAJ LINE: Falaj's signature. Seen from the side, a falaj is a channel with a line of access shafts,
+// ending in a palm garden. The patient's steps are the shafts; water has reached the current one;
+// the palm at the end grows a frond with every finished step and bears dates when care is confirmed.
+// Everything is computed from the real steps: nothing here is decoration without meaning.
+export function falajHtml(items, { label = 'Your care, step by step' } = {}) {
+  const n = items.filter((x) => x.state === 'done').length, all = n === items.length;
+  const X0 = 18, X1 = 318, Y = 84, xs = items.map((_, i) => 52 + i * ((284 - 52) / Math.max(1, items.length - 1)));
+  const nowI = items.findIndex((x) => x.state === 'now');
+  const xEnd = all ? X1 : nowI >= 0 ? xs[nowI] : X0, pct = ((xEnd - X0) / (X1 - X0)) * 100;
+  const h = 14 + 9 * n, tx = 317, ty = Y - h, k = 0.7 + 0.11 * n;
+  const F = [[-8, -6, -16, -4, -20, 4], [8, -6, 16, -4, 20, 4], [-6, -10, -14, -12, -18, -8], [6, -10, 14, -12, 18, -8], [0, -8, 3, -14, 7, -16]];
+  const frond = (f, sc) => `M${tx} ${ty}c${f.map((v) => (v * sc).toFixed(1)).join(' ')}`;
+  const fronds = n === 0 ? [frond(F[2], 0.35), frond(F[3], 0.35)] : F.slice(0, Math.min(5, n + 1)).map((f) => frond(f, k));
+  const top = Math.max(0, Math.min(Y - 26, Math.floor(ty - 20 * (n === 0 ? 0.35 : k) - 6)));
+  const shafts = items.map((x, i) => {
+    const cx = xs[i];
+    const icon = (STEP_ICONS[x.key] || STEP_ICONS.told).replace('width="20" height="20"', 'width="15" height="15"');
+    return `<g class="fl-s ${x.state}">${x.state === 'now' ? `<circle class="fl-halo" cx="${cx}" cy="${Y}" r="14"/>` : ''}<circle class="fl-c" cx="${cx}" cy="${Y}" r="14"/><g transform="translate(${cx - 7.5} ${Y - 7.5})">${icon}</g><text x="${cx}" y="${Y + 34}" text-anchor="middle">${esc(x.label)}</text></g>`;
+  }).join('');
+  return `<div class="fl" style="--p:${pct.toFixed(1)}"><svg viewBox="0 ${top} 340 ${128 - top}" aria-hidden="true" focusable="false">
+    <path class="fl-bed" d="M${X0} ${Y}H${X1}"/>
+    <path class="fl-w" pathLength="100" d="M${X0} ${Y}H${X1}"/>
+    ${xEnd > X0 ? `<path class="fl-sh" d="M${X0} ${Y}H${xEnd}"/>` : ''}
+    <path class="fl-src" d="M${X0 - 6} ${Y - 4}c0-5 6-9 6-13 0 4 6 8 6 13a6 6 0 0 1-12 0z"/>
+    <g class="fl-palm"><path class="fl-trunk" d="M318 ${Y}C320 ${(Y - h * 0.5).toFixed(1)} 319 ${(Y - h * 0.8).toFixed(1)} ${tx} ${ty}"/><path class="fl-fr" d="${fronds.join('')}"/>${all ? `<circle class="fl-date" cx="${tx - 4}" cy="${ty + 5}" r="3"/><circle class="fl-date" cx="${tx + 5}" cy="${ty + 7}" r="3"/>` : ''}</g>
+    ${shafts}</svg>
+    <ol class="sr">${items.map((x) => `<li${x.state === 'now' ? ' aria-current="step"' : ''}>${esc(x.label)}: ${x.state === 'done' ? 'done' : x.state === 'now' ? 'now' : 'to come'}</li>`).join('')}</ol></div>`;
+}
+
 export const STEPS_CSS = `
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* vertical steps */
@@ -67,5 +96,29 @@ export const STEPS_CSS = `
 .trk li:nth-child(2),.stp li:nth-child(2){animation-delay:.06s}.trk li:nth-child(3),.stp li:nth-child(3){animation-delay:.12s}.trk li:nth-child(4),.stp li:nth-child(4){animation-delay:.18s}.trk li:nth-child(5),.stp li:nth-child(5){animation-delay:.24s}.stp li:nth-child(6){animation-delay:.3s}
 @keyframes stpin{from{opacity:0;transform:translateY(6px)}}
 .stp .tag{color:var(--on-accent,#fff)}
+/* the falaj line */
+.fl svg{display:block;width:100%;height:auto;overflow:visible}
+.fl-bed{fill:none;stroke:color-mix(in srgb,var(--sand,#e4dccb) 80%,var(--muted) 20%);stroke-width:9;stroke-linecap:round}
+.fl-w{fill:none;stroke:var(--water-500);stroke-width:6;stroke-linecap:round;stroke-dasharray:var(--p) 200;animation:flfill 1.3s cubic-bezier(.3,.7,.2,1) both .2s}
+@keyframes flfill{from{stroke-dashoffset:var(--p)}to{stroke-dashoffset:0}}
+.fl-sh{fill:none;stroke:#fff;stroke-opacity:.75;stroke-width:1.6;stroke-linecap:round;stroke-dasharray:3 9;animation:flsh 1.2s linear infinite 1.4s;opacity:0}
+@keyframes flsh{from{opacity:1;stroke-dashoffset:0}to{opacity:1;stroke-dashoffset:-24}}
+.fl-src{fill:var(--water-400)}
+.fl-c{fill:var(--card);stroke:color-mix(in srgb,var(--muted) 45%,transparent);stroke-width:1.5;stroke-dasharray:3 3}
+.fl-s{color:color-mix(in srgb,var(--muted) 85%,transparent)}
+.fl-s text{font-size:11px;font-weight:500;fill:var(--muted);font-family:inherit}
+.fl-s.done .fl-c{fill:var(--water-600);stroke:none}
+.fl-s.done{color:var(--on-accent,#fff)}.fl-s.done text{fill:var(--ink)}
+.fl-s.now .fl-c{stroke:var(--water-600);stroke-width:2.5;stroke-dasharray:none}
+.fl-s.now{color:var(--water-600)}.fl-s.now text{fill:var(--water-700);font-weight:700}
+.fl-halo{fill:var(--water-400);opacity:0;transform-box:fill-box;transform-origin:center;animation:flhalo 2s ease-out infinite 1.4s}
+@keyframes flhalo{from{opacity:.45;transform:scale(1)}to{opacity:0;transform:scale(1.9)}}
+.fl-palm{transform-box:fill-box;transform-origin:50% 100%;animation:flgrow .9s cubic-bezier(.3,1.4,.5,1) both .9s,flsway 6s ease-in-out infinite 2s}
+@keyframes flgrow{from{transform:scale(.3);opacity:0}}
+@keyframes flsway{50%{transform:rotate(2deg)}}
+.fl-trunk{fill:none;stroke:#b07a43;stroke-width:5;stroke-linecap:round}
+.fl-fr{fill:none;stroke:var(--care-ok);stroke-width:4;stroke-linecap:round}
+.fl-date{fill:#d98a1c}
+@media (prefers-reduced-motion:reduce){.fl-w,.fl-sh,.fl-halo,.fl-palm{animation:none !important}.fl-sh{opacity:1}}
 @media (prefers-reduced-motion:reduce){.stp li,.trk li,.stp li.now .ic,.trk li.now .ic,.stp li.done::before,.trk li.done::after{animation:none !important}}
 `;

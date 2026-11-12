@@ -77,3 +77,16 @@ Still and readable; light through glass and water; motion only where something i
 | Pulsing dot | Only when something waits for a person ("A nurse will call you"). Never as decoration. |
 | Motion | `--ease-out` for entrances, `--ease-spring` for the tab highlight. Everything stops under "Reduce motion". |
 | Website | The main button uses the app's water blue; amber is reserved for attention. |
+
+## The signature: what makes Falaj look like Falaj
+
+Generic health apps are blue, white and glass. Falaj owns four things no other product has; use them, and nothing else, for character.
+
+| Asset | Where | Rule |
+| --- | --- | --- |
+| **The falaj line** (`falajHtml` in `core/steps.mjs`) | The app's Today card | A channel with one shaft per step. Water reaches the current step. The palm at the end grows a frond per finished step and bears dates only when care is confirmed. Always computed from the real case. |
+| **The falaj in cross-section** (`falajHero` in `core/art.mjs`) | The home page hero | Mountain and mother well (the result), tunnel and shafts (the checkpoints), palm garden (care). Its numbers match the steps written below it. |
+| **The shaft motif** (`.shafts`, `.chan`) | Section breaks and step lists on the website | A falaj seen from above is a line of shafts. Steps sit along one channel; never as identical cards. |
+| **The oasis palette** | Everywhere | Warm sand canvas, water blue for action, palm green for done, date amber only on the palm and for "waiting". No lavender, no grey canvas. |
+
+Type: Bricolage Grotesque (bundled) for titles on the website and for the app's large titles; the system font for everything a person reads or taps. Product screenshots on the website are real captures (`media/app-*.webp`), never drawn mock-ups.

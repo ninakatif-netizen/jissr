@@ -173,7 +173,7 @@ import { contextOf, reply, documentsOf, callTurn, nextStep } from './core/assist
 import { workflowHtml } from './core/workflow.mjs';
 import { requestNurse, isoDay } from './core/cases.mjs';
 import { resultText } from './core/programmes.mjs';
-import { trackHtml, STEPS_CSS } from './core/steps.mjs';
+import { falajHtml, STEPS_CSS } from './core/steps.mjs';
 registerSW();
 
 const $ = (s) => document.querySelector(s);
@@ -338,7 +338,7 @@ function patientHome(c) {
     <section class="hero2" aria-labelledby="nx">
       <span class="pill${waiting ? ' warm' : ''}" id="nx"><span class="dot" aria-hidden="true"></span>${waiting ? 'A nurse will call you' : c.stage === 'closed' ? 'Care confirmed' : 'Your next step'}</span>
       <p class="say">${esc(nextStep(ctx))}</p>
-      ${trackHtml(j)}
+      ${falajHtml(j)}
       <a class="btn-fill" href="me.html?p=${c.id}">Open my steps</a>
       <span class="water" aria-hidden="true"><svg viewBox="0 0 800 70" preserveAspectRatio="none"><path d="M0 40Q100 15 200 40T400 40T600 40T800 40V70H0z" fill="#2fb3e3" opacity=".35"/></svg><svg viewBox="0 0 800 70" preserveAspectRatio="none"><path d="M0 48Q100 28 200 48T400 48T600 48T800 48V70H0z" fill="#0a6aa8" opacity=".25"/></svg></span>
     </section>

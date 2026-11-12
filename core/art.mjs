@@ -34,3 +34,27 @@ export function falajScene({ width = 360, opacity = 1 } = {}) {
     <path d="M0 160C60 152 120 166 180 158" stroke="#36b5e8" stroke-width="2" opacity=".5"/>
   </svg>`;
 }
+
+// The home page hero: the falaj in cross-section, large and alive. Mountain and mother well (the result),
+// the tunnel with its access shafts (the checkpoints), the open channel, the palm garden (care).
+// Water runs the whole way. Labels show on wide screens; the same steps are written out below the scene.
+export function falajHero() {
+  const palm = (x, y, s = 1, d = 0) => `<g class="fh-palm" style="animation-delay:${d}s" transform="translate(${x} ${y}) scale(${s})"><path d="M0 0C3-14 3-30 0-44" class="fh-trunk"/><path d="M0-44C-12-52-24-48-30-38M0-44C-9-60-22-62-30-58M0-44C9-60 22-62 30-56M0-44C12-52 24-48 30-36M0-44C0-58 5-66 12-70" class="fh-fr"/><circle cx="-4" cy="-38" r="3" class="fh-date"/><circle cx="5" cy="-37" r="3" class="fh-date"/></g>`;
+  const shaft = (x, ys, yt, n, label) => `<path class="fh-shaft" d="M${x} ${ys}V${yt}"/><ellipse class="fh-mouth" cx="${x}" cy="${ys}" rx="13" ry="4.5"/><g class="fh-lab"><circle cx="${x}" cy="${ys - 34}" r="13"/><text x="${x}" y="${ys - 29}" text-anchor="middle" class="fh-n">${n}</text><text x="${x}" y="${ys - 58}" text-anchor="middle">${label}</text></g>`;
+  // ground: y = 150 + (x - 250) * 0.075 for x >= 250 ; tunnel: from (120, 312) to (790, 262)
+  const g = (x) => 150 + (x - 250) * 0.075, t = (x) => 312 - (x - 120) * (50 / 670);
+  return `<svg class="fh" viewBox="0 0 1100 360" aria-hidden="true" focusable="false">
+    <path class="fh-ground" d="M0 190L70 120L120 150L185 70L250 150L1100 ${g(1100)}V360H0Z"/>
+    <path class="fh-ridge" d="M0 190L70 120L120 150L185 70L250 150L1100 ${g(1100)}"/>
+    <path class="fh-shaft well" d="M120 150V312"/>
+    <path class="fh-bed" d="M120 312L790 262"/>
+    <path class="fh-water" d="M120 312L790 262"/>
+    <path class="fh-shine" d="M120 312L790 262"/>
+    <path class="fh-water open" d="M790 262C830 259 850 ${g(880)} 900 ${g(900)}L1100 ${g(1100)}"/>
+    <path class="fh-shine" d="M790 262C830 259 850 ${g(880)} 900 ${g(900)}L1100 ${g(1100)}"/>
+    <g class="fh-lab"><circle cx="120" cy="116" r="13"/><text x="120" y="121" text-anchor="middle" class="fh-n">1</text><text x="120" y="92" text-anchor="middle">Result</text></g>
+    ${shaft(330, g(330), t(330), 2, 'Owner and deadline')}${shaft(520, g(520), t(520), 3, 'Patient reached')}${shaft(700, g(700), t(700), 4, 'Between clinics')}
+    <g class="fh-lab"><circle cx="985" cy="${g(985) - 96}" r="13"/><text x="985" y="${g(985) - 91}" text-anchor="middle" class="fh-n">5</text><text x="985" y="${g(985) - 120}" text-anchor="middle">Care confirmed</text></g>
+    ${palm(930, g(930), 0.9, 0.2)}${palm(985, g(985), 1.15, 0.5)}${palm(1045, g(1045), 0.95, 0.8)}
+  </svg>`;
+}

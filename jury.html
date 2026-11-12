@@ -124,11 +124,9 @@
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
 import { ic, wordmark } from './core/ui.mjs';
-import { falajScene } from './core/art.mjs';
 registerSW();
 document.getElementById('brand').innerHTML = wordmark();
 document.querySelectorAll('[data-ic]').forEach((el) => { el.insertAdjacentHTML('afterbegin', ic(el.dataset.ic, 18) + ' '); });
-const ha = document.getElementById('hero-art'); if (ha && innerWidth > 1240) ha.innerHTML = falajScene({ width: 300, opacity: 0.85 });
 </script>
 </body>
 </html>
