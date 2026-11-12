@@ -158,3 +158,40 @@ export function callTurn(step, ctx, lang = 'en') {
     default: return { say: t.bye, options: [], done: true };
   }
 }
+
+// ---- THE PATIENT'S PROMISE: someone is responsible for you, by when, and what you can do if it is late ----
+// Everything comes from the same owner and deadlines the care team works with (rules, not AI).
+import { slaDeadline, REFERRAL_REPLY_DAYS, addDays, daysBetween } from './rules.mjs';
+const cleanName = (n) => String(n || '').replace(/\s*\(coordinator\)/, '');
+const roleOf = (s) => (s.role === 'nurse' ? 'Your nurse' : s.role === 'coordinator' ? 'Your care coordinator' : /Primary care/.test(s.org) ? 'Your family doctor' : `Your specialist, ${s.org}`);
+export function promiseOf(c, staff = [], today) {
+  if (c.stage === 'closed') return null;
+  const s = staff.find((x) => x.id === c.owner);
+  const told = (c.events || []).some((e) => (e.type === 'contact' && e.role !== 'system') || e.type === 'understood');
+  const r = c.referral;
+  let what, by;
+  if (r && r.status === 'sent') { what = `${r.to} must answer your doctor's referral`; by = addDays(String(r.sentAt).slice(0, 10), REFERRAL_REPLY_DAYS); }
+  else if (r && r.status === 'accepted' && c.stage === 'referred') { what = 'will contact you for an appointment'; by = c.due; }
+  else if (mustCall(c) && !told) { what = 'will call you about your result'; by = slaDeadline(c, 'notified') || c.due; }
+  else if (c.stage === 'result' || c.stage === 'notified') { what = 'will check that you understood your message'; by = slaDeadline(c, 'understood') || c.due; }
+  else if (c.stage === 'understood') { what = 'will make sure your visit is booked'; by = slaDeadline(c, 'booked') || c.due; }
+  else if (c.stage === 'booked') { what = 'will see you at your visit'; by = (c.slot && c.slot.day) || slaDeadline(c, 'attended') || c.due; }
+  else if (c.stage === 'care_plan') { what = 'checks that your plan is in place'; by = c.due; }
+  else { what = 'will tell you the next step'; by = c.due; }
+  const late = !!by && today > by;
+  const nudged = !!(c.patientNudge && c.patientNudge.by === by);
+  return { keeper: s ? { id: s.id, name: cleanName(s.name), role: roleOf(s), org: s.org } : null, what, by: by || null, late, daysLate: late ? daysBetween(by, today) : 0, nudged };
+}
+// "I'm still waiting": the patient flags a late step. It appears first on the keeper's list.
+export function nudgeNote(p) { return `Patient: still waiting. "${p.keeper ? p.keeper.name : 'The care team'} ${p.what}" was due ${p.by}.`; }
+// The people who have looked after this result, newest first (from the real events).
+export function careTeamOf(c, staff = []) {
+  const seen = new Map();
+  for (const e of c.events || []) {
+    const s = staff.find((x) => x.name === e.by); if (!s) continue;
+    seen.set(s.id, { id: s.id, name: cleanName(s.name), role: roleOf(s).replace(/^Your /, '').replace(/^./, (ch) => ch.toUpperCase()), org: s.org, last: e.at });
+  }
+  const now = staff.find((x) => x.id === c.owner);
+  if (now && !seen.has(now.id)) seen.set(now.id, { id: now.id, name: cleanName(now.name), role: roleOf(now).replace(/^Your /, '').replace(/^./, (ch) => ch.toUpperCase()), org: now.org, last: null });
+  return [...seen.values()].map((x) => ({ ...x, now: x.id === c.owner })).sort((a, b) => (b.now - a.now) || String(b.last || '').localeCompare(String(a.last || '')));
+}

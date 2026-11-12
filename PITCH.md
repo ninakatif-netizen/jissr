@@ -35,6 +35,18 @@ journey across those organisations. **Falaj is the care team's falaj for a multi
 
 Do not say: "we invented closed-loop care", "AI replaces navigators", or any figure not in this list.
 
+## The patient's side: three promises (say this when asked "what does the patient get?")
+
+1. **Someone is responsible for you.** A named person on the first screen, and you see when care moves to another doctor.
+2. **By when.** If it is late the app says so, and you can tap "I'm still waiting": it goes first on that person's list.
+3. **You hold the key.** Your Health ID opens your history in any clinic, only with your live code or your yes; access ends after 24 hours and you can remove it.
+
+## The QR code (30 seconds)
+
+"Every patient has one Falaj Health ID, shown as a QR code with a code that changes every minute. In any clinic the doctor scans it and types the patient's name. With the live code the care map opens; without it the patient gets a request and must say yes. The patient sees who can open their file and can remove access. The patient carries the key, so the history follows the patient, not the hospital."
+
+If asked: in the demo there is no server (the code is checked on the same device, sign-in is simulated, the history is invented). A real service verifies a signed single-use code on a server, with clinicians signed in through their hospital account and the history read from the health information exchange.
+
 ## From a lab result to a notification (how to explain the automation)
 
 One sentence: "When a result arrives, Falaj's rules decide in seconds what kind of result it is, how fast it must go, who looks after it and how the patient is told. Agents send and chase; a person tells anything serious and makes every decision."

@@ -119,3 +119,44 @@ test('assistant endpoint: rules answer without AI, results always by fixed rule 
   assert.equal(r.body.source, 'rules'); assert.equal(r.body.intent, 'result');
   assert.equal((await run({ msg: '' })).code, 400);
 });
+
+import { promiseOf, careTeamOf, nudgeNote } from '../core/assistant.mjs';
+import { passCode, checkPass, passSecret, activeGrant, grantAccess, askAccess, answerAsk, removeGrant, pendingAsk, PASS_SECONDS, GRANT_HOURS } from '../core/history.mjs';
+
+test('the patient sees who is responsible, by when, and when it is late', () => {
+  const st = buildState('2026-11-12'), c = st.cases.find((x) => x.id === 'C-040');
+  const p = promiseOf(c, st.staff, '2026-11-12');
+  assert.equal(p.keeper.name, 'Nurse Peter Dsouza'); assert.equal(p.keeper.role, 'Your nurse');
+  assert.match(p.what, /will call you/); assert.ok(p.by); assert.equal(p.late, true); assert.ok(p.daysLate >= 1);
+  assert.equal(promiseOf(c, st.staff, p.by).late, false, 'on the due day it is not late yet');
+  assert.match(nudgeNote(p), /^Patient: still waiting/);
+  assert.equal(careTeamOf(c, st.staff)[0].now, true);
+  const closed = st.cases.find((x) => x.stage === 'closed');
+  assert.equal(promiseOf(closed, st.staff, '2026-11-12'), null);
+});
+
+test('the key: the code changes every minute, an old code stops working', () => {
+  const st = buildState('2026-11-12'), c = st.cases.find((x) => x.id === 'C-040');
+  passSecret(c);
+  const t = Date.UTC(2026, 10, 12, 9, 0, 10), code = passCode(c, t);
+  assert.match(code, /^\d{6}$/);
+  assert.equal(checkPass(c, code, t), true);
+  assert.equal(checkPass(c, code, t + PASS_SECONDS * 1000), true, 'still accepted one minute later (read at the last second)');
+  assert.equal(checkPass(c, code, t + 3 * PASS_SECONDS * 1000), false, 'a photo of the code is useless later');
+  assert.equal(checkPass(c, '', t), false);
+  const other = st.cases.find((x) => x.id === 'C-001'); passSecret(other);
+  assert.notEqual(passCode(other, t), undefined);
+});
+
+test('access: asked until the patient answers, ends after 24 hours, and can be removed', () => {
+  const st = buildState('2026-11-12'), c = st.cases.find((x) => x.id === 'C-040'), dr = st.staff.find((s) => s.id === 'd1');
+  const t = Date.UTC(2026, 10, 12, 9, 0, 0);
+  askAccess(c, dr, t);
+  assert.equal(pendingAsk(c).staffId, 'd1'); assert.equal(activeGrant(c, 'd1', t), null, 'asking opens nothing');
+  answerAsk(c, 'd1', false, st.staff, t); assert.equal(activeGrant(c, 'd1', t), null); assert.equal((c.access || []).length, 0, 'a declined request is not an opening');
+  askAccess(c, dr, t); answerAsk(c, 'd1', true, st.staff, t);
+  assert.ok(activeGrant(c, 'd1', t)); assert.equal(c.access[0].by, 'Dr Mariam Al Hosani');
+  assert.equal(activeGrant(c, 'd1', t + (GRANT_HOURS + 1) * 3600e3), null, 'it ends by itself');
+  assert.equal(activeGrant(c, 'e4', t), null, 'one doctor\'s access is not another\'s');
+  grantAccess(c, dr, 'live code', t); removeGrant(c, 'd1', t); assert.equal(activeGrant(c, 'd1', t), null);
+});

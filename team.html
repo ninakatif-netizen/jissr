@@ -79,7 +79,7 @@ function tasksFor(s) {
   const T = (c, reason, action, pri) => out.push({ c, reason, action, pri, late: isOverdue(c, TODAY) });
   if (s.role === 'nurse' || s.role === 'coordinator') {
     for (const c of open.filter((x) => x.owner === s.id)) {
-      if (c.nurseRequest && !c.nurseRequest.done) T(c, /^Agent:/.test(c.nurseRequest.note || '') ? 'From the agent: ' + c.nurseRequest.note.replace(/^Agent:\s*/, '') : 'Asked to talk to a nurse', 'Call today', 0);
+      if (c.nurseRequest && !c.nurseRequest.done) T(c, /^Agent:/.test(c.nurseRequest.note || '') ? 'From the agent: ' + c.nurseRequest.note.replace(/^Agent:\s*/, '') : /^Patient:/.test(c.nurseRequest.note || '') ? 'From the patient: ' + c.nurseRequest.note.replace(/^Patient:\s*/, '').replace(/\s*".*$/, '') : 'Asked to talk to a nurse', 'Call today', 0);
       else if (['result', 'notified'].includes(c.stage)) T(c, mustCall(c) ? 'Not reached yet · must be told by a person' : 'Not reached yet', 'Call', mustCall(c) ? 1 : 2);
       else if (c.stage === 'understood') T(c, 'Understood · no visit booked', 'Book the visit', 3);
       else if (c.stage === 'booked' && c.slot && c.slot.day <= TODAY) T(c, `Visit was due ${fmt(c.slot.day)}`, 'Confirm the visit', 3);
@@ -119,7 +119,7 @@ function actionFor(s, c) {
   const r = c.referral, n = first(c);
   if (c.stage === 'closed') return { info: ['ok', 'Loop closed', `Closed by ${c.closed ? c.closed.by : 'a clinician'}. The water reached the palm.`] };
   if ((s.role === 'nurse' || s.role === 'coordinator') && c.owner === s.id) {
-    if (c.nurseRequest && !c.nurseRequest.done) return { title: `Call ${n} today`, text: `${n} asked to talk to a nurse.`, btns: [['call', `Call ${n}`, 'go']] };
+    if (c.nurseRequest && !c.nurseRequest.done) return { title: `Call ${n} today`, text: /^Patient:/.test(c.nurseRequest.note || '') ? `${n} says they are still waiting, past the date they were given.` : `${n} asked to talk to a nurse.`, btns: [['call', `Call ${n}`, 'go']] };
     if (['result', 'notified'].includes(c.stage)) return { title: `Call ${n}`, text: mustCall(c) || `${n} has not been reached yet. Explain the result and check they understood.`, btns: [['call', `Call ${n}`, 'go']] };
     if (c.stage === 'understood') return { title: 'Book the visit', text: `${n} understood. Help to choose a time.`, btns: [['book', 'Choose a time']] };
     if (c.stage === 'booked') return c.slot && c.slot.day <= TODAY ? { title: 'Did the visit happen?', text: `Visit was due ${fmt(c.slot.day)}, ${c.slot.time}.`, btns: [['attended', 'Yes, the visit happened'], ['call', `No: call ${n}`, 'ghost']] }

@@ -31,10 +31,31 @@
     <h2 id="h-demo">The 5-minute demo</h2>
     <ol>
       <li><div><b>Watch the story (3 min)</b><span>Priya's mammogram result waits unread. Falaj calls her, a nurse tells her, her doctor refers her, the specialist accepts, the loop closes.</span><a href="loop.html">Open the story</a></div></li>
-      <li><div><b>Be the patient</b><span>Open the app as Priya: her Health ID and QR code, her next step, Ask Falaj ("What does my result mean?" is never answered by the AI), and Call me.</span><a href="app.html">Open the app</a></div></li>
-      <li><div><b>Be the doctor</b><span>Sign out, choose "I work in care", Dr Mariam. Type Priya's Health ID and her name: her care map across hospitals opens, and Priya sees that you opened it.</span><a href="app.html">Open the app</a></div></li>
+      <li><div><b>Be the patient</b><span>Open the app as Priya. She sees who is responsible for her (Nurse Peter), that his call is late, and can tap "I'm still waiting". Then My ID: her QR and a code that changes every minute. Then Ask Falaj ("What does my result mean?" is never answered by the AI).</span><a href="app.html">Open the app</a></div></li>
+      <li><div><b>Be the doctor</b><span>Sign out, choose "I work in care", Dr Mariam. Type Priya's Health ID and her name. Without her live code, nothing opens: Priya gets a request and must say yes. Then her care map across hospitals opens, and Priya can remove the access.</span><a href="app.html">Open the app</a></div></li>
       <li><div><b>Be the care team</b><span>On a computer, open the care team website as Nurse Peter: where the water stops, the one thing to do, each patient's falaj.</span><a href="team.html?as=n2">Open the care team website</a></div></li>
     </ol>
+  </section>
+
+  <section class="card" id="patient" aria-labelledby="h-pat">
+    <h2 id="h-pat">What the patient is promised</h2>
+    <p>A patient with a worrying result asks one thing: has someone got me, and what if they forget? Falaj answers on the first screen, with the same owner and deadlines the care team works with.</p>
+    <ol class="num">
+      <li><b>Someone is responsible for you.</b> A named person ("Nurse Peter Dsouza, your nurse"), and when care moves to another doctor, the patient sees it.</li>
+      <li><b>By when.</b> "Will call you by Friday." If it is late, the app says so, and the patient can tap "I'm still waiting": it goes first on the keeper's list.</li>
+      <li><b>You hold the key.</b> The Health ID opens the history in any clinic, but only with the patient's live code or their yes. Access ends after 24 hours and can be removed.</li>
+    </ol>
+  </section>
+
+  <section class="card" id="qr" aria-labelledby="h-qr">
+    <h2 id="h-qr">The Health ID and QR code: how it works</h2>
+    <ol class="num">
+      <li><b>The patient shows their QR code.</b> It carries their Falaj Health ID and a code that changes every minute, so a photo is useless a minute later.</li>
+      <li><b>The doctor scans it and types the patient's name,</b> the same "right patient" check clinicians already do.</li>
+      <li><b>With the live code, the care map opens at once.</b> Without it (an ID read over the phone), the patient gets a request and must say yes.</li>
+      <li><b>The patient sees who can open their file,</b> until when, and can remove access. Every opening is listed.</li>
+    </ol>
+    <p class="muted" style="margin-top:8px"><b>In this demo</b> there is no server: the code is checked on the same device, sign-in is simulated and the history is invented, so play both roles on one device. <b>A real service</b> would verify a signed, single-use code on a server, sign clinicians in with their hospital account, and read the history from the health information exchange.</p>
   </section>
 
   <section class="card" id="result-to-notification">
@@ -76,7 +97,7 @@
     <ul class="clean">
       <li>The patient's assistant never sees a name, an ID or a result value. Questions about results and danger signs are always answered by fixed rule text (a nurse, or 998).</li>
       <li>Any AI wording passes a safety filter; if it fails, a pre-written text is used, so nothing breaks.</li>
-      <li>A doctor needs the Health ID <em>and</em> the patient's name; every opening is shown to the patient.</li>
+      <li>A doctor needs the Health ID, the patient's name, and the patient's live code or their yes. Every opening is shown to the patient.</li>
       <li>Keys for AI and the natural voice live only in the hosting settings, never in the code.</li>
     </ul>
   </section>

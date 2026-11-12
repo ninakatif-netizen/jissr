@@ -168,8 +168,8 @@
 import { registerSW } from './core/pwa.mjs';
 import { loadState, saveState } from './core/store.mjs';
 import { qrSvg } from './core/qr.mjs';
-import { healthId, findPatient, logAccess, careHistory, careMapHtml, historyHtml, routeOf, FACILITIES, CARE_MAP_CSS, lookupLink, placeName, parseHealthId } from './core/history.mjs';
-import { contextOf, reply, documentsOf, callTurn, nextStep } from './core/assistant.mjs';
+import { healthId, findPatient, careHistory, careMapHtml, historyHtml, routeOf, FACILITIES, CARE_MAP_CSS, parseHealthId, passCode, passSecret, passSecondsLeft, checkPass, lookupLinkWithCode, activeGrant, grantAccess, askAccess, pendingAsk, answerAsk, removeGrant, GRANT_HOURS } from './core/history.mjs';
+import { contextOf, reply, documentsOf, callTurn, nextStep, promiseOf, nudgeNote, careTeamOf } from './core/assistant.mjs';
 import { workflowHtml } from './core/workflow.mjs';
 import { requestNurse, isoDay } from './core/cases.mjs';
 import { resultText } from './core/programmes.mjs';
@@ -271,6 +271,8 @@ function splash(done) {
 const route = () => { const h = location.hash.slice(1); const [k, v = ''] = h.split('='); return { k, v: decodeURIComponent(v) }; };
 const go = (h) => { if (location.hash === '#' + h) render(); else location.hash = h; };
 addEventListener('hashchange', () => render());
+// another tab changed the demo data (a doctor asked, a patient answered): show it, unless someone is typing
+addEventListener('storage', () => { const a = document.activeElement; if (!(a && /INPUT|TEXTAREA/.test(a.tagName)) && !$('#layer').innerHTML) render(); });
 
 function render() {
   state = loadState();
@@ -279,7 +281,7 @@ function render() {
   const u = user(), r = route();
   closeLayer();
   $('#tabs').hidden = true;
-  if (r.k === 'find' && r.v) sess.set('falaj.app.pending', r.v);
+  if (r.k === 'find' && r.v) { const [pid, pc = ''] = r.v.split('.'); sess.set('falaj.app.pending', pid); sess.set('falaj.app.pcode', pc); }
   if (!u) return loginScreen(r.k === 'find' || q.has('care') ? 'care' : sess.get('falaj.app.tab') || 'patient');
   if (u.kind === 'patient') {
     const c = caseOf(u.id); if (!c) { store.set('falaj.app.user', null); return render(); }
@@ -289,7 +291,7 @@ function render() {
     return patientHome(c);
   }
   const s = staffOf(u.id); if (!s) { store.set('falaj.app.user', null); return render(); }
-  if (r.k === 'map' && (sess.get('falaj.app.open') || []).includes(r.v) && caseOf(r.v)) return mapScreen(s, caseOf(r.v));
+  if (r.k === 'map' && caseOf(r.v) && activeGrant(caseOf(r.v), s.id)) return mapScreen(s, caseOf(r.v));
   return doctorHome(s);
 }
 const paint = (html) => { const m = $('#app'); m.classList.remove('enter'); void m.offsetWidth; m.classList.add('enter'); m.innerHTML = html; $('#app').focus({ preventScroll: true }); document.querySelector('.inner').scrollTop = 0; window.scrollTo(0, 0); };
@@ -333,11 +335,16 @@ function patientHome(c) {
   const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   const j = journey(c), waiting = ctx.waitingForPerson;
   const vd = v && new Date(v.day + 'T00:00:00Z');
+  const pr = promiseOf(c, state.staff, TODAY), ask = pendingAsk(c), open = (c.grants || []).filter((g) => g.status === 'allowed' && Date.parse(g.until) > Date.now());
+  const byTxt = pr && pr.by ? fmtDay(pr.by, { weekday: 'long', day: 'numeric', month: 'long' }) : '';
   paint(`<div class="nav"><span></span>${signOutBtn}</div>
     <div class="lt"><p class="eyebrow">${esc(today)}</p><h1>Hello, ${esc(first(c))}</h1></div>
+    ${ask ? `<section class="askcard" aria-labelledby="aq"><span class="tile">${I.steth}</span><div><b id="aq">${esc(clean(ask.by))} wants to open your file</b><small>${esc(ask.org)} · just now. If you say yes, they can see your care history for ${GRANT_HOURS} hours.</small><div class="two"><button class="btn-fill" id="ask-yes">Allow</button><button class="btn-tint" id="ask-no">Decline</button></div></div></section>` : ''}
     <section class="hero2" aria-labelledby="nx">
       <span class="pill${waiting ? ' warm' : ''}" id="nx"><span class="dot" aria-hidden="true"></span>${waiting ? 'A nurse will call you' : c.stage === 'closed' ? 'Care confirmed' : 'Your next step'}</span>
       <p class="say">${esc(nextStep(ctx))}</p>
+      ${pr && pr.keeper ? `<button class="keeper${pr.late ? ' late' : ''}" id="keeper"><span class="av" aria-hidden="true">${esc(initials(pr.keeper.name))}</span><span class="tx"><b>${esc(pr.keeper.name)}</b><small>${esc(pr.keeper.role)} · responsible for you now</small><small class="due">${pr.late ? `Late by ${pr.daysLate} ${pr.daysLate === 1 ? 'day' : 'days'}: was due ${esc(byTxt)}` : byTxt ? `${esc(pr.what.replace(/^will /, 'Will ').replace(/^checks/, 'Checks'))} by ${esc(byTxt)}` : esc(pr.what)}</small></span>${I.chev}</button>
+      ${pr.late ? (pr.nudged || ctx.nurseRequested ? `<p class="nudged" role="status">You told us you are still waiting. It is first on ${esc(pr.keeper.name.replace(/^(Nurse|Dr)\s+(\S+).*/, '$1 $2'))}'s list.</p>` : `<button class="btn-warn" id="nudge">I'm still waiting</button>`) : ''}` : ''}
       ${falajHtml(j)}
       <a class="btn-fill" href="me.html?p=${c.id}">Open my steps</a>
       <span class="water" aria-hidden="true"><svg viewBox="0 0 800 70" preserveAspectRatio="none"><path d="M0 40Q100 15 200 40T400 40T600 40T800 40V70H0z" fill="#2fb3e3" opacity=".35"/></svg><svg viewBox="0 0 800 70" preserveAspectRatio="none"><path d="M0 48Q100 28 200 48T400 48T600 48T800 48V70H0z" fill="#0a6aa8" opacity=".25"/></svg></span>
@@ -347,7 +354,7 @@ function patientHome(c) {
     <ul class="ig">
       ${row('o-docs', 'blue', I.doc, 'My documents', `${docs.length} ${docs.length === 1 ? 'document' : 'documents'}, from every clinic`)}
       ${row('o-q', 'blue', I.q, 'Questions for my doctor', (a.questions || []).length ? `${(a.questions || []).length} saved` : 'Write them before your visit')}
-      ${row('o-acc', 'blue', I.eye, 'Who opened my file', acc.length ? `${esc(clean(acc[0].by))} · ${esc(fmtDay(acc[0].at))}` : 'No one yet')}
+      ${row('o-acc', 'blue', I.eye, 'Who can open my file', open.length ? `${open.map((g) => esc(clean(g.by))).join(', ')} · until ${esc(time(open[0].until))}` : acc.length ? `No one now. Last: ${esc(clean(acc[0].by))}` : 'No one')}
     </ul>
     <p class="foot2">Invented data. Not medical advice.</p>`);
   bindOut();
@@ -355,10 +362,37 @@ function patientHome(c) {
   $('#callme').onclick = () => startCall(c);
   $('#o-docs').onclick = () => docsSheet(c);
   $('#o-q').onclick = () => questionSheet(c);
-  $('#o-acc').onclick = () => sheet(`<h2>Who opened my file</h2><p>Every time a doctor or nurse opens your file, it shows here.</p>${acc.length ? `<ul class="ig">${acc.slice(0, 10).map((x) => `<li><div class="row"><span class="tile">${I.steth}</span><span class="tx"><b>${esc(clean(x.by))}</b><small>${esc(x.org)} · ${esc(fmtDay(x.at))} at ${esc(time(x.at))}</small></span></div></li>`).join('')}</ul>` : ''}<button class="btn-tint" data-close>Close</button>`);
+  $('#o-acc').onclick = () => accessSheet(c);
+  const kp = $('#keeper'); if (kp) kp.onclick = () => teamSheet(c);
+  const ng = $('#nudge'); if (ng) ng.onclick = () => {
+    const x = caseOf(c.id), p = promiseOf(x, state.staff, TODAY);
+    requestNurse(state, x.id, { type: 'patient', name: `${x.patient.name} (patient)` }, nudgeNote(p)); x.patientNudge = { at: new Date().toISOString(), by: p.by };
+    save(); toast('Your care team has been told'); render();
+  };
+  const ay = $('#ask-yes'), an = $('#ask-no');
+  if (ay) ay.onclick = () => { const x = caseOf(c.id); answerAsk(x, ask.staffId, true, state.staff); save(); toast(`${clean(ask.by)} can open your file for ${GRANT_HOURS} hours`); render(); };
+  if (an) an.onclick = () => { const x = caseOf(c.id); answerAsk(x, ask.staffId, false, state.staff); save(); toast('Declined. Nothing was shared.'); render(); };
 }
+function teamSheet(c) {
+  const team = careTeamOf(c, state.staff), pr = promiseOf(c, state.staff, TODAY), asked = c.nurseRequest && !c.nurseRequest.done;
+  sheet(`<h2>My care team</h2><p>One person is always responsible for your result. When your care moves, you see it here.</p>
+    <ul class="ig">${team.map((x) => `<li><div class="row"><span class="av" style="background:linear-gradient(160deg,var(--water-600),var(--water-500))">${esc(initials(x.name))}</span><span class="tx"><b>${esc(x.name)}</b><small>${esc(x.role)} · ${esc(x.org)}</small></span>${x.now ? '<span class="pill">Responsible now</span>' : ''}</div></li>`).join('')}</ul>
+    ${pr && pr.by ? `<p>${esc(pr.keeper ? pr.keeper.name : 'Your care team')} ${esc(pr.what)}${pr.late ? `. This was due ${esc(fmtDay(pr.by, { weekday: 'long', day: 'numeric', month: 'long' }))} and is late; it is flagged on the care team's list.` : ` by ${esc(fmtDay(pr.by, { weekday: 'long', day: 'numeric', month: 'long' }))}.`}</p>` : ''}
+    <button class="btn-fill" data-act="nurse" ${asked ? 'disabled aria-disabled="true"' : ''}>${asked ? 'You asked for a call' : 'Ask for a call'}</button><button class="btn-tint" data-close>Close</button>`, () => { doAction(c, 'nurse'); closeLayer(); render(); });
+}
+function accessSheet(c) {
+  const now = Date.now(), open = (c.grants || []).filter((g) => g.status === 'allowed' && Date.parse(g.until) > now), acc = c.access || [];
+  sheet(`<h2>Who can open my file</h2><p>You hold the key. A doctor needs your live code, or your yes. Access ends by itself after ${GRANT_HOURS} hours.</p>
+    ${open.length ? `<p class="gh2" style="margin:0;padding:0">Can open it now</p><ul class="ig">${open.map((g) => `<li><div class="row"><span class="tile">${I.steth}</span><span class="tx"><b>${esc(clean(g.by))}</b><small>${esc(g.org)} · until ${esc(fmtDay(g.until))} ${esc(time(g.until))}</small></span><button class="linkbtn" data-rm="${esc(g.staffId)}">Remove</button></div></li>`).join('')}</ul>` : '<p><b>No one can open your file right now.</b></p>'}
+    ${acc.length ? `<p class="gh2" style="margin:0;padding:0">Opened before</p><ul class="ig">${acc.slice(0, 8).map((x) => `<li><div class="row"><span class="tile">${I.eye}</span><span class="tx"><b>${esc(clean(x.by))}</b><small>${esc(x.org)} · ${esc(fmtDay(x.at))} at ${esc(time(x.at))}</small></span></div></li>`).join('')}</ul>` : ''}
+    <button class="btn-tint" data-close>Close</button>`);
+  document.querySelectorAll('[data-rm]').forEach((b) => { b.onclick = () => { const x = caseOf(c.id); removeGrant(x, b.dataset.rm); save(); toast('Access removed'); accessSheet(x); }; });
+}
+let idTimer = null;
 function idScreen(c) {
-  const id = healthId(c), link = lookupLink(location.origin, c);
+  const id = healthId(c);
+  passSecret(c); save();
+  const qr = () => qrSvg(lookupLinkWithCode(location.origin, c), { size: 210, label: 'QR code of your Health ID, for a doctor to scan. It changes every minute.' });
   paint(`<div class="nav"><span></span>${signOutBtn}</div>
     <div class="lt"><p class="eyebrow">Show it to any doctor</p><h1>My Health ID</h1></div>
     <section class="pass" aria-labelledby="idl">
@@ -366,14 +400,23 @@ function idScreen(c) {
       <div class="ph"><span><svg width="26" height="20" viewBox="0 0 34 26" aria-hidden="true"><path d="M2 20c6 0 8-12 15-12s9 12 15 12" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M27 9V3M24 5l3-2 3 2" fill="none" stroke="#9ff0c2" stroke-width="2.4" stroke-linecap="round"/></svg>Falaj</span><small id="idl">Health ID</small></div>
       <div class="who3"><small>Name</small><b>${esc(c.patient.name)}</b></div>
       <p class="hid" id="hid">${esc(id)}</p>
-      <div class="qrbox">${qrSvg(link, { size: 210, label: 'QR code of your Health ID, for a doctor to scan' })}</div>
-      <p>The doctor also types your name, so the code alone never opens your file.</p>
-      <div class="row"><button id="copy">Copy</button><button id="share">Share</button></div>
+      <div class="qrbox" id="qrbox">${qr()}</div>
+      <div class="live"><small>Code for the doctor</small><b id="pcode" aria-live="off">${passCode(c)}</b><span class="ring" aria-hidden="true"><i id="pbar"></i></span><small id="pleft">New code in ${passSecondsLeft()} s</small></div>
+      <p>The code changes every minute, so a photo of this screen is useless a minute later.</p>
+      <div class="row"><button id="copy">Copy ID</button><button id="who">Who can open it</button></div>
     </section>
-    <p class="foot2">A Falaj number, not your Emirates ID.</p>`);
+    <p class="foot2">A Falaj number, not your Emirates ID. Demo: the code is checked on this device.</p>`);
   bindOut();
   $('#copy').onclick = () => { try { navigator.clipboard.writeText(id).then(() => toast('Health ID copied'), () => toast(id)); } catch { toast(id); } };
-  $('#share').onclick = () => { if (navigator.share) navigator.share({ title: 'My Falaj Health ID', text: `My Falaj Health ID: ${id}`, url: link }).catch(() => {}); else { try { navigator.clipboard.writeText(link); toast('Link copied'); } catch { toast(link); } } };
+  $('#who').onclick = () => accessSheet(caseOf(c.id));
+  clearInterval(idTimer); let last = passCode(c);
+  const tick = () => {
+    const pc = $('#pcode'); if (!pc) { clearInterval(idTimer); return; }
+    const left = passSecondsLeft(), code = passCode(c);
+    $('#pleft').textContent = `New code in ${left} s`; $('#pbar').style.transform = `scaleX(${left / 60})`;
+    if (code !== last) { last = code; pc.textContent = code; $('#qrbox').innerHTML = qr(); }
+  };
+  tick(); idTimer = setInterval(tick, 1000);
 }
 
 // ---------- actions the assistant can do (patient-side only) ----------
@@ -538,32 +581,44 @@ function startCall(c) {
 
 // ---------- clinician: find a patient by Health ID and name, or scan the QR ----------
 function doctorHome(s) {
-  const pending = sess.get('falaj.app.pending') || '', recent = (sess.get('falaj.app.open') || []).map(caseOf).filter(Boolean);
+  const pending = sess.get('falaj.app.pending') || '', recent = state.cases.filter((c) => activeGrant(c, s.id));
   const demo = caseOf('C-040');
+  const wc = caseOf(sess.get('falaj.app.wait') || ''), wg = wc && (wc.grants || []).find((g) => g.staffId === s.id);
+  if (wc && activeGrant(wc, s.id)) { sess.set('falaj.app.wait', null); go('map=' + wc.id); return; }
+  const waiting = wc && wg && wg.status === 'asked', declined = wc && wg && wg.status === 'declined';
   paint(`<div class="nav"><span></span>${signOutBtn}</div>
     <div class="lt"><p class="eyebrow">${esc(clean(s.name))} · ${esc(s.org)}</p><h1>Find a patient</h1></div>
     <form class="form2" id="findf" novalidate style="display:flex;flex-direction:column;gap:14px">
       <ul class="ig"><li><label for="fid">Health ID</label><input id="fid" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${esc(pending)}" placeholder="FLJ-2026-0000" aria-describedby="ferr"></li>
-        <li><label for="fname">Name</label><input id="fname" autocomplete="off" spellcheck="false" placeholder="First and family name" aria-describedby="ferr"></li></ul>
+        <li><label for="fname">Name</label><input id="fname" autocomplete="off" spellcheck="false" placeholder="First and family name" aria-describedby="ferr"></li>
+        <li><label for="fcode">Live code</label><input id="fcode" inputmode="numeric" autocomplete="off" maxlength="7" value="${esc(sess.get('falaj.app.pcode') || '')}" placeholder="From the patient's screen" aria-describedby="fhelp"></li></ul>
+      <p class="foot2" id="fhelp" style="margin-top:-6px">With the live code, the file opens at once. Without it, the patient gets a request on their phone.</p>
       <p class="err" id="ferr" role="alert" style="margin:-4px 16px 0"></p>
       <button class="btn-fill" id="open">Open care map</button>
       ${'BarcodeDetector' in window ? `<button type="button" class="btn-tint" id="scan">${I.scan} Scan QR code</button>` : ''}
     </form>
-    ${demo ? `<p class="foot2">Demo: ${esc(healthId(demo))} · ${esc(demo.patient.name)}</p>` : ''}
+    ${waiting ? `<section class="askcard" aria-live="polite"><span class="tile amber">${I.eye}</span><div><b>Waiting for ${esc(first(wc))} to allow</b><small>A request is on ${esc(first(wc))}'s phone. Nothing opens until they say yes.</small><div class="two"><button class="btn-fill" id="demo-yes">Answer as ${esc(first(wc))} (demo)</button><button class="btn-tint" id="wait-x">Cancel</button></div></div></section>` : ''}
+    ${declined ? `<section class="askcard"><span class="tile amber">${I.eye}</span><div><b>${esc(first(wc))} declined</b><small>Nothing was shared. You can ask again with the live code from their screen.</small></div></section>` : ''}
+    ${demo ? `<p class="foot2">Demo: ${esc(healthId(demo))} · ${esc(demo.patient.name)}. The live code is on the patient's My ID screen.</p>` : ''}
     ${recent.length ? `<p class="gh2">Opened today</p><ul class="ig">${recent.map((c) => row('r-' + c.id, 'blue', I.person, esc(c.patient.name), esc(healthId(c)), 'a', '#map=' + c.id)).join('')}</ul>` : ''}
     <ul class="ig">${row('wl', 'blue', I.steth, 'My worklist', 'On the care team website', 'a', `team.html?as=${s.id}`)}</ul>
-    <p class="foot2">The patient sees every opening.</p>`);
+    <p class="foot2">The patient sees every opening, and can remove access at any time.</p>`);
   bindOut();
   if (pending) $('#fname').focus();
   $('#findf').onsubmit = (e) => {
     e.preventDefault();
     const r = findPatient(state, $('#fid').value, $('#fname').value);
     if (r.error) { $('#ferr').textContent = r.message; (r.error === 'id' ? $('#fid') : $('#fname')).focus(); return; }
-    const c = r.case; logAccess(c, s); save();
-    const open = new Set(sess.get('falaj.app.open') || []); open.add(c.id); sess.set('falaj.app.open', [...open]);
-    sess.set('falaj.app.pending', null);
-    go('map=' + c.id);
+    const c = r.case, code = $('#fcode').value;
+    sess.set('falaj.app.pending', null); sess.set('falaj.app.pcode', null);
+    if (code.replace(/\D/g, '')) {
+      if (!checkPass(c, code)) { $('#ferr').textContent = 'That code is not valid any more. Ask the patient for the code on their screen now.'; $('#fcode').focus(); return; }
+      grantAccess(c, s, 'live code'); save(); go('map=' + c.id); return;
+    }
+    askAccess(c, s); save(); sess.set('falaj.app.wait', c.id); render();
   };
+  const dy = $('#demo-yes'); if (dy) dy.onclick = () => sheet(`<p class="gh2" style="margin:0;padding:0">${esc(first(wc))}'s phone (simulated)</p><h2>${esc(clean(s.name))} wants to open your file</h2><p>${esc(s.org)}. If you say yes, they can see your care history for ${GRANT_HOURS} hours. You can remove access at any time.</p><button class="btn-fill" data-act="yes">Allow</button><button class="btn-tint" data-act="no">Decline</button>`, (b) => { const x = caseOf(wc.id); answerAsk(x, s.id, b.dataset.act === 'yes', state.staff); save(); closeLayer(); render(); });
+  const wx = $('#wait-x'); if (wx) wx.onclick = () => { const x = caseOf(wc.id); x.grants = (x.grants || []).filter((g) => !(g.staffId === s.id && g.status === 'asked')); save(); sess.set('falaj.app.wait', null); render(); };
   const sc = $('#scan'); if (sc) sc.onclick = scan;
 }
 async function scan() {
@@ -580,8 +635,9 @@ async function scan() {
     try {
       const codes = await det.detect(v);
       const raw = codes[0] && codes[0].rawValue;
-      const m = raw && (raw.match(/#find=([A-Z0-9-]+)/i) || [null, raw]);
-      if (m && parseHealthId(m[1])) { stop(); $('#fid').value = m[1].toUpperCase(); $('#fname').focus(); toast('Health ID scanned. Now type the name.'); return; }
+      const m = raw && (raw.match(/#find=([A-Z0-9.-]+)/i) || [null, raw]);
+      const parts = m ? m[1].split('.') : [];
+      if (m && parseHealthId(parts[0])) { stop(); $('#fid').value = parts[0].toUpperCase(); if (parts[1]) $('#fcode').value = parts[1]; $('#fname').focus(); toast('Scanned. Now type the name.'); return; }
     } catch { /* keep trying */ }
     setTimeout(loop, 300);
   };
@@ -600,7 +656,7 @@ function mapScreen(s, c) {
     <section class="status2" aria-labelledby="cn"><span class="pill" id="cn">Care is now at ${esc(FACILITIES[last].name)}</span><p>${esc(nextStep(contextOf(c)))}</p><a class="btn-tint" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist</a></section>
     <div class="seg" role="group" aria-label="Show"><button data-v="history" aria-pressed="${mapView === 'history'}">History · ${hist.length}</button><button data-v="falaj" aria-pressed="${mapView === 'falaj'}">This result</button></div>
     ${mapView === 'falaj' ? wf : `${mapSel ? `<button class="linkbtn" id="allr" style="align-self:flex-start;padding:0">${esc(FACILITIES[mapSel].name)} only · show all</button>` : ''}<div id="hh">${historyHtml(hist, { only: mapSel })}</div>`}
-    <p class="foot2">Invented records and places. ${esc(first(c))} sees that you opened this file.</p>`);
+    <p class="foot2">Invented records and places. ${esc(first(c))} sees that you opened this file. Your access ends ${esc(fmtDay((activeGrant(c, s.id) || {}).until || new Date().toISOString()))} at ${esc(time((activeGrant(c, s.id) || {}).until || new Date().toISOString()))}.</p>`);
   bindOut();
   document.querySelectorAll('.cm-dot').forEach((b) => { b.onclick = () => { mapSel = mapSel === b.dataset.fac ? '' : b.dataset.fac; mapView = 'history'; mapScreen(s, c); const h = $('#hh'); if (h) h.scrollIntoView({ block: 'start' }); }; });
   document.querySelectorAll('[data-v]').forEach((b) => { b.onclick = () => { mapView = b.dataset.v; mapScreen(s, c); }; });

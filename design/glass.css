@@ -185,3 +185,31 @@ body[data-falaj-page=me] .bar{background:transparent !important;backdrop-filter:
 body[data-falaj-page=me] .stp li.now .act > .hl{border:1px solid var(--glass-edge) !important}
 body[data-falaj-page=me] .hl .top{background:none}
 body[data-falaj-page=me] .stp .act .hl .top .st{display:none}
+
+/* the patient's promise: who is responsible, by when, and the late state */
+.keeper{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:var(--r-card);border:1px solid var(--glass-edge);background:var(--glass-hi);color:var(--g-label);font:inherit;text-align:start;cursor:pointer}
+.keeper .av{width:40px;height:40px;font-size:14px;background:linear-gradient(160deg,var(--water-600),var(--water-500));color:var(--on-accent)}
+.keeper .tx{flex:1;min-width:0}.keeper b{display:block;font-size:16px;font-weight:600}.keeper small{display:block;font-size:13px;color:var(--g-2);line-height:1.35}
+.keeper .due{color:var(--water-700);font-weight:600}
+.keeper.late{border-color:color-mix(in srgb,var(--care-wait) 45%,transparent);background:var(--care-wait-l)}
+.keeper.late .due{color:var(--care-wait)}
+.keeper .chev{color:var(--g-2);flex:none}
+.btn-warn{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:var(--r-ctl);border:1.5px solid var(--care-wait);background:var(--care-wait-l);color:var(--care-wait);font:inherit;font-size:16px;font-weight:700;cursor:pointer}
+.nudged{margin:0;font-size:14px;line-height:1.4;color:var(--care-wait);font-weight:600}
+.askcard{display:flex;gap:12px;padding:14px;border-radius:var(--r-card);background:var(--glass);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border:1.5px solid var(--water-600);box-shadow:var(--glass-sh)}
+.askcard b{display:block;font-size:17px;font-weight:600;color:var(--g-label)}.askcard small{display:block;font-size:14px;color:var(--g-2);line-height:1.4;margin-top:2px}
+.askcard .two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.askcard .two > *{min-height:44px;font-size:16px}
+.askcard > div{flex:1;min-width:0}
+.pass .live{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:2px 12px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:var(--r-ctl);padding:10px 14px}
+.pass .live small{font-size:12px;letter-spacing:.3px;text-transform:uppercase;opacity:.9;align-self:center}
+.pass .live b{font:700 26px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:4px;grid-row:1;grid-column:2;justify-self:end;line-height:1}
+.pass .live .ring{grid-column:1 / -1;height:4px;border-radius:2px;background:rgba(255,255,255,.25);overflow:hidden}
+.pass .live .ring i{display:block;height:100%;background:#fff;transform-origin:left;transition:transform 1s linear}
+.pass .live #pleft{grid-column:1 / -1;text-transform:none;letter-spacing:0}
+.sheet .pill{flex:none}
+
+.form2 input{background:transparent !important;border:0 !important;box-shadow:none !important;border-radius:0 !important}
+body:is([data-falaj-page=app],[data-falaj-page=me]) .sheet{background:color-mix(in srgb,var(--g-bg) 94%,transparent) !important}
+.pass .qrbox svg{width:186px;height:186px}
+.pass{gap:12px}

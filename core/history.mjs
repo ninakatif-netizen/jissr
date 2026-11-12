@@ -177,3 +177,47 @@ export const CARE_MAP_CSS = `
 .hist .hb{display:flex;flex-direction:column;gap:2px;min-width:0}
 .hist .hb b{font-size:16px}.hist .hb span{font-size:15px;color:var(--ink2);line-height:1.4}.hist .hb small{font-size:13px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.cm-water{animation:none;stroke-dashoffset:0}.cm-palm{animation:none;opacity:1}.cm-shine{animation:none}}`;
+
+// ---- THE PATIENT HOLDS THE KEY: a code that changes every minute, approval, access that expires ----
+// DEMO-GRADE: the code is derived in the browser from a per-patient secret and the current minute, and
+// checked against the same demo data. A real service would verify a signed, single-use token on a server,
+// with the clinician signed in through their hospital account.
+export const PASS_SECONDS = 60, GRANT_HOURS = 24;
+const fnv = (s) => { let h = 2166136261; for (const ch of String(s)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0; return h; };
+export function passSecret(c) { if (!c.passSecret) c.passSecret = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); return c.passSecret; }
+const win = (t) => Math.floor(t / (PASS_SECONDS * 1000));
+export function passCode(c, t = Date.now()) { return String(fnv(`${passSecret(c)}:${win(t)}`) % 1000000).padStart(6, '0'); }
+export const passSecondsLeft = (t = Date.now()) => PASS_SECONDS - Math.floor((t / 1000) % PASS_SECONDS);
+// The current code or the one just before it (so a code read at second 59 still works).
+export function checkPass(c, code, t = Date.now()) {
+  const x = String(code || '').replace(/\D/g, '');
+  return x.length === 6 && !!c.passSecret && (x === passCode(c, t) || x === passCode(c, t - PASS_SECONDS * 1000));
+}
+export const lookupLinkWithCode = (origin, c, t = Date.now()) => `${origin}/app.html#find=${healthId(c)}.${passCode(c, t)}`;
+
+// Access: asked (no live code), allowed (live code, or the patient said yes), declined, removed, expired.
+export function activeGrant(c, staffId, t = Date.now()) {
+  return (c.grants || []).find((g) => g.staffId === staffId && g.status === 'allowed' && Date.parse(g.until) > t) || null;
+}
+export function grantAccess(c, staff, how, t = Date.now()) {
+  c.grants = (c.grants || []).filter((g) => !(g.staffId === staff.id && ['asked', 'allowed'].includes(g.status)));
+  const g = { staffId: staff.id, by: staff.name, org: staff.org, status: 'allowed', how, at: new Date(t).toISOString(), until: new Date(t + GRANT_HOURS * 3600e3).toISOString() };
+  c.grants.unshift(g); logAccess(c, staff, g.at);
+  return g;
+}
+export function askAccess(c, staff, t = Date.now()) {
+  c.grants = (c.grants || []).filter((g) => !(g.staffId === staff.id && g.status === 'asked'));
+  c.grants.unshift({ staffId: staff.id, by: staff.name, org: staff.org, status: 'asked', at: new Date(t).toISOString() });
+  return c.grants[0];
+}
+export const pendingAsk = (c) => (c.grants || []).find((g) => g.status === 'asked') || null;
+export function answerAsk(c, staffId, allow, staffList = [], t = Date.now()) {
+  const g = (c.grants || []).find((x) => x.staffId === staffId && x.status === 'asked'); if (!g) return null;
+  if (!allow) { g.status = 'declined'; g.answeredAt = new Date(t).toISOString(); return g; }
+  const s = staffList.find((x) => x.id === staffId) || { id: staffId, name: g.by, org: g.org };
+  return grantAccess(c, s, 'approved by the patient', t);
+}
+export function removeGrant(c, staffId, t = Date.now()) {
+  for (const g of c.grants || []) if (g.staffId === staffId && g.status === 'allowed') { g.status = 'removed'; g.removedAt = new Date(t).toISOString(); }
+  return c;
+}
