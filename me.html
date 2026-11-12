@@ -40,28 +40,17 @@
 .appt.held .d{background:var(--warn-l);color:var(--warn-ink)}
 .appt .i{padding:12px 14px;display:flex;flex-direction:column;gap:2px;font-size:15px}
 .appt .i b{font-size:17px}.appt .i small{color:var(--muted);font-size:13px}
-.chan2{list-style:none;margin:0;padding:0}
-.chan2 li{position:relative;padding:0 0 18px;padding-inline-start:46px;min-height:44px}
-.chan2 li::before{content:"";position:absolute;inset-inline-start:15px;top:32px;bottom:0;width:4px;border-radius:2px;background:repeating-linear-gradient(180deg,var(--off) 0 6px,transparent 6px 11px)}
-.chan2 li.done::before{background:linear-gradient(180deg,var(--tint),#36b5e8,var(--tint));background-size:100% 40px;animation:wtr 2.4s linear infinite}
-.chan2 li:last-child::before{display:none}
 @keyframes wtr{to{background-position:0 40px}}
-.chan2 .node{position:absolute;inset-inline-start:2px;top:0;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:2px dashed var(--off);background:var(--bg);color:var(--muted);font-weight:700;font-size:13px}
-.chan2 li.done .node{background:var(--tint);border:0;color:#fff}
-.chan2 li.now .node{border:2.5px solid var(--tint);color:var(--tint);animation:wpulse 1.8s ease-out infinite}
 @keyframes wpulse{0%{box-shadow:0 0 0 0 rgba(11,111,168,.35)}100%{box-shadow:0 0 0 12px rgba(11,111,168,0)}}
-.chan2 b{display:block;font-size:17px;padding-top:4px}
-.chan2 li:not(.done):not(.now) b{color:var(--muted);font-weight:600}
-.chan2 small{display:block;font-size:13px;color:var(--muted);margin-top:2px}
-.chan2 .nowcard{margin-top:10px}
 .msgs .b a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--tint)}
 .msgs .b.ai{display:flex;flex-direction:column;gap:4px}
 .msgs .b .tr{color:var(--muted);font-size:13px}.msgs .b .w{color:var(--muted);font-size:12px}
-@media (prefers-reduced-motion:reduce){.chan2 li.done::before,.chan2 li.now .node{animation:none}}
-</style>
+@media (prefers-reduced-motion:reduce){</style>
 <link rel="stylesheet" href="design/system.css">
+<link rel="stylesheet" href="design/glass.css">
 </head>
 <body class="webp" data-falaj-surface="patient" data-falaj-page="me">
+<div class="bgfx" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="stage">
   <div class="phone" id="phone">
     <div class="inner" id="inner" tabindex="0" role="region" aria-label="Patient app">
@@ -86,6 +75,8 @@ import { advance, requestNurse, setBarrier, setChannel, logEvent } from './core/
 import { explanation, barrierText, firstMessage } from './core/templates.mjs';
 import { passportHtml, milestones } from './core/passport.mjs';
 import { qrSvg } from './core/qr.mjs';
+import { stepsHtml, STEPS_CSS } from './core/steps.mjs';
+document.head.insertAdjacentHTML('beforeend', `<style>${STEPS_CSS}</style>`);
 import { proofCode, proofUrl } from './core/proof.mjs';
 import { normaliseUaeMobile, maskPhone, familyToken, familyUrl, inviteText } from './core/family.mjs';
 registerSW();
@@ -263,7 +254,7 @@ function homeScreen(c, t, lang) {
   return `<div class="head"><h1>${t.hello(esc(c.patient.name.split(' ')[0]))}</h1><p class="ctx">${c.stage === 'closed' ? t.doneT : t.nextSteps} · ${fmt(TODAY, lang, true)}</p></div>
     ${(() => { const fm = firstMessage(c.patient.language), mine = firstMessage(lang); return `<div class="card msgcard"><span class="gh" style="padding:0">${t.msgYou}</span><p lang="${c.patient.language}" dir="${fm.dir}" style="margin:6px 0 0;font-size:16px;line-height:1.5">${esc(fm.text)}</p>${c.patient.language !== lang ? `<p style="margin:6px 0 0;font-size:13px;color:var(--muted)">${t.translated} ${esc(mine.text)}</p>` : ''}</div>`; })()}
     ${apptCard(c, t, lang)}
-    <ol class="chan2" aria-label="${t.nextSteps}">${steps.map(([k, label, done, e], i) => `<li class="${done ? 'done' : i === now ? 'now' : ''}"${i === now ? ' aria-current="step"' : ''}><span class="node" aria-hidden="true">${done ? '✓' : i + 1}</span><b>${esc(label)}</b>${done && e ? `<small>${esc(byWho(e, lang))} · ${fmt(e.at.slice(0, 10), lang)}</small>` : ''}${i === now ? `<div class="nowcard">${nextCard(c, t, lang)}</div>` : ''}</li>`).join('')}</ol>
+    ${stepsHtml(steps.map(([k, label, done, e], i) => ({ key: k, label, state: done ? 'done' : i === now ? 'now' : 'todo', sub: done && e ? `${byWho(e, lang)} · ${fmt(e.at.slice(0, 10), lang)}` : '', body: i === now ? nextCard(c, t, lang) : '' })), { label: t.nextSteps, nowWord: lang === 'ar' ? 'الآن' : 'Now', nextWord: lang === 'ar' ? 'التالي' : 'Next' })}
     ${now < 0 ? nextCard(c, t, lang) : ''}
     <div class="group"><div class="gh">${t.help}</div><ul class="list">
       <li><button class="prow" id="talk"><span class="t"><b>${t.talk}</b>${c.nurseRequest && !c.nurseRequest.done ? `<small>${t.asked}</small>` : ''}</span></button></li>
@@ -301,7 +292,7 @@ function passportScreen(c, t, lang) {
   const steps = patientSteps(c, t), cur = steps.findIndex(([, , done]) => !done);
   const proof = c.stage === 'closed' ? (() => { const url = proofUrl(c, location.origin); return `<div class="card fam-q">${qrSvg(url, { size: 116, label: t.passT })}<span><b style="display:block;font-size:13px;color:var(--muted);text-transform:uppercase">${lang === 'ar' ? 'رمز التحقق' : 'Check code'}</b><code dir="ltr" style="display:block;font:600 16px ui-monospace,Menlo,monospace;margin:2px 0 6px">${proofCode(c)}</code><a class="back" href="${esc(url.replace(location.origin + '/', ''))}" id="openproof">${lang === 'ar' ? 'فتح الجواز' : 'Open the passport'}</a></span></div>`; })() : '';
   return `<div class="head"><h1>${t.passT}</h1><p class="ctx">${t.passX}</p></div>
-    <ol class="chan2" aria-label="${t.passT}">${steps.map(([k, label, done, e], i) => `<li class="${done ? 'done' : i === cur ? 'now' : ''}"><span class="node" aria-hidden="true">${done ? '✓' : i + 1}</span><b>${esc(label)}</b><small>${done && e ? `${esc(byWho(e, lang))} · ${fmt(e.at.slice(0, 10), lang, true)}` : i === cur ? t.nextUp : t.notYet2}</small></li>`).join('')}</ol>
+    ${stepsHtml(steps.map(([k, label, done, e], i) => ({ key: k, label, state: done ? 'done' : i === cur ? 'now' : 'todo', sub: done && e ? `${byWho(e, lang)} · ${fmt(e.at.slice(0, 10), lang, true)}` : i === cur ? t.nextUp : t.notYet2 })), { label: t.passT, nowWord: lang === 'ar' ? 'الآن' : 'Now', nextWord: lang === 'ar' ? 'التالي' : 'Next' })}
     ${proof}
     <button class="wide" id="share">${t.shareB}</button>
     ${active.length ? `<div class="group"><div class="gh">${t.shActive}</div>${active.map((x) => { const url = shareUrl(c, x); return `<div class="card fam-q">${qrSvg(url, { size: 104, label: t.shTo[x.to] })}<span style="flex:1"><b style="display:block;font-size:17px">${t.shTo[x.to]}</b><small style="display:block;color:var(--muted);font-size:14px;line-height:1.4">${x.items.map((k) => t.shItems[k].replace(/ \(.*\)$/, '')).join(' · ')}<br>${x.until ? t.shUntil(fmt(x.until.slice(0, 10), lang, true)) : t.shUntilStop}</small><span style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><a class="light" style="display:inline-flex;align-items:center;text-decoration:none" href="${esc(url.replace(location.origin + '/', ''))}">${t.shOpen}</a><button class="light" data-unshare="${x.id}">${t.shStop}</button></span></span></div>`; }).join('')}<div class="gf">${t.shDemo}</div></div>` : ''}`;

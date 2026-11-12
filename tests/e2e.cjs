@@ -24,7 +24,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await q.waitForSelector('#t-pat', { timeout: 8000 });
   ok(/Welcome to Falaj/.test(await q.innerText('#app')) && /I work in care/.test(await q.innerText('#app')), 'after the splash: sign in as a patient or as care');
   await q.click('[data-pat="C-040"]'); await q.waitForSelector('#tab-id');
-  ok(await q.locator('.hero2 .track li').count() === 5 && await q.locator('#tabs a').count() === 3, 'the patient lands on Today: the next step and the journey first, three tabs');
+  ok(await q.locator('.hero2 .trk li').count() === 5 && await q.locator('#tabs a').count() === 3, 'the patient lands on Today: the next step and the journey first, three tabs');
   await q.click('#tab-id'); await q.waitForSelector('#hid');
   const hid = await q.innerText('#hid');
   ok(/^FLJ-\d{4}-0040$/.test(hid) && await q.locator('.pass svg.qr').count() === 1, 'the patient sees their Health ID and a QR code');
@@ -59,7 +59,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await m.goto(BASE + 'team.html?as=n2'); ok(/Asked to talk to a nurse/.test(await m.innerText('main')), 'the nurse sees that the patient asked for a call');
     await m.goto(BASE + 'team.html?as=n2&c=C-040'); await m.click('[data-act="call"]'); await m.click('[data-call="understood"]'); await m.waitForTimeout(200);
     await m.goto(BASE + 'me.html?fast=1&p=C-040'); await m.click('#book'); await m.click('#do-book'); await m.waitForTimeout(200);
-    ok(/Your visit/.test(await m.innerText('main')) && (await m.$$('main .chan2 li.done')).length === 3, 'the patient books the held time; three steps are done, and a booking is not care');
+    ok(/Your visit/.test(await m.innerText('main')) && (await m.$$('main .stp li.done')).length === 3, 'the patient books the held time; three steps are done, and a booking is not care');
     await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=family'); await m.fill('#fn', 'Anu'); await m.fill('#fp', '12345'); await m.check('#fc'); await m.click('#faminvite');
     ok(/UAE mobile/.test(await m.innerText('main')), 'the family invitation needs a UAE mobile number');
     await m.goto(BASE + 'me.html?fast=1&p=C-040&tab=passport');
