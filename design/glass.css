@@ -213,3 +213,39 @@ body[data-falaj-page=me] .stp .act .hl .top .st{display:none}
 body:is([data-falaj-page=app],[data-falaj-page=me]) .sheet{background:color-mix(in srgb,var(--g-bg) 94%,transparent) !important}
 .pass .qrbox svg{width:186px;height:186px}
 .pass{gap:12px}
+
+/* ---- clean-up after critique: fewer shapes, one focal point, crisp surfaces ---- */
+.hero2{gap:12px;padding:16px 18px 18px}
+.who4{display:flex;align-items:center;gap:12px;width:100%;padding:0 0 12px;margin:0;background:none;border:0;border-bottom:1px solid var(--g-sep);border-radius:0;color:var(--g-label);font:inherit;text-align:start;cursor:pointer}
+.who4 .av{width:40px;height:40px;font-size:14px;background:linear-gradient(160deg,var(--water-600),var(--water-500));color:var(--on-accent);flex:none}
+.who4 .tx{flex:1;min-width:0}.who4 b{display:block;font-size:16px;font-weight:600;line-height:1.25}.who4 small{display:block;font-size:13px;color:var(--g-2)}
+.chip4{flex:none;font-size:13px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);background:var(--water-50);color:var(--water-700)}
+.chip4.late{background:var(--care-wait);color:#fff}
+@media (prefers-color-scheme:dark){.chip4.late{color:#2b1a00}}
+.hero2 .say{font-size:20px;line-height:1.3}
+.when{margin:-6px 0 0;font-size:14px;color:var(--g-2)}.when.late{color:var(--care-wait);font-weight:600}
+.btn-fill.warn{background:var(--care-wait);color:#fff}
+@media (prefers-color-scheme:dark){.btn-fill.warn{color:#2b1a00}}
+.textlink{align-self:center;min-height:44px;display:inline-flex;align-items:center;color:var(--water-700);font-size:16px;font-weight:600;text-decoration:none}
+.nudged{margin:0;font-size:14px;line-height:1.4;color:var(--g-2);font-weight:500}
+/* crisp, not muddy: more solid cards, a quieter background */
+body:is([data-falaj-page=app],[data-falaj-page=me]){--glass:rgba(255,255,255,.8);--glass-hi:rgba(255,255,255,.96)}
+@media (prefers-color-scheme:dark){body:is([data-falaj-page=app],[data-falaj-page=me]){--glass:rgba(34,38,46,.72);--glass-hi:rgba(255,255,255,.14)}}
+.bgfx i{opacity:.5}
+@media (prefers-color-scheme:dark){.bgfx i{opacity:.32}}
+/* the pass: the code sits in the card, not in a box */
+.pass{gap:10px;padding:18px}
+.pass .qrbox svg{width:172px;height:172px}
+.live2{display:flex;flex-direction:column;align-items:center;gap:6px}
+.live2 small{font-size:12px;letter-spacing:.4px;text-transform:uppercase;opacity:.85}
+.live2 b{font:700 30px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:6px;line-height:1;margin-inline-start:6px}
+.live2 .cbar{width:140px;height:3px;border-radius:2px;background:rgba(255,255,255,.25);overflow:hidden}
+.live2 .cbar i{display:block;height:100%;background:#fff;transform-origin:left;transition:transform 1s linear}
+.live2 #pleft{text-transform:none;letter-spacing:0;font-size:13px}
+/* request cards: calm, one border */
+.askcard{border:1px solid var(--glass-edge) !important}
+
+.chip4.late{background:#f6c063;color:#3b2500}
+@media (prefers-color-scheme:dark){.chip4.late{background:#f6c063;color:#2b1a00}}
+.askcard .stack{display:flex;flex-direction:column;gap:2px;margin-top:10px}
+.askcard .stack .btn-fill{min-height:46px;font-size:16px}

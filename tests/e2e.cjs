@@ -25,7 +25,7 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   ok(/Welcome to Falaj/.test(await q.innerText('#app')) && /I work in care/.test(await q.innerText('#app')), 'after the splash: sign in as a patient or as care');
   await q.click('[data-pat="C-040"]'); await q.waitForSelector('#tab-id');
   ok(await q.locator('.hero2 .fl ol li').count() === 5 && await q.locator('#tabs a').count() === 3, 'the patient lands on Today: the next step and the journey first, three tabs');
-  ok(/Nurse Peter Dsouza/.test(await q.innerText('#keeper')) && /responsible for you now/.test(await q.innerText('#keeper')) && /Late by \d+ day/.test(await q.innerText('#keeper')), 'the patient sees who is responsible, and that the call is late');
+  ok(/Nurse Peter Dsouza/.test(await q.innerText('#keeper')) && /responsible for you/.test(await q.innerText('#keeper')) && /\d+ days? late/.test(await q.innerText('#keeper')), 'the patient sees who is responsible, and that the call is late');
   await q.click('#nudge'); await q.waitForSelector('.nudged'); ok(/still waiting/.test(await q.innerText('.nudged')), 'the patient can say: I am still waiting');
   await q.click('#tab-id'); await q.waitForSelector('#hid');
   const hid = await q.innerText('#hid');
