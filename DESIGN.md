@@ -61,3 +61,19 @@ This extraction changes visual presentation only. Application scripts, case rule
 The local review covered all 20 entry points at desktop (1440px) and mobile (390px), Arabic patient steps, and the three dense review/clinical pages at 320px: 44 route/viewport combinations with no document-level horizontal overflow. Light and dark semantic text/action/status pairs passed the measured 4.5:1 contrast threshold across 18 combinations. This is a token-level check, not a claim of complete WCAG conformance.
 
 Keyboard navigation showed the shared 3px focus ring. The sheet transition measured 240ms and reduced to effectively zero under reduced-motion settings. No browser exceptions or missing assets were recorded. Unit tests and the complete existing browser regression suite passed. Inline application scripts match their pre-extraction hashes.
+
+## The app refresh: "Calm, luminous clinic"
+
+Still and readable; light through glass and water; motion only where something is happening. The app (`app.html`) and the patient steps (`me.html`) share `design/glass.css`; the steps component lives in `core/steps.mjs`.
+
+| Rule | Value |
+| --- | --- |
+| One accent | The water scale `--water-50` to `--water-900` (`design/tokens.css`). Actions use `--water-600` (`--water-700` for text on light). No second blue. |
+| Status | `--care-ok` done, `--care-wait` waiting for a person, `--care-late` late. Amber never decorates. |
+| Radius | Three sizes plus pill: `--r-ctl` 12px controls, `--r-card` 20px cards, `--r-hero` 28px hero cards and the Health ID pass. Nested shapes take the outer radius minus the padding. |
+| Depth | Glass shows depth with its edge and a specular top line, plus one soft shadow tinted toward water blue (`--glass-shadow`). No grey drop shadows on glass. Dark mode uses tonal surfaces. |
+| Icon tiles | Tonal: a pale tint behind a coloured glyph. Blue for information, green only for calling. |
+| Icons | One line style, 2px stroke, round caps and joins. |
+| Pulsing dot | Only when something waits for a person ("A nurse will call you"). Never as decoration. |
+| Motion | `--ease-out` for entrances, `--ease-spring` for the tab highlight. Everything stops under "Reduce motion". |
+| Website | The main button uses the app's water blue; amber is reserved for attention. |

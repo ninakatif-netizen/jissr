@@ -60,3 +60,9 @@ body[data-falaj-surface=website] .brand{text-decoration:none;color:var(--ink)}
 .step h3,.door h3{color:var(--ink);font-weight:700;font-family:var(--display)}
 .step p,.door p,.door li,.evid p,#demo li span{font-weight:400}
 .grid3 > .card,.grid4 > .card,.evid > .card{margin:0 !important}
+
+/* one accent across site and app: water blue for actions, amber only for attention */
+body[data-falaj-surface=website] .btn.accent{background:var(--water-600);border-color:var(--water-600);color:#fff}
+body[data-falaj-surface=website] .btn.accent:hover{background:var(--water-700);border-color:var(--water-700)}
+body[data-falaj-surface=website] .btn.accent svg{color:#fff}
+@media (prefers-color-scheme:dark){body[data-falaj-surface=website] .btn.accent{color:#001a2b}}

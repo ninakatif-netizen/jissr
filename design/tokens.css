@@ -37,3 +37,21 @@
   --desk:#06131a;--desk-1:#0b1d27;--desk-2:#07151c;--top-bg:var(--app-bg);--tabs-bg:var(--card);--device-bg:var(--bg);
   --card-sh:0 2px 4px #00000010,0 14px 32px -16px #00000060;--focus:#8ed3f6;--selection:#23546e;
 }}
+
+/* ---- "Calm, luminous clinic": one water scale, one status set, three radii, two glass levels, motion ---- */
+:root{
+  --water-50:#ebf5fb;--water-100:#d4ebf7;--water-300:#7fc8ea;--water-400:#2fb3e3;--water-500:#1a8fcb;--water-600:#0a6aa8;--water-700:#08568a;--water-800:#073f66;--water-900:#082a42;
+  --care-ok:#1d7f53;--care-ok-l:#e3f3ea;--care-wait:#a65f00;--care-wait-l:#fdf0dd;--care-late:#c0362c;--care-late-l:#fbe6e3;
+  --accent-ink:var(--water-700);--accent:var(--water-600);--on-accent:#fff;
+  --r-ctl:12px;--r-card:20px;--r-hero:28px;--r-pill:999px;
+  --glass-1:rgba(255,255,255,.58);--glass-2:rgba(255,255,255,.86);--glass-edge-c:rgba(255,255,255,.7);
+  --glass-shadow:0 1px 0 rgba(255,255,255,.85) inset,0 10px 28px -18px rgba(10,106,168,.35);
+  --ease-out:cubic-bezier(.2,.8,.2,1);--ease-spring:cubic-bezier(.3,1.4,.5,1);--t-fast:140ms;--t-mid:320ms;
+}
+@media (prefers-color-scheme:dark){:root{
+  --water-50:#0d2433;--water-100:#123247;--water-300:#3d8fbd;--water-400:#47c2ee;--water-500:#5ab8ff;--water-600:#5ab8ff;--water-700:#8fd0ff;--water-800:#b9e2ff;--water-900:#dff1ff;
+  --care-ok:#3fca86;--care-ok-l:#12301f;--care-wait:#ffb04a;--care-wait-l:#3a2c12;--care-late:#ff7a70;--care-late-l:#3a1512;
+  --on-accent:#001a2b;
+  --glass-1:rgba(40,44,52,.52);--glass-2:rgba(255,255,255,.12);--glass-edge-c:rgba(255,255,255,.12);
+  --glass-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 10px 28px -18px rgba(0,0,0,.7);
+}}

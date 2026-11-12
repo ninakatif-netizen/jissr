@@ -15,21 +15,21 @@
 <link rel="stylesheet" href="ios.css">
 <style>
 /* ---------- splash: water runs through the workflow to the palm ---------- */
-#splash{position:fixed;inset:0;z-index:50;background:#0a1f2e;color:#f3efe6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;transition:opacity .45s ease}
+#splash{position:fixed;inset:0;z-index:50;background:radial-gradient(120% 80% at 50% 0%,var(--water-800),var(--water-900) 70%);color:#f3efe6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;transition:opacity .45s ease}
 #splash.out{opacity:0;pointer-events:none}
 #splash svg{width:min(78vw,330px);height:auto}
 .sp-box{opacity:.35;transform-box:fill-box;transform-origin:center;animation:spon .35s ease-out forwards}
 .sp-box text{font:700 14px -apple-system,system-ui,Arial,sans-serif;fill:#0a1f2e;text-anchor:middle}
-.sp-ch{fill:none;stroke:#18435e;stroke-width:12;stroke-linecap:round;stroke-linejoin:round}
-.sp-w{fill:none;stroke:#36b5e8;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:100;animation:spfill 2s .15s linear forwards}
+.sp-ch{fill:none;stroke:color-mix(in srgb,var(--water-600) 45%,#082a42);stroke-width:12;stroke-linecap:round;stroke-linejoin:round}
+.sp-w{fill:none;stroke:var(--water-400);stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:100;animation:spfill 2s .15s linear forwards}
 .sp-shine{fill:none;stroke:#d6f3fc;stroke-width:2;stroke-dasharray:3 9;stroke-linecap:round;opacity:0;animation:spshine 1s 2.15s linear infinite}
 .sp-palm{transform-box:fill-box;transform-origin:50% 100%;transform:scale(.2);opacity:0;animation:sppalm .6s 2.05s cubic-bezier(.3,1.6,.5,1) forwards}
 .sp-pool{transform-box:fill-box;transform-origin:center;transform:scaleX(0);animation:sppool .5s 1.95s ease-out forwards}
-.sp-ring{fill:none;stroke:#36b5e8;stroke-width:2;opacity:0;transform-box:fill-box;transform-origin:center;animation:spring 1.1s 2.1s ease-out forwards}
+.sp-ring{fill:none;stroke:#7fc8ea;stroke-width:2;opacity:0;transform-box:fill-box;transform-origin:center;animation:spring 1.1s 2.1s ease-out forwards}
 .sp-word{opacity:0;animation:spword .5s 2.3s ease-out forwards;text-align:center}
 .sp-word b{font-size:40px;letter-spacing:.5px}.sp-word b span{font-weight:500;color:#9fb4c2;margin-inline-start:10px;font-size:30px}
 .sp-word p{margin:4px 0 0;color:#c9c1b2;font-size:16px}
-#sp-go{margin-top:14px;min-height:50px;min-width:200px;border:0;border-radius:25px;background:#36b5e8;color:#0a1f2e;font:inherit;font-size:17px;font-weight:700;cursor:pointer;opacity:0;animation:spword .35s forwards}
+#sp-go{margin-top:14px;min-height:50px;min-width:200px;border:1px solid rgba(255,255,255,.5);border-radius:var(--r-pill);background:rgba(255,255,255,.16);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#fff;font:inherit;font-size:17px;font-weight:700;cursor:pointer;opacity:0;animation:spword .35s forwards}
 #sp-go[hidden]{display:none}
 #sp-skip{position:absolute;top:calc(12px + env(safe-area-inset-top));right:14px;min-height:44px;padding:0 12px;background:none;border:0;color:#c9c1b2;font:inherit;font-size:15px;cursor:pointer}
 @keyframes spfill{to{stroke-dashoffset:0}}
@@ -45,27 +45,27 @@
 .lbl2{margin:0;font-size:13px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--muted)}
 .big2{margin:0;font-size:19px;line-height:1.4;color:var(--ink);font-weight:600}
 .visit{flex-direction:row;align-items:center;gap:14px}
-.visit .d{width:52px;height:56px;border-radius:12px;background:var(--brand-l,#e4f2f9);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;flex:none}
+.visit .d{width:52px;height:56px;border-radius:var(--r-ctl);background:var(--brand-l,#e4f2f9);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;flex:none}
 .visit .d b{font-size:22px;line-height:1}
 .visit .t{flex:1;min-width:0}.visit .t b{display:block;font-size:17px}.visit .t small{display:block;color:var(--muted);font-size:14px;margin-top:2px}
 .t2{margin:0;font-size:28px}
-.callbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:22px;border:0;background:#1a7f52;color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
+.callbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:var(--r-hero);border:0;background:#1a7f52;color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
 
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:calc(8px + env(safe-area-inset-top))}
 .top .brand svg{flex:none}
 .linkbtn{min-height:44px;padding:0 6px;border:0;background:none;color:var(--tint);font:inherit;font-size:16px;cursor:pointer}
-.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--line);border-radius:12px;padding:3px;gap:3px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--line);border-radius:var(--r-ctl);padding:3px;gap:3px}
 .seg button{min-height:44px;border:0;border-radius:10px;background:none;font:inherit;font-size:16px;font-weight:600;color:var(--ink2);cursor:pointer}
 .seg button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(10,31,46,.15)}
-.idcard{background:#0a1f2e;color:#f3efe6;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.idcard{background:#0a1f2e;color:#f3efe6;border-radius:var(--r-hero);padding:18px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
 .idcard .lbl{font-size:13px;letter-spacing:.4px;text-transform:uppercase;color:#c9c1b2;margin:0}
 .idcard .hid{font:700 28px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:1px;margin:0}
-.idcard .qrbox{background:#fff;border-radius:16px;padding:8px;line-height:0}
+.idcard .qrbox{background:#fff;border-radius:var(--r-card);padding:8px;line-height:0}
 .idcard .qrbox svg{width:220px;height:220px}
 .idcard p{margin:0;font-size:15px;line-height:1.45;color:#e7dfcf;max-width:32ch}
 .idcard .row{display:flex;gap:10px;width:100%}
-.idcard .row button{flex:1;min-height:46px;border-radius:12px;border:1px solid rgba(231,223,207,.35);background:none;color:#fff;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
-.card{background:var(--card);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.idcard .row button{flex:1;min-height:46px;border-radius:var(--r-ctl);border:1px solid rgba(231,223,207,.35);background:none;color:#fff;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
+.card{background:var(--card);border-radius:var(--r-card);padding:16px;display:flex;flex-direction:column;gap:10px}
 .card h2{font-size:19px}
 .card p{margin:0;font-size:16px;line-height:1.45;color:var(--ink2)}
 .card .btns2{display:flex;gap:10px}.card .btns2 > *{flex:1}
@@ -75,7 +75,7 @@
 .muted{color:var(--muted)}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:15px;font-weight:600}
-.field input,.field textarea{min-height:50px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:18px;padding:10px 14px}
+.field input,.field textarea{min-height:50px;border-radius:var(--r-ctl);border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:18px;padding:10px 14px}
 .field input:focus-visible,.field textarea:focus-visible{outline:3px solid var(--tint);outline-offset:1px}
 #fid{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;text-transform:uppercase;letter-spacing:.5px}
 .err{color:var(--bad);font-size:15px;margin:0;min-height:1.2em}
@@ -83,52 +83,52 @@
 .pbanner{display:flex;gap:12px;align-items:center}
 .pbanner .av{width:52px;height:52px;font-size:18px;background:#0b6fa8}
 .pbanner b{display:block;font-size:22px}.pbanner small{display:block;font-size:14px;color:var(--muted);margin-top:2px}
-.seen{background:var(--ok-l);color:var(--ok-ink);border-radius:12px;padding:10px 14px;font-size:15px;margin:0;line-height:1.4}
+.seen{background:var(--ok-l);color:var(--ok-ink);border-radius:var(--r-ctl);padding:10px 14px;font-size:15px;margin:0;line-height:1.4}
 .nowcard{border-inline-start:5px solid #1a7f52}
 /* chat */
 .chat{display:flex;flex-direction:column;gap:10px;list-style:none;margin:0;padding:0}
 .chat li{display:flex;flex-direction:column;gap:6px;max-width:86%}
 .chat li.me{align-self:flex-end;align-items:flex-end}
-.chat .b{padding:10px 14px;border-radius:18px;font-size:16px;line-height:1.45;background:var(--card);color:var(--ink)}
+.chat .b{padding:10px 14px;border-radius:var(--r-card);font-size:16px;line-height:1.45;background:var(--card);color:var(--ink)}
 .chat .me .b{background:#0b6fa8;color:#fff}
 .chat .acts{display:flex;flex-wrap:wrap;gap:6px}
-.chat .acts button,.chat .acts a{min-height:40px;padding:0 14px;border-radius:20px;border:1.5px solid #0b6fa8;background:none;color:var(--tint);font:inherit;font-size:15px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;text-decoration:none}
+.chat .acts button,.chat .acts a{min-height:40px;padding:0 14px;border-radius:var(--r-card);border:1.5px solid #0b6fa8;background:none;color:var(--tint);font:inherit;font-size:15px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;text-decoration:none}
 .chat .src{font-size:12px;color:var(--muted)}
 .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
-.chips button{flex:none;min-height:40px;padding:0 14px;border-radius:20px;border:0;background:var(--line);color:var(--ink);font:inherit;font-size:15px;cursor:pointer}
+.chips button{flex:none;min-height:40px;padding:0 14px;border-radius:var(--r-card);border:0;background:var(--line);color:var(--ink);font:inherit;font-size:15px;cursor:pointer}
 .composer{position:sticky;bottom:calc(62px + env(safe-area-inset-bottom));display:flex;gap:8px;padding:10px 0 calc(10px + env(safe-area-inset-bottom));background:var(--bg)}
-.composer input{flex:1;min-width:0;min-height:48px;border-radius:24px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:17px;padding:0 16px}
-.composer button{min-width:48px;min-height:48px;border-radius:24px;border:0;background:#0b6fa8;color:#fff;font:inherit;font-weight:700;cursor:pointer;padding:0 16px}
+.composer input{flex:1;min-width:0;min-height:48px;border-radius:var(--r-hero);border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:17px;padding:0 16px}
+.composer button{min-width:48px;min-height:48px;border-radius:var(--r-hero);border:0;background:#0b6fa8;color:#fff;font:inherit;font-weight:700;cursor:pointer;padding:0 16px}
 .typing{display:inline-flex;gap:4px}.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
 @keyframes blink{50%{opacity:.25}}
 /* call */
-.call{position:fixed;inset:0;z-index:40;background:radial-gradient(circle at 50% 30%,#14476a,#0a1f2e 70%);color:#fff;display:flex;flex-direction:column;align-items:center;padding:calc(40px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));gap:14px;overflow-y:auto}
+.call{position:fixed;inset:0;z-index:40;background:radial-gradient(120% 70% at 50% 20%,var(--water-700),var(--water-900) 72%);color:#fff;display:flex;flex-direction:column;align-items:center;padding:calc(40px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));gap:14px;overflow-y:auto}
 .call .who2{font-size:30px;font-weight:700;margin:8px 0 0}
 .call .st{font-size:17px;color:#c9d8e2;margin:0}
-.call .orb{width:120px;height:120px;border-radius:50%;background:#0a1f2e;display:grid;place-items:center;box-shadow:0 0 0 10px rgba(54,181,232,.12),0 0 0 22px rgba(54,181,232,.06)}
+.call .orb{width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.12);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.25);display:grid;place-items:center;box-shadow:0 0 0 10px rgba(54,181,232,.12),0 0 0 22px rgba(54,181,232,.06)}
 .call.ringing .orb{animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 18px rgba(54,181,232,.2),0 0 0 36px rgba(54,181,232,.08)}}
 .call .wave{display:flex;gap:5px;height:28px;align-items:center}
-.call .wave i{width:5px;height:6px;border-radius:3px;background:#36b5e8}
+.call .wave i{width:5px;height:6px;border-radius:3px;background:var(--water-400)}
 .call.speaking .wave i{animation:wv .9s ease-in-out infinite}
 .call .wave i:nth-child(2){animation-delay:.1s}.call .wave i:nth-child(3){animation-delay:.2s}.call .wave i:nth-child(4){animation-delay:.3s}.call .wave i:nth-child(5){animation-delay:.4s}
 @keyframes wv{50%{height:26px}}
-.call .cap{background:rgba(255,255,255,.1);border-radius:16px;padding:14px 16px;font-size:18px;line-height:1.45;max-width:420px;width:100%;min-height:80px;margin:0}
+.call .cap{background:rgba(255,255,255,.12);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.22);border-radius:var(--r-card);padding:14px 16px;font-size:18px;line-height:1.45;max-width:420px;width:100%;min-height:80px;margin:0}
 .call .you{font-size:15px;color:#c9d8e2;margin:0}
 .call .opts{display:flex;flex-direction:column;gap:10px;width:100%;max-width:420px}
-.call .opts button{min-height:52px;border-radius:26px;border:0;background:#fff;color:#0a1f2e;font:inherit;font-size:17px;font-weight:700;cursor:pointer}
+.call .opts button{min-height:52px;border-radius:var(--r-pill);border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.92);color:var(--water-900);font:inherit;font-size:17px;font-weight:700;cursor:pointer}
 .call .ans{display:flex;gap:56px;margin-top:auto}
 .call .ans button,.call .end{width:72px;height:72px;border-radius:50%;border:0;display:grid;place-items:center;cursor:pointer}
-.call .acc{background:#1a7f52}.call .dec,.call .end{background:#c4271b}
+.call .acc{background:#1d7f53}.call .dec,.call .end{background:#c0362c}
 .call .ans span,.call .endl{display:block;text-align:center;font-size:14px;margin-top:6px;color:#c9d8e2}
 .call .vlabel{font-size:13px;color:#9fb4c2;margin:0;text-align:center}
 .call .lang{display:flex;gap:8px}
-.call .lang button{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid rgba(255,255,255,.4);background:none;color:#fff;font:inherit;font-size:15px;cursor:pointer}
+.call .lang button{min-height:40px;padding:0 14px;border-radius:var(--r-card);border:1px solid rgba(255,255,255,.4);background:none;color:#fff;font:inherit;font-size:15px;cursor:pointer}
 .call .lang button[aria-pressed=true]{background:#fff;color:#0a1f2e}
 /* scanner */
 .scan{position:fixed;inset:0;z-index:45;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff;padding:20px}
-.scan video{width:min(90vw,420px);border-radius:16px}
-.scan button{min-height:48px;padding:0 22px;border-radius:24px;border:0;background:#fff;color:#0a1f2e;font:inherit;font-weight:700;cursor:pointer}
+.scan video{width:min(90vw,420px);border-radius:var(--r-card)}
+.scan button{min-height:48px;padding:0 22px;border-radius:var(--r-hero);border:0;background:#fff;color:#0a1f2e;font:inherit;font-weight:700;cursor:pointer}
 </style>
 <link rel="stylesheet" href="design/system.css">
 <link rel="stylesheet" href="design/glass.css">
@@ -144,7 +144,7 @@
     <g class="sp-box" style="animation-delay:.25s"><rect x="14" y="27" width="78" height="36" rx="10" fill="#f6a597"/><text x="53" y="50">Result</text></g>
     <g class="sp-box" style="animation-delay:.6s"><rect x="111" y="27" width="78" height="36" rx="10" fill="#f7e08a"/><text x="150" y="50">Call</text></g>
     <g class="sp-box" style="animation-delay:.95s"><rect x="208" y="27" width="78" height="36" rx="10" fill="#9fd8e3"/><text x="247" y="50">Visit</text></g>
-    <ellipse class="sp-pool" cx="150" cy="232" rx="40" ry="8" fill="#36b5e8"/>
+    <ellipse class="sp-pool" cx="150" cy="232" rx="40" ry="8" fill="#2fb3e3"/>
     <ellipse class="sp-ring" cx="150" cy="232" rx="30" ry="6"/>
     <g class="sp-palm">
       <path d="M148 232C152 214 154 196 150 176" stroke="#b07a43" stroke-width="7" fill="none" stroke-linecap="round"/>
@@ -182,15 +182,15 @@ const store = { get: (k) => { try { return JSON.parse(localStorage.getItem(k)); 
 const sess = { get: (k) => { try { return JSON.parse(sessionStorage.getItem(k)); } catch { return null; } }, set: (k, v) => { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } } };
 const TODAY = isoDay(Date.now());
 const I = {
-  doc: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l5 5v15H6z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 13h7M9 17h7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
-  q: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>',
-  eye: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>',
+  doc: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l5 5v15H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 13h7M9 17h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  q: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  eye: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>',
   phone: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l3 4-2 2c1 2.5 3.5 5 6 6l2-2 4 3-2 4C10 20 4 14 3 5z" fill="currentColor"/></svg>',
   chat: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="currentColor"/></svg>',
   person: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7z" fill="currentColor"/></svg>',
-  steth: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v6a5 5 0 0 0 10 0V3M11 14v2a4 4 0 0 0 8 0v-2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="19" cy="12" r="2" fill="currentColor"/></svg>',
+  steth: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v6a5 5 0 0 0 10 0V3M11 14v2a4 4 0 0 0 8 0v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="12" r="2" fill="currentColor"/></svg>',
   qr: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
-  send: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  send: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   chev: '<svg class="chev" width="9" height="15" viewBox="0 0 9 15" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   scan: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8V4h4M17 4h4v4M21 16v4h-4M7 20H3v-4M3 12h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
 };
@@ -346,8 +346,8 @@ function patientHome(c) {
     ${v ? `<ul class="ig visit2"><li><button class="row" id="ics"><span class="cal"><span>${esc(vd.toLocaleDateString('en-GB', { month: 'short', timeZone: 'UTC' }))}</span><b>${vd.getUTCDate()}</b></span><span class="tx"><b>${c.slot ? 'Visit with your family doctor' : 'A visit held for you'}</b><small>${esc(fmtDay(v.day))} · ${esc(v.time)} · Family Clinic A</small></span>${I.chev}</button></li></ul>` : ''}
     <ul class="ig">
       ${row('o-docs', 'blue', I.doc, 'My documents', `${docs.length} ${docs.length === 1 ? 'document' : 'documents'}, from every clinic`)}
-      ${row('o-q', 'orange', I.q, 'Questions for my doctor', (a.questions || []).length ? `${(a.questions || []).length} saved` : 'Write them before your visit')}
-      ${row('o-acc', 'indigo', I.eye, 'Who opened my file', acc.length ? `${esc(clean(acc[0].by))} · ${esc(fmtDay(acc[0].at))}` : 'No one yet')}
+      ${row('o-q', 'blue', I.q, 'Questions for my doctor', (a.questions || []).length ? `${(a.questions || []).length} saved` : 'Write them before your visit')}
+      ${row('o-acc', 'blue', I.eye, 'Who opened my file', acc.length ? `${esc(clean(acc[0].by))} · ${esc(fmtDay(acc[0].at))}` : 'No one yet')}
     </ul>
     <p class="foot2">Invented data. Not medical advice.</p>`);
   bindOut();
@@ -355,7 +355,7 @@ function patientHome(c) {
   $('#callme').onclick = () => startCall(c);
   $('#o-docs').onclick = () => docsSheet(c);
   $('#o-q').onclick = () => questionSheet(c);
-  $('#o-acc').onclick = () => sheet(`<h2>Who opened my file</h2><p>Every time a doctor or nurse opens your file, it shows here.</p>${acc.length ? `<ul class="ig">${acc.slice(0, 10).map((x) => `<li><div class="row"><span class="tile indigo">${I.steth}</span><span class="tx"><b>${esc(clean(x.by))}</b><small>${esc(x.org)} · ${esc(fmtDay(x.at))} at ${esc(time(x.at))}</small></span></div></li>`).join('')}</ul>` : ''}<button class="btn-tint" data-close>Close</button>`);
+  $('#o-acc').onclick = () => sheet(`<h2>Who opened my file</h2><p>Every time a doctor or nurse opens your file, it shows here.</p>${acc.length ? `<ul class="ig">${acc.slice(0, 10).map((x) => `<li><div class="row"><span class="tile">${I.steth}</span><span class="tx"><b>${esc(clean(x.by))}</b><small>${esc(x.org)} · ${esc(fmtDay(x.at))} at ${esc(time(x.at))}</small></span></div></li>`).join('')}</ul>` : ''}<button class="btn-tint" data-close>Close</button>`);
 }
 function idScreen(c) {
   const id = healthId(c), link = lookupLink(location.origin, c);
@@ -420,7 +420,7 @@ function docsSheet(c) {
 function questionSheet(c) {
   const qs = (c.assist && c.assist.questions) || [];
   sheet(`<h2>Questions for my doctor</h2><p>Write them down now, show the list at your visit.</p>
-    ${qs.length ? `<ul class="ig">${qs.map((q) => `<li><div class="row"><span class="tile orange">${I.q}</span><span class="tx"><b>${esc(q.text)}</b></span></div></li>`).join('')}</ul>` : ''}
+    ${qs.length ? `<ul class="ig">${qs.map((q) => `<li><div class="row"><span class="tile">${I.q}</span><span class="tx"><b>${esc(q.text)}</b></span></div></li>`).join('')}</ul>` : ''}
     <div class="field"><label for="qtext">A new question</label><textarea id="qtext" rows="3" maxlength="300"></textarea></div>
     <button class="btn-fill" id="qsave">Save the question</button><button class="btn-tint" data-close>Close</button>`);
   $('#qsave').onclick = () => {
@@ -493,7 +493,7 @@ function startCall(c) {
   const call = { lang: 'en', started: 0, timer: null, saved: [] };
   const ctx = () => contextOf(caseOf(c.id));
   const el = (html) => { $('#layer').innerHTML = html; };
-  const orb = `<div class="orb" aria-hidden="true"><svg width="64" height="50" viewBox="0 0 34 26"><path d="M2 20c6 0 8-12 15-12s9 12 15 12" fill="none" stroke="#36b5e8" stroke-width="3" stroke-linecap="round"/><path d="M27 9V3M24 5l3-2 3 2" fill="none" stroke="#2fae6e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+  const orb = `<div class="orb" aria-hidden="true"><svg width="64" height="50" viewBox="0 0 34 26"><path d="M2 20c6 0 8-12 15-12s9 12 15 12" fill="none" stroke="#7fc8ea" stroke-width="3" stroke-linecap="round"/><path d="M27 9V3M24 5l3-2 3 2" fill="none" stroke="#9ff0c2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
   const vlabel = () => (voiceOn ? 'Natural voice by Cartesia. Captions on.' : 'Phone voice (the Cartesia voice is not set up yet). Captions on.');
   const ringing = () => {
     el(`<div class="call ringing" role="dialog" aria-modal="true" aria-label="Incoming call from Falaj">${orb}<p class="who2">Falaj assistant</p><p class="st">is calling you…</p>
@@ -550,8 +550,8 @@ function doctorHome(s) {
       ${'BarcodeDetector' in window ? `<button type="button" class="btn-tint" id="scan">${I.scan} Scan QR code</button>` : ''}
     </form>
     ${demo ? `<p class="foot2">Demo: ${esc(healthId(demo))} · ${esc(demo.patient.name)}</p>` : ''}
-    ${recent.length ? `<p class="gh2">Opened today</p><ul class="ig">${recent.map((c) => row('r-' + c.id, 'teal', I.person, esc(c.patient.name), esc(healthId(c)), 'a', '#map=' + c.id)).join('')}</ul>` : ''}
-    <ul class="ig">${row('wl', 'gray', I.steth, 'My worklist', 'On the care team website', 'a', `team.html?as=${s.id}`)}</ul>
+    ${recent.length ? `<p class="gh2">Opened today</p><ul class="ig">${recent.map((c) => row('r-' + c.id, 'blue', I.person, esc(c.patient.name), esc(healthId(c)), 'a', '#map=' + c.id)).join('')}</ul>` : ''}
+    <ul class="ig">${row('wl', 'blue', I.steth, 'My worklist', 'On the care team website', 'a', `team.html?as=${s.id}`)}</ul>
     <p class="foot2">The patient sees every opening.</p>`);
   bindOut();
   if (pending) $('#fname').focus();
@@ -597,7 +597,7 @@ function mapScreen(s, c) {
   paint(`<div class="nav"><a class="back" href="#find">‹ Find</a>${signOutBtn}</div>
     <div class="ptcard"><span class="av" aria-hidden="true">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><small>${c.patient.age} · ${esc(LANG[c.patient.language] || c.patient.language)} · ${esc(healthId(c))}</small></span></div>
     ${careMapHtml(hist, { selected: mapSel })}
-    <section class="status2" aria-labelledby="cn"><span class="pill" id="cn"><span class="dot" aria-hidden="true"></span>Care is now at ${esc(FACILITIES[last].name)}</span><p>${esc(nextStep(contextOf(c)))}</p><a class="btn-tint" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist</a></section>
+    <section class="status2" aria-labelledby="cn"><span class="pill" id="cn">Care is now at ${esc(FACILITIES[last].name)}</span><p>${esc(nextStep(contextOf(c)))}</p><a class="btn-tint" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist</a></section>
     <div class="seg" role="group" aria-label="Show"><button data-v="history" aria-pressed="${mapView === 'history'}">History · ${hist.length}</button><button data-v="falaj" aria-pressed="${mapView === 'falaj'}">This result</button></div>
     ${mapView === 'falaj' ? wf : `${mapSel ? `<button class="linkbtn" id="allr" style="align-self:flex-start;padding:0">${esc(FACILITIES[mapSel].name)} only · show all</button>` : ''}<div id="hh">${historyHtml(hist, { only: mapSel })}</div>`}
     <p class="foot2">Invented records and places. ${esc(first(c))} sees that you opened this file.</p>`);
