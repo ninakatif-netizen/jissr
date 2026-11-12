@@ -90,9 +90,9 @@ and confirms. Only then is the loop closed: the water reaches the palm, and ever
 
 - **Is the data real?** No. Synthetic cases only; every source is declared in DATA-SOURCES.md.
 - **Are the clinical rules validated?** Proposed by the team's medical student; awaiting sign-off by a
-  supervising clinician (review.html, section 7).
-- **Integrations?** Simulated: Malaffi / NABIDH / Riayati, UAE PASS, insurers. The pilot plan (pilot.html)
-  shows how they would connect.
+  supervising clinician.
+- **Integrations?** Simulated: the health information exchange (Malaffi), national digital identity, insurers.
+  The jury page lists what a pilot would need.
 - **Translations?** The first message exists in 7 languages as drafts for medical translators.
 - **AI?** It only talks and drafts wording. Fixed rules decide urgency, owners, deadlines and closure.
 - **Is the AI call real?** Simulated in the demo. A real call needs a telephony provider, the patient's
@@ -104,4 +104,4 @@ and confirms. Only then is the loop closed: the water reaches the palm, and ever
 
 - Open the app once before the pitch: it works offline afterwards (installable web app).
 - Keep screenshots of the three moments on the laptop.
-- Reset the demo data before presenting: staff.html, "Reset demo".
+- Reset the demo data before presenting: open team.html?reset=1.

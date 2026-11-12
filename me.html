@@ -388,7 +388,7 @@ function render() {
   state = loadState();
   const p = params(), lang = p.lang === 'ar' ? 'ar' : 'en', t = T[lang], c = state.cases.find((x) => x.id === p.p);
   document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  $('#bar').innerHTML = `<a class="brand" href="index.html" aria-label="Falaj home">${logo} ${lang === 'ar' ? 'فلج' : 'Falaj'}</a><div class="langs" role="group" aria-label="Language"><button data-lang="en" aria-pressed="${lang === 'en'}">EN</button><button data-lang="ar" aria-pressed="${lang === 'ar'}" lang="ar">عربي</button></div>`;
+  $('#bar').innerHTML = `<a class="brand" href="app.html" aria-label="Back to the Falaj app">${logo} ${lang === 'ar' ? 'فلج' : 'Falaj'}</a><div class="langs" role="group" aria-label="Language"><button data-lang="en" aria-pressed="${lang === 'en'}">EN</button><button data-lang="ar" aria-pressed="${lang === 'ar'}" lang="ar">عربي</button></div>`;
   if (!c) { $('#main').innerHTML = pickScreen(t, lang); $('#tabs').hidden = true; }
   else {
     store.set('falaj.me.p', c.id);

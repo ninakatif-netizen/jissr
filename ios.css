@@ -45,7 +45,7 @@ a.prow::after,button.prow::after{content:"›";color:var(--muted);font-size:22px
 .prow .due{font-size:13px;color:var(--muted);white-space:nowrap}
 .card{background:var(--card);border-radius:14px;padding:14px 16px}
 .hl{background:var(--card);border:1.5px solid var(--warn);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
-.hl .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hl .top{display:flex;align-items:center;justify-content:space-between;gap:10px;background:none;padding:0;border:0;position:static;min-height:0}
 .hl .top b{font-size:17px}
 .hl .q{font-size:15px;line-height:1.4;color:var(--ink2);margin:0}
 .st{font-size:12px;font-weight:700;padding:4px 9px;border-radius:99px;white-space:nowrap}

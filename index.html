@@ -3,79 +3,83 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Falaj: where the water stops</title>
-<meta name="description" content="Falaj shows nurses and doctors where every abnormal screening result is, and where the water stops. Synthetic data only.">
+<title>Falaj: every abnormal result, all the way to care</title>
+<meta name="description" content="Falaj closes the screening-to-care loop: every abnormal result gets an owner and a deadline in seconds, the patient is reached in their language, and one Health ID opens their care in any clinic. Synthetic demo.">
 <meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
-<style>
-.kicker{font-size:15px;color:var(--accent-d);font-weight:600;margin-bottom:10px}
-.cta{margin-top:18px}
-.flow{display:flex;flex-wrap:wrap;gap:6px 4px;align-items:center;margin-top:12px}
-.flow span{font-size:14px;font-weight:600;padding:6px 12px;border:1px solid rgba(255,252,246,.45);border-radius:999px}
-.flow i{font-style:normal;opacity:.6}
-.flow span:last-child{background:var(--accent);border-color:var(--accent);color:#1b2238}
-[dir=rtl] .flow i{display:inline-block;transform:scaleX(-1)}
-ul.clean{padding-inline-start:20px}
-ul.clean li{margin:6px 0}
-ol.num{padding-inline-start:22px} ol.num li{margin:10px 0}
-ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-d)}
-.why-falaj .wf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}.why-falaj .wf div{background:var(--card2);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}.why-falaj .wf b{font-size:15px}.why-falaj .wf span{font-size:14px;color:var(--ink-2)}
-.moments{display:grid;grid-template-columns:1fr;gap:14px;margin:18px 0}
-@media (min-width:760px){.moments{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.mn{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#0b6fa8;color:#fff;font-weight:700;margin-bottom:8px}
-.team summary{cursor:pointer;min-height:44px}
-.team .tiles{margin-top:12px}
-.ba-grid{display:grid;grid-template-columns:1fr;gap:14px}@media (min-width:760px){.ba-grid{grid-template-columns:1fr 1fr}}
-.ba h3{margin:6px 0 0;font-size:17px}
-.ps-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,380px);gap:28px;align-items:start}
-@media (max-width:820px){.ps-grid{grid-template-columns:1fr}}
-</style>
 <link rel="stylesheet" href="theme.css">
 <link rel="stylesheet" href="design/system.css">
+<link rel="stylesheet" href="design/site.css">
 </head>
 <body data-falaj-surface="website" data-falaj-page="index">
 <div class="demo"><span>Prototype with synthetic data. Not medical advice.</span><span>Future Health Challenge 2026, challenge 05</span></div>
 <div class="wrap">
-  <div class="top"><div class="brand" id="brand"></div><nav class="site-nav" aria-label="Main navigation"><a href="index.html" aria-current="page">Home</a><a href="app.html">Patient app</a><a href="roles.html">Care team</a><a href="jury.html">Evidence</a></nav></div>
+  <div class="top"><a class="brand" id="brand" href="index.html" aria-label="Falaj home"></a><nav class="site-nav" aria-label="Main navigation"><a href="index.html" aria-current="page">Home</a><a href="app.html">The app</a><a href="team.html?as=n2">Care team</a><a href="loop.html">The story</a><a href="jury.html">For the jury</a></nav></div>
 
   <div class="hero" style="position:relative">
     <div class="hero-copy">
-    <div class="kicker">Falaj · for nurses and doctors</div>
-    <h1>See where every abnormal result is, and where the water stops.</h1>
-    <p class="lead">Falaj shows a care team every patient with an abnormal screening result as water flowing to care: reached, understood, booked, seen, referred, closed. You see who is stuck and the one thing to do. Agents call, remind and chase; people decide.</p>
-    <div class="row cta">
-      <a class="btn accent" href="app.html" id="bapp"></a>
-      <a class="btn ghost" href="loop.html" id="b0"></a>
+    <div class="kicker">Closing the screening-to-care loop</div>
+    <h1>Every abnormal result, all the way to care.</h1>
+    <p class="lead">A screening result only helps if someone acts on it. Falaj gives every abnormal result an owner and a deadline in seconds, reaches the patient in their own language, and follows them across clinics with one Health ID, until a doctor confirms care.</p>
+    <div class="cta">
+      <a class="btn accent" href="app.html" id="bapp" data-ic="doctor">Open the app</a>
+      <a class="btn ghost" href="loop.html" id="b0" data-ic="next">Watch the story (3 min)</a>
     </div>
     </div>
     <div id="hero-art" style="position:absolute;inset-inline-end:-150px;top:10px;color:var(--brand);pointer-events:none"></div>
   </div>
 
-  <div class="moments">
-    <div class="card"><span class="mn">1</span><h3>See the flow</h3><p class="muted">Every patient from result to loop closed, channel by channel. Tap a channel: who stopped there, and since when.</p></div>
-    <div class="card"><span class="mn">2</span><h3>One action per patient</h3><p class="muted">Call, book, refer, accept, confirm. Each person sees only what needs them, most urgent first.</p></div>
-    <div class="card"><span class="mn">3</span><h3>Agents that never decide</h3><p class="muted">They call in the patient's language, remind and chase referrals. They never give a result or close a loop.</p></div>
-  </div>
-  <p style="text-align:center;margin:8px 0 0"><a href="jury.html" id="b3">For the jury: evidence, safety, and the whole prototype</a></p>
-  <p class="foot">Falaj (فلج) is the water channel that has fed the oases of the Emirates for centuries: every plot, a named keeper, a known turn. · <a href="review.html">For clinical reviewers</a></p>
-</div>
+  <section class="sec" aria-labelledby="h-how">
+    <h2 id="h-how">How Falaj closes the loop</h2>
+    <p class="lead2">Rules decide in seconds. Agents do the chasing. People make every clinical decision.</p>
+    <div class="grid4">
+      <div class="card step"><span class="n">1</span><h3>A result arrives</h3><p>Rules sort it, set the deadlines and name a keeper. No result is ever nobody's.</p><span class="who">Rules · seconds</span></div>
+      <div class="card step"><span class="n">2</span><h3>The patient is reached</h3><p>An agent calls in the patient's language and holds a visit. Anything serious is told by a nurse, never by text.</p><span class="who">Agent + nurse</span></div>
+      <div class="card step"><span class="n">3</span><h3>Care moves between clinics</h3><p>One Health ID opens the patient's history anywhere. The sender stays responsible until the next team accepts.</p><span class="who">Doctors</span></div>
+      <div class="card step"><span class="n">4</span><h3>The loop closes</h3><p>Only when a doctor confirms care. Every late step turns amber and alerts the keeper.</p><span class="who">A doctor confirms</span></div>
+    </div>
+    <p style="margin-top:12px"><a href="jury.html#result-to-notification">The 7 steps from a lab result to the patient's phone</a></p>
+  </section>
 
+  <section class="sec" aria-labelledby="h-try">
+    <h2 id="h-try">Try it</h2>
+    <p class="lead2">Three ways in. Every person and record is invented.</p>
+    <div class="grid3">
+      <div class="card door"><span class="for">Patients and doctors · phone</span><h3>The app</h3>
+        <ul><li>Patients: a Health ID and QR code, next steps, an assistant that organises and can call.</li><li>Doctors: type the ID and the name to open the care map across hospitals.</li></ul>
+        <a class="btn" href="app.html" id="bapp2">Open the app</a></div>
+      <div class="card door"><span class="for">Nurses and doctors · computer</span><h3>The care team website</h3>
+        <ul><li>Every patient as water flowing to care, and where it stops.</li><li>The one thing to do next, and each patient's falaj step by step.</li></ul>
+        <a class="btn" href="team.html?as=n2" id="bteam">Open as Nurse Peter</a></div>
+      <div class="card door"><span class="for">Everyone · 3 minutes</span><h3>The story</h3>
+        <ul><li>Priya, from an unread mammogram result to a confirmed consultation.</li><li>The call, the hand-over between doctors, the loop closed.</li></ul>
+        <a class="btn" href="loop.html">Watch the story</a></div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-ev">
+    <h2 id="h-ev">Why it works</h2>
+    <p class="lead2">Reminders alone are not enough; reaching people is. Falaj is built on what trials show.</p>
+    <div class="evid">
+      <div class="card"><span class="big">23% → 31%</span><p>Follow-up after an abnormal screening result rose when patients were actively reached, while reminders alone did no better than usual care (22.7% vs 22.9%).</p><cite>Atlas et al., JAMA 2023, 120 days</cite></div>
+      <div class="card"><span class="big">42.1% → 55.1%</span><p>Colonoscopy after an abnormal bowel test rose with phone navigation in the patient's own language.</p><cite>Coronado et al., Annals of Internal Medicine 2025</cite></div>
+    </div>
+    <p class="muted" style="margin-top:10px">Falaj itself has not been measured yet: that is what a pilot is for. <a href="jury.html" id="bjury">Everything for the jury</a></p>
+  </section>
+
+  <p class="foot">Falaj (فلج) is the water channel that has fed the oases of the Emirates for centuries: every plot, a named keeper, a known turn. Falaj does the same for care.</p>
+</div>
 <script type="module">
 import { registerSW } from './core/pwa.mjs';
-registerSW();
 import { ic, wordmark } from './core/ui.mjs';
 import { falajScene } from './core/art.mjs';
-import { passportHtml } from './core/passport.mjs';
-import { buildState } from './core/data.mjs';
-import { isoDay } from './core/rules.mjs';
+registerSW();
 document.getElementById('brand').innerHTML = wordmark();
-document.querySelectorAll('[data-ic]').forEach((el) => { el.innerHTML = ic(el.dataset.ic, +el.dataset.s || 22); el.style.cssText = 'display:block;color:var(--accent-d);margin-bottom:8px'; });
-document.getElementById('bapp').innerHTML = ic('doctor', 18) + ' Open the app';
-document.getElementById('b0').innerHTML = ic('next', 18) + ' Watch the story';
-if (innerWidth > 1240) document.getElementById('hero-art').innerHTML = falajScene({ width: 300, opacity: 0.85 });
+document.querySelectorAll('[data-ic]').forEach((el) => { el.insertAdjacentHTML('afterbegin', ic(el.dataset.ic, 18) + ' '); });
+const ha = document.getElementById('hero-art'); if (ha && innerWidth > 1240) ha.innerHTML = falajScene({ width: 300, opacity: 0.85 });
 </script>
 </body>
 </html>

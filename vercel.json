@@ -47,5 +47,67 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/patient.html",
+      "destination": "/app.html",
+      "permanent": false
+    },
+    {
+      "source": "/staff.html",
+      "destination": "/team.html",
+      "permanent": false
+    },
+    {
+      "source": "/care.html",
+      "destination": "/team.html",
+      "permanent": false
+    },
+    {
+      "source": "/roles.html",
+      "destination": "/team.html",
+      "permanent": false
+    },
+    {
+      "source": "/metrics.html",
+      "destination": "/team.html",
+      "permanent": false
+    },
+    {
+      "source": "/map.html",
+      "destination": "/team.html",
+      "permanent": false
+    },
+    {
+      "source": "/pathways.html",
+      "destination": "/team.html",
+      "permanent": false
+    },
+    {
+      "source": "/impact.html",
+      "destination": "/jury.html",
+      "permanent": false
+    },
+    {
+      "source": "/pilot.html",
+      "destination": "/jury.html",
+      "permanent": false
+    },
+    {
+      "source": "/review.html",
+      "destination": "/jury.html",
+      "permanent": false
+    },
+    {
+      "source": "/trust.html",
+      "destination": "/jury.html",
+      "permanent": false
+    },
+    {
+      "source": "/animation/(.*)",
+      "destination": "/loop.html",
+      "permanent": false
+    }
   ]
 }

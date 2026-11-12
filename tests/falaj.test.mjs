@@ -3,21 +3,21 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildState } from '../core/data.mjs';
 import { requestConsult, answerConsult, sendReferral, respondReferral } from '../core/cases.mjs';
-import { roleFilter } from '../core/roles.mjs';
 import { targetsFor } from '../core/programmes.mjs';
 
 const actorOf = (s) => ({ type: 'staff', id: s.id, role: s.role, name: s.name, org: s.org });
 
-test('a 2-minute consult appears in the receiving team inbox until it is answered', () => {
+test('a 2-minute consult stays open for the receiving team until it is answered', () => {
   const state = buildState('2026-11-09');
   const gp = actorOf(state.staff.find((s) => s.role === 'clinician' && !/Hospital/.test(s.org)));
   const c = state.cases.find((x) => x.programme !== 'mammo' && x.stage !== 'closed' && !(x.consults || []).length && !x.referral);
   const to = targetsFor(c)[0];
   const spec = actorOf(state.staff.find((s) => s.role === 'clinician' && s.org === to));
   requestConsult(state, c.id, gp, { to, question: 'Treat in primary care, or does this patient need the clinic?' });
-  assert.equal(roleFilter('inbox', c, spec), true);
+  assert.equal(c.consults[0].to, to);
+  assert.ok(!c.consults[0].answer);
   answerConsult(state, c.id, c.consults[0].id, spec, 'Start in primary care and repeat the test in three months.');
-  assert.equal(roleFilter('inbox', c, spec), false);
+  assert.ok(c.consults[0].answer);
   assert.ok(c.events.some((e) => e.type === 'consult_answered'));
 });
 
@@ -33,21 +33,6 @@ test('handshake: the sender owns the case until the receiver takes it', () => {
   const spec = actorOf(state.staff.find((s) => s.role === 'clinician' && s.org === to));
   respondReferral(state, c.id, spec, { accept: true });
   assert.equal(c.owner, spec.id, 'owned by the receiver once taken');
-});
-
-import { mapSummary, emirateOf, EMIRATES } from '../core/geo.mjs';
-test('living map: every case sits in one emirate, and the numbers add up', () => {
-  const state = buildState('2026-11-09');
-  const now = Date.parse('2026-11-09T09:00:00Z');
-  const ids = new Set(EMIRATES.map((e) => e.id));
-  assert.ok(state.cases.every((c) => ids.has(emirateOf(c))));
-  assert.equal(emirateOf(state.cases[0]), emirateOf(state.cases[0]), 'the same case always lands in the same place');
-  const all = mapSummary(state, now);
-  assert.equal(all.open + all.closed, state.cases.length);
-  assert.equal(all.nodes.reduce((a, n) => a + n.stuck, 0), all.stuck);
-  const dxb = mapSummary(state, now, 'dxb');
-  assert.equal(dxb.open, all.nodes.find((n) => n.id === 'dxb').open, 'filtering shows that place only');
-  assert.equal(dxb.nodes.find((n) => n.id === 'ad').open, all.nodes.find((n) => n.id === 'ad').open, 'other places keep their numbers');
 });
 
 import { mustCall, radarFor } from '../core/rules.mjs';
