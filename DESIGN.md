@@ -90,3 +90,7 @@ Generic health apps are blue, white and glass. Falaj owns four things no other p
 | **The oasis palette** | Everywhere | Warm sand canvas, water blue for action, palm green for done, date amber only on the palm and for "waiting". No lavender, no grey canvas. |
 
 Type: Bricolage Grotesque (bundled) for titles on the website and for the app's large titles; the system font for everything a person reads or taps. Product screenshots on the website are real captures (`media/app-*.webp`), never drawn mock-ups.
+
+## Glass, everywhere (`design/glass-all.css`)
+
+One theme for every page: a luminous water backdrop (water blue, aqua, a warm sand glow) that drifts slowly, and every surface made of frosted glass with a bright edge: cards, lists, bars, sheets, the care team sidebar (dark glass), fields and quiet buttons. Solid colour is kept for the main action and for status only, so they stand out. Sheets use the stronger glass (`--glass-strong`) so words stay easy to read. Dark mode uses dark glass over a deep-water backdrop. The drift stops under "Reduce motion".

@@ -1,0 +1,71 @@
+/* FALAJ GLASS: one theme for every page. A luminous water backdrop that drifts slowly, and every surface
+   (cards, lists, bars, sheets, sidebars, fields, quiet buttons) made of frosted glass with a bright edge.
+   Solid colour is kept only for the main action and for status, so they stand out against the glass. */
+:root{
+  --glass:rgba(255,255,255,.52);--glass-hi:rgba(255,255,255,.8);--glass-strong:rgba(255,255,255,.86);
+  --glass-edge:rgba(255,255,255,.82);--glass-dark:rgba(8,42,66,.74);
+  --glass-sh:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.25),0 14px 34px -20px rgba(12,74,118,.42);
+  --glass-blur:blur(26px) saturate(175%);
+}
+@media (prefers-color-scheme:dark){:root{
+  --glass:rgba(38,48,60,.46);--glass-hi:rgba(255,255,255,.13);--glass-strong:rgba(22,30,40,.84);
+  --glass-edge:rgba(255,255,255,.14);--glass-dark:rgba(4,14,22,.7);
+  --glass-sh:inset 0 1px 0 rgba(255,255,255,.14),0 14px 34px -20px rgba(0,0,0,.8);
+}}
+html{background:#e7f3fb}
+@media (prefers-color-scheme:dark){html{background:#040b12}}
+body[data-falaj-surface]{background:transparent !important;position:relative}
+body[data-falaj-surface]::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:radial-gradient(62vmax 58vmax at 6% -6%,#9bd5f3 0,rgba(155,213,243,0) 62%),radial-gradient(54vmax 54vmax at 106% 22%,#a8e7db 0,rgba(168,231,219,0) 62%),radial-gradient(64vmax 50vmax at 58% 112%,#f9e2b4 0,rgba(249,226,180,0) 64%),linear-gradient(170deg,#e2f1fb 0%,#f0f8fb 46%,#fbf5e8 100%)}
+body[data-falaj-surface]::after{content:"";position:fixed;inset:-22vmax;z-index:-1;pointer-events:none;
+  background:radial-gradient(36vmax 36vmax at 30% 34%,rgba(112,196,240,.5) 0,rgba(112,196,240,0) 62%),radial-gradient(32vmax 32vmax at 72% 64%,rgba(140,222,200,.42) 0,rgba(140,222,200,0) 62%);
+  animation:gl-drift 26s ease-in-out infinite alternate}
+@keyframes gl-drift{to{transform:translate(9vmax,-7vmax) rotate(9deg)}}
+@media (prefers-color-scheme:dark){
+  body[data-falaj-surface]::before{background:radial-gradient(62vmax 58vmax at 6% -6%,#0d4468 0,rgba(13,68,104,0) 62%),radial-gradient(54vmax 54vmax at 106% 22%,#0c4a44 0,rgba(12,74,68,0) 62%),radial-gradient(64vmax 50vmax at 58% 112%,#3b2f17 0,rgba(59,47,23,0) 64%),linear-gradient(170deg,#04121c,#050b12 50%,#07110d)}
+  body[data-falaj-surface]::after{opacity:.5}
+}
+.bgfx{display:none !important}
+/* containers let the backdrop through */
+body[data-falaj-surface] :is(.stage,.phone,.inner,main,.wrap,.pane,.plist,.pdetail,.desk,.demo){background:transparent !important}
+body[data-falaj-surface] :is(.bar,.top){background:transparent !important;backdrop-filter:none;-webkit-backdrop-filter:none}
+/* every surface is glass */
+body[data-falaj-surface] :is(.card,.list,.ig,.hl,.flowbox,.agline,.summary,.falaj,.bars,.fcard,.vcard,.ringcard,.rule,.more,.appt,.msgcard,.wf-wrap,.hero2,.qa,.ptcard,.status2,.askcard,.hist,.dempty,.hlist,.chipb,.seg,.tbl,.scroll){
+  background:var(--glass) !important;backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-edge) !important;box-shadow:var(--glass-sh) !important}
+body[data-falaj-surface] .card :is(.card,.list,.tbl,.scroll,.bars){background:var(--glass-hi) !important;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none !important}
+body[data-falaj-surface] .tbl :is(th,td,tr,thead){background:transparent !important}
+/* sheets and menus: stronger glass, so words stay easy to read */
+body[data-falaj-surface] .sheet{background:var(--glass-strong) !important;backdrop-filter:blur(34px) saturate(180%);-webkit-backdrop-filter:blur(34px) saturate(180%);border:1px solid var(--glass-edge) !important;box-shadow:var(--glass-sh) !important}
+body[data-falaj-surface] .scrim{background:rgba(8,42,66,.28)}
+/* bars that float */
+body[data-falaj-surface] .tabs{background:var(--glass) !important;backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-edge) !important;box-shadow:var(--glass-sh),0 18px 40px -18px rgba(10,50,80,.45) !important}
+body[data-falaj-surface] .side{background:var(--glass-dark) !important;backdrop-filter:blur(30px) saturate(170%);-webkit-backdrop-filter:blur(30px) saturate(170%);border-inline-end:1px solid rgba(255,255,255,.18)}
+body[data-falaj-surface] .site-nav{background:var(--glass);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-edge);box-shadow:var(--glass-sh);border-radius:999px;padding:4px 16px}
+/* quiet buttons and fields are glass; the main action stays solid */
+body[data-falaj-surface] :is(.wide.ghost,.btn.ghost,.light,.btn-tint,.linkbtn,.chips button,.langs button,.textlink.glass){background:var(--glass-hi) !important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--glass-edge) !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+body[data-falaj-surface] :is(.field input,.field textarea,.field select,.composer input){background:var(--glass-hi) !important;border:1px solid var(--glass-edge) !important}
+body[data-falaj-surface] .demo{border-bottom:1px solid var(--glass-edge)}
+/* the app pages take the same glass */
+body:is([data-falaj-page=app],[data-falaj-page=me]){--glass:rgba(255,255,255,.52);--glass-hi:rgba(255,255,255,.8);--g-bg:transparent}
+@media (prefers-color-scheme:dark){body:is([data-falaj-page=app],[data-falaj-page=me]){--glass:rgba(38,48,60,.46);--glass-hi:rgba(255,255,255,.13)}}
+body:is([data-falaj-page=app],[data-falaj-page=me]) .sheet{background:var(--glass-strong) !important}
+/* website details that assumed a flat page colour */
+body[data-falaj-surface=website]{--bg:transparent}
+.chan .n{box-shadow:0 0 0 5px rgba(255,255,255,.55)}
+.shafts i{background:rgba(255,255,255,.85)}
+.fh-mouth{fill:#fff}
+.fh-ground{fill:rgba(255,255,255,.42);stroke:rgba(255,255,255,.8);stroke-width:1}
+@media (prefers-color-scheme:dark){.fh-ground{fill:rgba(255,255,255,.07)}.fh-mouth{fill:#0a1a26}.chan .n{box-shadow:0 0 0 5px rgba(255,255,255,.08)}.shafts i{background:#0a1a26}}
+@media (prefers-reduced-motion:reduce){body[data-falaj-surface]::after{animation:none}}
+/* details */
+body[data-falaj-surface] .dempty{border-radius:28px;padding:36px 28px;margin:auto}
+body[data-falaj-surface] .side :is(small,.sdemo){color:#dbe7ef !important}
+.stp .tag.soft{color:var(--ink) !important}
+@media (prefers-color-scheme:light){body[data-falaj-surface]{--fill:var(--water-700)}}
+body[data-falaj-surface] :is(.card,.hl,.agline,.summary,.falaj,.flowbox,.ringcard,.rule,.more,.appt,.msgcard,.fcard,.vcard){border-radius:20px}
+.wf-key{color:var(--ink-2,#2c3e4c) !important}
+body[data-falaj-surface] .back{color:var(--water-700) !important}
+@media (prefers-color-scheme:dark){body[data-falaj-surface] .tabs{background:var(--glass-strong) !important}}
+@media (max-width:720px){body[data-falaj-surface] .site-nav{flex-wrap:nowrap;overflow-x:auto;gap:2px 14px;padding:2px 14px;scrollbar-width:none;max-width:100%}
+  body[data-falaj-surface] .site-nav a{white-space:nowrap;flex:none}}

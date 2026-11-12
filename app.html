@@ -132,6 +132,7 @@
 </style>
 <link rel="stylesheet" href="design/system.css">
 <link rel="stylesheet" href="design/glass.css">
+<link rel="stylesheet" href="design/glass-all.css">
 </head>
 <body class="webp" data-falaj-surface="patient" data-falaj-page="app">
 <div class="bgfx" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -654,7 +655,7 @@ function mapScreen(s, c) {
   paint(`<div class="nav"><a class="back" href="#find">‹ Find</a>${signOutBtn}</div>
     <div class="ptcard"><span class="av" aria-hidden="true">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><small>${c.patient.age} · ${esc(LANG[c.patient.language] || c.patient.language)} · ${esc(healthId(c))}</small></span></div>
     ${careMapHtml(hist, { selected: mapSel })}
-    <section class="status2" aria-labelledby="cn"><span class="pill" id="cn">Care is now at ${esc(FACILITIES[last].name)}</span><p>${esc(nextStep(contextOf(c)))}</p><a class="btn-tint" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist</a></section>
+    <section class="status2" aria-labelledby="cn"><span class="pill" id="cn">Care is now at ${esc(FACILITIES[last].name)}</span><p><small style="display:block;font-size:13px;color:var(--g-2)">What ${esc(first(c))} is told</small>${esc(nextStep(contextOf(c)))}</p><a class="btn-tint" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist</a></section>
     <div class="seg" role="group" aria-label="Show"><button data-v="history" aria-pressed="${mapView === 'history'}">History · ${hist.length}</button><button data-v="falaj" aria-pressed="${mapView === 'falaj'}">This result</button></div>
     ${mapView === 'falaj' ? wf : `${mapSel ? `<button class="linkbtn" id="allr" style="align-self:flex-start;padding:0">${esc(FACILITIES[mapSel].name)} only · show all</button>` : ''}<div id="hh">${historyHtml(hist, { only: mapSel })}</div>`}
     <p class="foot2">Invented records and places. ${esc(first(c))} sees that you opened this file. Your access ends ${esc(fmtDay((activeGrant(c, s.id) || {}).until || new Date().toISOString()))} at ${esc(time((activeGrant(c, s.id) || {}).until || new Date().toISOString()))}.</p>`);
