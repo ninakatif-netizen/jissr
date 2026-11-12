@@ -22,14 +22,15 @@
 .note{background:var(--amber-l);color:var(--amber);border-radius:12px;padding:10px 14px;margin:12px 0}
 </style>
 <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="design/system.css">
 </head>
-<body>
+<body data-falaj-surface="website" data-falaj-page="metrics">
 <div class="demo">
   <span>Demo · synthetic data only</span>
   <span class="row"><a href="staff.html">Care team</a><a href="index.html">Home</a></span>
 </div>
 <div class="wrap wide">
-  <div class="top"><div class="brand" id="brand"></div><div class="muted tiny" id="today"></div></div>
+  <div class="top"><div class="brand" id="brand"></div><nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="app.html">Patient app</a><a href="roles.html">Care team</a><a href="jury.html">Evidence</a></nav><div class="muted tiny" id="today"></div></div>
   <h1>Is the loop closing?</h1>
   <p class="muted">Everything below is calculated live from the cases on the care-team screen. Do an action there (or as a patient), come back, and the numbers move.</p>
   <div class="note"><b>Read this first.</b> These figures come from 30 invented patients. They show <i>what Falaj measures</i>, not what it has achieved. Real improvement needs a baseline from today's process and a pilot (see the plan at the bottom).</div>
@@ -49,14 +50,14 @@
 
   <h2>How improvement would be proven in a pilot</h2>
   <div class="card">
-    <table class="tbl"><thead><tr><th>Measure</th><th>How it is taken</th><th>Baseline (today's process)</th><th>Target</th></tr></thead><tbody>
+    <div class="table-region" role="region" aria-label="Pilot measures" tabindex="0"><table class="tbl"><thead><tr><th>Measure</th><th>How it is taken</th><th>Baseline (today's process)</th><th>Target</th></tr></thead><tbody>
       <tr><td>Time to notification</td><td>Result issued → patient notified (timestamps)</td><td>to be measured</td><td>Within the service level for the urgency band</td></tr>
       <tr><td>Time to confirmatory test and consultation</td><td>Result → confirmation / first clinical contact</td><td>to be measured</td><td>Within the service level</td></tr>
       <tr><td>Referral and appointment completion</td><td>Referrals accepted and attended, over referrals made</td><td>to be measured</td><td>Higher than baseline</td></tr>
       <tr><td>Unresolved actionable results</td><td>Open cases past due or unassigned at day 30</td><td>to be measured</td><td>Fewer than baseline</td></tr>
       <tr><td>Documented closure</td><td>Closed cases with clinician evidence, over all closed</td><td>to be measured</td><td>100%</td></tr>
       <tr><td>Patient understanding and confidence</td><td>"Did this make sense?" and a 1 to 5 confidence question</td><td>to be measured</td><td>Higher than baseline</td></tr>
-    </tbody></table>
+    </tbody></table></div>
     <p class="tiny muted">Baseline = a few weeks of the current process, measured the same way. The pilot would then run Falaj for one programme and compare.</p>
   </div>
   <p class="foot">Synthetic demo · not medical advice</p>

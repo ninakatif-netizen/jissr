@@ -1,19 +1,9 @@
+@import url("design/tokens.css");
 /* FALAJ THEME v7 "Signature": one line of water through every screen.
    Where the water flows, care is moving; where it stops, a named person acts.
    Colour has one job each: water blue = action, palm green = done, amber = now, red = late only, sand = the dry channel ahead.
    Bricolage Grotesque for numbers and headlines, Inter for every sentence, IBM Plex Sans Arabic for Arabic (all SIL OFL, in /fonts).
    Every phone screen and desktop page reads the tokens below; change a value here and the whole app follows. */
-@font-face{font-family:"FalajText";font-weight:400;font-display:swap;src:url(fonts/inter-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"FalajText";font-weight:500;font-display:swap;src:url(fonts/inter-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"FalajText";font-weight:600;font-display:swap;src:url(fonts/inter-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"FalajText";font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"FalajText";font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"FalajText";font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"FalajText";font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"FalajDisplay";font-weight:600;font-display:swap;src:url(fonts/bricolage-grotesque-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"FalajDisplay";font-weight:700;font-display:swap;src:url(fonts/bricolage-grotesque-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"FalajDisplay";font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
-@font-face{font-family:"FalajDisplay";font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
 /* ---------- structure: every surface reads the theme tokens ---------- */
 body,.device{color:var(--ink);font-family:var(--text)}
 .device{background:var(--device-bg)}
@@ -43,27 +33,7 @@ input,select,textarea{border-radius:var(--btn-r)}
 @media (min-width:700px){body{background:radial-gradient(circle at 30% 0%,var(--desk-1),var(--desk-2))}.device{border-color:var(--frame)}.device:before{background:var(--frame)}}
 .tl li.next{background:none!important;color:inherit;border:0;box-shadow:none;border-radius:0;font-weight:600}
 /* ---------- tokens: premium clinical ---------- */
-:root{color-scheme:light;
-  --display:"Falaj",system-ui,sans-serif;--text:"Falaj",system-ui,sans-serif;--hello-w:650;--display-ls:-.025em;
-  --bg:#f3f7f9;--card:#ffffff;--card2:#edf3f6;--ink:#0b2537;--ink-2:#26394a;--muted:#4f6070;--line:#e0e8ed;
-  --brand:#0a5c8a;--brand-d:#0a4262;--brand-l:#e2eff6;--hero:#0e5a80;--on-hero-2:#d6e7f1;--hero-acc:#a8ecd6;
-  --accent:#c9811f;--accent-d:#8a5412;--accent-l:#fbefdd;--tab-mark:#0e5a80;
-  --ok:#0f7a55;--ok-l:#e3f4ec;--ok-ink:#0c5b40;--ok-line:#c3e6d5;--ok-on-hero:#b9f0d9;
-  --chev:#8496a3;--ring:#aebcc6;--bad:#b42318;--bad-l:#fde8e6;
-  --panel:#0e5a80;--on-panel:#ffffff;--teal:#0e5a80;--teal-d:#0a4262;--teal-l:#e2eff6;
-  --blue:#0e5a80;--blue-l:#e2eff6;--green:#0f7a55;--green-l:#e3f4ec;--amber:#8a5412;--amber-l:#fbefdd;--red:#b42318;--red-l:#fde8e6;
-  --p-blue:#e2eff6;--p-yellow:#fbefdd;--p-pink:#fbe7ec;--p-lilac:#eceaf8;--p-mint:#e3f4ec;
-  --r:20px;--btn-r:14px;--card-b:1px solid rgba(11,37,55,.05);
-  --card-sh:0 1px 2px rgba(11,37,55,.04),0 10px 28px -6px rgba(11,37,55,.08);--shadow:var(--card-sh);
-  --blur:none;--device-bg:var(--bg);--top-bg:rgba(255,255,255,.86);--tabs-bg:rgba(255,255,255,.92);
-  --hero-bg:radial-gradient(120% 90% at 100% 0%,#136892 0%,rgba(19,104,146,0) 60%),linear-gradient(160deg,#0f5f87 0%,#0a3f5c 100%);
-  --hero-sh:0 18px 36px -12px rgba(10,63,92,.45);
-  --ok-bg:radial-gradient(120% 90% at 100% 0%,#0f6b4a 0%,rgba(15,107,74,0) 60%),linear-gradient(160deg,#0d6545 0%,#0a4f37 100%);
-  --hero-btn:#ffffff;--hero-btn-ink:#0e5a80;
-  --desk-1:#f8fbfc;--desk-2:#dde9ef;--frame:#0b2537;--logo-acc:#d6a85a;
-  --ease:cubic-bezier(.2,.8,.2,1);
-  --sand:#e9e0cd;--sand-l:#f7f2e8;--palm:#1e7a4c;--logo-sand:#e2d7c1;--logo-palm:#1e7a4c;
-}
+
 body{font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
 .rvalue b,.stat3 b,.datebox b,.dt b,.mslot b,.sopq b,.fitbig{font-variant-numeric:tabular-nums lining-nums}
 
@@ -152,20 +122,7 @@ body{font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
 .view:has(>.greet)>.proofsec{order:1}
 
 /* ===================== v7 SIGNATURE layer (overrides everything above) ===================== */
-:root{
-  --display:"FalajDisplay","FalajText",system-ui,sans-serif;--text:"FalajText",system-ui,sans-serif;--hello-w:700;--display-ls:-.035em;
-  --bg:#f7f9fa;--card:#ffffff;--card2:#f1f4f6;--ink:#0a1f2e;--ink-2:#3c5160;--muted:#5b6e7b;--line:#e4eaee;
-  --brand:#0b6fa8;--brand-d:#08588a;--brand-l:#e3f4fc;--hero:#0a1f2e;--on-hero-2:#c8d6df;--hero-acc:#9fdaf4;--aqua:#36b5e8;
-  --accent:#f0a43a;--accent-d:#8a5208;--accent-l:#fff1dc;
-  --ok:#1a7f52;--ok-l:#e2f3ea;--ok-ink:#135c3b;--ok-line:#bfe3cf;--ok-on-hero:#b6ecd0;
-  --bad:#a52a17;--bad-l:#fde7e3;--red:#a52a17;--red-l:#fde7e3;--green:#1a7f52;--green-l:#e2f3ea;--amber:#8a5208;--amber-l:#fff1dc;
-  --blue:#0b6fa8;--blue-l:#e3f4fc;--teal:#0b6fa8;--teal-l:#e3f4fc;--panel:#0a1f2e;--p-blue:#e3f4fc;--p-mint:#e2f3ea;--p-yellow:#fff1dc;
-  --sand:#e7dfcf;--sand-l:#f4efe4;--palm:#1a7f52;--chev:#8696a2;--ring:#c3ced6;
-  --r:26px;--btn-r:16px;--card-b:0;--card-sh:0 1px 2px rgba(10,31,46,.04),0 16px 36px -18px rgba(10,31,46,.16);--shadow:var(--card-sh);
-  --device-bg:var(--bg);--top-bg:rgba(247,249,250,.9);--tabs-bg:#0a1f2e;
-  --hero-bg:#0a1f2e;--hero-sh:0 18px 36px -14px rgba(10,31,46,.45);--ok-bg:#1a7f52;--hero-btn:#ffffff;--hero-btn-ink:#0a1f2e;
-  --logo-water:#0b6fa8;--logo-palm:#1a7f52;--desk-1:#fbfcfd;--desk-2:#dfe8ee;--frame:#0a1f2e;
-}
+
 body{font-feature-settings:"cv11","ss01"}
 .top{box-shadow:none}
 /* headlines: big and tight; the patient's name sits on a line of water */

@@ -34,19 +34,22 @@ ol.num li::marker{font-family:var(--display);font-weight:600;color:var(--accent-
 @media (max-width:820px){.ps-grid{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="design/system.css">
 </head>
-<body>
+<body data-falaj-surface="website" data-falaj-page="index">
 <div class="demo"><span>Prototype with synthetic data. Not medical advice.</span><span>Future Health Challenge 2026, challenge 05</span></div>
 <div class="wrap">
-  <div class="top"><div class="brand" id="brand"></div></div>
+  <div class="top"><div class="brand" id="brand"></div><nav class="site-nav" aria-label="Main navigation"><a href="index.html" aria-current="page">Home</a><a href="app.html">Patient app</a><a href="roles.html">Care team</a><a href="jury.html">Evidence</a></nav></div>
 
   <div class="hero" style="position:relative">
+    <div class="hero-copy">
     <div class="kicker">Falaj · for nurses and doctors</div>
     <h1>See where every abnormal result is, and where the water stops.</h1>
     <p class="lead">Falaj shows a care team every patient with an abnormal screening result as water flowing to care: reached, understood, booked, seen, referred, closed. You see who is stuck and the one thing to do. Agents call, remind and chase; people decide.</p>
     <div class="row cta">
       <a class="btn accent" href="app.html" id="bapp"></a>
       <a class="btn ghost" href="loop.html" id="b0"></a>
+    </div>
     </div>
     <div id="hero-art" style="position:absolute;inset-inline-end:-150px;top:10px;color:var(--brand);pointer-events:none"></div>
   </div>

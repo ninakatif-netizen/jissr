@@ -1,0 +1,39 @@
+/* Falaj's shared visual vocabulary. All fonts are bundled locally (SIL OFL).
+   Water blue = action, palm green = completion, amber = attention, red = overdue. */
+@font-face{font-family:FalajText;src:url(../fonts/inter-latin-400-normal.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:FalajText;src:url(../fonts/inter-latin-500-normal.woff2) format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:FalajText;src:url(../fonts/inter-latin-600-normal.woff2) format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:FalajDisplay;src:url(../fonts/bricolage-grotesque-latin-600-normal.woff2) format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:FalajDisplay;src:url(../fonts/bricolage-grotesque-latin-700-normal.woff2) format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:FalajArabic;src:url(../fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2) format('woff2');font-weight:400;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFC}
+@font-face{font-family:FalajArabic;src:url(../fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2) format('woff2');font-weight:500;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFC}
+@font-face{font-family:FalajArabic;src:url(../fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2) format('woff2');font-weight:600;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFC}
+:root{
+  color-scheme:light;
+  --text:FalajText,FalajArabic,system-ui,sans-serif;--display:FalajDisplay,FalajArabic,system-ui,sans-serif;
+  --hello-w:700;--display-ls:-.03em;
+  --bg:#f4f7f8;--app-bg:#f6f2ea;--card:#fff;--card2:#edf2f4;--ink:#0a2636;--ink-2:#344d5c;--ink2:var(--ink-2);--muted:#536b79;--line:#dce5e9;
+  --brand:#096fa6;--brand-d:#075780;--brand-l:#e4f2f9;--tint:var(--brand);--tint-l:var(--brand-l);--aqua:#37afd8;
+  --fill:#0a2636;--go:#18764e;--on-action:#fff;--hero:#0a2636;--hero-bg:var(--hero);--on-hero-2:#c4d8e2;--hero-acc:#aadcf0;
+  --accent:#eda640;--accent-d:#825009;--accent-l:#fff2dc;--warn:#a56c18;--warn-ink:var(--accent-d);--warn-l:var(--accent-l);--amber:var(--accent-d);--amber-l:var(--accent-l);
+  --ok:#18764e;--ok-l:#e4f3eb;--ok-ink:#155a3e;--ok-line:#bcdccc;--ok-on-hero:#c5f0d9;--ok-bg:#18764e;--green:var(--ok);--green-l:var(--ok-l);--palm:var(--ok);
+  --bad:#b02f25;--bad-l:#fdebe8;--red:var(--bad);--red-l:var(--bad-l);--blue:var(--brand);--blue-l:var(--brand-l);--teal:var(--brand);--teal-d:var(--brand-d);--teal-l:var(--brand-l);
+  --panel:#0a2636;--on-panel:#fff;--p-blue:var(--brand-l);--p-mint:var(--ok-l);--p-yellow:var(--accent-l);--p-pink:#f8e9ee;--p-lilac:#eeeaf8;--lilac-ink:#6442ab;--pink-ink:#a72d59;
+  --off:#c9c4b7;--sand:#e4dccb;--sand-l:#f4efe5;--ring:#b4c4ce;--chev:#718692;
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-12:48px;
+  --r:20px;--btn-r:14px;--radius-input:12px;--radius-small:10px;--radius-pill:999px;
+  --card-b:1px solid var(--line);--card-sh:0 2px 4px #0a263604,0 12px 32px -16px #0a263620;--shadow:var(--card-sh);--hero-sh:0 14px 32px -18px #0a263650;
+  --hero-btn:#fff;--hero-btn-ink:#0a2636;--tab-mark:var(--brand);--tabs-bg:#fff;--top-bg:#f6f2ea;--device-bg:var(--bg);
+  --desk:#e8eef1;--desk-1:#f7f9fa;--desk-2:#e5eef2;--frame:#0a2636;
+  --logo-water:var(--brand);--logo-palm:var(--palm);--logo-sand:var(--sand);--logo-acc:var(--accent);
+  --ease:cubic-bezier(.16,1,.3,1);--motion-fast:140ms;--motion-normal:240ms;--motion-journey:1800ms;--focus:#096fa6;--selection:#c7e8f7;
+}
+@media(prefers-color-scheme:dark){:root{
+  color-scheme:dark;--bg:#081820;--app-bg:#0a1922;--card:#112b39;--card2:#193746;--ink:#edf5f7;--ink-2:#c8d7df;--muted:#aec1cb;--line:#294756;
+  --brand:#6bc2ef;--brand-d:#95d7f7;--brand-l:#163d53;--tint:var(--brand);--on-action:#092534;--fill:#306f97;--aqua:#67cae9;
+  --accent:#e9b85f;--accent-d:#f4ce8c;--accent-l:#3e311d;--warn:#e9b85f;
+  --ok:#81d3a9;--ok-l:#153e2f;--ok-ink:#a8e4c4;--ok-line:#2d654c;--ok-bg:#15573c;--go:#246d4c;
+  --bad:#ffada4;--bad-l:#492b2b;--p-pink:#452c39;--p-lilac:#35334c;--lilac-ink:#c8b3ff;--pink-ink:#ffbad1;--sand:#665d4a;--sand-l:#2d2c27;--off:#455866;--ring:#64808e;--chev:#a5bdc9;
+  --desk:#06131a;--desk-1:#0b1d27;--desk-2:#07151c;--top-bg:var(--app-bg);--tabs-bg:var(--card);--device-bg:var(--bg);
+  --card-sh:0 2px 4px #00000010,0 14px 32px -16px #00000060;--focus:#8ed3f6;--selection:#23546e;
+}}

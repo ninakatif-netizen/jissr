@@ -1,3 +1,4 @@
+@import url("design/tokens.css");
 /* JISSR DESIGN SYSTEM (v4: "the bridge at night")
    Abu Dhabi sand (mineral, not cream), night-blue ink, and gold used only as the bridge's light:
    progress and the one main action. One family for both scripts: Readex Pro (Arabic and Latin), bundled in /fonts (SIL OFL).
@@ -11,33 +12,7 @@
 @font-face{font-family:"Readex";font-weight:600;font-display:swap;src:url(fonts/readex-pro-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
 
 
-:root{
-  --bg:#ebe4d6; --card:#f6f2ea; --card2:#e2d9c9; --ink:#14284b; --muted:#665e50; --line:#d9cfbd;
-  --brand:#14284b; --brand-d:#0c1a33; --brand-l:#ddd3c1;
-  --panel:#14284b; --on-panel:#ffffff;
-  --accent:#c4954a; --accent-d:#7a5626; --accent-l:#efe1c6;
-  --p-blue:#e2e7f0; --p-yellow:#fff3d9; --p-pink:#fde8ef; --p-lilac:#efe9fd; --p-mint:#e2f6ee;
-  --amber:#9a6a0c; --amber-l:#fff3d9; --red:#c2413a; --red-l:#fde8e7; --green:#22895e; --green-l:#e2f6ee; --blue:#14284b; --blue-l:#e2e7f0;
-  --teal:var(--brand); --teal-d:var(--brand-d); --teal-l:var(--brand-l);
-  --r:20px;
-  --shadow:0 1px 0 rgba(20,40,75,.06);
-  --display:"Readex",system-ui,sans-serif;
-  --text:"Readex",system-ui,sans-serif;
-  --star:none;
-  /* v5 semantic tokens: every phone screen reads these, a theme only changes values */
-  --hero:#14284b; --on-hero-2:#d3d9e6; --hero-acc:#e3c38f;
-  --ok:#1f6b45; --ok-l:#e8efe3; --ok-ink:#24553a; --ok-line:#cfe0c9; --ok-on-hero:#bfe3cc;
-  --chev:#a8977a; --ring:#c9b99c; --ink-2:#3e3830; --bad:#a3311f; --bad-l:#fbe1dc;
-  --desk-1:#faf4ea; --desk-2:#e9dcc6;
-}
-@media (prefers-color-scheme: dark){
-  :root{--bg:#0f1524;--card:#18203a;--card2:#1d2643;--ink:#eef2fb;--muted:#9aa4bd;--line:#29324f;
-    --brand:#7ea4f2;--brand-d:#b3c9f8;--brand-l:#1f2c52;--panel:#2f5bb8;
-    --accent:#f5b544;--accent-d:#f7c870;--accent-l:#3a3018;
-    --p-blue:#1f2c52;--p-yellow:#3a3018;--p-pink:#3b2030;--p-lilac:#2b2550;--p-mint:#173a2c;
-    --amber:#f7c870;--amber-l:#3a3018;--red:#ff9a93;--red-l:#3e2022;--green:#7fd8ad;--green-l:#173a2c;--blue:#9cbcf5;--blue-l:#1f2c52;
-    --shadow:0 10px 30px rgba(0,0,0,.25)}
-}
+
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.6 var(--text)}

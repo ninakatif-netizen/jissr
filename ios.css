@@ -1,8 +1,8 @@
+@import url("design/tokens.css");
 /* Falaj iOS: the shared look of the full app. iOS structure (system font, large titles, grouped lists,
    switches, sheets, tab bar), Falaj identity (navy and sand). Colour means something: green = done,
    amber = waiting or action needed. Used by team.html and me.html. */
-:root{--fill:#0a1f2e;--go:#1a7f52;--bg:#f6f2ea;--card:#fff;--ink:#0a1f2e;--ink2:#2c3e4c;--muted:#56616b;--line:#e6dfd2;--tint:#0b5e8f;--ok:#1a7f52;--ok-l:#e3f4ec;--ok-ink:#0f5a3a;--bad:#c4271b;--bad-l:#fde8e6;--warn:#a8670f;--warn-l:#fbefdd;--warn-ink:#7a4a0c;--off:#cbc3b4;--desk:#ebe3d3}
-@media (prefers-color-scheme:dark){:root{--fill:#2b6a94;--bg:#07141d;--card:#10232f;--ink:#f3efe6;--ink2:#d7d0c3;--muted:#a3adb5;--line:#203543;--tint:#5fb3e6;--ok:#34a46e;--ok-l:#12301f;--ok-ink:#9be0bd;--bad:#ff6b5f;--bad-l:#3a1512;--warn:#f2c46e;--warn-l:#3a2c12;--warn-ink:#f2c46e;--off:#3a4d5a;--desk:#040c12}}
+
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"SF Pro Text",system-ui,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
 [dir=rtl] body,[lang=ar] body{font-family:-apple-system,"SF Arabic","Geeza Pro","Noto Sans Arabic",system-ui,Arial,sans-serif}

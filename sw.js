@@ -1,8 +1,9 @@
 // Falaj service worker: lets the app open offline and be installed.
 // Strategy: network first (so new versions show immediately), fall back to the saved copy when offline.
 // Bump VERSION on every release so old saved copies are cleared.
-const VERSION = 'jissr-v63';
+const VERSION = 'jissr-v64';
 const SHELL = [
+  '/design/tokens.css', '/design/system.css',
   '/', '/index.html', '/loop.html', '/team.html', '/me.html', '/pathways.html', '/jury.html', '/ios.css', '/patient.html', '/staff.html', '/metrics.html', '/review.html', '/trust.html', '/impact.html', '/pilot.html', '/roles.html', '/map.html', '/verify.html', '/family.html', '/app.html', '/care.html', '/app-shell.css', '/styles.css', '/theme.css', '/manifest.webmanifest',
   '/core/rules.mjs', '/core/cases.mjs', '/core/data.mjs', '/core/store.mjs', '/core/templates.mjs', '/core/ui.mjs', '/core/fhir.mjs', '/core/programmes.mjs', '/core/pwa.mjs', '/core/art.mjs', '/core/tour.mjs', '/core/roles.mjs', '/core/geo.mjs', '/core/qr.mjs', '/core/proof.mjs', '/core/family.mjs', '/core/passport.mjs', '/core/flow.mjs', '/core/agents.mjs', '/core/channel.mjs', '/core/roadmap.mjs', '/core/workflow.mjs', '/core/history.mjs', '/core/assistant.mjs',
   '/icons/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png',
