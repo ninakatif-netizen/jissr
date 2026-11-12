@@ -22,12 +22,12 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await q.waitForFunction(() => document.getElementById('splash').hidden || !document.getElementById('sp-go').hidden, null, { timeout: 8000 });
   if (await q.isVisible('#sp-go')) await q.click('#sp-go');
   await q.waitForSelector('#t-pat', { timeout: 8000 });
-  ok(/Sign in/.test(await q.innerText('#app')) && /I work in care/.test(await q.innerText('#app')), 'after the splash: sign in as a patient or as care');
+  ok(/Welcome to Falaj/.test(await q.innerText('#app')) && /I work in care/.test(await q.innerText('#app')), 'after the splash: sign in as a patient or as care');
   await q.click('[data-pat="C-040"]'); await q.waitForSelector('#tab-id');
-  ok(/Your next step/i.test(await q.innerText('#app')) && await q.locator('#tabs a').count() === 3, 'the patient lands on Today: the next step first, three tabs');
+  ok(await q.locator('.hero2 .track li').count() === 5 && await q.locator('#tabs a').count() === 3, 'the patient lands on Today: the next step and the journey first, three tabs');
   await q.click('#tab-id'); await q.waitForSelector('#hid');
   const hid = await q.innerText('#hid');
-  ok(/^FLJ-\d{4}-0040$/.test(hid) && await q.locator('.idcard svg.qr').count() === 1, 'the patient sees their Health ID and a QR code');
+  ok(/^FLJ-\d{4}-0040$/.test(hid) && await q.locator('.pass svg.qr').count() === 1, 'the patient sees their Health ID and a QR code');
   await q.click('#tab-ask'); await q.waitForSelector('#chat.chat');
   await q.click('[data-chip="What does my result mean?"]'); await q.waitForSelector('#chat li.ai .src');
   ok(/cannot tell you about results/.test(await q.innerText('#chat')), 'the assistant never gives results');

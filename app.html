@@ -131,6 +131,151 @@
 .scan button{min-height:48px;padding:0 22px;border-radius:24px;border:0;background:#fff;color:#0a1f2e;font:inherit;font-weight:700;cursor:pointer}
 </style>
 <link rel="stylesheet" href="design/system.css">
+<style>
+/* =====================================================================
+   FALAJ iOS LAYER: native iOS patterns (large titles, inset grouped lists
+   with coloured icon tiles, segmented control, Messages-style chat,
+   a Wallet-style pass, translucent tab bar) in a calm medical palette.
+   Life comes from real data: the journey track fills like water.
+   ===================================================================== */
+body[data-falaj-page=app]{
+  --text:-apple-system,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
+  --display:-apple-system,"SF Pro Display",system-ui,"Segoe UI",Roboto,sans-serif;
+  --display-ls:-.4px;
+  --g-bg:#f2f2f7;--g-card:#fff;--g-label:#0b1b26;--g-2:#5a6570;--g-sep:rgba(60,60,67,.16);
+  --g-tint:#0a6aa8;--g-water:#2fb3e3;--g-green:#1d7f53;--g-orange:#b85c00;--g-indigo:#4b41c9;--g-red:#c9342a;--g-teal:#0c7f86;
+  --g-shadow:0 1px 2px rgba(11,27,38,.05),0 8px 24px -12px rgba(11,27,38,.12);
+  --bg:var(--g-bg);--app-bg:var(--g-bg);--card:var(--g-card);--ink:var(--g-label);--muted:var(--g-2);--tint:var(--g-tint);--line:var(--g-sep);
+  background:var(--g-bg)}
+@media (prefers-color-scheme:dark){body[data-falaj-page=app]{
+  --g-bg:#000;--g-card:#1c1c1e;--g-label:#f2f2f7;--g-2:#a8a8b0;--g-sep:rgba(84,84,88,.55);
+  --g-tint:#5ab8ff;--g-water:#47c2ee;--g-green:#3fca86;--g-orange:#ff9f2e;--g-indigo:#8f87ff;--g-red:#ff6b61;--g-teal:#40c8cf;
+  --g-shadow:none}}
+body[data-falaj-page=app] .phone,body[data-falaj-page=app] main{background:var(--g-bg)}
+body[data-falaj-page=app] main{gap:20px;padding-top:0}
+/* screens slide in softly */
+#app.enter > *{animation:scr .32s cubic-bezier(.2,.8,.2,1) both}
+#app.enter > *:nth-child(2){animation-delay:.03s}#app.enter > *:nth-child(3){animation-delay:.06s}#app.enter > *:nth-child(4){animation-delay:.09s}#app.enter > *:nth-child(5){animation-delay:.12s}
+@keyframes scr{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* press feedback, like a native tap */
+body[data-falaj-page=app] :is(button,a.wide,.prow,.tabs a){transition:transform .12s ease,background-color .15s ease,opacity .15s ease}
+body[data-falaj-page=app] :is(button,a.wide,.prow):active{transform:scale(.97)}
+/* navigation bar + large title */
+.nav{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding-top:calc(6px + env(safe-area-inset-top))}
+.nav .linkbtn,.nav .back{color:var(--g-tint);font-size:17px;padding:0}
+.lt{margin:0;padding:0 2px}
+.lt .eyebrow{margin:0;font-size:13px;font-weight:600;letter-spacing:.2px;text-transform:uppercase;color:var(--g-2)}
+.lt h1{margin:2px 0 0;font-size:34px;line-height:1.1;letter-spacing:-.4px;color:var(--g-label)}
+/* inset grouped list with icon tiles */
+.ig{list-style:none;margin:0;padding:0;background:var(--g-card);border-radius:14px;overflow:hidden;box-shadow:var(--g-shadow);border:0 !important}
+.ig > li{position:relative}
+.ig > li + li::before{content:"";position:absolute;top:0;inset-inline-start:58px;inset-inline-end:0;height:1px;background:var(--g-sep)}
+.ig .row{display:flex;align-items:center;gap:14px;width:100%;min-height:58px;padding:10px 16px;background:none;border:0;color:var(--g-label);font:inherit;text-align:start;text-decoration:none;cursor:pointer}
+.ig .row:hover{background:color-mix(in srgb,var(--g-label) 4%,transparent)}
+.ig .row .tx{flex:1;min-width:0}.ig .row b{display:block;font-size:17px;font-weight:500}.ig .row small{display:block;font-size:14px;color:var(--g-2);margin-top:1px}
+.ig .row .chev{color:color-mix(in srgb,var(--g-2) 70%,transparent);flex:none}
+.tile{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;flex:none}
+.tile.blue{background:#0a84ff}.tile.orange{background:#ff9500}.tile.indigo{background:#5856d6}.tile.green{background:#30b05f}.tile.teal{background:#13a3b0}.tile.red{background:#ff3b30}.tile.gray{background:#8e8e93}
+.ig .av{width:36px;height:36px;font-size:13px}
+.gh2{margin:0 0 -12px;padding:0 16px;font-size:13px;text-transform:uppercase;letter-spacing:.2px;color:var(--g-2)}
+.foot2{margin:-8px 16px 0;font-size:13px;line-height:1.45;color:var(--g-2)}
+/* the hero of Today: next step + journey track */
+.hero2{position:relative;overflow:hidden;border-radius:22px;padding:20px 18px 18px;background:var(--g-card);box-shadow:var(--g-shadow);display:flex;flex-direction:column;gap:14px}
+.hero2::before{content:"";position:absolute;inset:0 0 auto 0;height:120px;background:radial-gradient(120% 100% at 0% 0%,color-mix(in srgb,var(--g-water) 22%,transparent),transparent 70%);pointer-events:none}
+.hero2 > *{position:relative}
+.pill{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--g-tint) 12%,transparent);color:var(--g-tint)}
+.pill.warm{background:color-mix(in srgb,var(--g-orange) 14%,transparent);color:var(--g-orange)}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse2 1.6s ease-in-out infinite}
+@keyframes pulse2{50%{opacity:.35;transform:scale(.8)}}
+.hero2 .say{margin:0;font-size:21px;line-height:1.35;font-weight:600;letter-spacing:-.2px;color:var(--g-label);text-wrap:pretty}
+.track{list-style:none;margin:2px 0 0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.track li{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--g-2);font-weight:500}
+.track i{display:block;height:6px;border-radius:3px;background:color-mix(in srgb,var(--g-2) 22%,transparent);overflow:hidden;position:relative}
+.track li.done i::after,.track li.now i::after{content:"";position:absolute;inset:0;border-radius:3px;background:linear-gradient(90deg,var(--g-tint),var(--g-water));transform-origin:left;animation:fill2 .9s cubic-bezier(.2,.8,.2,1) both}
+.track li.now i::after{width:45%;background:linear-gradient(90deg,var(--g-water),color-mix(in srgb,var(--g-water) 40%,transparent));animation:fill2 .9s cubic-bezier(.2,.8,.2,1) both,flow2 1.6s ease-in-out .9s infinite}
+.track li.done{color:var(--g-label)}.track li.now{color:var(--g-tint);font-weight:700}
+.track li:nth-child(2) i::after{animation-delay:.1s}.track li:nth-child(3) i::after{animation-delay:.2s}.track li:nth-child(4) i::after{animation-delay:.3s}.track li:nth-child(5) i::after{animation-delay:.4s}
+@keyframes fill2{from{transform:scaleX(0)}}
+@keyframes flow2{50%{opacity:.55}}
+.btn-fill{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;border-radius:14px;border:0;background:var(--g-tint);color:#fff;font:inherit;font-size:17px;font-weight:600;text-decoration:none;cursor:pointer}
+@media (prefers-color-scheme:dark){.btn-fill{color:#001a2b}}
+.btn-tint{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;border-radius:14px;border:0;background:color-mix(in srgb,var(--g-tint) 12%,transparent);color:var(--g-tint);font:inherit;font-size:17px;font-weight:600;text-decoration:none;cursor:pointer}
+/* quick actions */
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.qa{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:14px;border-radius:18px;background:var(--g-card);box-shadow:var(--g-shadow);border:0;color:var(--g-label);font:inherit;text-align:start;text-decoration:none;cursor:pointer;min-height:96px}
+.qa b{font-size:16px;font-weight:600}.qa small{font-size:13px;color:var(--g-2);margin-top:-6px}
+/* visit row */
+.visit2 .cal{width:44px;height:48px;border-radius:10px;background:var(--g-card);border:1px solid var(--g-sep);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;overflow:hidden}
+.visit2 .cal span{display:block;width:100%;text-align:center;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;line-height:16px}
+.visit2 .cal b{font-size:20px;line-height:30px;font-weight:600}
+/* Wallet-style pass */
+.pass{position:relative;overflow:hidden;border-radius:24px;padding:20px 18px 18px;color:#fff;background:linear-gradient(160deg,#0a3f63 0%,#0a6aa8 55%,#1aa0d4 100%);box-shadow:0 18px 40px -18px rgba(10,63,99,.55);display:flex;flex-direction:column;gap:14px}
+.pass .wave{position:absolute;inset:auto 0 0 0;height:90px;opacity:.22;pointer-events:none}
+.pass .wave path{animation:wave2 6s ease-in-out infinite alternate}
+@keyframes wave2{to{transform:translateX(-40px)}}
+.pass .ph{display:flex;align-items:center;justify-content:space-between}
+.pass .ph span{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.pass .ph small{font-size:12px;opacity:.85;letter-spacing:.3px;text-transform:uppercase}
+.pass .who3 small{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.4px;opacity:.8}
+.pass .who3 b{display:block;font-size:22px;font-weight:600;margin-top:2px}
+.pass .hid{margin:0;font:600 26px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:1.5px}
+.pass .qrbox{align-self:center;background:#fff;border-radius:18px;padding:10px;line-height:0;position:relative}
+.pass .qrbox svg{width:210px;height:210px}
+.pass p{margin:0;font-size:15px;line-height:1.45;color:#e6f3fb;text-align:center}
+.pass .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pass .row button{min-height:46px;border-radius:12px;border:0;background:rgba(255,255,255,.18);color:#fff;font:inherit;font-size:16px;font-weight:600;cursor:pointer;backdrop-filter:blur(8px)}
+/* Messages-style chat */
+body[data-falaj-page=app] .chat .b{background:color-mix(in srgb,var(--g-2) 14%,var(--g-card));color:var(--g-label);border-radius:20px;border-bottom-left-radius:6px}
+body[data-falaj-page=app] .chat .me .b{background:#0062cc;color:#fff;border-radius:20px;border-bottom-right-radius:6px}
+body[data-falaj-page=app] .chat li{animation:pop .28s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes pop{from{opacity:0;transform:translateY(6px) scale(.98)}}
+body[data-falaj-page=app] .chat .acts button,body[data-falaj-page=app] .chat .acts a{border:0;background:color-mix(in srgb,var(--g-tint) 12%,transparent);color:var(--g-tint)}
+body[data-falaj-page=app] .chips button{background:var(--g-card);box-shadow:var(--g-shadow);color:var(--g-label)}
+body[data-falaj-page=app] .composer{background:color-mix(in srgb,var(--g-bg) 88%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+body[data-falaj-page=app] .composer input{border-radius:22px;background:var(--g-card);border:1px solid var(--g-sep)}
+body[data-falaj-page=app] .composer button{width:44px;min-width:44px;min-height:44px;height:44px;padding:0;border-radius:50%;background:#0062cc;display:grid;place-items:center}
+.callbtn2{width:44px;height:44px;border-radius:50%;border:0;background:#30b05f;color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 16px -6px rgba(48,176,95,.6)}
+/* tab bar: translucent */
+body[data-falaj-page=app] .tabs{background:color-mix(in srgb,var(--g-card) 78%,transparent);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--g-sep)}
+body[data-falaj-page=app] .tabs a{color:var(--g-2);font-size:11px}
+body[data-falaj-page=app] .tabs a[aria-current=page]{color:#0062cc}
+@media (prefers-color-scheme:dark){body[data-falaj-page=app] .tabs a[aria-current=page]{color:#5ab8ff}}
+/* iOS segmented control */
+body[data-falaj-page=app] .seg{background:color-mix(in srgb,var(--g-2) 16%,transparent);border-radius:9px;padding:2px;gap:2px}
+body[data-falaj-page=app] .seg button{min-height:36px;border-radius:7px;font-size:14px;font-weight:600;color:var(--g-label)}
+body[data-falaj-page=app] .seg button[aria-pressed=true]{background:var(--g-card);box-shadow:0 3px 8px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)}
+/* iOS form rows */
+.form2 .ig li{display:flex;align-items:center;gap:12px;padding:0 16px;min-height:52px}
+.form2 label{width:96px;flex:none;font-size:16px;color:var(--g-label)}
+.form2 input{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:17px;color:var(--g-label);min-height:52px;padding:0}
+.form2 input:focus-visible{outline:none}
+.form2 li:focus-within{box-shadow:inset 3px 0 0 var(--g-tint)}
+#fid{font-family:ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:.5px;text-transform:uppercase}
+/* welcome */
+.welcome{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding-top:calc(28px + env(safe-area-inset-top))}
+.appicon{width:76px;height:76px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(160deg,#0a3f63,#0a6aa8 60%,#1aa0d4);box-shadow:0 12px 28px -12px rgba(10,63,99,.6)}
+.welcome h1{margin:8px 0 0;font-size:30px}
+.welcome p{margin:0;color:var(--g-2);font-size:16px;max-width:30ch;line-height:1.4}
+/* care map screen */
+.ptcard{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;background:var(--g-card);box-shadow:var(--g-shadow)}
+.ptcard .av{width:48px;height:48px;font-size:17px;background:linear-gradient(160deg,#0a6aa8,#1aa0d4)}
+.ptcard b{display:block;font-size:20px;font-weight:600}.ptcard small{display:block;font-size:14px;color:var(--g-2)}
+.status2{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:18px;background:var(--g-card);box-shadow:var(--g-shadow)}
+.status2 p{margin:0;font-size:17px;line-height:1.4;color:var(--g-label)}
+body[data-falaj-page=app] .hist{border-radius:14px;box-shadow:var(--g-shadow)}
+body[data-falaj-page=app] .cm{border-radius:20px;box-shadow:0 18px 40px -22px rgba(10,31,46,.6)}
+.foot2 a{color:var(--g-tint)}
+body[data-falaj-page=app] #app:focus,body[data-falaj-page=app] .inner:focus:not(:focus-visible){outline:none;box-shadow:none}
+@media (min-width:980px){
+  body[data-falaj-page=app] .stage{display:block;padding:0;min-height:100vh}
+  body[data-falaj-page=app] .phone{width:auto;max-width:440px;height:auto;min-height:100vh;margin:0 auto;border:0;border-radius:0;box-shadow:0 0 0 1px var(--g-sep);overflow:visible;display:flex}
+  body[data-falaj-page=app] .phone > .inner{height:auto;overflow:visible}
+  body[data-falaj-page=app] .scrim{position:fixed !important}
+}
+.form2 .err:empty{display:none}
+@media (prefers-color-scheme:light){body[data-falaj-page=app] .chat .acts :is(button,a),.btn-tint{color:#07507f}}
+@media (prefers-reduced-motion:reduce){#app.enter > *,.track i::after,.pill .dot,.pass .wave path,body[data-falaj-page=app] .chat li{animation:none !important}}
+</style>
 </head>
 <body class="webp" data-falaj-surface="patient" data-falaj-page="app">
 <div id="splash" role="dialog" aria-label="Falaj is opening" hidden>
@@ -178,6 +323,29 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '
 const store = { get: (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } } };
 const sess = { get: (k) => { try { return JSON.parse(sessionStorage.getItem(k)); } catch { return null; } }, set: (k, v) => { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } } };
 const TODAY = isoDay(Date.now());
+const I = {
+  doc: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l5 5v15H6z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 13h7M9 17h7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  q: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>',
+  eye: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>',
+  phone: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l3 4-2 2c1 2.5 3.5 5 6 6l2-2 4 3-2 4C10 20 4 14 3 5z" fill="currentColor"/></svg>',
+  chat: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="currentColor"/></svg>',
+  person: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7z" fill="currentColor"/></svg>',
+  steth: '<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v6a5 5 0 0 0 10 0V3M11 14v2a4 4 0 0 0 8 0v-2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="19" cy="12" r="2" fill="currentColor"/></svg>',
+  qr: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  send: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  chev: '<svg class="chev" width="9" height="15" viewBox="0 0 9 15" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  scan: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8V4h4M17 4h4v4M21 16v4h-4M7 20H3v-4M3 12h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+};
+const row = (id, tile, ic, title, sub, tag = 'button', href = '') => `<li><${tag} class="row" ${tag === 'a' ? `href="${href}"` : ''} id="${id}"><span class="tile ${tile}">${ic}</span><span class="tx"><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</span>${I.chev}</${tag}></li>`;
+// the patient's journey in five steps, from the real case
+const STG = ['result', 'notified', 'understood', 'booked', 'attended', 'confirmed', 'referred', 'care_plan', 'closed'];
+function journey(c) {
+  const i = STG.indexOf(c.stage), told = (c.events || []).some((e) => (e.type === 'contact' && e.role !== 'system') || e.type === 'understood');
+  const done = [told || i >= 2, i >= 2, i >= 3, i >= 4, i >= 8];
+  const now = done.indexOf(false);
+  return ['Told', 'Understood', 'Booked', 'Seen', 'Care'].map((l, k) => ({ l, st: done[k] ? 'done' : k === now ? 'now' : '' }));
+}
+
 const LANG = { ar: 'Arabic', en: 'English', ur: 'Urdu', hi: 'Hindi', tl: 'Tagalog', bn: 'Bengali', ml: 'Malayalam' };
 const first = (c) => c.patient.name.split(' ')[0];
 const clean = (n) => n.replace(/\s*\(coordinator\)/, '');
@@ -266,8 +434,8 @@ function render() {
   if (r.k === 'map' && (sess.get('falaj.app.open') || []).includes(r.v) && caseOf(r.v)) return mapScreen(s, caseOf(r.v));
   return doctorHome(s);
 }
-const paint = (html) => { $('#app').innerHTML = html; $('#app').focus({ preventScroll: true }); document.querySelector('.inner').scrollTop = 0; window.scrollTo(0, 0); };
-const topBar = (right = '') => `<div class="top"><span class="brand">${logo}<span>Falaj</span></span>${right}</div>`;
+const paint = (html) => { const m = $('#app'); m.classList.remove('enter'); void m.offsetWidth; m.classList.add('enter'); m.innerHTML = html; $('#app').focus({ preventScroll: true }); document.querySelector('.inner').scrollTop = 0; window.scrollTo(0, 0); };
+const topBar = (right = '') => `<div class="nav"><span class="brand">${logo}<span>Falaj</span></span>${right}</div>`;
 const signOutBtn = '<button class="linkbtn" id="out">Sign out</button>';
 function bindOut() { const b = $('#out'); if (b) b.onclick = () => { store.set('falaj.app.user', null); go(''); render(); }; }
 
@@ -276,13 +444,13 @@ const DEMO_PATIENTS = ['C-040', 'C-001', 'C-031'];
 const DEMO_STAFF = ['d1', 'e4', 'n2'];
 function loginScreen(tab) {
   const pats = DEMO_PATIENTS.map(caseOf).filter(Boolean), staff = DEMO_STAFF.map(staffOf).filter(Boolean);
-  paint(`${topBar()}
-    <div class="head"><h1>Sign in</h1></div>
+  paint(`<div class="welcome"><span class="appicon"><svg width="46" height="36" viewBox="0 0 34 26" aria-hidden="true"><path d="M2 20c6 0 8-12 15-12s9 12 15 12" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M27 9V3M24 5l3-2 3 2" fill="none" stroke="#9ff0c2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <h1>Welcome to Falaj</h1><p>Every result, all the way to care.</p></div>
     <div class="seg" role="group" aria-label="I am"><button id="t-pat" aria-pressed="${tab === 'patient'}">I am a patient</button><button id="t-care" aria-pressed="${tab === 'care'}">I work in care</button></div>
-    ${tab === 'patient' ? `<div class="group"><ul class="list">${pats.map((c) => `<li><button class="prow" data-pat="${c.id}"><span class="av lg" style="background:#0b6fa8">${esc(initials(c.patient.name))}</span><span class="t"><b>${esc(c.patient.name)}</b><small>Health ID ${esc(healthId(c))}</small></span></button></li>`).join('')}</ul></div>`
-      : `<div class="group"><ul class="list">${staff.map((s) => `<li><button class="prow" data-staff="${s.id}"><span class="av lg" style="background:#0a1f2e">${esc(initials(s.name))}</span><span class="t"><b>${esc(clean(s.name))}</b><small>${esc(s.org)}</small></span></button></li>`).join('')}</ul></div>
-      ${sess.get('falaj.app.pending') ? `<p class="seen">A patient's QR code was scanned: after you sign in, type their name to open their file.</p>` : ''}`}
-    <p class="demo-note">Demo: no password, invented people. In a pilot: the national digital identity.<br><a href="index.html">About Falaj</a> · <a href="jury.html">For the jury</a></p>`);
+    ${tab === 'patient' ? `<p class="gh2">Choose a demo patient</p><ul class="ig">${pats.map((c) => `<li><button class="row" data-pat="${c.id}"><span class="av" style="background:linear-gradient(160deg,#0a6aa8,#1aa0d4)">${esc(initials(c.patient.name))}</span><span class="tx"><b>${esc(c.patient.name)}</b><small>${esc(healthId(c))}</small></span>${I.chev}</button></li>`).join('')}</ul>`
+      : `<p class="gh2">Choose a demo clinician</p><ul class="ig">${staff.map((s) => `<li><button class="row" data-staff="${s.id}"><span class="av" style="background:linear-gradient(160deg,#0b1b26,#2c4a5e)">${esc(initials(s.name))}</span><span class="tx"><b>${esc(clean(s.name))}</b><small>${esc(s.org)}</small></span>${I.chev}</button></li>`).join('')}</ul>
+      ${sess.get('falaj.app.pending') ? `<p class="foot2">A patient's QR code was scanned. After you sign in, type their name.</p>` : ''}`}
+    <p class="foot2">Demo: no password, invented people. In a pilot, sign-in uses the national digital identity. <a href="index.html">About Falaj</a> · <a href="jury.html">For the jury</a></p>`);
   $('#t-pat').onclick = () => { sess.set('falaj.app.tab', 'patient'); loginScreen('patient'); };
   $('#t-care').onclick = () => { sess.set('falaj.app.tab', 'care'); loginScreen('care'); };
   document.querySelectorAll('[data-pat]').forEach((b) => { b.onclick = () => { store.set('falaj.app.user', { kind: 'patient', id: b.dataset.pat }); go('me'); }; });
@@ -302,33 +470,45 @@ function tabs(cur) {
 function patientHome(c) {
   const ctx = contextOf(c), a = c.assist || {}, v = c.slot || c.hold, docs = documentsOf(c), acc = c.access || [];
   const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-  paint(`${topBar(signOutBtn)}
-    <div class="head"><h1>Hello, ${esc(first(c))}</h1><p class="ctx">${esc(today)}</p></div>
-    <section class="card nowcard" aria-labelledby="nx"><p class="lbl2" id="nx">Your next step</p><p class="big2">${esc(nextStep(ctx))}</p><a class="wide" href="me.html?p=${c.id}">Open my steps</a></section>
-    ${v ? `<section class="card visit" aria-label="Your visit"><span class="d"><b>${new Date(v.day + 'T00:00:00Z').getUTCDate()}</b>${esc(new Date(v.day + 'T00:00:00Z').toLocaleDateString('en-GB', { month: 'short', timeZone: 'UTC' }))}</span><span class="t"><b>${c.slot ? 'Your visit' : 'A visit held for you'}</b><small>${esc(fmtDay(v.day))} · ${esc(v.time)} · Family Clinic A</small></span><button class="linkbtn" id="ics">Calendar</button></section>` : ''}
-    <ul class="list">
-      <li><button class="prow" id="o-docs"><span class="t"><b>My documents</b><small>${docs.length} ${docs.length === 1 ? 'document' : 'documents'}, from every clinic</small></span></button></li>
-      <li><button class="prow" id="o-q"><span class="t"><b>Questions for my doctor</b><small>${(a.questions || []).length ? (a.questions || []).length + ' saved' : 'Write them before your visit'}</small></span></button></li>
-      <li><button class="prow" id="o-acc"><span class="t"><b>Who opened my file</b><small>${acc.length ? `${esc(clean(acc[0].by))} · ${esc(fmtDay(acc[0].at))}` : 'No one yet'}</small></span></button></li>
+  const j = journey(c), waiting = ctx.waitingForPerson;
+  const vd = v && new Date(v.day + 'T00:00:00Z');
+  paint(`<div class="nav"><span></span>${signOutBtn}</div>
+    <div class="lt"><p class="eyebrow">${esc(today)}</p><h1>Hello, ${esc(first(c))}</h1></div>
+    <section class="hero2" aria-labelledby="nx">
+      <span class="pill${waiting ? ' warm' : ''}" id="nx"><span class="dot" aria-hidden="true"></span>${waiting ? 'A nurse will call you' : c.stage === 'closed' ? 'Care confirmed' : 'Your next step'}</span>
+      <p class="say">${esc(nextStep(ctx))}</p>
+      <ol class="track" aria-label="Your care, step by step">${j.map((x) => `<li class="${x.st}"><i></i>${x.l}${x.st === 'done' ? '<span class="sr" style="position:absolute;left:-9999px">: done</span>' : x.st === 'now' ? '<span class="sr" style="position:absolute;left:-9999px">: now</span>' : ''}</li>`).join('')}</ol>
+      <a class="btn-fill" href="me.html?p=${c.id}">Open my steps</a>
+    </section>
+    <div class="quick"><a class="qa" href="#ask"><span class="tile blue">${I.chat}</span><b>Ask Falaj</b><small>Your assistant</small></a><button class="qa" id="callme"><span class="tile green">${I.phone}</span><b>Call me</b><small>In the app, now</small></button></div>
+    ${v ? `<ul class="ig visit2"><li><button class="row" id="ics"><span class="cal"><span>${esc(vd.toLocaleDateString('en-GB', { month: 'short', timeZone: 'UTC' }))}</span><b>${vd.getUTCDate()}</b></span><span class="tx"><b>${c.slot ? 'Visit with your family doctor' : 'A visit held for you'}</b><small>${esc(fmtDay(v.day))} · ${esc(v.time)} · Family Clinic A</small></span>${I.chev}</button></li></ul>` : ''}
+    <ul class="ig">
+      ${row('o-docs', 'blue', I.doc, 'My documents', `${docs.length} ${docs.length === 1 ? 'document' : 'documents'}, from every clinic`)}
+      ${row('o-q', 'orange', I.q, 'Questions for my doctor', (a.questions || []).length ? `${(a.questions || []).length} saved` : 'Write them before your visit')}
+      ${row('o-acc', 'indigo', I.eye, 'Who opened my file', acc.length ? `${esc(clean(acc[0].by))} · ${esc(fmtDay(acc[0].at))}` : 'No one yet')}
     </ul>
-    <p class="demo-note">Invented data. Not medical advice.</p>`);
+    <p class="foot2">Invented data. Not medical advice.</p>`);
   bindOut();
   const ic = $('#ics'); if (ic) ic.onclick = () => ics(c);
+  $('#callme').onclick = () => startCall(c);
   $('#o-docs').onclick = () => docsSheet(c);
   $('#o-q').onclick = () => questionSheet(c);
-  $('#o-acc').onclick = () => sheet(`<h2>Who opened my file</h2><p>Every time a doctor or nurse opens your file, it shows here.</p>${acc.length ? `<ul class="list">${acc.slice(0, 10).map((x) => `<li><div class="prow"><span class="t"><b>${esc(clean(x.by))}</b><small>${esc(x.org)} · ${esc(fmtDay(x.at))} at ${esc(time(x.at))}</small></span></div></li>`).join('')}</ul>` : ''}<button class="wide ghost" data-close>Close</button>`);
+  $('#o-acc').onclick = () => sheet(`<h2>Who opened my file</h2><p>Every time a doctor or nurse opens your file, it shows here.</p>${acc.length ? `<ul class="ig">${acc.slice(0, 10).map((x) => `<li><div class="row"><span class="tile indigo">${I.steth}</span><span class="tx"><b>${esc(clean(x.by))}</b><small>${esc(x.org)} · ${esc(fmtDay(x.at))} at ${esc(time(x.at))}</small></span></div></li>`).join('')}</ul>` : ''}<button class="btn-tint" data-close>Close</button>`);
 }
 function idScreen(c) {
   const id = healthId(c), link = lookupLink(location.origin, c);
-  paint(`${topBar(signOutBtn)}
-    <section class="idcard" aria-labelledby="idl">
-      <p class="lbl" id="idl">My Falaj Health ID</p>
+  paint(`<div class="nav"><span></span>${signOutBtn}</div>
+    <div class="lt"><p class="eyebrow">Show it to any doctor</p><h1>My Health ID</h1></div>
+    <section class="pass" aria-labelledby="idl">
+      <svg class="wave" viewBox="0 0 400 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0 50C60 20 120 80 200 50S340 20 440 50V90H0z" fill="#fff"/></svg>
+      <div class="ph"><span><svg width="26" height="20" viewBox="0 0 34 26" aria-hidden="true"><path d="M2 20c6 0 8-12 15-12s9 12 15 12" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M27 9V3M24 5l3-2 3 2" fill="none" stroke="#9ff0c2" stroke-width="2.4" stroke-linecap="round"/></svg>Falaj</span><small id="idl">Health ID</small></div>
+      <div class="who3"><small>Name</small><b>${esc(c.patient.name)}</b></div>
       <p class="hid" id="hid">${esc(id)}</p>
-      <div class="qrbox">${qrSvg(link, { size: 240, label: 'QR code of your Health ID, for a doctor to scan' })}</div>
-      <p>Show this to any doctor or nurse. They also type your name, so the code alone never opens your file.</p>
+      <div class="qrbox">${qrSvg(link, { size: 210, label: 'QR code of your Health ID, for a doctor to scan' })}</div>
+      <p>The doctor also types your name, so the code alone never opens your file.</p>
       <div class="row"><button id="copy">Copy</button><button id="share">Share</button></div>
     </section>
-    <p class="demo-note">A Falaj number, not your Emirates ID.</p>`);
+    <p class="foot2">A Falaj number, not your Emirates ID.</p>`);
   bindOut();
   $('#copy').onclick = () => { try { navigator.clipboard.writeText(id).then(() => toast('Health ID copied'), () => toast(id)); } catch { toast(id); } };
   $('#share').onclick = () => { if (navigator.share) navigator.share({ title: 'My Falaj Health ID', text: `My Falaj Health ID: ${id}`, url: link }).catch(() => {}); else { try { navigator.clipboard.writeText(link); toast('Link copied'); } catch { toast(link); } } };
@@ -373,14 +553,14 @@ function sheet(html, onAct) {
 }
 function docsSheet(c) {
   const docs = documentsOf(c);
-  sheet(`<h2>My documents</h2><p>Kept together by Falaj, from every place that cared for you.</p><ul class="list">${docs.map((d) => `<li><div class="prow"><span class="t"><b>${esc(d.title)}</b><small>${esc(d.from)}</small></span></div></li>`).join('')}</ul><button class="wide ghost" data-close>Close</button>`);
+  sheet(`<h2>My documents</h2><p>Kept together by Falaj, from every place that cared for you.</p><ul class="ig">${docs.map((d) => `<li><div class="row"><span class="tile blue">${I.doc}</span><span class="tx"><b>${esc(d.title)}</b><small>${esc(d.from)}</small></span></div></li>`).join('')}</ul><button class="btn-tint" data-close>Close</button>`);
 }
 function questionSheet(c) {
   const qs = (c.assist && c.assist.questions) || [];
   sheet(`<h2>Questions for my doctor</h2><p>Write them down now, show the list at your visit.</p>
-    ${qs.length ? `<ul class="list">${qs.map((q) => `<li><div class="prow"><span class="t"><b>${esc(q.text)}</b></span></div></li>`).join('')}</ul>` : ''}
+    ${qs.length ? `<ul class="ig">${qs.map((q) => `<li><div class="row"><span class="tile orange">${I.q}</span><span class="tx"><b>${esc(q.text)}</b></span></div></li>`).join('')}</ul>` : ''}
     <div class="field"><label for="qtext">A new question</label><textarea id="qtext" rows="3" maxlength="300"></textarea></div>
-    <button class="wide" id="qsave">Save the question</button><button class="wide ghost" data-close>Close</button>`);
+    <button class="btn-fill" id="qsave">Save the question</button><button class="btn-tint" data-close>Close</button>`);
   $('#qsave').onclick = () => {
     const t = $('#qtext').value.trim(); if (!t) { $('#qtext').focus(); return; }
     const x = caseOf(c.id); x.assist = x.assist || {}; x.assist.questions = x.assist.questions || []; x.assist.questions.push({ text: t.slice(0, 300), at: new Date().toISOString() });
@@ -397,11 +577,11 @@ function askScreen(c) {
   const key = 'falaj.app.chat.' + c.id;
   const msgs = sess.get(key) || [{ who: 'ai', text: `Hello ${first(c)}. I keep your care organised: next step, visits, reminders, documents, questions for your doctor. Results come from your care team, not from me.`, actions: [] }];
   const bubble = (m) => `<li class="${m.who === 'me' ? 'me' : 'ai'}"><span class="b">${esc(m.text)}</span>${m.actions && m.actions.length ? `<span class="acts">${m.actions.map((a) => a.type === 'tel' ? `<a href="${esc(a.href)}">${esc(a.label)}</a>` : a.type === 'info' ? `<span class="src">${esc(a.label)}</span>` : `<button data-act="${a.type}">${esc(a.label)}</button>`).join('')}</span>` : ''}${m.src ? `<span class="src">${m.src === 'ai' ? 'Written by AI, checked by rules' : 'Answered by Falaj rules'}</span>` : ''}</li>`;
-  paint(`<div class="top"><h1 class="t2">Ask Falaj</h1><button class="callbtn" id="callme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l3 4-2 2c1 2.5 3.5 5 6 6l2-2 4 3-2 4C10 20 4 14 3 5z" fill="currentColor"/></svg>Call me</button></div>
-    <p class="hint" id="ailabel">${aiOn === null ? '' : aiLabel()}</p>
+  paint(`<div class="nav"><span></span><button class="callbtn2" id="callme" aria-label="Call me">${I.phone}</button></div>
+    <div class="lt"><p class="eyebrow" id="ailabel">${aiLabel()}</p><h1>Ask Falaj</h1></div>
     <ul class="chat" id="chat" aria-live="polite">${msgs.map(bubble).join('')}</ul>
     <div class="chips" role="group" aria-label="Suggestions">${CHIPS.map((t) => `<button data-chip="${esc(t)}">${esc(t)}</button>`).join('')}</div>
-    <form class="composer" id="compose"><label class="sr" for="msg" style="position:absolute;left:-9999px">Message</label><input id="msg" autocomplete="off" maxlength="400" placeholder="Write to Falaj"><button aria-label="Send">Send</button></form>`);
+    <form class="composer" id="compose"><label class="sr" for="msg" style="position:absolute;left:-9999px">Message</label><input id="msg" autocomplete="off" maxlength="400" placeholder="Message"><button aria-label="Send">${I.send}</button></form>`);
   const list = $('#chat');
   const bind = () => list.querySelectorAll('[data-act]').forEach((b) => { b.onclick = () => { const said = doAction(c, b.dataset.act); if (said) { msgs.push({ who: 'ai', text: said, actions: [] }); sess.set(key, msgs); list.insertAdjacentHTML('beforeend', bubble(msgs[msgs.length - 1])); } }; });
   const scroll = () => { const last = list.lastElementChild; if (last) last.scrollIntoView({ block: 'end', inline: 'nearest' }); const ch = document.querySelector('.chips'); if (ch) ch.scrollLeft = 0; };
@@ -498,18 +678,19 @@ function startCall(c) {
 function doctorHome(s) {
   const pending = sess.get('falaj.app.pending') || '', recent = (sess.get('falaj.app.open') || []).map(caseOf).filter(Boolean);
   const demo = caseOf('C-040');
-  paint(`${topBar(signOutBtn)}
-    <div class="head"><p class="who">${esc(clean(s.name))} · ${esc(s.org)}</p><h1>Find a patient</h1></div>
-    <form class="card" id="findf" novalidate>
-      <div class="field"><label for="fid">Health ID</label><input id="fid" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${esc(pending)}" placeholder="FLJ-2026-0000" aria-describedby="ferr"></div>
-      <div class="field"><label for="fname">First and family name</label><input id="fname" autocomplete="off" spellcheck="false" aria-describedby="ferr"></div>
-      <p class="err" id="ferr" role="alert"></p>
-      <button class="wide" id="open">Open care map</button>
-      ${'BarcodeDetector' in window ? '<button type="button" class="wide ghost" id="scan">Scan QR code</button>' : ''}
+  paint(`<div class="nav"><span></span>${signOutBtn}</div>
+    <div class="lt"><p class="eyebrow">${esc(clean(s.name))} · ${esc(s.org)}</p><h1>Find a patient</h1></div>
+    <form class="form2" id="findf" novalidate style="display:flex;flex-direction:column;gap:14px">
+      <ul class="ig"><li><label for="fid">Health ID</label><input id="fid" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${esc(pending)}" placeholder="FLJ-2026-0000" aria-describedby="ferr"></li>
+        <li><label for="fname">Name</label><input id="fname" autocomplete="off" spellcheck="false" placeholder="First and family name" aria-describedby="ferr"></li></ul>
+      <p class="err" id="ferr" role="alert" style="margin:-4px 16px 0"></p>
+      <button class="btn-fill" id="open">Open care map</button>
+      ${'BarcodeDetector' in window ? `<button type="button" class="btn-tint" id="scan">${I.scan} Scan QR code</button>` : ''}
     </form>
-    ${demo ? `<p class="hint">Demo: <b>${esc(healthId(demo))}</b> · <b>${esc(demo.patient.name)}</b></p>` : ''}
-    ${recent.length ? `<ul class="list">${recent.map((c) => `<li><a class="prow" href="#map=${c.id}"><span class="t"><b>${esc(c.patient.name)}</b><small>${esc(healthId(c))}</small></span></a></li>`).join('')}</ul>` : ''}
-    <p class="demo-note">The patient sees every opening. <a href="team.html?as=${s.id}">My worklist</a></p>`);
+    ${demo ? `<p class="foot2">Demo: ${esc(healthId(demo))} · ${esc(demo.patient.name)}</p>` : ''}
+    ${recent.length ? `<p class="gh2">Opened today</p><ul class="ig">${recent.map((c) => row('r-' + c.id, 'teal', I.person, esc(c.patient.name), esc(healthId(c)), 'a', '#map=' + c.id)).join('')}</ul>` : ''}
+    <ul class="ig">${row('wl', 'gray', I.steth, 'My worklist', 'On the care team website', 'a', `team.html?as=${s.id}`)}</ul>
+    <p class="foot2">The patient sees every opening.</p>`);
   bindOut();
   if (pending) $('#fname').focus();
   $('#findf').onsubmit = (e) => {
@@ -551,13 +732,13 @@ function mapScreen(s, c) {
   const hist = careHistory(c, state.staff), route = routeOf(hist), last = route[route.length - 1];
   const places = [...new Set(route)];
   const wf = mapView === 'falaj' ? workflowHtml(c, { staff: state.staff, today: TODAY, resultText: resultText(c) }).html : '';
-  paint(`<div class="top"><a class="back" href="#find">‹ Find</a>${signOutBtn}</div>
-    <div class="pbanner"><span class="av" aria-hidden="true">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><small>${c.patient.age} · ${esc(LANG[c.patient.language] || c.patient.language)} · ${esc(healthId(c))}</small></span></div>
+  paint(`<div class="nav"><a class="back" href="#find">‹ Find</a>${signOutBtn}</div>
+    <div class="ptcard"><span class="av" aria-hidden="true">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><small>${c.patient.age} · ${esc(LANG[c.patient.language] || c.patient.language)} · ${esc(healthId(c))}</small></span></div>
     ${careMapHtml(hist, { selected: mapSel })}
-    <section class="card nowcard" aria-labelledby="cn"><p class="lbl2" id="cn">Care is now at ${esc(FACILITIES[last].name)}</p><p class="big2">${esc(nextStep(contextOf(c)))}</p><a class="linkbtn" style="align-self:flex-start;padding:0" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist ›</a></section>
+    <section class="status2" aria-labelledby="cn"><span class="pill" id="cn"><span class="dot" aria-hidden="true"></span>Care is now at ${esc(FACILITIES[last].name)}</span><p>${esc(nextStep(contextOf(c)))}</p><a class="btn-tint" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist</a></section>
     <div class="seg" role="group" aria-label="Show"><button data-v="history" aria-pressed="${mapView === 'history'}">History · ${hist.length}</button><button data-v="falaj" aria-pressed="${mapView === 'falaj'}">This result</button></div>
     ${mapView === 'falaj' ? wf : `${mapSel ? `<button class="linkbtn" id="allr" style="align-self:flex-start;padding:0">${esc(FACILITIES[mapSel].name)} only · show all</button>` : ''}<div id="hh">${historyHtml(hist, { only: mapSel })}</div>`}
-    <p class="demo-note">Invented records and places. ${places.length} places. ${esc(first(c))} sees that you opened this file.</p>`);
+    <p class="foot2">Invented records and places. ${esc(first(c))} sees that you opened this file.</p>`);
   bindOut();
   document.querySelectorAll('.cm-dot').forEach((b) => { b.onclick = () => { mapSel = mapSel === b.dataset.fac ? '' : b.dataset.fac; mapView = 'history'; mapScreen(s, c); const h = $('#hh'); if (h) h.scrollIntoView({ block: 'start' }); }; });
   document.querySelectorAll('[data-v]').forEach((b) => { b.onclick = () => { mapView = b.dataset.v; mapScreen(s, c); }; });
