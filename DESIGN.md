@@ -94,3 +94,10 @@ Type: Bricolage Grotesque (bundled) for titles on the website and for the app's 
 ## Glass, everywhere (`design/glass-all.css`)
 
 One theme for every page: a luminous water backdrop (water blue, aqua, a warm sand glow) that drifts slowly, and every surface made of frosted glass with a bright edge: cards, lists, bars, sheets, the care team sidebar (dark glass), fields and quiet buttons. Solid colour is kept for the main action and for status only, so they stand out. Sheets use the stronger glass (`--glass-strong`) so words stay easy to read. Dark mode uses dark glass over a deep-water backdrop. The drift stops under "Reduce motion".
+
+## Glass, upgraded (design council)
+
+- **Material (Ive).** Glass has thickness. Light comes from the top left: a bright rim there, a deeper water-blue rim opposite (`--glass-rim`), milkier at the top than at the bottom (`--glass-fill`). Three depths only: base (cards and lists), raised (`--glass-raise`: tab bar, sheets, the site menu), pressed (`--glass-press`: fields, switches, small chips).
+- **Restraint (Rams).** Only real surfaces are glass; tables, switches and strips are not raised. Every state is designed: "reduce transparency" and "more contrast" give solid surfaces with no blur; browsers that cannot blur get a milkier glass.
+- **Movement (Hadid).** Every page is its own room, by light alone (`--bd1..3` per page): the app is water and sand, the care team's room is cooler, the story is warmer, the reading pages are clearer. Where the browser can, the light shifts as you scroll and sections rise into place (movement only, never fading text).
+- **Delight that teaches (Ingels + Norman).** Light follows the pointer across the glass (`core/glass.mjs`), only on things you can press, so it also says "this is tappable". Static cards never light up.

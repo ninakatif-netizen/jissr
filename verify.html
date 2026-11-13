@@ -79,5 +79,6 @@ function checkShare(id, sid) {
 if (q.get('s')) checkShare(q.get('c'), q.get('s')); else check(q.get('c'), q.get('code'));
 document.getElementById('f').onsubmit = (e) => { e.preventDefault(); check(document.getElementById('cid').value.trim(), document.getElementById('code').value.trim()); };
 </script>
+<script type="module" src="core/glass.mjs"></script>
 </body>
 </html>

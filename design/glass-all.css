@@ -6,23 +6,40 @@
   --glass-edge:rgba(255,255,255,.82);--glass-dark:rgba(8,42,66,.74);
   --glass-sh:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.25),0 14px 34px -20px rgba(12,74,118,.42);
   --glass-blur:blur(26px) saturate(175%);
+  --glass-fill:linear-gradient(165deg,rgba(255,255,255,.72) 0%,rgba(255,255,255,.44) 42%,rgba(255,255,255,.34) 100%);
+  --glass-rim:linear-gradient(155deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.55) 28%,rgba(255,255,255,.18) 58%,rgba(96,170,214,.42) 100%);
+  --glass-raise:inset 0 1px 0 rgba(255,255,255,.95),0 22px 48px -22px rgba(12,74,118,.5),0 2px 6px -2px rgba(12,74,118,.18);
+  --glass-press:inset 0 1px 3px rgba(12,74,118,.16),inset 0 -1px 0 rgba(255,255,255,.7);
+  --spot-c:rgba(255,255,255,.62);
 }
 @media (prefers-color-scheme:dark){:root{
   --glass:rgba(38,48,60,.46);--glass-hi:rgba(255,255,255,.13);--glass-strong:rgba(22,30,40,.84);
   --glass-edge:rgba(255,255,255,.14);--glass-dark:rgba(4,14,22,.7);
   --glass-sh:inset 0 1px 0 rgba(255,255,255,.14),0 14px 34px -20px rgba(0,0,0,.8);
+  --glass-fill:linear-gradient(165deg,rgba(70,86,104,.5) 0%,rgba(40,50,64,.44) 45%,rgba(26,34,46,.42) 100%);
+  --glass-rim:linear-gradient(155deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,.12) 30%,rgba(255,255,255,.05) 60%,rgba(90,184,255,.28) 100%);
+  --glass-raise:inset 0 1px 0 rgba(255,255,255,.16),0 22px 48px -22px rgba(0,0,0,.85);
+  --glass-press:inset 0 1px 3px rgba(0,0,0,.45),inset 0 -1px 0 rgba(255,255,255,.08);
+  --spot-c:rgba(255,255,255,.14);
 }}
 html{background:#e7f3fb}
 @media (prefers-color-scheme:dark){html{background:#040b12}}
 body[data-falaj-surface]{background:transparent !important;position:relative}
-body[data-falaj-surface]::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background:radial-gradient(62vmax 58vmax at 6% -6%,#9bd5f3 0,rgba(155,213,243,0) 62%),radial-gradient(54vmax 54vmax at 106% 22%,#a8e7db 0,rgba(168,231,219,0) 62%),radial-gradient(64vmax 50vmax at 58% 112%,#f9e2b4 0,rgba(249,226,180,0) 64%),linear-gradient(170deg,#e2f1fb 0%,#f0f8fb 46%,#fbf5e8 100%)}
+body[data-falaj-surface]{--bd1:#9bd5f3;--bd2:#a8e7db;--bd3:#f9e2b4;--bd-top:#e2f1fb;--bd-mid:#f0f8fb;--bd-low:#fbf5e8}
+body[data-falaj-page=team]{--bd1:#8fc4ea;--bd2:#a3d6e4;--bd3:#e6edf6;--bd-top:#dfeaf5;--bd-mid:#eef4f9;--bd-low:#f3f6fa}   /* the work room: cooler, calmer */
+body[data-falaj-page=loop]{--bd1:#a6d8f3;--bd2:#b9e8d2;--bd3:#fbd49a;--bd-top:#e4f2fa;--bd-mid:#f6f6ee;--bd-low:#fdf0dc}   /* the story: warmer, toward the palm garden */
+body:is([data-falaj-page=jury],[data-falaj-page=duo]){--bd1:#b3dbf2;--bd2:#c3ebe2;--bd3:#f6ecd0;--bd-top:#e8f3fa;--bd-mid:#f3f9fb;--bd-low:#faf6ec}   /* the reading room: clearer */
+body[data-falaj-surface]::before{content:"";position:fixed;inset:-10vh 0;z-index:-2;pointer-events:none;
+  background:radial-gradient(62vmax 58vmax at 6% 2%,var(--bd1) 0,transparent 62%),radial-gradient(54vmax 54vmax at 106% 26%,var(--bd2) 0,transparent 62%),radial-gradient(64vmax 50vmax at 58% 104%,var(--bd3) 0,transparent 64%),linear-gradient(170deg,var(--bd-top) 0%,var(--bd-mid) 46%,var(--bd-low) 100%)}
 body[data-falaj-surface]::after{content:"";position:fixed;inset:-22vmax;z-index:-1;pointer-events:none;
   background:radial-gradient(36vmax 36vmax at 30% 34%,rgba(112,196,240,.5) 0,rgba(112,196,240,0) 62%),radial-gradient(32vmax 32vmax at 72% 64%,rgba(140,222,200,.42) 0,rgba(140,222,200,0) 62%);
   animation:gl-drift 26s ease-in-out infinite alternate}
 @keyframes gl-drift{to{transform:translate(9vmax,-7vmax) rotate(9deg)}}
 @media (prefers-color-scheme:dark){
-  body[data-falaj-surface]::before{background:radial-gradient(62vmax 58vmax at 6% -6%,#0d4468 0,rgba(13,68,104,0) 62%),radial-gradient(54vmax 54vmax at 106% 22%,#0c4a44 0,rgba(12,74,68,0) 62%),radial-gradient(64vmax 50vmax at 58% 112%,#3b2f17 0,rgba(59,47,23,0) 64%),linear-gradient(170deg,#04121c,#050b12 50%,#07110d)}
+  body[data-falaj-surface]{--bd1:#0d4468;--bd2:#0c4a44;--bd3:#3b2f17;--bd-top:#04121c;--bd-mid:#050b12;--bd-low:#07110d}
+  body[data-falaj-page=team]{--bd1:#0c3c5e;--bd2:#0b3f4a;--bd3:#141c26;--bd-top:#030d15;--bd-mid:#050b12;--bd-low:#060c12}
+  body[data-falaj-page=loop]{--bd1:#0f4a70;--bd2:#0f4a3c;--bd3:#4a3513;--bd-top:#04121c;--bd-mid:#060c10;--bd-low:#0b0f0a}
+  body:is([data-falaj-page=jury],[data-falaj-page=duo]){--bd1:#0c3a58;--bd2:#0b4040;--bd3:#2c2616;--bd-top:#04101a;--bd-mid:#050b12;--bd-low:#070f0d}
   body[data-falaj-surface]::after{opacity:.5}
 }
 .bgfx{display:none !important}
@@ -30,9 +47,13 @@ body[data-falaj-surface]::after{content:"";position:fixed;inset:-22vmax;z-index:
 body[data-falaj-surface] :is(.stage,.phone,.inner,main,.wrap,.pane,.plist,.pdetail,.desk,.demo){background:transparent !important}
 body[data-falaj-surface] :is(.bar,.top){background:transparent !important;backdrop-filter:none;-webkit-backdrop-filter:none}
 /* every surface is glass */
-body[data-falaj-surface] :is(.card,.list,.ig,.hl,.flowbox,.agline,.summary,.falaj,.bars,.fcard,.vcard,.ringcard,.rule,.more,.appt,.msgcard,.wf-wrap,.hero2,.qa,.ptcard,.status2,.askcard,.hist,.dempty,.hlist,.chipb,.seg,.tbl,.scroll){
-  background:var(--glass) !important;backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-edge) !important;box-shadow:var(--glass-sh) !important}
+body[data-falaj-surface] :is(.card,.list,.ig,.hl,.flowbox,.agline,.summary,.falaj,.bars,.fcard,.vcard,.ringcard,.rule,.more,.appt,.msgcard,.wf-wrap,.hero2,.qa,.ptcard,.status2,.askcard,.hist,.dempty,.hlist){
+  background:var(--spot,linear-gradient(transparent,transparent)) padding-box,var(--glass-fill) padding-box,var(--glass-rim) border-box !important;
+  backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid transparent !important;box-shadow:var(--glass-sh) !important}
+/* recessed, not raised: switches and small chips sit in the glass */
+body[data-falaj-surface] :is(.seg,.chipb){background:rgba(255,255,255,.3) !important;border:1px solid transparent !important;box-shadow:var(--glass-press) !important;backdrop-filter:none;-webkit-backdrop-filter:none}
+@media (prefers-color-scheme:dark){body[data-falaj-surface] :is(.seg,.chipb){background:rgba(0,0,0,.28) !important}}
 body[data-falaj-surface] .card :is(.card,.list,.tbl,.scroll,.bars){background:var(--glass-hi) !important;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none !important}
 body[data-falaj-surface] .tbl :is(th,td,tr,thead){background:transparent !important}
 /* sheets and menus: stronger glass, so words stay easy to read */
@@ -41,11 +62,10 @@ body[data-falaj-surface] .scrim{background:rgba(8,42,66,.28)}
 /* bars that float */
 body[data-falaj-surface] .tabs{background:var(--glass) !important;backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-edge) !important;box-shadow:var(--glass-sh),0 18px 40px -18px rgba(10,50,80,.45) !important}
 body[data-falaj-surface] .side{background:var(--glass-dark) !important;backdrop-filter:blur(30px) saturate(170%);-webkit-backdrop-filter:blur(30px) saturate(170%);border-inline-end:1px solid rgba(255,255,255,.18)}
-body[data-falaj-surface] .site-nav{background:var(--glass);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-edge);box-shadow:var(--glass-sh);border-radius:999px;padding:4px 16px}
+body[data-falaj-surface] .site-nav{background:var(--glass-fill) padding-box,var(--glass-rim) border-box;backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid transparent;box-shadow:var(--glass-raise);border-radius:999px;padding:4px 16px}
 /* quiet buttons and fields are glass; the main action stays solid */
 body[data-falaj-surface] :is(.wide.ghost,.btn.ghost,.light,.btn-tint,.linkbtn,.chips button,.langs button,.textlink.glass){background:var(--glass-hi) !important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--glass-edge) !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
-body[data-falaj-surface] :is(.field input,.field textarea,.field select,.composer input){background:var(--glass-hi) !important;border:1px solid var(--glass-edge) !important}
-body[data-falaj-surface] .demo{border-bottom:1px solid var(--glass-edge)}
+body[data-falaj-surface] :is(.field input,.field textarea,.field select,.composer input){background:var(--glass-hi) !important;border:1px solid var(--glass-edge) !important;box-shadow:var(--glass-press) !important}
 /* the app pages take the same glass */
 body:is([data-falaj-page=app],[data-falaj-page=me]){--glass:rgba(255,255,255,.52);--glass-hi:rgba(255,255,255,.8);--g-bg:transparent}
 @media (prefers-color-scheme:dark){body:is([data-falaj-page=app],[data-falaj-page=me]){--glass:rgba(38,48,60,.46);--glass-hi:rgba(255,255,255,.13)}}
@@ -69,3 +89,46 @@ body[data-falaj-surface] .back{color:var(--water-700) !important}
 @media (prefers-color-scheme:dark){body[data-falaj-surface] .tabs{background:var(--glass-strong) !important}}
 @media (max-width:720px){body[data-falaj-surface] .site-nav{flex-wrap:nowrap;overflow-x:auto;gap:2px 14px;padding:2px 14px;scrollbar-width:none;max-width:100%}
   body[data-falaj-surface] .site-nav a{white-space:nowrap;flex:none}}
+
+/* ===== GLASS, UPGRADED (design council) ===== */
+/* raised glass: the things that float above the page */
+body[data-falaj-surface] .tabs{background:var(--glass-fill) padding-box,var(--glass-rim) border-box !important;border:1px solid transparent !important;box-shadow:var(--glass-raise) !important}
+body[data-falaj-surface] .sheet{border:1px solid transparent !important;background:linear-gradient(var(--glass-strong),var(--glass-strong)) padding-box,var(--glass-rim) border-box !important;box-shadow:var(--glass-raise) !important}
+body:is([data-falaj-page=app],[data-falaj-page=me]) .sheet{background:linear-gradient(var(--glass-strong),var(--glass-strong)) padding-box,var(--glass-rim) border-box !important}
+@media (prefers-color-scheme:dark){body[data-falaj-surface] .tabs{background:linear-gradient(var(--glass-strong),var(--glass-strong)) padding-box,var(--glass-rim) border-box !important}}
+/* status borders keep their colour over the glass rim */
+body[data-falaj-surface] .askcard.okc{background:var(--glass-fill) padding-box,linear-gradient(155deg,color-mix(in srgb,var(--care-ok) 55%,#fff),color-mix(in srgb,var(--care-ok) 30%,transparent)) border-box !important}
+body[data-falaj-surface] .askcard.cp{background:var(--glass-fill) padding-box,linear-gradient(155deg,color-mix(in srgb,var(--water-500) 70%,#fff),color-mix(in srgb,var(--water-600) 40%,transparent)) border-box !important}
+/* INGELS + NORMAN: light follows the pointer, only on glass you can press, so it also says "this is tappable" */
+body[data-falaj-surface] :is(.qa,.scanbig,.who4,.ig .row:is(a,button),a.prow,button.prow,.cm-dot,.tabs a,.chips button,.btn-tint,.wide.ghost,.btn.ghost,.light,.site-nav a){transition:transform .16s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease,background-color .2s ease}
+@media (hover:hover){
+  body[data-falaj-surface] .qa:hover{--spot:radial-gradient(170px circle at var(--mx,50%) var(--my,50%),var(--spot-c),transparent 62%);transform:translateY(-2px);box-shadow:var(--glass-raise) !important}
+  body[data-falaj-surface] :is(.ig .row:is(a,button),a.prow,button.prow,.who4):hover{background:radial-gradient(190px circle at var(--mx,50%) var(--my,50%),var(--spot-c),transparent 62%)}
+  body[data-falaj-surface] .scanbig:hover{transform:translateY(-2px);background:radial-gradient(220px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.28),transparent 60%),linear-gradient(160deg,var(--water-700),var(--water-600) 60%,var(--water-500))}
+  body[data-falaj-surface] :is(.btn-tint,.wide.ghost,.btn.ghost,.light,.chips button):hover{box-shadow:inset 0 1px 0 rgba(255,255,255,1),0 8px 18px -10px rgba(12,74,118,.45)}
+  body[data-falaj-surface=website] :is(.btn.accent,.btn:not(.ghost)):hover{transform:translateY(-1px);box-shadow:0 12px 24px -12px rgba(10,106,168,.7)}
+}
+body[data-falaj-surface] :is(.qa,.scanbig,.btn-tint,.wide,.btn,.btn-fill,.light):active{transform:scale(.975)}
+/* HADID: the light shifts as you move down the page, and sections rise into place (where the browser can) */
+@supports (animation-timeline:scroll()){
+  @media (prefers-reduced-motion:no-preference){
+    body[data-falaj-surface]::before{animation:bd-scroll linear both;animation-timeline:scroll(root block)}
+    @keyframes bd-scroll{to{transform:translateY(-8vh) scale(1.06);filter:hue-rotate(-10deg) saturate(1.08)}}
+    body[data-falaj-surface=website] :is(.sec,.wrap > .card){animation:gl-rise linear both;animation-timeline:view();animation-range:entry 0% entry 42%}
+    @keyframes gl-rise{from{transform:translateY(26px) scale(.985)}}
+  }
+}
+/* RAMS: every state is designed. People who ask for less transparency or more contrast get solid surfaces. */
+@media (prefers-reduced-transparency:reduce),(prefers-contrast:more){
+  :root{--glass-fill:linear-gradient(#fff,#fff);--glass-rim:linear-gradient(#b9c8d3,#b9c8d3);--glass:#fff;--glass-hi:#fff;--glass-strong:#fff;--glass-dark:#0a2a40}
+  body[data-falaj-surface] *{backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
+  body[data-falaj-surface]::after{display:none}
+}
+@media (prefers-color-scheme:dark) and (prefers-reduced-transparency:reduce),(prefers-color-scheme:dark) and (prefers-contrast:more){
+  :root{--glass-fill:linear-gradient(#16212c,#16212c);--glass-rim:linear-gradient(#3a4a58,#3a4a58);--glass:#16212c;--glass-hi:#1d2a37;--glass-strong:#16212c}
+}
+/* browsers that cannot blur get a milkier glass, so text never sits on a busy background */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  :root{--glass-fill:linear-gradient(165deg,rgba(255,255,255,.94),rgba(255,255,255,.88))}
+  @media (prefers-color-scheme:dark){:root{--glass-fill:linear-gradient(165deg,rgba(28,38,50,.95),rgba(22,30,40,.92))}}
+}
