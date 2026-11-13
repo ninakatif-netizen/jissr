@@ -39,6 +39,7 @@ import { channelHtml } from './core/channel.mjs';
 import { workflowHtml } from './core/workflow.mjs';
 import { flowOf, flowSvg, levelOf, CHANNELS } from './core/flow.mjs';
 import { runAgents, agentSummary, AGENTS, readDocument, SAMPLE_DOCUMENTS } from './core/agents.mjs';
+import { missingResults, askLab } from './core/checkpoint.mjs';
 registerSW();
 
 let state = loadState();
@@ -120,7 +121,7 @@ function actionFor(s, c) {
   const r = c.referral, n = first(c);
   if (c.stage === 'closed') return { info: ['ok', 'Loop closed', `Closed by ${c.closed ? c.closed.by : 'a clinician'}. The water reached the palm.`] };
   if ((s.role === 'nurse' || s.role === 'coordinator') && c.owner === s.id) {
-    if (c.nurseRequest && !c.nurseRequest.done) return { title: `Call ${n} today`, text: /^Patient:/.test(c.nurseRequest.note || '') ? `${n} says they are still waiting, past the date they were given.` : `${n} asked to talk to a nurse.`, btns: [['call', `Call ${n}`, 'go']] };
+    if (c.nurseRequest && !c.nurseRequest.done) return { title: `Call ${n} today`, text: /already happened/.test(c.nurseRequest.note || '') ? `${n} says this step already happened. Confirm it with ${n}, then record it.` : /^Patient:/.test(c.nurseRequest.note || '') ? `${n} says they are still waiting, past the date they were given.` : `${n} asked to talk to a nurse.`, btns: [['call', `Call ${n}`, 'go']] };
     if (['result', 'notified'].includes(c.stage)) return { title: `Call ${n}`, text: mustCall(c) || `${n} has not been reached yet. Explain the result and check they understood.`, btns: [['call', `Call ${n}`, 'go']] };
     if (c.stage === 'understood') return { title: 'Book the visit', text: `${n} understood. Help to choose a time.`, btns: [['book', 'Choose a time']] };
     if (c.stage === 'booked') return c.slot && c.slot.day <= TODAY ? { title: 'Did the visit happen?', text: `Visit was due ${fmt(c.slot.day)}, ${c.slot.time}.`, btns: [['attended', 'Yes, the visit happened'], ['call', `No: call ${n}`, 'ghost']] }
@@ -202,6 +203,7 @@ function attentionScreen(s) {
     <div class="seg" role="group" aria-label="Whose patients"><button data-scope="mine" aria-pressed="${scope === 'mine'}">Mine</button><button data-scope="all" aria-pressed="${scope === 'all'}">Everyone</button></div>
     <ol class="falaj" aria-label="The falaj: patients from result to loop closed. Tap a channel to see who stopped there.">${rows}</ol>
     ${agentLine(s)}
+    ${(() => { const m = missingResults(TODAY, state.labAsks || {}); return m.length ? `<div class="group" id="missing"><div class="gh">Tests done, no result yet · ${m.length}</div><ul class="list">${m.map((x) => `<li><div class="prow"><span class="t"><b>${esc(x.name)}, ${x.age}</b><small>${esc(x.test)} at ${esc(x.lab)} · done ${x.ago} days ago, result expected within ${x.expected}</small></span>${x.asked ? `<span class="due">Lab asked</span>` : `<button class="light" data-asklab="${x.id}">Ask the lab</button>`}</div></li>`).join('')}</ul><div class="gf">A result that never arrives cannot start a falaj, so Falaj also watches the tests. Simulated list; times are proposals.</div></div>` : ''; })()}
     <div class="group"><div class="gh">Needs you · ${tasks.length}</div>
     ${top ? `<div class="hl"><div class="top"><b>${esc(first(top.c))}, ${top.c.patient.age} · ${LANG[top.c.patient.language] || ''}</b><span class="st amber">${top.late ? 'Overdue' : 'First'}</span></div>
       <p class="q">${SHORT[top.c.programme || 'hba1c']} · ${esc(top.reason)}</p><a class="wide" href="?as=${s.id}&c=${top.c.id}" data-case="${top.c.id}">${esc(top.action)}</a></div>` : `<div class="card empty"><b>Nothing needs you right now</b>New results, referrals and reports appear here, most urgent first.</div>`}
@@ -430,6 +432,7 @@ function render() {
   document.querySelectorAll('[data-tab]').forEach((a) => a.onclick = (e) => { e.preventDefault(); nav({ c: '', tab: a.dataset.tab }); });
   ['#agents-more', '#side-agents'].forEach((sel) => { const am = $(sel); if (am) am.onclick = () => { intake = { step: 'menu', err: '' }; render(); }; });
   document.querySelectorAll('[data-flow]').forEach((b) => b.onclick = () => { flowSel = flowSel === b.dataset.flow ? 'needs' : b.dataset.flow; render(); const x = document.querySelector(`[data-flow="${flowSel}"]`); if (x) x.focus(); });
+  document.querySelectorAll('[data-asklab]').forEach((b) => b.onclick = () => { state = loadState(); askLab(state, b.dataset.asklab, s); saveState(state); toast('The lab has been asked for the result (simulated)'); render(); });
   document.querySelectorAll('[data-scope]').forEach((b) => b.onclick = () => { scope = b.dataset.scope; render(); const x = document.querySelector(`[data-scope="${scope}"]`); if (x) x.focus(); });
   const sw = $('#switch'); if (sw) sw.onclick = () => { store.set('falaj.team.as', ''); history.pushState(null, '', location.pathname + '?as='); sheet = null; render(); };
   const bk = $('#back'); if (bk) bk.onclick = () => nav({ c: '' });

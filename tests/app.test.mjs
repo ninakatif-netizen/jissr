@@ -160,3 +160,45 @@ test('access: asked until the patient answers, ends after 24 hours, and can be r
   assert.equal(activeGrant(c, 'e4', t), null, 'one doctor\'s access is not another\'s');
   grantAccess(c, dr, 'live code', t); removeGrant(c, 'd1', t); assert.equal(activeGrant(c, 'd1', t), null);
 });
+
+import { checkpointFor, doCheckpoint, missingResults, askLab, EXPECTED_DAYS } from '../core/checkpoint.mjs';
+import { happenedNote } from '../core/assistant.mjs';
+
+test('opening a file is a checkpoint: the right clinician can record the visit in one tap, others cannot', () => {
+  const st = buildState('2026-11-12'), gp = st.staff.find((s) => s.id === 'd1');
+  const booked = st.cases.find((c) => c.stage === 'booked'), waiting = st.cases.find((c) => c.id === 'C-040');
+  assert.equal(checkpointFor(waiting, gp), null, 'nothing to record before a visit is booked');
+  const cp = checkpointFor(booked, gp);
+  assert.equal(cp.kind, 'attended'); assert.match(cp.button, /Record this visit/);
+  doCheckpoint(st, booked, gp);
+  assert.equal(booked.stage, 'attended');
+  assert.match(booked.events.at(-1).note, /Health ID/);
+  assert.equal(booked.events.at(-1).role, 'clinician', 'a person recorded it, never the scan itself');
+  assert.equal(checkpointFor(booked, gp), null, 'it cannot be recorded twice');
+});
+
+test('a referral shows as a checkpoint only to the clinic it was sent to', () => {
+  const st = buildState('2026-11-12');
+  const c = st.cases.find((x) => x.referral && x.referral.status === 'sent');
+  const there = st.staff.find((s) => s.role === 'clinician' && s.org === c.referral.to), other = st.staff.find((s) => s.role === 'clinician' && s.org !== c.referral.to);
+  assert.equal(checkpointFor(c, other), null);
+  assert.equal(checkpointFor(c, there).kind, 'accept');
+  doCheckpoint(st, c, there);
+  assert.equal(c.referral.status, 'accepted'); assert.equal(c.owner, there.id);
+});
+
+test('tests done with no result yet are flagged, and asking the lab is recorded', () => {
+  const st = buildState('2026-11-12'), m = missingResults('2026-11-12');
+  assert.ok(m.length >= 2);
+  assert.ok(m.every((x) => x.ago > EXPECTED_DAYS[x.programme]), 'only tests past their expected time');
+  assert.ok(!m.some((x) => x.id === 'T-103'), 'a test still within its time is not flagged');
+  askLab(st, m[0].id, st.staff[0]);
+  assert.ok(missingResults('2026-11-12', st.labAsks)[0].asked);
+});
+
+test('"it already happened" asks the keeper to confirm; it never moves the falaj', () => {
+  const st = buildState('2026-11-12'), c = st.cases.find((x) => x.id === 'C-040'), before = c.stage;
+  const note = happenedNote(promiseOf(c, st.staff, '2026-11-12'));
+  assert.match(note, /^Patient: says this already happened\. Please confirm/);
+  assert.equal(c.stage, before);
+});

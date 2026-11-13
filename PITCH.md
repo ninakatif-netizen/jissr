@@ -35,6 +35,20 @@ journey across those organisations. **Falaj is the care team's falaj for a multi
 
 Do not say: "we invented closed-loop care", "AI replaces navigators", or any figure not in this list.
 
+## Say what Falaj is (do not call it a medical wallet)
+
+"Falaj follows every abnormal result until a doctor confirms care. The Health ID is how that follow-up travels with the patient between clinics."
+
+The wallet does not track anything: it is a key. What tracks is the falaj: an owner and a deadline on every result. Calling it a "medical wallet" moves you off the challenge and next to record apps and the health information exchange.
+
+## "What if a lab or a doctor forgets?" (three catches)
+
+1. **The lab never sends the result:** the care team sees "Tests done, no result yet" past the expected time, and asks the lab. (Simulated list in the demo.)
+2. **Nobody acts:** the deadline. The step turns amber, it is flagged on the keeper's list, and the patient can tap "I'm still waiting".
+3. **The doctor sees the patient but does not record it:** opening the file with the Health ID shows "Record this visit", one tap. If it is still missed, the patient taps "It already happened" and the keeper confirms.
+
+Always true: opening a file never records care by itself, and a patient's tap never moves the falaj. A clinician confirms. Demo: sign in as Dr Mariam and open Grace Mensah (FLJ-…-0042), who is here for a booked visit.
+
 ## The patient's side: three promises (say this when asked "what does the patient get?")
 
 1. **Someone is responsible for you.** A named person on the first screen, and you see when care moves to another doctor.

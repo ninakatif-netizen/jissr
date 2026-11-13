@@ -56,9 +56,24 @@
       <li><b>The doctor scans it and types the patient's name,</b> the same "right patient" check clinicians already do.</li>
       <li><b>With the live code, the care map opens at once.</b> Without it (an ID read over the phone), the patient gets a request and must say yes.</li>
       <li><b>The patient sees who can open their file,</b> until when, and can remove access. Every opening is listed.</li>
+      <li><b>The scan is also a checkpoint.</b> After opening the file, the doctor sees the patient's open step and can record it in one tap: a visit, or a referral sent to them.</li>
     </ol>
     <p class="muted" style="margin-top:8px"><b>In this demo</b> there is no server: the code is checked on the same device, sign-in is simulated and the history is invented, so play both roles on one device. <b>A real service</b> would verify a signed, single-use code on a server, sign clinicians in with their hospital account, and read the history from the health information exchange.</p>
     <p style="margin-top:12px"><a class="btn" href="duo.html">See it live: two phones, one screen</a></p>
+  </section>
+
+  <section class="card" id="forget" aria-labelledby="h-forget">
+    <h2 id="h-forget">What if someone forgets?</h2>
+    <p>Falaj follows every abnormal result until a doctor confirms care; the Health ID is how that follow-up travels with the patient. Nothing depends on one person remembering: a forgotten step is caught from three sides.</p>
+    <div class="scroll" style="max-height:none" tabindex="0" role="region" aria-label="What catches a forgotten step, as a table"><table class="tbl" style="margin-top:8px">
+      <thead><tr><th>Who forgets</th><th>What catches it</th></tr></thead>
+      <tbody>
+        <tr><td><b>The lab</b> never sends the result</td><td>The care team sees "Tests done, no result yet" when a result is past its expected time, and asks the lab.</td></tr>
+        <tr><td><b>A nurse or doctor</b> does not act</td><td>The deadline: the step turns amber and is flagged on the keeper's list. The patient sees "late" and can tap "I'm still waiting".</td></tr>
+        <tr><td><b>A doctor</b> sees the patient but does not record it</td><td>Opening the file with the Health ID shows the open step: "Is Grace here for the visit? Record this visit", one tap by the doctor. If it is still missed, the patient can tap "It already happened", and the keeper confirms it.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted" style="margin-top:10px">Opening a file never records care by itself, and a patient's tap never moves the falaj: a clinician always confirms. Falaj cannot know about care given outside the system unless someone tells it; the list of tests without results is simulated in this demo.</p>
   </section>
 
   <section class="card" id="result-to-notification">

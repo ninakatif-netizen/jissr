@@ -195,3 +195,6 @@ export function careTeamOf(c, staff = []) {
   if (now && !seen.has(now.id)) seen.set(now.id, { id: now.id, name: cleanName(now.name), role: roleOf(now).replace(/^Your /, '').replace(/^./, (ch) => ch.toUpperCase()), org: now.org, last: null });
   return [...seen.values()].map((x) => ({ ...x, now: x.id === c.owner })).sort((a, b) => (b.now - a.now) || String(b.last || '').localeCompare(String(a.last || '')));
 }
+// "It already happened": the patient says a late step was in fact done. It never moves the falaj:
+// it asks the keeper to confirm and record it.
+export function happenedNote(p) { return `Patient: says this already happened. Please confirm and record it. "${p.keeper ? p.keeper.name : 'The care team'} ${p.what}" was due ${p.by}.`; }

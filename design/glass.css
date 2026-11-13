@@ -267,3 +267,10 @@ body:is([data-falaj-page=app],[data-falaj-page=me]){--glass:rgba(255,255,255,.8)
 .or::before,.or::after{content:"";flex:1;height:1px;background:var(--g-sep)}
 .keybar{display:flex;align-items:center;gap:8px;margin:0;padding:8px 14px;border-radius:var(--r-pill);background:var(--care-ok-l);color:var(--care-ok);font-size:14px;font-weight:600;align-self:flex-start}
 @media (prefers-color-scheme:light){.keybar{color:#14603f}}
+
+/* the checkpoint after opening a file, and the patient's second answer */
+.askcard.cp{border-color:color-mix(in srgb,var(--water-600) 45%,transparent) !important}
+.links2{display:flex;justify-content:center;gap:22px;flex-wrap:wrap}
+.links2 .textlink{border:0;background:none;font:inherit;font-size:16px;font-weight:600;cursor:pointer;padding:0}
+.resp{margin:0;font-size:14px;color:var(--g-2)}.resp b{color:var(--g-label);font-weight:600}
+.resp.late{color:var(--care-wait);font-weight:600}.resp.late b{color:var(--care-wait)}

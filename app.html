@@ -170,7 +170,8 @@ import { registerSW } from './core/pwa.mjs';
 import { loadState, saveState } from './core/store.mjs';
 import { qrSvg } from './core/qr.mjs';
 import { healthId, findPatient, careHistory, careMapHtml, historyHtml, routeOf, FACILITIES, CARE_MAP_CSS, parseHealthId, passCode, passSecret, passSecondsLeft, checkPass, lookupLinkWithCode, activeGrant, grantAccess, askAccess, pendingAsk, answerAsk, removeGrant, GRANT_HOURS } from './core/history.mjs';
-import { contextOf, reply, documentsOf, callTurn, nextStep, promiseOf, nudgeNote, careTeamOf } from './core/assistant.mjs';
+import { contextOf, reply, documentsOf, callTurn, nextStep, promiseOf, nudgeNote, happenedNote, careTeamOf } from './core/assistant.mjs';
+import { checkpointFor, doCheckpoint } from './core/checkpoint.mjs';
 import { workflowHtml } from './core/workflow.mjs';
 import { requestNurse, isoDay } from './core/cases.mjs';
 import { resultText } from './core/programmes.mjs';
@@ -374,8 +375,8 @@ function patientHome(c) {
       <p class="say" id="nx">${esc(waiting && pr && pr.keeper ? `${short(pr.keeper.name)} will call you about your result. You have nothing to do before the call.` : nextStep(ctx))}</p>
       ${pr && pr.late ? `<p class="when late">Was due ${esc(byTxt)}.</p>` : ''}
       ${falajHtml(j)}
-      ${pr && pr.late && !(pr.nudged || ctx.nurseRequested) ? `<button class="btn-fill" id="nudge">I'm still waiting</button><a class="textlink" href="me.html?p=${c.id}">Open my steps</a>`
-        : `${pr && pr.late ? `<p class="nudged" role="status">You told us you are still waiting. You are first on ${esc(short(pr.keeper.name))}'s list.</p>` : ''}<a class="btn-fill" href="me.html?p=${c.id}">Open my steps</a>`}
+      ${pr && pr.late && !(pr.nudged || ctx.nurseRequested) ? `<button class="btn-fill" id="nudge">I'm still waiting</button><div class="links2"><button class="textlink" id="happened">It already happened</button><a class="textlink" href="me.html?p=${c.id}">Open my steps</a></div>`
+        : `${pr && pr.late ? `<p class="nudged" role="status">${c.patientNudge && c.patientNudge.kind === 'happened' ? `You told us this already happened. ${esc(short(pr.keeper.name))} will confirm it.` : `You told us you are still waiting. You are first on ${esc(short(pr.keeper.name))}'s list.`}</p>` : ''}<a class="btn-fill" href="me.html?p=${c.id}">Open my steps</a>`}
       <span class="water" aria-hidden="true"><svg viewBox="0 0 800 70" preserveAspectRatio="none"><path d="M0 40Q100 15 200 40T400 40T600 40T800 40V70H0z" fill="#2fb3e3" opacity=".35"/></svg><svg viewBox="0 0 800 70" preserveAspectRatio="none"><path d="M0 48Q100 28 200 48T400 48T600 48T800 48V70H0z" fill="#0a6aa8" opacity=".25"/></svg></span>
     </section>
     <div class="quick"><a class="qa" href="#ask"><span class="tile blue">${I.chat}</span><b>Ask Falaj</b><small>Your assistant</small></a><button class="qa" id="callme"><span class="tile green">${I.phone}</span><b>Call me</b><small>In the app, now</small></button></div>
@@ -393,6 +394,11 @@ function patientHome(c) {
   $('#o-q').onclick = () => questionSheet(c);
   $('#o-acc').onclick = () => accessSheet(c);
   const kp = $('#keeper'); if (kp) kp.onclick = () => teamSheet(c);
+  const hp = $('#happened'); if (hp) hp.onclick = () => {
+    const x = caseOf(c.id), p = promiseOf(x, state.staff, TODAY);
+    requestNurse(state, x.id, { type: 'patient', name: `${x.patient.name} (patient)` }, happenedNote(p)); x.patientNudge = { at: new Date().toISOString(), by: p.by, kind: 'happened' };
+    save(); toast('Your care team will confirm it'); render();
+  };
   const ng = $('#nudge'); if (ng) ng.onclick = () => {
     const x = caseOf(c.id), p = promiseOf(x, state.staff, TODAY);
     requestNurse(state, x.id, { type: 'patient', name: `${x.patient.name} (patient)` }, nudgeNote(p)); x.patientNudge = { at: new Date().toISOString(), by: p.by };
@@ -630,7 +636,7 @@ function doctorHome(s) {
     </form>
     ${waiting ? `<section class="askcard" aria-live="polite"><span class="tile">${I.eye}</span><div><b>Waiting for ${esc(first(wc))} to allow</b><small>Nothing opens until ${esc(first(wc))} says yes on their phone.</small><div class="stack"><button class="btn-fill" id="demo-yes">Answer as ${esc(first(wc))} (demo)</button><button class="textlink" id="wait-x" style="border:0;background:none;font:inherit;font-weight:600;cursor:pointer">Cancel the request</button></div></div></section>` : ''}
     ${declined ? `<section class="askcard"><span class="tile amber">${I.eye}</span><div><b>${esc(first(wc))} declined</b><small>Nothing was shared. You can ask again with the live code from their screen.</small></div></section>` : ''}
-    ${demo && !waiting ? `<p class="foot2">Demo patient: ${esc(healthId(demo))} · ${esc(demo.patient.name)}</p>` : ''}
+    ${demo && !waiting ? `<p class="foot2">Demo patients: ${esc(healthId(demo))} · ${esc(demo.patient.name)}${caseOf('C-042') ? `, or ${esc(healthId(caseOf('C-042')))} · ${esc(caseOf('C-042').patient.name)} (here for a booked visit)` : ''}</p>` : ''}
     ${recent.length ? `<p class="gh2">Opened today</p><ul class="ig">${recent.map((c) => row('r-' + c.id, 'blue', I.person, esc(c.patient.name), esc(healthId(c)), 'a', '#map=' + c.id)).join('')}</ul>` : ''}
     <ul class="ig">${row('wl', 'blue', I.steth, 'My worklist', 'On the care team website', 'a', `team.html?as=${s.id}`)}</ul>
 `);
@@ -684,14 +690,16 @@ function mapScreen(s, c) {
   paint(`<div class="nav"><a class="back" href="#find">‹ Find</a>${signOutBtn}</div>
     <div class="ptcard"><span class="av" aria-hidden="true">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><small>${c.patient.age} · ${esc(LANG[c.patient.language] || c.patient.language)} · ${esc(healthId(c))}</small></span></div>
     ${(() => { const g = activeGrant(c, s.id); return g ? `<p class="keybar">${I.key}<span>Opened with ${esc(first(c))}'s ${g.how === 'live code' ? 'live code' : 'yes'} · ends ${esc(fmtDay(g.until))} ${esc(time(g.until))}</span></p>` : ''; })()}
+    ${(() => { const cp = checkpointFor(c, s); return cp ? `<section class="askcard cp" aria-labelledby="cpt"><span class="tile">${I.steth}</span><div><b id="cpt">${esc(cp.title)}</b><small>${esc(cp.text)}</small><div class="stack"><button class="btn-fill" id="cp-do">${esc(cp.button)}</button></div></div></section>` : ''; })()}
     ${careMapHtml(hist, { selected: mapSel })}
-    <section class="status2" aria-labelledby="cn"><span class="pill" id="cn">Care is now at ${esc(FACILITIES[last].name)}</span><p><small style="display:block;font-size:13px;color:var(--g-2)">What ${esc(first(c))} is told</small>${esc(nextStep(contextOf(c)))}</p><a class="btn-tint" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist</a></section>
+    <section class="status2" aria-labelledby="cn"><span class="pill" id="cn">Care is now at ${esc(FACILITIES[last].name)}</span><p><small style="display:block;font-size:13px;color:var(--g-2)">What ${esc(first(c))} is told</small>${esc(nextStep(contextOf(c)))}</p>${(() => { const pr = promiseOf(c, state.staff, TODAY); return pr && pr.keeper ? `<p class="resp${pr.late ? ' late' : ''}"><b>Responsible:</b> ${esc(pr.keeper.name)}${pr.late ? ` · ${pr.daysLate} ${pr.daysLate === 1 ? 'day' : 'days'} late` : pr.by ? ` · by ${esc(fmtDay(pr.by))}` : ''}</p>` : ''; })()}<a class="btn-tint" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist</a></section>
     <div class="seg" role="group" aria-label="Show"><button data-v="history" aria-pressed="${mapView === 'history'}">History · ${hist.length}</button><button data-v="falaj" aria-pressed="${mapView === 'falaj'}">This result</button></div>
     ${mapView === 'falaj' ? wf : `${mapSel ? `<button class="linkbtn" id="allr" style="align-self:flex-start;padding:0">${esc(FACILITIES[mapSel].name)} only · show all</button>` : ''}<div id="hh">${historyHtml(hist, { only: mapSel })}</div>`}
     <p class="foot2">Invented records and places. ${esc(first(c))} sees that you opened this file and can remove your access.</p>`);
   bindOut();
   document.querySelectorAll('.cm-dot').forEach((b) => { b.onclick = () => { mapSel = mapSel === b.dataset.fac ? '' : b.dataset.fac; mapView = 'history'; mapScreen(s, c); const h = $('#hh'); if (h) h.scrollIntoView({ block: 'start' }); }; });
   document.querySelectorAll('[data-v]').forEach((b) => { b.onclick = () => { mapView = b.dataset.v; mapScreen(s, c); }; });
+  const cpd = $('#cp-do'); if (cpd) cpd.onclick = () => { try { const x = caseOf(c.id), cp = doCheckpoint(state, x, s); save(); toast(cp.kind === 'accept' ? `You are now responsible for ${first(x)}` : `Visit recorded. ${first(x)}'s falaj moved to "Seen".`); render(); } catch (e) { toast(e.message || 'That could not be recorded'); } };
   const all = $('#allr'); if (all) all.onclick = () => { mapSel = ''; mapScreen(s, c); };
 }
 

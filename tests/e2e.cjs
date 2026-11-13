@@ -63,6 +63,12 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   await q.evaluate(() => { location.hash = 'find'; }); await q.waitForSelector('#fid');
   await q.fill('#fid', hid); await q.fill('#fname', 'Priya Raman'); await q.fill('#fcode', live); await q.click('#open'); await q.waitForSelector('.cm');
   ok(!!(await q.$('.cm')), 'with the live code from the patient\'s screen, the map opens at once');
+  // the scan is a checkpoint: after opening Grace's file (she is here for a booked visit), one tap records the visit
+  await q.evaluate(() => { location.hash = 'find'; }); await q.waitForSelector('#fid');
+  await q.fill('#fid', hid.replace(/0040$/, '0042')); await q.fill('#fname', 'Grace Mensah'); await q.fill('#fcode', ''); await q.click('#open'); await q.click('#demo-yes'); await q.click('#layer [data-act="yes"]'); await q.waitForSelector('#cp-do');
+  ok(/Is Grace here for the visit/.test(await q.innerText('.askcard.cp')), 'after opening a file, the doctor sees the open step they can record');
+  await q.click('#cp-do'); await q.waitForFunction(() => !document.querySelector('#cp-do'));
+  ok(await q.evaluate(() => JSON.parse(localStorage.getItem('jissr.demo.v4')).cases.find((c) => c.id === 'C-042').stage) === 'attended', 'one tap by the doctor records the visit: the falaj moves to Seen');
   await ph.close();
   const s = await browser.newPage(); watch(s, 'site');
   // the full patient app: the AI call, a result told by a person first, booking the held time, the passport
@@ -138,6 +144,17 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await l.click('#next'); ok(/Clinical note/i.test(await l.innerText('#sheet')), 'the voice note becomes a draft clinical note, reviewed in a sheet');
     await l.click('#confirm'); ok(/Loop closed/.test(await l.innerText('#main')) && (await l.$$('#main .wc-steps li.done')).length === 7, 'confirming closes the loop: the water reaches the palm');
     await l.close(); }
+  // nobody forgets: the patient can say it already happened, and tests with no result are watched
+  { const w = await browser.newPage({ viewport: { width: 390, height: 844 } }); watch(w, 'forget');
+    await w.goto(BASE + 'team.html?reset=1'); await w.goto(BASE + 'app.html?nosplash=1&who=p.C-040#me'); await w.waitForSelector('#happened');
+    await w.click('#happened'); await w.waitForSelector('.nudged');
+    ok(/already happened/.test(await w.innerText('.nudged')), 'the patient can say a late step already happened');
+    await w.goto(BASE + 'team.html?as=n2'); await w.waitForSelector('#missing');
+    ok(/From the patient: says this already happened/.test(await w.innerText('main')), 'the keeper is asked to confirm it; the falaj does not move by itself');
+    ok(await w.locator('#missing li').count() >= 2 && /result expected within/.test(await w.innerText('#missing')), 'tests done with no result yet are listed for the care team');
+    await w.click('[data-asklab] >> nth=0'); await w.waitForTimeout(200);
+    ok(/Lab asked/.test(await w.innerText('#missing')), 'asking the lab is recorded');
+    await w.goto(BASE + 'team.html?reset=1'); await w.close(); }
   // two phones, one screen: the patient's and the doctor's phone talk to each other
   { const d = await browser.newPage({ viewport: { width: 1280, height: 1000 } }); watch(d, 'duo');
     await d.goto(BASE + 'team.html?reset=1'); await d.goto(BASE + 'duo.html');
