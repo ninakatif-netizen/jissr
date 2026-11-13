@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Falaj: two phones, one screen</title>
+<meta name="description" content="See the Falaj Health ID work: the patient's phone and the doctor's phone side by side, live. Synthetic demo.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="design/system.css">
+<link rel="stylesheet" href="design/site.css">
+<style>
+.duo-head{display:flex;flex-direction:column;gap:6px;margin:8px 0 18px}
+.duo-head h1{margin:0;font-size:clamp(28px,3.4vw,40px)}
+.duo-head p{margin:0;color:var(--ink-2);max-width:70ch;line-height:1.5}
+.dsteps{list-style:none;margin:0 0 20px;padding:0;display:grid;grid-template-columns:1fr;gap:10px;counter-reset:d}
+.dsteps li{counter-increment:d;display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:12px 14px;border-radius:20px}
+.dsteps li::before{content:counter(d);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--water-600);color:#fff;font-weight:700;font-size:14px}
+.dsteps b{display:block;font-size:16px;color:var(--ink)}
+.dsteps span{display:block;font-size:14px;color:var(--ink-2);line-height:1.45;margin-top:2px}
+@media (min-width:900px){.dsteps{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.phones{display:grid;grid-template-columns:1fr;gap:28px;justify-items:center}
+@media (min-width:900px){.phones{grid-template-columns:1fr 1fr;gap:20px}}
+.ph{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+.ph h2{margin:0;font-size:17px;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.ph h2 i{width:10px;height:10px;border-radius:50%;background:var(--care-ok);display:inline-block}
+.dev{width:min(100%,402px);height:800px;border-radius:44px;border:8px solid #0a2a40;overflow:hidden;box-shadow:0 30px 70px -30px rgba(10,42,64,.6);background:#e7f3fb}
+.dev iframe{display:block;width:100%;height:100%;border:0}
+.duo-foot{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:center;margin:22px 0 0}
+.duo-foot .note{margin:0;color:var(--muted);font-size:14px;max-width:70ch;text-align:center;line-height:1.5}
+@media (prefers-color-scheme:dark){.dsteps li::before{color:#001a2b}.dev{border-color:#1a2a36;background:#040b12}}
+</style>
+<link rel="stylesheet" href="design/glass-all.css">
+</head>
+<body data-falaj-surface="website" data-falaj-page="duo">
+<div class="demo"><span>Prototype with synthetic data. Not medical advice.</span><span>Future Health Challenge 2026, challenge 05</span></div>
+<div class="wrap">
+  <div class="top"><a class="brand" id="brand" href="index.html" aria-label="Falaj home"></a><nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="app.html">The app</a><a href="team.html?as=n2">Care team</a><a href="loop.html">The story</a><a href="jury.html">For the jury</a></nav></div>
+
+  <div class="duo-head">
+    <div class="kicker">The Health ID, live</div>
+    <h1>Two phones, one screen.</h1>
+    <p>Priya's phone is on the left, Dr Mariam's on the right. They are both real and talk to each other, so you can watch the key work.</p>
+  </div>
+
+  <ol class="dsteps">
+    <li class="card"><div><b>Read Priya's code</b><span>Six digits under her QR code. It changes every minute.</span></div></li>
+    <li class="card"><div><b>Type it on the doctor's phone</b><span>Her ID and name are filled in. Add the live code, then "Open care map".</span></div></li>
+    <li class="card"><div><b>Watch both phones</b><span>The map opens on the right. Priya's phone says who opened her file.</span></div></li>
+    <li class="card"><div><b>Take the key back</b><span>On Priya's phone, tap "Remove access": the doctor's map closes.</span></div></li>
+  </ol>
+
+  <div class="phones">
+    <section class="ph" aria-labelledby="pl"><h2 id="pl"><i aria-hidden="true"></i>Priya's phone · patient</h2><div class="dev"><iframe id="fp" title="Priya's phone: the Falaj app as the patient" src="app.html?nosplash=1&who=p.C-040#id"></iframe></div></section>
+    <section class="ph" aria-labelledby="dl"><h2 id="dl"><i aria-hidden="true"></i>Dr Mariam's phone · family doctor</h2><div class="dev"><iframe id="fd" title="Dr Mariam's phone: the Falaj app as the doctor" src="about:blank"></iframe></div></section>
+  </div>
+
+  <div class="duo-foot">
+    <button class="btn ghost" id="again">Start again</button>
+    <p class="note">Try it without the code too: leave "Live code" empty and Priya gets a request she can allow or decline. In this demo both phones share one browser; a real service would check the code on a server.</p>
+  </div>
+  <p class="foot">Falaj (فلج) is the water channel that has fed the oases of the Emirates for centuries: every plot, a named keeper, a known turn. Falaj does the same for care.</p>
+</div>
+<script type="module">
+import { wordmark } from './core/ui.mjs';
+import { loadState, saveState, resetState } from './core/store.mjs';
+import { healthId } from './core/history.mjs';
+document.getElementById('brand').innerHTML = wordmark();
+const fp = document.getElementById('fp'), fd = document.getElementById('fd');
+function start(reset) {
+  let st = reset ? resetState() : loadState();
+  if (reset) saveState(st);
+  const c = st.cases.find((x) => x.id === 'C-040');
+  try { sessionStorage.removeItem('falaj.app.wait'); sessionStorage.removeItem('falaj.app.pending'); sessionStorage.removeItem('falaj.app.pcode'); } catch { /* private mode */ }
+  const t = Date.now();
+  fp.src = `app.html?nosplash=1&who=p.C-040&t=${t}#id`;
+  fd.src = `app.html?nosplash=1&who=s.d1&pid=${encodeURIComponent(healthId(c))}&pname=${encodeURIComponent(c.patient.name)}&t=${t}#find`;
+}
+start(false);
+document.getElementById('again').onclick = () => start(true);
+</script>
+</body>
+</html>

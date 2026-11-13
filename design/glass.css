@@ -249,3 +249,21 @@ body:is([data-falaj-page=app],[data-falaj-page=me]){--glass:rgba(255,255,255,.8)
 @media (prefers-color-scheme:dark){.chip4.late{background:#f6c063;color:#2b1a00}}
 .askcard .stack{display:flex;flex-direction:column;gap:2px;margin-top:10px}
 .askcard .stack .btn-fill{min-height:46px;font-size:16px}
+
+/* the key, made visible */
+.askcard.okc{border-color:color-mix(in srgb,var(--care-ok) 35%,transparent) !important}
+.how3{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:relative}
+.how3 li{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:13px;line-height:1.3;color:var(--g-label);font-weight:500;position:relative}
+.how3 li span{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--water-600);color:var(--on-accent);font-weight:700;font-size:13px;position:relative;z-index:1}
+.how3 li:not(:last-child)::after{content:"";position:absolute;top:13px;left:calc(50% + 18px);right:calc(-50% + 18px);height:3px;border-radius:2px;background:linear-gradient(90deg,var(--water-600),var(--water-400))}
+.scanbig{display:flex;align-items:center;gap:14px;width:100%;padding:16px;border-radius:var(--r-card);border:1px solid var(--glass-edge);background:linear-gradient(160deg,var(--water-700),var(--water-600) 60%,var(--water-500));color:#fff;font:inherit;text-align:start;cursor:pointer;box-shadow:0 18px 40px -20px rgba(10,63,99,.6)}
+.scanbig .sq{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);flex:none}
+.scanbig .sq svg{width:28px;height:28px}
+.scanbig b{display:block;font-size:18px;font-weight:600}.scanbig small{display:block;font-size:14px;opacity:.9;margin-top:2px}
+.scanbig > span:nth-child(2){flex:1}
+.scanbig .chev{color:#fff;opacity:.8}
+@media (prefers-color-scheme:dark){.scanbig{background:linear-gradient(160deg,#0a3f63,#0a6aa8)}}
+.or{display:flex;align-items:center;gap:12px;margin:-4px 8px;color:var(--g-2);font-size:13px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--g-sep)}
+.keybar{display:flex;align-items:center;gap:8px;margin:0;padding:8px 14px;border-radius:var(--r-pill);background:var(--care-ok-l);color:var(--care-ok);font-size:14px;font-weight:600;align-self:flex-start}
+@media (prefers-color-scheme:light){.keybar{color:#14603f}}

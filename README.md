@@ -10,6 +10,7 @@ No organiser data and no real personal data are used. Every source and licence i
 - `index.html`: home: the one idea, how Falaj closes the loop, three ways in, the evidence
 - `app.html`: **the app** (phone): splash, demo sign-in; patients see their Health ID and QR, next step, an assistant that organises and can call them; doctors type the Health ID and name to open the care map across hospitals
 - `team.html`: **the care team website** (computer and phone): where the water stops, the one thing to do, each patient's falaj as a workflow, agents and documents
+- `duo.html`: **two phones, one screen**: the patient's phone and the doctor's phone side by side, live, to show the Health ID and its code working
 - `me.html`: the patient's steps (first message in their language, the call, booking, help)
 - `loop.html`: **the story**: Priya in three moments (3 minutes)
 - `jury.html`: **for the jury**: the 5-minute demo path, the 7 steps from result to notification, who decides what, evidence, limits

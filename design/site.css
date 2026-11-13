@@ -147,3 +147,16 @@ body[data-falaj-page='index'] .hero.hero-falaj{display:block;min-height:0}
 body[data-falaj-page='index'] .hero-falaj #hero-art{max-width:none;width:auto;justify-self:auto}
 body[data-falaj-page='index'] .hero-falaj #hero-art{display:block !important}
 @media (max-width:720px){.fh{min-height:150px}}
+
+/* the key, in three pictures joined by water */
+.keyflow{display:grid;grid-template-columns:1fr;gap:10px;align-items:start;padding:22px}
+.kf{display:flex;flex-direction:column;gap:6px;color:var(--water-700)}
+.kf svg{width:72px;height:72px}
+.kf b{font-size:18px;font-family:var(--display);color:var(--ink)}
+.kf span{color:var(--ink-2);line-height:1.5;font-weight:400}
+.karrow{display:block;width:5px;height:26px;margin-left:34px;border-radius:3px;background:repeating-linear-gradient(180deg,var(--water-600) 0 8px,var(--water-400) 8px 14px);background-size:5px 28px;animation:chanv 1.4s linear infinite}
+@media (min-width:900px){
+  .keyflow{grid-template-columns:1fr 60px 1fr 60px 1fr;gap:6px}
+  .karrow{width:auto;height:5px;margin:34px 0 0;background:repeating-linear-gradient(90deg,var(--water-600) 0 8px,var(--water-400) 8px 14px);background-size:28px 5px;animation-name:chanh}
+}
+@media (prefers-reduced-motion:reduce){.karrow{animation:none}}

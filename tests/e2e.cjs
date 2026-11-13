@@ -138,14 +138,28 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     await l.click('#next'); ok(/Clinical note/i.test(await l.innerText('#sheet')), 'the voice note becomes a draft clinical note, reviewed in a sheet');
     await l.click('#confirm'); ok(/Loop closed/.test(await l.innerText('#main')) && (await l.$$('#main .wc-steps li.done')).length === 7, 'confirming closes the loop: the water reaches the palm');
     await l.close(); }
+  // two phones, one screen: the patient's and the doctor's phone talk to each other
+  { const d = await browser.newPage({ viewport: { width: 1280, height: 1000 } }); watch(d, 'duo');
+    await d.goto(BASE + 'team.html?reset=1'); await d.goto(BASE + 'duo.html');
+    const fp = d.frameLocator('#fp'), fd = d.frameLocator('#fd');
+    await fp.locator('#pcode').waitFor(); await fd.locator('#fcode').waitFor();
+    ok(/Priya Raman/.test(await fd.locator('#fname').inputValue()) && /^FLJ-/.test(await fd.locator('#fid').inputValue()) && await fd.locator('#scan').count() === 1, 'the doctor\'s phone starts with scanning, the ID and name ready');
+    await fd.locator('#fcode').fill(await fp.locator('#pcode').innerText()); await fd.locator('#open').click(); await fd.locator('.cm').waitFor();
+    ok(/Opened with Priya's live code/.test(await fd.locator('.keybar').innerText()), 'the live code from one phone opens the map on the other, and the map says how it was opened');
+    await fp.locator('.askcard.okc').waitFor();
+    ok(/Dr Mariam Al Hosani can open your file/.test(await fp.locator('.askcard.okc').innerText()), 'the patient\'s phone shows at once who can open the file');
+    await fp.locator('#top-rm').click(); await fd.locator('#fid').waitFor();
+    ok(await fd.locator('.cm').count() === 0, 'when the patient removes access, the doctor\'s map closes');
+    await fp.locator('#seewhat').click(); ok(/What a doctor sees/.test(await fp.locator('.sheet').innerText()) && await fp.locator('.sheet .cm-dot').count() >= 4, 'the patient can see exactly what a doctor sees');
+    await d.goto(BASE + 'team.html?reset=1'); await d.close(); }
   // the website: five clear pages, one navigation, nothing old linked
   await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);
   ok((await s.getAttribute('#bapp', 'href')) === 'app.html' && /team\.html/.test(await s.getAttribute('#bteam', 'href')) && (await s.getAttribute('#b0', 'href')) === 'loop.html', 'the home page opens the app, the care team website and the story');
   await shot(s, 'home', true);
   await s.goto(BASE + 'jury.html'); await s.waitForTimeout(200);
-  ok(await s.locator('#demo li').count() === 4 && await s.locator('#result-to-notification .r2n li').count() === 7, 'the jury page gives a 4-step demo path and the 7 steps from result to notification');
+  ok(await s.locator('#demo li').count() === 5 && await s.locator('#result-to-notification .r2n li').count() === 7, 'the jury page gives a 5-step demo path and the 7 steps from result to notification');
   await shot(s, 'jury', true);
-  const OK = new Set(['index.html', 'app.html', 'team.html', 'me.html', 'loop.html', 'jury.html', 'verify.html', 'family.html']);
+  const OK = new Set(['index.html', 'app.html', 'team.html', 'me.html', 'loop.html', 'jury.html', 'verify.html', 'family.html', 'duo.html']);
   const bad = [];
   for (const u of ['index.html', 'jury.html', 'app.html?nosplash=1', 'team.html?as=n2', 'me.html?p=C-040', 'loop.html', 'verify.html', 'family.html']) {
     await s.goto(BASE + u); await s.waitForTimeout(300);
