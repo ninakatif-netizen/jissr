@@ -202,3 +202,28 @@ test('"it already happened" asks the keeper to confirm; it never moves the falaj
   assert.match(note, /^Patient: says this already happened\. Please confirm/);
   assert.equal(c.stage, before);
 });
+
+import { handoverOf, timelineOf } from '../core/handover.mjs';
+
+test('the clinician handover is SBAR, built from the file and the rules, in a clinician\'s words', () => {
+  const st = buildState('2026-11-13'), c = st.cases.find((x) => x.id === 'C-040');
+  const h = handoverOf(c, st.staff, '2026-11-13');
+  assert.match(h.s, /^Screening mammogram, .*BI-RADS 4/);
+  assert.match(h.b, /Last screening \(.*Imaging Centre D, Dubai\): BI-RADS 1/);
+  assert.match(h.a, /^Priority by rule\. .*Must be told in person or by phone\. Late by \d+ day/);
+  assert.match(h.r, /^Nurse Peter Dsouza to call the patient about the result \(was due /);
+  assert.doesNotMatch(h.r + h.a + h.s + h.b, /\byou\b|\byour\b/i, 'never the words written for the patient');
+  assert.equal(h.late, true);
+  const closed = st.cases.find((x) => x.stage === 'closed');
+  assert.match(handoverOf(closed, st.staff, '2026-11-13').r, /Nothing open/);
+  for (const x of st.cases) { const o = handoverOf(x, st.staff, '2026-11-13'); for (const k of ['s', 'b', 'a', 'r']) assert.ok(o[k] && !/undefined|NaN|null/.test(o[k]), `${x.id} ${k}: ${o[k]}`); }
+});
+
+test('the care timeline is every record in date order, and knows when each place first appears', () => {
+  const st = buildState('2026-11-13'), c = st.cases.find((x) => x.id === 'C-040');
+  const t = timelineOf(c, st.staff);
+  assert.ok(t.items.length >= 6);
+  assert.deepEqual(t.items.map((i) => i.day), t.items.map((i) => i.day).slice().sort());
+  assert.equal(t.firstAt[t.items[0].fac], 0);
+  assert.ok(t.items.at(-1).now);
+});

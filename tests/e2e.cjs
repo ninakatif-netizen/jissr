@@ -48,6 +48,9 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
   ok(/Waiting for Priya to allow/.test(await q.innerText('#app')) && !(await q.$('.cm')), 'without the live code, nothing opens until the patient says yes');
   await q.click('#demo-yes'); await q.click('#layer [data-act="yes"]'); await q.waitForSelector('.cm');
   ok(await q.locator('.cm-dot').count() >= 4 && await q.locator('.hist li').count() >= 6, 'ID and name open the care map: every place and the history');
+  ok(await q.locator('.sbar .sb-r').count() === 4 && /Nurse Peter Dsouza to call the patient/.test(await q.innerText('.sbar')) && /Not a diagnosis/.test(await q.innerText('.sbar')), 'the doctor gets an SBAR handover built from the file and the rules');
+  await q.click('[data-tl="1"]'); await q.waitForTimeout(200);
+  ok(/Screening mammogram/.test(await q.innerText('#tl-cap')) && await q.locator('.cm-dot.dim').count() >= 1 && await q.locator('#tl-play').count() === 1, 'the care timeline steps through the journey; places not yet visited are dimmed');
   await q.click('[data-v="falaj"]'); ok(await q.locator('.wf-n').count() > 5, 'one tap shows this result\'s falaj');
   await q.click('[data-v="history"]');
   await q.click('.cm-dot[data-fac="imD"]'); await q.waitForTimeout(150);
@@ -167,7 +170,9 @@ const shot = async (page, name, full) => { if (SHOTS) await page.screenshot({ pa
     ok(/Dr Mariam Al Hosani can open your file/.test(await fp.locator('.askcard.okc').innerText()), 'the patient\'s phone shows at once who can open the file');
     await fp.locator('#top-rm').click(); await fd.locator('#fid').waitFor();
     ok(await fd.locator('.cm').count() === 0, 'when the patient removes access, the doctor\'s map closes');
-    await fp.locator('#seewhat').click(); ok(/What a doctor sees/.test(await fp.locator('.sheet').innerText()) && await fp.locator('.sheet .cm-dot').count() >= 4, 'the patient can see exactly what a doctor sees');
+    await fp.locator('#seewhat').click(); const seen = await fp.locator('.sheet').innerText();
+    ok(/What a doctor sees/.test(seen) && await fp.locator('.sheet .cm-dot').count() >= 4, 'the patient can see which places and records a doctor sees');
+    ok(!/BI-RADS 4|biopsy|needs further tests|suspicious/i.test(seen) && /tell you this result in person/.test(seen), 'a result that must be told in person is never shown to the patient first, even in that preview');
     await d.goto(BASE + 'team.html?reset=1'); await d.close(); }
   // the website: five clear pages, one navigation, nothing old linked
   await s.goto(BASE + 'index.html'); await s.waitForTimeout(200);

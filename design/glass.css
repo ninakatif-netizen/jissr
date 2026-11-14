@@ -274,3 +274,41 @@ body:is([data-falaj-page=app],[data-falaj-page=me]){--glass:rgba(255,255,255,.8)
 .links2 .textlink{border:0;background:none;font:inherit;font-size:16px;font-weight:600;cursor:pointer;padding:0}
 .resp{margin:0;font-size:14px;color:var(--g-2)}.resp b{color:var(--g-label);font-weight:600}
 .resp.late{color:var(--care-wait);font-weight:600}.resp.late b{color:var(--care-wait)}
+
+/* ---- the clinician's handover (SBAR) and the care timeline ---- */
+.sbar{border-radius:var(--r-card);padding:14px 16px 12px;display:flex;flex-direction:column;gap:10px;background:var(--glass-fill) padding-box,var(--glass-rim) border-box;border:1px solid transparent;box-shadow:var(--glass-sh);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur)}
+.sbar h2{margin:0;font-size:13px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--g-2);font-family:var(--text)}
+.sbar dl{margin:0;display:flex;flex-direction:column}
+.sb-r{display:grid;grid-template-columns:34px 1fr;column-gap:12px;padding:9px 0;border-top:1px solid var(--g-sep)}
+.sb-r:first-child{border-top:0;padding-top:2px}
+.sb-r dt{display:contents}
+.sb-r abbr{grid-row:1 / span 2;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--water-600);color:var(--on-accent);font-weight:700;font-size:16px;text-decoration:none;font-family:var(--display)}
+.sb-r dt span{font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--g-2);align-self:end}
+.sb-r dd{margin:1px 0 0;font-size:15px;line-height:1.45;color:var(--g-label)}
+.sb-r.late abbr{background:var(--care-wait);color:#fff}
+.sb-r.late dd{font-weight:600}
+@media (prefers-color-scheme:dark){.sb-r.late abbr{color:#2b1a00}}
+.sb-f{margin:0;font-size:12px;color:var(--g-2)}
+.tl{display:grid;grid-template-columns:44px 1fr;column-gap:10px;row-gap:6px;align-items:center;margin-top:-8px}
+.tl-play{width:44px;height:44px;border-radius:50%;border:1px solid var(--glass-edge);background:var(--glass-hi);color:var(--water-700);display:grid;place-items:center;cursor:pointer;box-shadow:var(--glass-sh)}
+.tl-play.on{background:var(--water-600);color:var(--on-accent)}
+.tl-track{list-style:none;margin:0;padding:0;display:flex;align-items:center;position:relative;min-width:0}
+.tl-track::before{content:"";position:absolute;left:10px;right:10px;top:50%;height:3px;margin-top:-1.5px;border-radius:2px;background:color-mix(in srgb,var(--g-2) 30%,transparent)}
+.tl-track li{flex:1;display:grid;place-items:center;position:relative}
+.tl-track button{width:100%;min-width:24px;height:44px;border:0;background:none;padding:0;cursor:pointer;position:relative;display:grid;place-items:center}
+.tl-track button::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--g-card,#fff);border:2.5px solid color-mix(in srgb,var(--g-2) 55%,transparent);transition:transform .25s cubic-bezier(.3,1.4,.5,1),background-color .2s,border-color .2s}
+.tl-track button.past::after{background:var(--water-600);border-color:var(--water-600)}
+.tl-track button[aria-current=true]::after{transform:scale(1.6);background:#fff;border-color:var(--water-600);box-shadow:0 0 0 5px color-mix(in srgb,var(--water-400) 35%,transparent)}
+.tl-track button:focus-visible{outline:3px solid var(--water-600);outline-offset:-4px;border-radius:10px}
+.tl-cap{grid-column:1 / -1;margin:0;font-size:15px;line-height:1.35;color:var(--g-label);min-height:42px}
+.tl-cap b{font-weight:700;margin-inline-end:6px;font-variant-numeric:tabular-nums}
+.tl-cap small{display:block;font-size:13px;color:var(--g-2)}
+.cm-dot{transition:opacity .35s ease,transform .35s cubic-bezier(.3,1.4,.5,1)}
+.cm-dot.dim{opacity:.28}
+.cm-dot.at i{box-shadow:0 0 0 6px rgba(246,192,99,.55);transform:scale(1.25)}
+.cm-dot i{transition:transform .3s cubic-bezier(.3,1.4,.5,1),box-shadow .3s}
+body:is([data-falaj-page=app],[data-falaj-page=me]) .hist li.at{background:color-mix(in srgb,var(--water-400) 16%,transparent)}
+.keybar svg{animation:keyturn .7s cubic-bezier(.3,1.4,.5,1) .25s both}
+@keyframes keyturn{from{transform:rotate(-70deg) scale(.6);opacity:0}}
+#app.enter > *:nth-child(6){animation-delay:.15s}#app.enter > *:nth-child(7){animation-delay:.18s}#app.enter > *:nth-child(8){animation-delay:.21s}#app.enter > *:nth-child(9){animation-delay:.24s}
+@media (prefers-reduced-motion:reduce){.keybar svg,.cm-dot,.cm-dot i,.tl-track button::after{animation:none !important;transition:none !important}}

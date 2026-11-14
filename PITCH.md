@@ -59,6 +59,8 @@ Always true: opening a file never records care by itself, and a patient's tap ne
 
 "Every patient has one Falaj Health ID, shown as a QR code with a code that changes every minute. In any clinic the doctor scans it and types the patient's name. With the live code the care map opens; without it the patient gets a request and must say yes. The patient sees who can open their file and can remove access. The patient carries the key, so the history follows the patient, not the hospital."
 
+**For clinicians on the jury:** when the doctor opens a file they get a handover in SBAR order (Situation, Background, Assessment by rule, Recommendation), built from the file and the fixed rules, with "No AI wrote this" on it, and a timeline that replays the journey place by place.
+
 **Show it, do not explain it:** open `duo.html` ("Two phones, one screen"). Priya's phone and the doctor's phone are side by side and live: type her 6-digit code on the doctor's phone, the map opens, her phone says who opened it, then tap "Remove access" and the map closes.
 
 If asked: in the demo there is no server (the code is checked on the same device, sign-in is simulated, the history is invented). A real service verifies a signed single-use code on a server, with clinicians signed in through their hospital account and the history read from the health information exchange.

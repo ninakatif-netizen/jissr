@@ -172,6 +172,7 @@ import { qrSvg } from './core/qr.mjs';
 import { healthId, findPatient, careHistory, careMapHtml, historyHtml, routeOf, FACILITIES, CARE_MAP_CSS, parseHealthId, passCode, passSecret, passSecondsLeft, checkPass, lookupLinkWithCode, activeGrant, grantAccess, askAccess, pendingAsk, answerAsk, removeGrant, GRANT_HOURS } from './core/history.mjs';
 import { contextOf, reply, documentsOf, callTurn, nextStep, promiseOf, nudgeNote, happenedNote, careTeamOf } from './core/assistant.mjs';
 import { checkpointFor, doCheckpoint } from './core/checkpoint.mjs';
+import { handoverOf, timelineOf } from './core/handover.mjs';
 import { workflowHtml } from './core/workflow.mjs';
 import { requestNurse, isoDay } from './core/cases.mjs';
 import { resultText } from './core/programmes.mjs';
@@ -285,6 +286,7 @@ function render() {
   const q = new URLSearchParams(location.search);
   if (q.get('as') && staffOf(q.get('as'))) { store.set('falaj.app.user', { kind: 'staff', id: q.get('as') }); history.replaceState(null, '', location.pathname + location.hash); }   // coming from the care team website
   const u = user(), r = route();
+  document.body.dataset.role = u ? u.kind : 'guest';   // clinicians get a cooler, more solid room
   closeLayer();
   $('#tabs').hidden = true;
   if (r.k === 'find' && r.v) { const [pid, pc = ''] = r.v.split('.'); sess.set('falaj.app.pending', pid); sess.set('falaj.app.pcode', pc); }
@@ -356,8 +358,10 @@ function notifyAccess(c) {
   seenAccess = key;
 }
 function seeSheet(c) {
-  const hist = careHistory(c, state.staff);
-  sheet(`<h2>What a doctor sees</h2><p>Only after your live code or your yes, and only for ${GRANT_HOURS} hours: the places you were cared for, and your records there. Never your chats with Falaj or your saved questions.</p>${careMapHtml(hist)}${historyHtml(hist)}<button class="btn-tint" data-close>Close</button>`);
+  // SAFETY: a result that must be told by a person is never shown to the patient here first.
+  const hidden = contextOf(c).waitingForPerson;
+  const hist = careHistory(c, state.staff).map((h) => (hidden && h.now ? { ...h, detail: /screening|mammogram|HbA1c|FIT/i.test(h.title) ? 'Your care team will tell you this result in person.' : '' } : h));
+  sheet(`<h2>What a doctor sees</h2><p>Only after your live code or your yes, and only for ${GRANT_HOURS} hours: the places you were cared for, and your records there. Never your chats with Falaj or your saved questions.</p>${hidden ? '<p class="when late" style="margin:0">Your new result is not shown here until a nurse has told you in person.</p>' : ''}${careMapHtml(hist)}${historyHtml(hist)}<button class="btn-tint" data-close>Close</button>`);
 }
 function patientHome(c) {
   const ctx = contextOf(c), a = c.assist || {}, v = c.slot || c.hold, docs = documentsOf(c), acc = c.access || [];
@@ -682,23 +686,42 @@ async function scan() {
 }
 
 // ---------- the care map: every place, the water between them, the palm where care is now ----------
-let mapSel = '', mapView = 'history';
+let mapSel = '', mapView = 'history', tlAt = 0, tlTimer = null, tlPlayed = '';
 function mapScreen(s, c) {
   const hist = careHistory(c, state.staff), route = routeOf(hist), last = route[route.length - 1];
-  const places = [...new Set(route)];
+  const places = [...new Set(route)], tl = timelineOf(c, state.staff);
   const wf = mapView === 'falaj' ? workflowHtml(c, { staff: state.staff, today: TODAY, resultText: resultText(c) }).html : '';
   paint(`<div class="nav"><a class="back" href="#find">‹ Find</a>${signOutBtn}</div>
     <div class="ptcard"><span class="av" aria-hidden="true">${esc(initials(c.patient.name))}</span><span><b>${esc(c.patient.name)}</b><small>${c.patient.age} · ${esc(LANG[c.patient.language] || c.patient.language)} · ${esc(healthId(c))}</small></span></div>
     ${(() => { const g = activeGrant(c, s.id); return g ? `<p class="keybar">${I.key}<span>Opened with ${esc(first(c))}'s ${g.how === 'live code' ? 'live code' : 'yes'} · ends ${esc(fmtDay(g.until))} ${esc(time(g.until))}</span></p>` : ''; })()}
     ${(() => { const cp = checkpointFor(c, s); return cp ? `<section class="askcard cp" aria-labelledby="cpt"><span class="tile">${I.steth}</span><div><b id="cpt">${esc(cp.title)}</b><small>${esc(cp.text)}</small><div class="stack"><button class="btn-fill" id="cp-do">${esc(cp.button)}</button></div></div></section>` : ''; })()}
+    ${(() => { const h = handoverOf(c, state.staff, TODAY); const rowh = (k, name, txt, cls = '') => `<div class="sb-r${cls}"><dt><abbr title="${name}">${k}</abbr><span>${name}</span></dt><dd>${esc(txt)}</dd></div>`;
+      return `<section class="sbar" aria-labelledby="sbh"><h2 id="sbh">Handover</h2><dl>${rowh('S', 'Situation', h.s)}${rowh('B', 'Background', h.b)}${rowh('A', 'Assessment, by rule', h.a, h.late ? ' late' : '')}${rowh('R', 'Recommendation', h.r)}</dl><p class="sb-f">From the file and Falaj's fixed rules. Not a diagnosis. No AI wrote this.</p></section>`; })()}
     ${careMapHtml(hist, { selected: mapSel })}
-    <section class="status2" aria-labelledby="cn"><span class="pill" id="cn">Care is now at ${esc(FACILITIES[last].name)}</span><p><small style="display:block;font-size:13px;color:var(--g-2)">What ${esc(first(c))} is told</small>${esc(nextStep(contextOf(c)))}</p>${(() => { const pr = promiseOf(c, state.staff, TODAY); return pr && pr.keeper ? `<p class="resp${pr.late ? ' late' : ''}"><b>Responsible:</b> ${esc(pr.keeper.name)}${pr.late ? ` · ${pr.daysLate} ${pr.daysLate === 1 ? 'day' : 'days'} late` : pr.by ? ` · by ${esc(fmtDay(pr.by))}` : ''}</p>` : ''; })()}<a class="btn-tint" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist</a></section>
+    ${(() => { const n = tl.items.length; return `<div class="tl" role="group" aria-label="Care timeline: ${n} records in order"><button class="tl-play" id="tl-play" aria-label="Replay the journey"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg></button>
+      <ol class="tl-track">${tl.items.map((it, i) => `<li><button data-tl="${i}" aria-label="${esc(it.date)}: ${esc(it.title)}, ${esc(it.place)}"></button></li>`).join('')}</ol>
+      <p class="tl-cap" id="tl-cap" aria-live="polite"></p></div>`; })()}
+    <section class="status2" aria-labelledby="cn"><span class="pill" id="cn">Care is now at ${esc(FACILITIES[last].name)}</span><p><small style="display:block;font-size:13px;color:var(--g-2)">What ${esc(first(c))} is told</small>${esc(nextStep(contextOf(c)))}</p><a class="btn-tint" href="team.html?as=${s.id}&c=${c.id}">Open in my worklist</a></section>
     <div class="seg" role="group" aria-label="Show"><button data-v="history" aria-pressed="${mapView === 'history'}">History · ${hist.length}</button><button data-v="falaj" aria-pressed="${mapView === 'falaj'}">This result</button></div>
     ${mapView === 'falaj' ? wf : `${mapSel ? `<button class="linkbtn" id="allr" style="align-self:flex-start;padding:0">${esc(FACILITIES[mapSel].name)} only · show all</button>` : ''}<div id="hh">${historyHtml(hist, { only: mapSel })}</div>`}
     <p class="foot2">Invented records and places. ${esc(first(c))} sees that you opened this file and can remove your access.</p>`);
   bindOut();
   document.querySelectorAll('.cm-dot').forEach((b) => { b.onclick = () => { mapSel = mapSel === b.dataset.fac ? '' : b.dataset.fac; mapView = 'history'; mapScreen(s, c); const h = $('#hh'); if (h) h.scrollIntoView({ block: 'start' }); }; });
   document.querySelectorAll('[data-v]').forEach((b) => { b.onclick = () => { mapView = b.dataset.v; mapScreen(s, c); }; });
+  // the care timeline: step through the journey; places not yet visited at that date are dimmed on the map
+  const setAt = (i) => {
+    tlAt = Math.max(0, Math.min(tl.items.length - 1, i)); const it = tl.items[tlAt];
+    document.querySelectorAll('[data-tl]').forEach((b, k) => { b.classList.toggle('past', k <= tlAt); if (k === tlAt) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+    document.querySelectorAll('.cm-dot').forEach((d) => { d.classList.toggle('dim', tl.firstAt[d.dataset.fac] > tlAt); d.classList.toggle('at', d.dataset.fac === it.fac); });
+    const cap = $('#tl-cap'); if (cap) cap.innerHTML = `<b>${esc(it.date)}</b> ${esc(it.title)}<small>${esc(it.place)}${it.now ? ' · this result' : ''}</small>`;
+    const rows = document.querySelectorAll('#hh .hist li'); if (rows.length === tl.items.length) rows.forEach((r, k) => r.classList.toggle('at', k === tl.items.length - 1 - tlAt));
+  };
+  const stop = () => { clearInterval(tlTimer); tlTimer = null; const pb = $('#tl-play'); if (pb) { pb.classList.remove('on'); pb.setAttribute('aria-label', 'Replay the journey'); } };
+  const play = () => { stop(); const pb = $('#tl-play'); pb.classList.add('on'); pb.setAttribute('aria-label', 'Stop the replay'); setAt(0); tlTimer = setInterval(() => { if (!$('#tl-play') || tlAt >= tl.items.length - 1) return stop(); setAt(tlAt + 1); }, 850); };
+  document.querySelectorAll('[data-tl]').forEach((b) => { b.onclick = () => { stop(); setAt(+b.dataset.tl); }; });
+  $('#tl-play').onclick = () => (tlTimer ? stop() : play());
+  clearInterval(tlTimer); tlTimer = null;
+  if (tlPlayed !== c.id && !matchMedia('(prefers-reduced-motion: reduce)').matches) { tlPlayed = c.id; play(); } else setAt(tl.items.length - 1);
   const cpd = $('#cp-do'); if (cpd) cpd.onclick = () => { try { const x = caseOf(c.id), cp = doCheckpoint(state, x, s); save(); toast(cp.kind === 'accept' ? `You are now responsible for ${first(x)}` : `Visit recorded. ${first(x)}'s falaj moved to "Seen".`); render(); } catch (e) { toast(e.message || 'That could not be recorded'); } };
   const all = $('#allr'); if (all) all.onclick = () => { mapSel = ''; mapScreen(s, c); };
 }
